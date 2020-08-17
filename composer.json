@@ -30,6 +30,6 @@
         "name": "Forms 2",
         "handle": "inspireforms",
         "hasCpSection": true,
-        "class": "Inspire\\Forms\\Forms
+        "class": "Inspire\\Forms\\Forms"
     }
 }
