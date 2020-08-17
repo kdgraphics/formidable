@@ -1,0 +1,35 @@
+{
+    "name": "inspire/forms",
+    "description": "Craft CMS 3 Form administrator with Database integration",
+    "type": "craft-plugin",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin"
+    ],
+    "support": {
+        "docs": "http://gitlab.inspireservera.com/craft/forms-2/-/wikis/home"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Boris Blondin",
+            "homepage": "https://inspire.scot"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^3.5"
+    },
+    "autoload": {
+        "psr-4": {
+          "Inspire\\Forms\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Forms 2",
+        "handle": "inspireforms",
+        "hasCpSection": true,
+        "class": "Inspire\\Forms\\Forms
+    }
+}
