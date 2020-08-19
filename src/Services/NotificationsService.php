@@ -1,0 +1,229 @@
+<?php 
+
+namespace Inspire\Forms\Services;
+
+use Inspire\Forms\Events\NotificationEvent;
+use Inspire\Forms\Models\Notification as NotificationModel;
+use Inspire\Forms\Models\Records\Notification as NotificationRecord;
+use craft\base\Component;
+use craft\events\ConfigEvent;
+use craft\helpers\ArrayHelper;
+use craft\helpers\Db;
+use craft\helpers\StringHelper;
+
+class NotificationsService extends Component
+{
+	const EVENT_BEFORE_SAVE = 'before_save';
+	const EVENT_AFTER_SAVE = 'after_save';
+	const EVENT_BEFORE_APPLY_DELETE = 'before_apply_delete';
+	const EVENT_AFTER_DELETE = 'after_delete';
+    const EVENT_BEFORE_DELETE = 'before_delete';
+	const CONFIG_KEY = 'inspireforms.notifications';
+
+	protected $notifications;
+
+    /**
+     * Get all notification models
+     * 
+     * @return array
+     */
+	public function getAll(): array
+	{
+		if (is_null($this->notifications)) {
+			$this->notifications = [];
+			foreach (NotificationRecord::find()->all() as $record) {
+				$this->notifications[] = $record->toModel();
+			}
+		}
+		return $this->notifications;
+	}
+
+    /**
+     * All notifications names, keyed by id
+     * @return array
+     */
+    public function getAllAsArray(): array
+    {
+        $notifications = [];
+        foreach ($this->getAll() as $notification) {
+            $notifications[$notification->id] = $notification->name;
+        }
+        return $notifications;
+    }
+
+    /**
+     * Get notification record by uid
+     * 
+     * @param  string $uid
+     * @return NotificationRecord
+     */
+	public function getRecordByUid(string $uid): NotificationRecord
+	{
+		return NotificationRecord::findOne(['uid' => $uid]) ?? new NotificationRecord();
+	}
+
+    /**
+     * Get notification model by id
+     * 
+     * @param  int $id
+     * @return ?NotificationModel
+     */
+	public function getById(int $id): ?NotificationModel
+	{
+		return ArrayHelper::firstWhere($this->getAll(), 'id', $id, true);
+	}
+
+    /**
+     * Get notification model by uid
+     * 
+     * @param  string $uid
+     * @return ?NotificationModel
+     */
+	public function getByUid(string $uid): ?NotificationModel
+    {
+        return ArrayHelper::firstWhere($this->getAll(), 'uid', $uid, true);
+    }
+
+    /**
+     * Save a notification. Adds/Modifies the project config
+     * 
+     * @param  NotificationModel $model
+     * @param  bool              $validate
+     * @return bool
+     */
+	public function save(NotificationModel $model, bool $validate = true): bool
+	{
+		$isNew = empty($model->id);
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE)) {
+            $this->trigger(self::EVENT_BEFORE_SAVE, new NotificationEvent([
+                'notification' => $model,
+                'isNew' => $isNew,
+            ]));
+        }
+
+        if ($validate && !$model->validate()) {
+            \Craft::info('Notification not saved due to validation error.', __METHOD__);
+            return false;
+        }
+
+        if ($isNew) {
+            $model->uid = StringHelper::UUID();
+        } else {
+            $model->uid = Db::uidById('{{%inspireforms_notifications}}', $model->id);
+        }
+
+        $projectConfig = \Craft::$app->getProjectConfig();
+
+        $configData = [
+            'name' => $model->name,
+            'method' => $model->method,
+            'template' => $model->template,
+            'html' => $model->html,
+            'sentFrom' => $model->sentFrom,
+            'subject' => $model->subject
+        ];
+
+        $configPath = self::CONFIG_KEY . '.' . $model->uid;
+        $projectConfig->set($configPath, $configData);
+
+        if ($isNew) {
+            $model->id = Db::idByUid('{{%inspireforms_notifications}}', $model->uid);
+        }
+
+        return true;
+	}
+
+    /**
+     * Delete notification model
+     * 
+     * @param  NotificationModel $model
+     * @return bool
+     */
+    public function delete(NotificationModel $model): bool
+    {
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE)) {
+            $this->trigger(self::EVENT_BEFORE_DELETE, new NotificationEvent([
+                'notification' => $model,
+            ]));
+        }
+
+        \Craft::$app->getProjectConfig()->remove(self::CONFIG_KEY . '.' . $model->uid);
+
+        return true;
+    }
+
+	/**
+	 * Handle a added or modified config
+	 * 
+	 * @param ConfigEvent $event
+	 */
+	public function handleChanged(ConfigEvent $event)
+    {
+        $notificationUid = $event->tokenMatches[0];
+        $data = $event->newValue;
+
+        $transaction = \Craft::$app->getDb()->beginTransaction();
+
+        try {
+            $record = $this->getRecordByUid($notificationUid);
+            $isNew = $record->getIsNewRecord();
+
+            $record->name = $data['name'];
+            $record->method = $data['method'];
+            $record->template = $data['template'];
+            $record->html = $data['html'];
+            $record->sentFrom = $data['sentFrom'];
+            $record->subject = $data['subject'];
+            $record->uid = $notificationUid;
+
+            $record->save(false);
+
+            $transaction->commit();
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        // Clear caches
+        $this->notifications = null;
+
+        if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE)) {
+            $this->trigger(self::EVENT_AFTER_SAVE, new NotificationEvent([
+                'notification' => $record->toModel(),
+                'isNew' => $isNew,
+            ]));
+        }
+    }
+
+    /**
+     * Handle a deleted config
+     * 
+     * @param ConfigEvent $event
+     */
+    public function handleDeleted(ConfigEvent $event)
+    {
+        $uid = $event->tokenMatches[0];
+
+        $notification = $this->getByUid($uid);
+
+        if (!$notification) {
+            return;
+        }
+
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_APPLY_DELETE)) {
+            $this->trigger(self::EVENT_BEFORE_APPLY_DELETE, new NotificationEvent([
+                'notification' => $notification,
+            ]));
+        }
+
+        \Craft::$app->getDb()->createCommand()
+            ->delete('{{%inspireforms_notifications}}', ['uid' => $uid])
+            ->execute();
+
+        if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE)) {
+            $this->trigger(self::EVENT_AFTER_DELETE, new NotificationEvent([
+                'notification' => $notification,
+            ]));
+        }
+    }
+}

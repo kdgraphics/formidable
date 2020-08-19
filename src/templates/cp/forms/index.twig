@@ -1,0 +1,40 @@
+{% extends "inspireforms/cp/_base" %}
+
+{% set title = "Forms" %}
+
+{% set selectedTab = 'forms' %}
+
+{% block actionButton %}
+	<a href="{{ url('inspireforms/forms/add') }}" class="btn submit add icon">{{ "New Form"|t('inspireforms') }}</a>
+{% endblock %}
+
+{% block content %}
+	<div id="no-forms" {{ forms|length > 0 ? 'style="display:none"' : ''}}>
+		<p>No forms found</p>
+		<a href="{{ url('inspireforms/forms/add') }}" class="btn submit add icon">{{ "New form"|t('inspireforms') }}</a>
+	</div>
+	{% if forms|length %}
+		<table id="form-list" class="data fullwidth collapsible">
+	        <thead>
+	            <th scope="col">{{ "Name"|t('inspireforms') }}</th>
+	            <th scope="col">{{ "Handle"|t('inspireforms') }}</th>
+	            <td class="thin"></td>
+	            <td class="thin"></td>
+	        </thead>
+	        <tbody>
+	        {% for form in forms %}
+	            <tr data-id="{{ form.id }}" data-name="{{ form.name|t('inspireforms') }}">
+	                <th scope="row" data-title="{{ 'Name'|t('inspireforms') }}"><a href="{{ url('inspireforms/forms/edit/' ~ form.id) }}">{{ form.name|t('inspireforms') }}</a></th>
+	                <td data-title="{{ 'Handle'|t('inspireforms') }}"><code>{{ form.handle }}</code></td>
+	                <td class="thin">
+	                    <a class="edit icon" title="{{ 'Edit'|t('inspireforms') }}" href="{{ url('inspireforms/forms/edit/' ~ form.id) }}" role="button"></a>
+	                </td>
+	                <td class="thin">
+	                    <a class="delete icon" title="{{ 'Delete'|t('inspireforms') }}" role="button"></a>
+	                </td>
+	            </tr>
+	        {% endfor %}
+	        </tbody>
+	    </table>
+	{% endif %}
+{% endblock %}

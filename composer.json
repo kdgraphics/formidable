@@ -1,6 +1,6 @@
 {
     "name": "inspire/forms",
-    "description": "Craft CMS 3 Form administrator with Database integration",
+    "description": "Craft CMS 3 Form builder with Database/Config integration",
     "type": "craft-plugin",
     "keywords": [
         "craft",
@@ -27,7 +27,7 @@
         }
     },
     "extra": {
-        "name": "Forms 2",
+        "name": "Inspire Forms",
         "handle": "inspireforms",
         "hasCpSection": true,
         "class": "Inspire\\Forms\\Forms"

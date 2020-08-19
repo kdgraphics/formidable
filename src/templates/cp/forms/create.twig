@@ -1,0 +1,45 @@
+{% extends "inspireforms/cp/_base" %}
+
+{% import "_includes/forms" as forms %}
+
+{% set title = "Create form" %}
+
+{% set selectedTab = 'forms' %}
+
+{% block actionButton %}
+	<a href="{{ url('inspireforms/forms') }}" class="btn">{{ "Back"|t('inspireforms') }}</a>
+{% endblock %}
+
+{% block content %}
+	<form method="post" accept-charset="UTF-8" class="inspireform-form">
+		<div class="left">
+			{% include "inspireforms/cp/forms/_form" %}
+		</div>
+		{% if form.id %}
+			<div class="fields-list" data-url="{{ url('inspireforms/fields/add') }}">
+				<li class="field-skeleton" style="display:none">
+					<div class="header">
+						<div class="name"></div>
+						<div class="type"></div>
+					</div>
+					<div class="content"></div>
+				</li>
+				<div class="top">
+					<h2>Fields</h2>
+					<a href="#" data-label-collapse="{{ 'Collapse all'|t('inspireforms') }}" data-label-collapse="{{ 'Show all'|t('inspireforms') }}">{{ 'Collapse all'|t('inspireforms') }}</a>
+					<div id="registered-fields-btn" class="btn menubtn add icon">Add field</div>
+					<div class="menu">
+						<ul>
+							{% for field in registeredFields %}
+								<li><a data-handle="{{ field.handle() }}" href="#">{{ field.friendlyName() }}</a></li>
+							{% endfor %}
+						</ul>
+					</div>
+				</div>
+				<ul id="field-list">
+				</ul>
+			</div>
+		{% endif %}
+		</div>
+	</form>
+{% endblock %}

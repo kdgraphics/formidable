@@ -1,0 +1,107 @@
+{% import "_includes/forms" as forms %}
+
+{{ csrfInput() }}
+<input type="hidden" name="action" value="inspireforms/forms/save" />
+<input type="hidden" name="data[id]" value="{{form.id}}" />
+
+{{
+    forms.textField({
+        label: "Name"|t('inspireforms'),
+        id: 'name',
+        name: 'data[name]',
+        first: true,
+        autofocus: true,
+        required: true,
+        value: form.name,
+        errors: form.getErrors('name')
+    })
+}}
+
+{{
+    forms.textField({
+        label: "Handle"|t('inspireforms'),
+        id: 'handle',
+        name: 'data[handle]',
+        required: true,
+        value: form.handle,
+        errors: form.getErrors('handle')
+    })
+}}
+
+{{
+    forms.selectField({
+        label: "User notification"|t('inspireforms'),
+        id: 'notify_id',
+        name: 'data[notify_id]',
+        value: form.notify_id,
+        errors: form.getErrors('notify_id'),
+        options: {(''):"Don't notify"|t('inspireforms')} + notifications
+    })
+}}
+
+{{
+    forms.textField({
+        label: "User email field"|t('inspireforms'),
+        id: 'notifyField',
+        name: 'data[notifyField]',
+        required: true,
+        value: form.notifyField,
+        errors: form.getErrors('notifyField')
+    })
+}}
+
+{{
+    forms.selectField({
+        label: "Admin notification"|t('inspireforms'),
+        id: 'notifyAdmin_id',
+        name: 'data[notifyAdmin_id]',
+        value: form.notifyAdmin_id,
+        errors: form.getErrors('notifyAdmin_id'),
+        options: {(''):"Don't notify"|t('inspireforms')} + notifications
+    })
+}}
+
+{{
+    forms.textareaField({
+        label: "Admin emails"|t('inspireforms'),
+        id: 'notifyEmails',
+        name: 'data[notifyEmails]',
+        required: true,
+        instructions: 'Comma separated emails'|t('inspireforms')
+    })
+}}
+
+{{
+    forms.lightswitchField({
+        label: "Honeypot"|t('inspireforms'),
+        id: 'honeypot',
+        name: 'data[honeypot]',
+        on: form.honeypot ?? true
+    })
+}}
+
+{{
+    forms.textField({
+        label: "Honeypot field name"|t('inspireforms'),
+        id: 'honeypotField',
+        name: 'data[honeypotField]',
+        required: true,
+        value: form.honeypotField ?? 'email_2',
+        errors: form.getErrors('honeypotField')
+    })
+}}
+
+{{
+    forms.lightswitchField({
+        label: "Save submissions"|t('inspireforms'),
+        id: 'saveSubmissions',
+        name: 'data[saveSubmissions]',
+        on: form.saveSubmissions ?? true
+    })
+}}
+
+<div class="buttons">
+    <div class="btngroup submit first">
+        <input type="submit" class="btn submit" value="{{ 'Save'|t('inspireforms') }}" />
+    </div>
+</div>

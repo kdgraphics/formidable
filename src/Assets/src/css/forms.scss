@@ -1,0 +1,26 @@
+.inspireform-form {
+	display: flex;
+	position: relative;
+	.fields-list, .left {
+		width: 50%;
+	}
+	.fields-list{
+		padding-left: 1%;
+		&:before {
+			content: '';
+			width: 1px;
+			top:0;
+			bottom: 0;
+			left: 50%;
+			position: absolute;
+			background-color: rgba(96, 125, 159, 0.25)
+		}
+	}
+	.top {
+		display: flex;
+		justify-content: space-between;
+	}
+	.left {
+		padding-right: 1%;
+	}
+}
