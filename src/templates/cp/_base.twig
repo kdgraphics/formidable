@@ -1,6 +1,9 @@
 {% extends "_layouts/cp" %}
 
+{% set badge = inspireforms.submissions.countUnread() %}
+
 {% set tabs = {
     forms:  { label: "Forms"|t('inspireforms'), url: url('inspireforms/forms') },
-    notifications:    { label: "Notifications"|t('inspireforms'), url: url('inspireforms/notifications') }
+    notifications:    { label: "Notifications"|t('inspireforms'), url: url('inspireforms/notifications') },
+    submissions:    { label: 'Submissions'|t('inspireforms'), url: url('inspireforms/submissions') }
 } %}

@@ -2,14 +2,19 @@
 
 namespace Inspire\Forms\Services;
 
+use Inspire\Forms\Events\NotificationEmailEvent;
 use Inspire\Forms\Events\NotificationEvent;
+use Inspire\Forms\Forms;
+use Inspire\Forms\Models\FormSubmission;
 use Inspire\Forms\Models\Notification as NotificationModel;
 use Inspire\Forms\Models\Records\Notification as NotificationRecord;
+use Psr\Log\LogLevel;
 use craft\base\Component;
 use craft\events\ConfigEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
+use craft\web\View;
 
 class NotificationsService extends Component
 {
@@ -18,6 +23,7 @@ class NotificationsService extends Component
 	const EVENT_BEFORE_APPLY_DELETE = 'before_apply_delete';
 	const EVENT_AFTER_DELETE = 'after_delete';
     const EVENT_BEFORE_DELETE = 'before_delete';
+    const EVENT_BEFORE_SENDING_EMAIL = 'before_email';
 	const CONFIG_KEY = 'inspireforms.notifications';
 
 	protected $notifications;
@@ -225,5 +231,47 @@ class NotificationsService extends Component
                 'notification' => $notification,
             ]));
         }
+    }
+
+    public function send(NotificationModel $notification, FormSubmission $submission, $email): bool
+    {
+        $oldMode = $this->view->getTemplateMode();
+        $this->view->setTemplateMode(View::TEMPLATE_MODE_SITE);
+        $variables = [
+            'submission' => $submission,
+            'notification' => $notification
+        ];
+        try {
+            if ($notification->method == 'template') {
+                $html = $this->view->renderTemplate($notification->template, $variables);
+            } else {
+                $html = $this->view->renderString($notification->html, $variables);
+            }
+        } catch (\Exception $e) {
+            if (getenv('ENVIRONMENT') == 'dev') {
+                throw $e;
+            }
+            Forms::log($e->getMessage(), LogLevel::ERROR);
+            return false;
+        }
+        $subject = $this->view->renderString($notification->subject, $variables);
+        $this->view->setTemplateMode($oldMode);
+        $email = \Craft::$app
+            ->getMailer()
+            ->compose()
+            ->setFrom($notification->sentFrom)
+            ->setTo($email)
+            ->setSubject($subject)
+            ->setHtmlBody($html);
+        $event = new NotificationEmailEvent([
+            'email' => $email
+        ]);
+        $this->trigger(self::EVENT_BEFORE_SENDING_EMAIL, $event);
+        return $email->send();
+    }
+
+    protected function getView(): View
+    {
+        return \Craft::$app->getView();
     }
 }

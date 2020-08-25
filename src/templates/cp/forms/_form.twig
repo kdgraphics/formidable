@@ -1,14 +1,14 @@
 {% import "_includes/forms" as forms %}
 
 {{ csrfInput() }}
-<input type="hidden" name="action" value="inspireforms/forms/save" />
+<input type="hidden" name="action" value="inspireforms/cp-forms/save" />
 <input type="hidden" name="data[id]" value="{{form.id}}" />
 
 {{
     forms.textField({
         label: "Name"|t('inspireforms'),
-        id: 'name',
         name: 'data[name]',
+        id: 'form-name',
         first: true,
         autofocus: true,
         required: true,
@@ -20,9 +20,10 @@
 {{
     forms.textField({
         label: "Handle"|t('inspireforms'),
-        id: 'handle',
+        id: 'form-handle',
         name: 'data[handle]',
         required: true,
+        disabled: form.id is not empty,
         value: form.handle,
         errors: form.getErrors('handle')
     })
@@ -86,8 +87,20 @@
         id: 'honeypotField',
         name: 'data[honeypotField]',
         required: true,
-        value: form.honeypotField ?? 'email_2',
+        instructions: "A name that is not an existing field, and has a quite sensitive name",
+        value: form.honeypotField ?? 'secondary_name',
         errors: form.getErrors('honeypotField')
+    })
+}}
+
+{{
+    forms.textField({
+        label: "Redirect"|t('inspireforms'),
+        id: 'redirect',
+        name: 'data[redirect]',
+        value: form.redirect,
+        errors: form.getErrors('redirect'),
+        instructions: "Url to redirect users after submission"|t('inspireforms')
     })
 }}
 
@@ -99,6 +112,43 @@
         on: form.saveSubmissions ?? true
     })
 }}
+
+<div class="advanced">
+    <div class="header closed">Advanced
+    </div>
+    <div class="content" style="display:none">
+        {{
+            forms.selectField({
+                label: "Method"|t('inspireforms'),
+                id: 'method',
+                name: 'data[method]',
+                value: form.method,
+                errors: form.getErrors('method'),
+                options: {'POST':"POST", 'GET': 'GET'}
+            })
+        }}
+        {{
+            forms.textField({
+                label: "Class"|t('inspireforms'),
+                id: 'class',
+                name: 'data[class]',
+                value: form.class,
+                errors: form.getErrors('class')
+            })
+        }}
+
+        {{
+            forms.textField({
+                label: "Submit label"|t('inspireforms'),
+                id: 'submitLabel',
+                name: 'data[submitLabel]',
+                required: true,
+                value: form.submitLabel ?? 'Submit'|t('inspireforms'),
+                errors: form.getErrors('submitLabel')
+            })
+        }}
+    </div>
+</div>
 
 <div class="buttons">
     <div class="btngroup submit first">

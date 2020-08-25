@@ -2,6 +2,8 @@
 
 namespace Inspire\Forms\Models;
 
+use Inspire\Forms\Forms;
+use Inspire\Forms\Models\FormSubmission;
 use craft\base\Model;
 
 class Notification extends Model
@@ -34,5 +36,10 @@ class Notification extends Model
 			}],
 			['method', 'in', 'range' => ['template', 'html']]
 		];
+	}
+
+	public function send(FormSubmission $submission, $email)
+	{
+		return Forms::$plugin->notifications->send($this, $submission, $email);
 	}
 }

@@ -7,9 +7,10 @@ assetDir = Path.resolve(__dirname, 'src/Assets');
 module.exports = {
   entry: {
     notifications: [Path.resolve(assetDir + '/src/notifications.js')],
-    forms: [Path.resolve(assetDir + '/src/forms.js')]
+    forms: [Path.resolve(assetDir + '/src/forms.js')],
+    submissions: [Path.resolve(assetDir + '/src/submissions.js')],
   },
-  mode: 'production',
+  mode: 'development',
   output: {
     path: assetDir + '/dist'
   },

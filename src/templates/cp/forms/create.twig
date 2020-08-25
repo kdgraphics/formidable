@@ -17,8 +17,9 @@
 		</div>
 		{% if form.id %}
 			<div class="fields-list" data-url="{{ url('inspireforms/fields/add') }}">
-				<li class="field-skeleton" style="display:none">
-					<div class="header">
+				<li class="field-skeleton inspireforms-field" style="display:none">
+					<div class="header handle">
+						<div class="icon move"></div>
 						<div class="name"></div>
 						<div class="type"></div>
 					</div>
@@ -26,7 +27,7 @@
 				</li>
 				<div class="top">
 					<h2>Fields</h2>
-					<a href="#" data-label-collapse="{{ 'Collapse all'|t('inspireforms') }}" data-label-collapse="{{ 'Show all'|t('inspireforms') }}">{{ 'Collapse all'|t('inspireforms') }}</a>
+					<a href="#" id="collapse-all" data-label-collapse="{{ 'Collapse all'|t('inspireforms') }}" data-label-show="{{ 'Show all'|t('inspireforms') }}">{{ 'Collapse all'|t('inspireforms') }}</a>
 					<div id="registered-fields-btn" class="btn menubtn add icon">Add field</div>
 					<div class="menu">
 						<ul>
@@ -37,6 +38,20 @@
 					</div>
 				</div>
 				<ul id="field-list">
+					{% if fields %}
+						{% for field in fields %}
+							<li class="inspireforms-field {{ field.handle() }}">
+								<div class="header handle">
+									<div class="icon move"></div>
+									<div class="name">{{ field.name }}</div>
+									<div class="type">{{ field.friendlyName() }}</div>
+								</div>
+								<div class="content">
+									{% include field.backendTemplate() %}
+								</div>
+							</li>
+						{% endfor %}
+					{% endif %}
 				</ul>
 			</div>
 		{% endif %}

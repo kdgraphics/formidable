@@ -5,63 +5,65 @@ namespace Inspire\Forms\Controllers;
 use Inspire\Forms\Assets\FormsAsset;
 use Inspire\Forms\Forms;
 use Inspire\Forms\Models\Form;
-use craft\web\Controller;
+use Inspire\Forms\Models\FormSubmission;
+use Inspire\Forms\Services\FormsService;
+use craft\helpers\ArrayHelper;
+use yii\web\BadRequestHttpException;
+use yii\web\HttpException;
 
 class FormsController extends Controller
 {
-	public function actionIndex()
-	{
-		$this->renderTemplate('inspireforms/cp/forms/index', [
-            'forms' => Forms::$plugin->forms->getAll()
-        ]);
-	}
-
-	public function actionCreate()
-	{
-		return $this->create(new Form);
-	}
-
-	public function actionEdit(int $id)
-	{
-		$form = Forms::$plugin->forms->getById($id);
-		if (!$form) {
-			$session->setError(\Craft::t('inspireforms', 'Can\'t find form with id {id}.', ['id' => $id]));
-			return $this->redirect("inspireforms/form");
-		}
-		return $this->create($form);
-	}
-
-	public function actionSave()
+    public function actionSubmit(int $id)
     {
-        $this->requirePostRequest();
-        $request = \Craft::$app->request;
-        $session = \Craft::$app->session;
-        $data = $request->getRequiredParam('data');
-        $id = $data['id'] ?? null;
-        if ($id and is_numeric($id)) {
-            $model = Forms::$plugin->forms->getById($id);
-        } else {
-            $model = new Form();
+        $form = $this->forms()->getById($id);
+        if (!$form) {
+            throw new HttpException(404);
+        }
+        if ($form->method == 'POST') {
+            $this->requirePostRequest();
         }
 
-        $model->setAttributes($data);
+        $result = $this->forms()->submit($form);
 
-        if (!Forms::$plugin->forms->save($model)) {
-        	return $this->create($model);
-        } else {
-            $session->setNotice(\Craft::t('inspireforms', 'Form saved successfully.'));
-            return $this->redirect("inspireforms/forms");
+        if ($result === FormsService::INVALID) {
+            return $this->onUnvalidForm($form);
+        } elseif ($result === FormsService::SPAM) {
+            return $this->onSpam($form);
         }
+        return $this->onValidSubmission($form);
     }
 
-    protected function create(Form $model)
+    protected function onValidSubmission(Form $form)
     {
-    	$this->view->registerAssetBundle(FormsAsset::class);
-		return $this->renderTemplate('inspireforms/cp/forms/create', [
-			'form' => $model,
-			'notifications' => Forms::$plugin->notifications->getAllAsArray(),
-			'fields' => $model->getFields(),
-			'registeredFields' => Forms::$plugin->fields->getAllRegistered()
-		]);
+        $this->session()->getFlash(FormsService::SESSION_OLDINPUT_KEY);
+        if ($this->request()->isAjax) {
+            return $this->asJson([
+                'success' => $this->session()->getFlash(FormsService::SESSION_SUCCESS_KEY)
+            ]);
+        }
+        if ($form->redirect) {
+            return $this->redirect($form->redirect, 200);
+        }
+        return $this->redirect($this->request()->getReferrer().'?success=1');
+    }
+
+    protected function onSpam(Form $form)
+    {
+        if($this->request()->isAjax) {
+            return $this->asJson(['success' => true]);
+        }
+        return $this->redirect($this->request()->getReferrer());
+    }
+
+    protected function onUnvalidForm(Form $form)
+    {
+        if ($this->request()->isAjax) {
+            $response = [
+                'errors' => $this->session()->getFlash(FormsService::SESSION_ERRORS_KEY)
+            ];
+            $this->response->setStatusCode(422, 'Validation errors');
+            return $this->asJson($response);
+        }
+        return $this->redirect($this->request()->getReferrer());
     }
 }

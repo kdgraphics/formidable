@@ -5,17 +5,53 @@ class Form
 	constructor()
 	{
 		this.form = $('.inspireform-form');
+		this.advanced = this.form.find('.left .advanced');
 		this.initUserEmailField();
 		this.initAdminEmailField();
 		this.initHoneypotField();
-		new Craft.HandleGenerator('#name', '#handle');
+		this.initAdvanced();
+		new Craft.HandleGenerator('#form-name', '#form-handle');
+		if (this.advanced.find('.errors').length) {
+			this.openAdvanced();
+		}
 		if ($('.fields-list').length) {
 			this.fieldListContainer = $('.fields-list');
 			this.fieldList = new FieldList($('.fields-list'));
 			this.addFieldBtn = $('#registered-fields-btn');
+			this.collapseBtn = $('#collapse-all');
 			this.initAddFieldBtn();
+			this.initCollapseBtn();
+			// this.initSubmit();
 		}
-		// Craft.initUiElements(this.form);
+	}
+
+	initSubmit()
+	{
+		this.form.submit(function(e){
+			e.preventDefault();
+			let data = $(this).serializeArray();
+			console.log(data);
+		});
+	}
+
+	initCollapseBtn()
+	{
+		let _this = this;
+		this.collapseBtn.click(function(e){
+			e.preventDefault();
+			if (_this.fieldList.size() == 0) {
+				return;
+			}
+			if ($(this).hasClass('collapsed')) {
+				_this.fieldList.openAll();
+				$(this).removeClass('collapsed');
+				$(this).html($(this).data('label-collapse'));
+			} else {
+				_this.fieldList.closeAll();
+				$(this).addClass('collapsed');
+				$(this).html($(this).data('label-show'));
+			}
+		});
 	}
 
 	initAddFieldBtn()
@@ -51,6 +87,35 @@ class Form
 		let _this = this;
 		$('#notifyAdmin_id').change(function(){
 			_this.changeAdminEmailField();
+		});
+	}
+
+	initAdvanced()
+	{
+		let _this = this;
+		this.advanced.find('.header').click(function(e){
+			e.preventDefault();
+			if ($(this).hasClass('closed')) {
+				_this.openAdvanced();
+			} else {
+				_this.closeAdvanced();
+			}
+		});
+	}
+
+	closeAdvanced()
+	{
+		let _this= this;
+		this.advanced.find('.content').slideUp('fast', function(){
+			_this.advanced.find('.header').addClass('closed');
+		});
+	}
+
+	openAdvanced()
+	{
+		let _this= this;
+		this.advanced.find('.content').slideDown('fast', function(){
+			_this.advanced.find('.header').removeClass('closed');
 		});
 	}
 

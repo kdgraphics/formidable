@@ -1,0 +1,97 @@
+$grey: rgba(96, 125, 159, 0.25);
+$blue: #0B69A3;
+
+#submissions-view {
+	.filters .submitted {
+		display: flex;
+		.field {
+			margin:0;
+			width: 115px
+		}
+	}
+	.submission {
+		&.unread {
+			font-weight: bold;
+		}
+		td:not(.thin) {
+			cursor:pointer;
+		}
+	}
+	.bottom{
+		display: flex;
+		justify-content: space-between;
+		.field {
+			display: flex;
+			.heading{
+				margin-right: 5px;
+				margin-bottom: 0px;
+				margin-top: 0px;
+			}
+		}
+	}
+	#pagination {
+		margin-top:10px;
+		ul {
+			display:flex;
+		}
+		li {
+			background: $blue;
+			width: 30px;
+			height: 28px;
+			text-align: center;
+			border: 2px solid white;
+			border-radius: 5px;
+			margin-right: 5px;
+			font-size: 15px;
+			transition: all 0.3s;
+			a, span {
+				color: white;
+				text-decoration: none;
+				line-height: 28px;
+			}
+			&.active a, &.disabled a {
+				cursor:default;
+			}
+			&:not(.active):not(.disabled) {
+				cursor: pointer;
+				&:hover {
+					background:white;
+					border: 2px solid $blue;
+					a, span {
+						color: $blue;
+					}
+				}
+			}
+			&.active {
+				opacity: 0.25;
+			}
+		}
+	}
+}
+
+.modal.submissionmodal {
+	.close {
+		position: absolute;
+		top: 5px;
+		right: 5px;
+		font-size: 20px;
+		z-index: 2;
+	}
+	.header {
+		padding: 10px;
+		margin-bottom: 0;
+	}
+	.group {
+		display: flex;
+		margin-bottom: 5px;
+		&:first-child {
+			margin-top: 5px;
+		}
+		label {
+			margin-right: 5px;
+		}
+	}
+	.header-values {
+		margin-top: 0;
+	}
+}

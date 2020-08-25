@@ -1,0 +1,24 @@
+{% from 'forms/macros' import errorList %}
+
+{% set id = 'inspireform-'~form.handle~form.id %}
+
+<form id="{{ id }}" action="/inspireforms/submit/{{ form.id }}" method="{{ form.method }}" class="{{ form.class }}">
+	{{ csrfInput() }}
+	{% if form.honeypot %}
+		{% include "inspireforms/fields/_honeypot" %}
+	{% endif %}
+	{% for field in fields %}
+		{% set error = errors[field.name] is defined ? errors[field.name] : false %}
+		{% set oldValue = oldInput[field.name] is defined ? oldInput[field.name] : null %}
+		{% include field.frontendTemplate() %}
+	{% endfor %}
+	<button type="submit" class="btn btn-primary" id="submit">{{ form.submitLabel }}</button>
+</form>
+
+{% if form.honeypot %}
+	{% js %}
+		document.addEventListener('DOMContentLoaded', (event) => {
+			document.getElementById('{{ id }}').querySelector("[name={{ form.honeypotField }}]").style.display = "none";
+		});
+	{% endjs %}
+{% endif %}

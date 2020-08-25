@@ -2,7 +2,7 @@
 
 <form method="post" accept-charset="UTF-8" class="notification-form">
     {{ csrfInput() }}
-    <input type="hidden" name="action" value="inspireforms/notifications/save" />
+    <input type="hidden" name="action" value="inspireforms/cp-notifications/save" />
     <input type="hidden" name="data[id]" value="{{notification.id}}" />
 
     {{
@@ -47,7 +47,7 @@
             id: 'html',
             name: 'data[html]',
             required: true,
-            instructions: 'Any tag accepted',
+            instructions: 'Any tag accepted, twig accepted',
             value: notification.html,
             errors: notification.getErrors('html')
         })

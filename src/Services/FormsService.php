@@ -3,7 +3,11 @@
 namespace Inspire\Forms\Services;
 
 use Inspire\Forms\Events\FormEvent;
+use Inspire\Forms\Events\SpamEvent;
+use Inspire\Forms\Events\SubmissionEvent;
+use Inspire\Forms\Forms;
 use Inspire\Forms\Models\Form as FormModel;
+use Inspire\Forms\Models\FormSubmission;
 use Inspire\Forms\Models\Records\Form as FormRecord;
 use craft\base\Component;
 use craft\events\ConfigEvent;
@@ -18,8 +22,24 @@ class FormsService extends Component
 	const EVENT_BEFORE_APPLY_DELETE = 'before_apply_delete';
 	const EVENT_AFTER_DELETE = 'after_delete';
     const EVENT_BEFORE_DELETE = 'before_delete';
+    const EVENT_BEFORE_SUBMITTING = 'before_submitting';
+    const EVENT_AFTER_SUBMITTING = 'after_submitting';
+    const EVENT_ON_SPAM = 'on_spam';
+
+    const SESSION_ERRORS_KEY = 'inspireforms_errors';
+    const SESSION_SUCCESS_KEY = 'inspireforms_success';
+    const SESSION_OLDINPUT_KEY = 'inspireforms_oldinput';
+
 	const CONFIG_KEY = 'inspireforms.forms';
 
+    const SPAM = 1;
+    const VALID = 2;
+    const INVALID = 3;
+
+    /**
+     * Forms keyed by id
+     * @var array
+     */
 	protected $forms;
 
 	/**
@@ -32,11 +52,20 @@ class FormsService extends Component
 		if (is_null($this->forms)) {
 			$this->forms = [];
 			foreach (FormRecord::find()->all() as $record) {
-				$this->forms[] = $record->toModel();
+				$this->forms[$record->id] = $record->toModel();
 			}
 		}
 		return $this->forms;
 	}
+
+    public function getAllAsArray(): array
+    {
+        $forms = ['' => \Craft::t('inspireforms', 'All forms')];
+        foreach ($this->getAll() as $form) {
+            $forms[$form->id] = $form->name;
+        }
+        return $forms;
+    }
 
 	/**
      * Get form record by uid
@@ -57,8 +86,19 @@ class FormsService extends Component
      */
 	public function getById(int $id): ?FormModel
 	{
-		return ArrayHelper::firstWhere($this->getAll(), 'id', $id, true);
+		return $this->getAll()[$id] ?? null;
 	}
+
+    /**
+     * Get form model by handle
+     * 
+     * @param  string $handle
+     * @return ?FormModel
+     */
+    public function getByHandle(string $handle): ?FormModel
+    {
+        return ArrayHelper::firstWhere($this->getAll(), 'handle', $handle);
+    }
 
     /**
      * Get notification model by uid
@@ -110,7 +150,11 @@ class FormsService extends Component
             'notifyEmails' => $model->notifyEmails,
             'honeypot' => $model->honeypot,
             'honeypotField' => $model->honeypotField,
-            'saveSubmissions' => $model->saveSubmissions
+            'saveSubmissions' => $model->saveSubmissions,
+            'redirect' => $model->redirect,
+            'class' => $model->class,
+            'submitLabel' => $model->submitLabel,
+            'method' => $model->method,
         ];
 
         $configPath = self::CONFIG_KEY . '.' . $model->uid;
@@ -167,6 +211,11 @@ class FormsService extends Component
             $record->honeypot = $data['honeypot'];
             $record->honeypotField = $data['honeypotField'];
             $record->saveSubmissions = $data['saveSubmissions'];
+            $record->redirect = $data['redirect'];
+            $record->class = $data['class'];
+            $record->method = $data['method'];
+            $record->submitLabel = $data['submitLabel'];
+            $record->uid = $formUid;
 
             $record->save(false);
 
@@ -217,5 +266,51 @@ class FormsService extends Component
                 'form' => $form,
             ]));
         }
+    }
+
+    public function submit(FormModel $form): int
+    {
+        $session = \Craft::$app->session;
+        $posted = \Craft::$app->request->getBodyParams();
+
+        if ($form->honeypot) {
+            if (isset($posted[$form->honeypotField]) and !empty($posted[$form->honeypotField])) {
+                $spam = Forms::$plugin->spam->create($form);
+                $this->trigger(self::EVENT_ON_SPAM, new SpamEvent([
+                    'spam' => $spam,
+                    'form' => $form
+                ]));
+                return self::SPAM;
+            }
+        }
+
+        $values = [];
+        foreach ($form->getFields() as $field) {
+            $values[$field->name] = $posted[$field->name] ?? null;
+        }
+        $session->setFlash(self::SESSION_OLDINPUT_KEY, $values);
+        $formSubmission = new FormSubmission($values);
+        foreach ($form->getFields() as $field) {
+            foreach ($field->getSiteRules() as $rule) {
+                $formSubmission->addRule(...$rule);
+            }
+        }
+
+        $this->trigger(self::EVENT_BEFORE_SUBMITTING, new SubmissionEvent([
+            'submission' => $formSubmission,
+            'form' => $form
+        ]));
+
+        if ($formSubmission->validate()) {
+            $submission = Forms::$plugin->submissions->create($form, $formSubmission);
+            $session->setFlash(self::SESSION_SUCCESS_KEY, true);
+            $this->trigger(self::EVENT_AFTER_SUBMITTING, new SubmissionEvent([
+                'submission' => $submission,
+                'form' => $form
+            ]));
+            return self::VALID;
+        }
+        $session->setFlash(self::SESSION_ERRORS_KEY, $formSubmission->getErrors());
+        return self::INVALID;
     }
 }

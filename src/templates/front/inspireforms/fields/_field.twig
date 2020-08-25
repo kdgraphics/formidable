@@ -1,0 +1,16 @@
+{% from 'inspireforms/macros' import errorList %}
+
+<div class="{{ field.containerClass }}">
+	{% block label %}
+		{% if field.label %}
+			<label for="{{ field.generateId(form) }}">
+				{{ field.label }}{% if field.required %} *{% endif %}
+			</label>
+		{% endif %}
+	{% endblock %}
+	{% block instructions %}
+		<div class="instructions">{{ field.instructions }}</div>
+	{% endblock %}
+	{% block inner %}{% endblock %}
+	{% block errors %}{{ errorList(error) }}{% endblock %}
+</div>

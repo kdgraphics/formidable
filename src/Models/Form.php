@@ -2,11 +2,15 @@
 
 namespace Inspire\Forms\Models;
 
+use Inspire\Forms\Events\FormEvent;
 use Inspire\Forms\Forms;
+use Inspire\Forms\Models\Notification;
+use Inspire\Forms\Services\FormsService;
 use craft\base\Model;
 
 class Form extends Model
 {
+	const EVENT_RENDER = 'render';
 	public $id;
 	public $name;
 	public $handle;
@@ -17,6 +21,10 @@ class Form extends Model
 	public $honeypot;
 	public $honeypotField;
 	public $saveSubmissions;
+	public $redirect;
+	public $class;
+	public $method;
+	public $submitLabel;
 	public $dateCreated;
 	public $dateUpdated;
 	public $dateDeleted;
@@ -25,11 +33,13 @@ class Form extends Model
 	public function rules()
 	{
 		return [
-			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails'], 'string'],
-			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails'], 'trim'],
+			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails','redirect', 'class', 'method', 'submitLabel'], 'string'],
+			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'redirect', 'class', 'submitLabel'], 'trim'],
 			[['id', 'notifyAdmin_id', 'notify_id'], 'integer'],
 			[['honeypot', 'saveSubmissions'], 'boolean'],
 			['notifyEmails', 'validateEmails'],
+			['handle', 'validateHandle'],
+			['method', 'in', 'range' => ['GET', 'POST']],
 			['notifyEmails', 'required', 'when' => function($model){
 				return $model->notifyAdmin_id != 0;
 			}],
@@ -39,7 +49,7 @@ class Form extends Model
 			['honeypotField', 'required', 'when' => function($model){
 				return $model->honeypot;
 			}],
-			[['name', 'handle'], 'required'],
+			[['name', 'handle', 'method', 'submitLabel'], 'required'],
 			[['notify_id', 'notifyAdmin_id'], 'default', 'value' => null, 'when' => function($model,$attribute){
 				return empty($model->$attribute);
 			}]
@@ -65,5 +75,43 @@ class Form extends Model
 	public function getFields()
 	{
 		return Forms::$plugin->fields->getFormFields($this);
+	}
+
+	public function render($template = null)
+	{
+		if (!$template) {
+			$template = 'inspireforms/forms/form';
+		}
+		$event = new FormEvent([
+            'form' => $this,
+            'errors' => \Craft::$app->session->getFlash(FormsService::SESSION_ERRORS_KEY),
+            'oldInput' => \Craft::$app->session->getFlash(FormsService::SESSION_OLDINPUT_KEY)
+        ]);
+		$this->trigger(self::EVENT_RENDER, $event);
+		return \Craft::$app->getView()->renderTemplate($template, [
+			'form' => $this,
+			'fields' => $this->getFields(),
+			'errors' => $event->errors,
+			'oldInput' => $event->oldInput
+		]);
+	}
+
+	public function validateHandle($model, $attribute)
+	{
+		$exists = Forms::$plugin->forms->getByHandle($this->handle);
+		if ($exists and !$this->id) {
+			return false;
+		}
+		return true;
+	}
+
+	public function getNotify(): ?Notification
+	{
+		return Forms::$plugin->notifications->getById($this->notify_id);
+	}
+
+	public function getAdminNotify(): ?Notification
+	{
+		return Forms::$plugin->notifications->getById($this->notifyAdmin_id);
 	}
 }

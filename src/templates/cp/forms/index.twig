@@ -24,7 +24,7 @@
 	        <tbody>
 	        {% for form in forms %}
 	            <tr data-id="{{ form.id }}" data-name="{{ form.name|t('inspireforms') }}">
-	                <th scope="row" data-title="{{ 'Name'|t('inspireforms') }}"><a href="{{ url('inspireforms/forms/edit/' ~ form.id) }}">{{ form.name|t('inspireforms') }}</a></th>
+	                <td scope="row" data-title="{{ 'Name'|t('inspireforms') }}"><a href="{{ url('inspireforms/forms/edit/' ~ form.id) }}">{{ form.name|t('inspireforms') }}</a></td>
 	                <td data-title="{{ 'Handle'|t('inspireforms') }}"><code>{{ form.handle }}</code></td>
 	                <td class="thin">
 	                    <a class="edit icon" title="{{ 'Edit'|t('inspireforms') }}" href="{{ url('inspireforms/forms/edit/' ~ form.id) }}" role="button"></a>

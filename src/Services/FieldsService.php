@@ -2,8 +2,10 @@
 
 namespace Inspire\Forms\Services;
 
+use Inspire\Forms\Events\FieldEvent;
 use Inspire\Forms\Events\FormEvent;
 use Inspire\Forms\Events\RegisterFieldsEvent;
+use Inspire\Forms\Forms;
 use Inspire\Forms\Interfaces\FieldInterface;
 use Inspire\Forms\Models\Form;
 use Inspire\Forms\Models\Records\Field as FieldRecord;
@@ -20,152 +22,193 @@ class FieldsService extends Component
 	const EVENT_BEFORE_APPLY_DELETE = 'before_apply_delete';
 	const EVENT_AFTER_DELETE = 'after_delete';
     const EVENT_BEFORE_DELETE = 'before_delete';
+    const EVENT_REGISTER_FIELDS = 'register_fields';
 	const CONFIG_KEY = 'inspireforms.fields';
-    const REGISTER_FIELDS = 'register_fields';
 
-	protected $fields;
-    protected $registeredFields = [];
+    /**
+     * Fields keyed by form id
+     * @var array
+     */
+	protected $formFields;
+    /**
+     * Fields keyed by handle
+     * @var array
+     */
+    protected $registeredFields;
+    /**
+     * Fields keyed by id
+     * @var array
+     */
+    protected $fields;
 
-    public function init()
+    /**
+     * Get all registered fields 
+     * 
+     * @return array
+     */
+    public function getAllRegistered(): array
     {
-        $event = new RegisterFieldsEvent;
-        $this->trigger(self::REGISTER_FIELDS, $event); 
-        $this->registeredFields = $event->getFields();
-    }
-
-    public function getAllRegistered()
-    {
+        if (is_null($this->registeredFields)) {
+            $event = new RegisterFieldsEvent;
+            $this->trigger(self::EVENT_REGISTER_FIELDS, $event); 
+            $this->registeredFields = $event->getFields();
+        }
         return $this->registeredFields;
     }
 
+    /**
+     * Get a registered field by handle
+     * 
+     * @param  string $handle
+     * @return ?FieldInterface
+     */
     public function getRegistered(string $handle): ?FieldInterface
     {
-        return $this->registeredFields[$handle] ?? null;
+        return $this->getAllRegistered()[$handle] ?? null;
     }
 
-    public function getFormFields(Form $form)
+    /**
+     * Get all fields for a form
+     * 
+     * @param  Form   $form
+     * @return array
+     */
+    public function getFormFields(Form $form): array
     {
-        if (!isset($this->fields[$form->id])) {
-            $this->fields[$form->id] = [];
-            foreach (FieldRecord::find()->where(['form_id' => $form->id])->all() as $record) {
-                $this->fields[$form->id] = $record->toModel();
+        if (is_null($this->formFields)) {
+            foreach ($this->getAll() as $model) {
+                $this->formFields[$model->form_id][$model->id] = $model;
             }
         }
-        return $this->fields[$form->id];
+        return $this->formFields[$form->id] ?? [];
+    }
+
+    /**
+     * Get all fields
+     * 
+     * @return array
+     */
+    public function getAll(): array
+    {
+        if (is_null($this->fields)) {
+            $this->fields = [];
+            foreach (FieldRecord::find()->orderBy(['order' => SORT_ASC])->all() as $record) {
+                $this->fields[$record->id] = $record->toModel();
+            }
+        }
+        return $this->fields;
     }
 
 	/**
-	 * Get all forms
-	 * 
-	 * @return array
-	 */
-	public function getAll(): array
-	{
-		if (is_null($this->forms)) {
-			$this->forms = [];
-			foreach (FieldRecord::find()->all() as $record) {
-				$this->forms[] = $record->toModel();
-			}
-		}
-		return $this->forms;
-	}
-
-	/**
-     * Get form record by uid
+     * Get field record by uid
      * 
      * @param  string $uid
-     * @return FormRecord
+     * @return FieldRecord
      */
-	public function getRecordByUid(string $uid): FormRecord
+	public function getRecordByUid(string $uid): FieldRecord
 	{
-		return FormRecord::findOne(['uid' => $uid]) ?? new FormRecord();
+		return FieldRecord::findOne(['uid' => $uid]) ?? new FieldRecord();
 	}
 
     /**
-     * Get form model by id
+     * Get field model by id
      * 
      * @param  int $id
-     * @return ?FormModel
+     * @return ?FieldInterface
      */
-	public function getById(int $id): ?FormModel
+	public function getById(int $id): ?FieldInterface
 	{
-		return ArrayHelper::firstWhere($this->getAll(), 'id', $id, true);
+		return $this->getAll()[$id] ?? null;
 	}
 
     /**
-     * Get notification model by uid
+     * Get field model by uid
      * 
      * @param  string $uid
-     * @return ?FormModel
+     * @return ?FieldInterface
      */
-	public function getByUid(string $uid): ?FormModel
+	public function getByUid(string $uid): ?FieldInterface
     {
         return ArrayHelper::firstWhere($this->getAll(), 'uid', $uid, true);
+    }
+
+    public function saveMany(array $fields, Form $form, bool $validate = false)
+    {
+        foreach ($fields as $field) {
+            $this->save($field, $form, $validate);
+        }
     }
 
     /**
      * Save a form. Adds/Modifies the project config
      * 
-     * @param  FormModel $model
-     * @param  bool              $validate
+     * @param  FieldInterface $model
+     * @param  Form           $form
+     * @param  bool           $validate
      * @return bool
      */
-	public function save(FormModel $model, bool $validate = true): bool
+	public function save(FieldInterface $model, Form $form, bool $validate = false): bool
 	{
 		$isNew = empty($model->id);
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE)) {
-            $this->trigger(self::EVENT_BEFORE_SAVE, new FormEvent([
-                'form' => $model,
+            $this->trigger(self::EVENT_BEFORE_SAVE, new FieldEvent([
+                'field' => $model,
                 'isNew' => $isNew,
             ]));
         }
 
         if ($validate && !$model->validate()) {
-            \Craft::info('Form not saved due to validation error.', __METHOD__);
             return false;
         }
 
+        $model->form_id = $form->id;
         if ($isNew) {
             $model->uid = StringHelper::UUID();
         } else {
-            $model->uid = Db::uidById('{{%inspireforms_forms}}', $model->id);
+            $model->uid = Db::uidById('{{%inspireforms_fields}}', $model->id);
         }
 
         $projectConfig = \Craft::$app->getProjectConfig();
 
         $configData = [
             'name' => $model->name,
-            'handle' => $model->handle,
-            'notify_id' => $model->notify_id,
-            'notifyAdmin_id' => $model->notifyAdmin_id,
-            'notifyField' => $model->notifyField,
-            'notifyEmails' => $model->notifyEmails,
-            'honeypot' => $model->honeypot,
-            'honeypotField' => $model->honeypotField,
-            'saveSubmissions' => $model->saveSubmissions
+            'form_id' => $form->id,
+            'order' => $model->order,
+            'fieldClass' => $model->fieldClass,
+            'containerClass' => $model->containerClass,
+            'instructions' => $model->instructions,
+            'type' => $model->handle(),
+            'options' => $model->rebuildOptions(true)
         ];
 
         $configPath = self::CONFIG_KEY . '.' . $model->uid;
         $projectConfig->set($configPath, $configData);
 
         if ($isNew) {
-            $model->id = Db::idByUid('{{%inspireforms_forms}}', $model->uid);
+            $model->id = Db::idByUid('{{%inspireforms_fields}}', $model->uid);
         }
 
         return true;
 	}
 
+    public function deleteMany(array $fields)
+    {
+        foreach ($fields as $field) {
+            $this->delete($field);
+        }
+    }
+
     /**
-     * Delete form model
+     * Delete field model
      * 
-     * @param  FormModel $model
+     * @param  FieldInterface $model
      * @return bool
      */
-    public function delete(FormModel $model): bool
+    public function delete(FieldInterface $model): bool
     {
         if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE)) {
-            $this->trigger(self::EVENT_BEFORE_DELETE, new FormEvent([
-                'form' => $model,
+            $this->trigger(self::EVENT_BEFORE_DELETE, new FieldEvent([
+                'field' => $model,
             ]));
         }
 
@@ -181,24 +224,24 @@ class FieldsService extends Component
 	 */
 	public function handleChanged(ConfigEvent $event)
     {
-        $formUid = $event->tokenMatches[0];
+        $fieldUid = $event->tokenMatches[0];
         $data = $event->newValue;
 
         $transaction = \Craft::$app->getDb()->beginTransaction();
 
         try {
-            $record = $this->getRecordByUid($formUid);
+            $record = $this->getRecordByUid($fieldUid);
             $isNew = $record->getIsNewRecord();
 
             $record->name = $data['name'];
-            $record->handle = $data['handle'];
-            $record->notify_id = $data['notify_id'];
-            $record->notifyAdmin_id = $data['notifyAdmin_id'];
-            $record->notifyField = $data['notifyField'];
-            $record->notifyEmails = $data['notifyEmails'];
-            $record->honeypot = $data['honeypot'];
-            $record->honeypotField = $data['honeypotField'];
-            $record->saveSubmissions = $data['saveSubmissions'];
+            $record->form_id = $data['form_id'];
+            $record->order = $data['order'];
+            $record->type = $data['type'];
+            $record->options = $data['options'];
+            $record->fieldClass = $data['fieldClass'];
+            $record->containerClass = $data['containerClass'];
+            $record->instructions = $data['instructions'];
+            $record->uid = $fieldUid;
 
             $record->save(false);
 
@@ -209,11 +252,11 @@ class FieldsService extends Component
         }
 
         // Clear caches
-        $this->forms = null;
+        $this->fields = $this->formFields = null;
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE)) {
-            $this->trigger(self::EVENT_AFTER_SAVE, new FormEvent([
-                'form' => $record->toModel(),
+            $this->trigger(self::EVENT_AFTER_SAVE, new FieldEvent([
+                'field' => $record->toModel(),
                 'isNew' => $isNew,
             ]));
         }
@@ -228,25 +271,25 @@ class FieldsService extends Component
     {
         $uid = $event->tokenMatches[0];
 
-        $form = $this->getByUid($uid);
+        $field = $this->getByUid($uid);
 
-        if (!$form) {
+        if (!$field) {
             return;
         }
 
         if ($this->hasEventHandlers(self::EVENT_BEFORE_APPLY_DELETE)) {
-            $this->trigger(self::EVENT_BEFORE_APPLY_DELETE, new FormEvent([
-                'form' => $form,
+            $this->trigger(self::EVENT_BEFORE_APPLY_DELETE, new FieldEvent([
+                'field' => $field,
             ]));
         }
 
         \Craft::$app->getDb()->createCommand()
-            ->delete('{{%inspireforms_forms}}', ['uid' => $uid])
+            ->delete('{{%inspireforms_fields}}', ['uid' => $uid])
             ->execute();
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE)) {
-            $this->trigger(self::EVENT_AFTER_DELETE, new FormEvent([
-                'form' => $form,
+            $this->trigger(self::EVENT_AFTER_DELETE, new FieldEvent([
+                'field' => $field,
             ]));
         }
     }

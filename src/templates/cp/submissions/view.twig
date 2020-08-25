@@ -1,0 +1,30 @@
+<div class="submission">
+	<div class="header header-details">{{ 'Details'|t('inspireforms') }}</div>
+	<div class="content content-details">
+		<div class="group">
+			<label>{{ 'Posted the :'|t('inspireforms') }}</label>
+			<div class="value">{{ submission.dateCreated|date('d/m/Y H:i') }}</div>
+		</div>
+		<div class="group">
+			<label>{{ 'Form : '|t('inspireforms') }}</label>
+			<div class="value"><a href="/admin/inspireforms/forms/edit/{{ submission.form.id }}" target="_blank">{{ submission.form.name }}</a></div>
+		</div>
+		<div class="group">
+			<label>{{ 'User was notified :'|t('inspireforms') }}</label>
+			<div class="value">{{ submission.notified ? 'Yes' : 'No'}}</div>
+		</div>
+		<div class="group">
+			<label>{{ 'Admins were notified :'|t('inspireforms') }}</label>
+			<div class="value">{{ submission.adminNotified ? 'Yes' : 'No'}}</div>
+		</div>
+	</div>
+	<div class="header header-values">{{ 'Submission'|t('inspireforms') }}</div>
+	<div class="content content-values">
+		{% for value in submission.values %}
+			<div class="group">
+				<label>{{ value.field }} :</label>
+				<div class="value">{{ value.value }}</div>
+			</div>
+		{% endfor %}
+	</div>
+</div>

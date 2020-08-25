@@ -1,0 +1,12 @@
+{% extends "inspireforms/fields/_field" %}
+
+{% block inner %}
+	<input type="text"
+	id="{{ field.generateId(form) }}"
+	name="{{ field.name }}"
+	class="{{ field.fieldClass }}" 
+	value="{{ oldValue }}"
+	{% if field.required %}required="required"{% endif %}
+	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
+	>
+{% endblock %}

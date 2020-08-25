@@ -8,4 +8,6 @@ class FormEvent extends Event
 {
 	public $form;
 	public $isNew;
+	public $errors;
+	public $oldInput;
 }
