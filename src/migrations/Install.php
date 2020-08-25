@@ -32,7 +32,7 @@ class Install extends Migration
             'submitLabel' => $this->string(255),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'dateDeleted' => $this->dateTime()->notNull(),
+            'dateDeleted' => $this->dateTime(),
             'uid' => $this->uid(),
         ]);
 
@@ -46,7 +46,7 @@ class Install extends Migration
             'subject' => $this->string(255)->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'dateDeleted' => $this->dateTime()->notNull(),
+            'dateDeleted' => $this->dateTime(),
             'uid' => $this->uid(),
         ]);
 
@@ -62,7 +62,7 @@ class Install extends Migration
             'options' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'dateDeleted' => $this->dateTime()->notNull(),
+            'dateDeleted' => $this->dateTime(),
             'uid' => $this->uid()
         ]);
 
@@ -74,7 +74,7 @@ class Install extends Migration
             'notified' => $this->boolean()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateDeleted' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime(),
             'uid' => $this->string(255)
         ]);
 
@@ -84,7 +84,7 @@ class Install extends Migration
             'ip' => $this->string(255),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateDeleted' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime(),
             'uid' => $this->string(255)
         ]);
 
@@ -95,7 +95,7 @@ class Install extends Migration
             'value' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateDeleted' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime(),
             'uid' => $this->string(255)
         ]);
 

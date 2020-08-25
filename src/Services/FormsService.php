@@ -30,7 +30,7 @@ class FormsService extends Component
     const SESSION_SUCCESS_KEY = 'inspireforms_success';
     const SESSION_OLDINPUT_KEY = 'inspireforms_oldinput';
 
-	const CONFIG_KEY = 'inspireforms.forms';
+	const CONFIG_KEY = 'inspireforms.1-forms';
 
     const SPAM = 1;
     const VALID = 2;

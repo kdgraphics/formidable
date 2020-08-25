@@ -24,7 +24,7 @@ class NotificationsService extends Component
 	const EVENT_AFTER_DELETE = 'after_delete';
     const EVENT_BEFORE_DELETE = 'before_delete';
     const EVENT_BEFORE_SENDING_EMAIL = 'before_email';
-	const CONFIG_KEY = 'inspireforms.notifications';
+	const CONFIG_KEY = 'inspireforms.0-notifications';
 
 	protected $notifications;
 

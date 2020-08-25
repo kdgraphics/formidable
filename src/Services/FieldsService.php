@@ -23,7 +23,7 @@ class FieldsService extends Component
 	const EVENT_AFTER_DELETE = 'after_delete';
     const EVENT_BEFORE_DELETE = 'before_delete';
     const EVENT_REGISTER_FIELDS = 'register_fields';
-	const CONFIG_KEY = 'inspireforms.fields';
+	const CONFIG_KEY = 'inspireforms.2-fields';
 
     /**
      * Fields keyed by form id
