@@ -1,8 +1,8 @@
 <?php
 
-namespace Inspire\Forms\Migrations;
+namespace Inspire\Forms\migrations;
 
-use Craft;
+use Craft; 
 use craft\db\Migration;
 
 /**
