@@ -29,7 +29,6 @@
     "extra": {
         "name": "Inspire Forms",
         "handle": "inspireforms",
-        "hasCpSection": true,
         "class": "Inspire\\Forms\\Forms"
     }
 }
