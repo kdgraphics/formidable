@@ -38,7 +38,7 @@ class Forms extends Plugin
         parent::init();
         $this::$plugin = $this;
         $fileTarget = new FileTarget([
-            'logFile' => Yii::$app->getRuntimePath() . '/logs/inspireforms.log',
+            'logFile' => \Yii::$app->getRuntimePath() . '/logs/inspireforms.log',
             'categories' => ['inspireforms']
         ]);
         \Craft::getLogger()->dispatcher->targets[] = $fileTarget;
