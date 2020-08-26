@@ -197,7 +197,7 @@ class FormsService extends Component
     {
         $formUid = $event->tokenMatches[0];
         $data = $event->newValue;
-
+        $notifications = Forms::$plugin->notifications;
         $transaction = \Craft::$app->getDb()->beginTransaction();
 
         try {
@@ -206,8 +206,8 @@ class FormsService extends Component
 
             $form->name = $data['name'];
             $form->handle = $data['handle'];
-            $form->notify_id = $data['notify_id'];
-            $form->notifyAdmin_id = $data['notifyAdmin_id'];
+            $form->notifyAdmin_id = $notifications->getRecordByUid($data['notifyAdmin'])->id ?? null;
+            $form->notify_id = $notifications->getRecordByUid($data['notify'])->id ?? null;
             $form->notifyField = $data['notifyField'];
             $form->notifyEmails = $data['notifyEmails'];
             $form->honeypot = $data['honeypot'];

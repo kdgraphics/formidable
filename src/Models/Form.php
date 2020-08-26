@@ -62,8 +62,8 @@ class Form extends Model
 		$config = [
 			'name' => $this->name,
             'handle' => $this->handle,
-            'notify_id' => $this->notify_id,
-            'notifyAdmin_id' => $this->notifyAdmin_id,
+            'notify' => $this->notify_id ? $this->getNotify()->uid : null,
+            'notifyAdmin' => $this->notifyAdmin_id ? $this->getAdminNotify()->uid : null,
             'notifyField' => $this->notifyField,
             'notifyEmails' => $this->notifyEmails,
             'honeypot' => $this->honeypot,
