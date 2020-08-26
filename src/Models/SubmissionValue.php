@@ -12,6 +12,5 @@ class SubmissionValue extends Model
 	public $value;
 	public $dateCreated;
 	public $dateUpdated;
-	public $dateDeleted;
 	public $uid;
 }

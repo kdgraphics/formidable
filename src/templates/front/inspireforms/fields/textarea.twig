@@ -1,0 +1,12 @@
+{% extends "inspireforms/fields/_field" %}
+
+{% block inner %}
+	<textarea
+	id="{{ field.generateId(form) }}"
+	name="{{ field.name }}"
+	class="{{ field.fieldClass }}"
+	{% if field.maxLength %}maxLength="{{ field.maxLength }}"{% endif %}
+	{% if field.required %}required="required"{% endif %}
+	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
+	>{{ oldValue }}</textarea>
+{% endblock %}

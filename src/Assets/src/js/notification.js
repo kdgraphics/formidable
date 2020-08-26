@@ -32,9 +32,8 @@ class Notification
                                 $('#no-notification').show();
                             }
                         }
-                        else {
-                        	Craft.cp.displayError(Craft.t('inspireforms','Notification was not deleted. Please try again.'));
-                        }
+                    }).fail(function(data){
+                    	Craft.cp.displayError(data.responseJSON.error);
                     });
             }
         });

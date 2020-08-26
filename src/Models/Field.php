@@ -8,6 +8,7 @@ use Inspire\Forms\Interfaces\FieldInterface;
 use Inspire\Forms\Models\FormSubmission;
 use craft\base\Model;
 use craft\helpers\Json;
+use craft\helpers\StringHelper;
 
 abstract class Field extends Model implements FieldInterface
 {
@@ -32,6 +33,7 @@ abstract class Field extends Model implements FieldInterface
 	{
 		return array_merge($this->getExtraCpRules(), [
 			[['id'], 'integer'],
+			['name', 'required'],
 			[['name', 'fieldClass', 'containerClass', 'instructions'], 'string'],
 			[['name', 'fieldClass', 'containerClass', 'instructions'], 'trim']
 		]);
@@ -74,5 +76,25 @@ abstract class Field extends Model implements FieldInterface
 			return $this->options;
 		}
 		return json_encode($this->options);
+	}
+
+	/**
+	 * Field project config
+	 * 
+	 * @return array
+	 */
+	public function getConfig(): array
+	{
+		return [
+			'name' => $this->name,
+            'form_id' => $this->form_id,
+            'order' => $this->order,
+            'fieldClass' => $this->fieldClass,
+            'containerClass' => $this->containerClass,
+            'instructions' => $this->instructions,
+            'type' => $this->handle(),
+            'options' => $this->rebuildOptions(true),
+            'uid' => $this->uid
+		];
 	}
 }

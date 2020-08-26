@@ -29,6 +29,7 @@ class Form extends Model
 	public $dateUpdated;
 	public $dateDeleted;
 	public $uid;
+	public $fields = [];
 
 	public function rules()
 	{
@@ -56,6 +57,30 @@ class Form extends Model
 		];
 	}
 
+	public function getConfig(): array
+	{
+		$config = [
+			'name' => $this->name,
+            'handle' => $this->handle,
+            'notify_id' => $this->notify_id,
+            'notifyAdmin_id' => $this->notifyAdmin_id,
+            'notifyField' => $this->notifyField,
+            'notifyEmails' => $this->notifyEmails,
+            'honeypot' => $this->honeypot,
+            'honeypotField' => $this->honeypotField,
+            'saveSubmissions' => $this->saveSubmissions,
+            'redirect' => $this->redirect,
+            'class' => $this->class,
+            'submitLabel' => $this->submitLabel,
+            'method' => $this->method,
+            'fields' => []
+		];
+		foreach ($this->fields as $field) {
+			$config['fields'][] = $field->getConfig();
+		}
+		return $config;
+	}
+
 	public function validateEmails($model, $attribute)
 	{
 		if (!$this->notifyEmails) {
@@ -72,11 +97,6 @@ class Form extends Model
 		return $pass;
 	}
 
-	public function getFields()
-	{
-		return Forms::$plugin->fields->getFormFields($this);
-	}
-
 	public function render($template = null)
 	{
 		if (!$template) {
@@ -90,7 +110,7 @@ class Form extends Model
 		$this->trigger(self::EVENT_RENDER, $event);
 		return \Craft::$app->getView()->renderTemplate($template, [
 			'form' => $this,
-			'fields' => $this->getFields(),
+			'fields' => $this->fields,
 			'errors' => $event->errors,
 			'oldInput' => $event->oldInput
 		]);
@@ -107,11 +127,17 @@ class Form extends Model
 
 	public function getNotify(): ?Notification
 	{
+		if (!$this->notify_id) {
+			return null;
+		}
 		return Forms::$plugin->notifications->getById($this->notify_id);
 	}
 
 	public function getAdminNotify(): ?Notification
 	{
+		if (!$this->notifyAdmin_id) {
+			return null;
+		}
 		return Forms::$plugin->notifications->getById($this->notifyAdmin_id);
 	}
 }

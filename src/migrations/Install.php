@@ -73,9 +73,8 @@ class Install extends Migration
             'adminNotified' => $this->boolean()->defaultValue(false),
             'notified' => $this->boolean()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
-            'dateDeleted' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime(),
-            'uid' => $this->string(255)
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid()
         ]);
 
         $this->createTable('{{%inspireforms_spams}}', [
@@ -83,9 +82,8 @@ class Install extends Migration
             'form_id' => $this->integer(11)->notNull(),
             'ip' => $this->string(255),
             'dateCreated' => $this->dateTime()->notNull(),
-            'dateDeleted' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime(),
-            'uid' => $this->string(255)
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid()
         ]);
 
         $this->createTable('{{%inspireforms_submissions_values}}', [
@@ -94,9 +92,8 @@ class Install extends Migration
             'submission_id' => $this->integer(11)->notNull(),
             'value' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
-            'dateDeleted' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime(),
-            'uid' => $this->string(255)
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid()
         ]);
 
         $this->addForeignKey(null, '{{%inspireforms_forms}}', ['notify_id'], '{{%inspireforms_notifications}}', ['id'], 'SET NULL', null);

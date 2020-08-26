@@ -10,6 +10,7 @@ class Text extends Field
 	public $placeholder;
 	public $label;
 	public $required;
+	public $maxLength;
 
 	/**
 	 * inheritDoc
@@ -43,6 +44,7 @@ class Text extends Field
 		return [
 			[['placeholder','label'], 'string'],
 			[['placeholder','label'], 'trim'],
+			['maxLength', 'number'],
 			['required', 'boolean']
 		];
 	}
@@ -53,7 +55,7 @@ class Text extends Field
 	public function getSiteRules(): array
 	{
 		$rules = [
-			[$this->name, 'string'], 
+			[$this->name, 'string', 'length' => $this->maxLength ? [0, $this->maxLength] : null], 
 			[$this->name, 'trim']
 		];
 		if ($this->required) {

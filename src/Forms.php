@@ -3,7 +3,11 @@ namespace Inspire\Forms;
 
 use Craft;
 use Inspire\Forms\Events\RegisterFieldsEvent;
+use Inspire\Forms\Models\Fields\Email;
+use Inspire\Forms\Models\Fields\LightSwitch;
+use Inspire\Forms\Models\Fields\Number;
 use Inspire\Forms\Models\Fields\Text;
+use Inspire\Forms\Models\Fields\Textarea;
 use Inspire\Forms\Services\FieldsService;
 use Inspire\Forms\Services\FormsService;
 use Inspire\Forms\Services\NotificationsService;
@@ -30,7 +34,11 @@ class Forms extends Plugin
     public static $plugin;
 
     protected $availableFields = [
-        Text::class
+        Text::class,
+        Email::class,
+        Textarea::class,
+        Number::class,
+        LightSwitch::class
     ];
 
     public function init()
@@ -149,10 +157,5 @@ class Forms extends Plugin
             ->onAdd(FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleChanged'])
             ->onUpdate(FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleChanged'])
             ->onRemove(FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleDeleted']);
-
-        Craft::$app->projectConfig
-            ->onAdd(FieldsService::CONFIG_KEY.'.{uid}', [$this->fields, 'handleChanged'])
-            ->onUpdate(FieldsService::CONFIG_KEY.'.{uid}', [$this->fields, 'handleChanged'])
-            ->onRemove(FieldsService::CONFIG_KEY.'.{uid}', [$this->fields, 'handleDeleted']);
     }
 }

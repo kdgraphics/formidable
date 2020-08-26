@@ -1,0 +1,13 @@
+{% extends "inspireforms/fields/_field" %}
+
+{% block inner %}
+	<input type="email"
+	id="{{ field.generateId(form) }}"
+	name="{{ field.name }}"
+	class="{{ field.fieldClass }}" 
+	value="{{ oldValue }}"
+	{% if field.maxLength %}maxLength="{{ field.maxLength }}"{% endif %}
+	{% if field.required %}required="required"{% endif %}
+	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
+	>
+{% endblock %}

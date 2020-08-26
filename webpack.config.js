@@ -8,6 +8,7 @@ module.exports = {
   entry: {
     notifications: [Path.resolve(assetDir + '/src/notifications.js')],
     forms: [Path.resolve(assetDir + '/src/forms.js')],
+    form: [Path.resolve(assetDir + '/src/form.js')],
     submissions: [Path.resolve(assetDir + '/src/submissions.js')],
   },
   mode: 'development',

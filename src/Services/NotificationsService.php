@@ -223,7 +223,7 @@ class NotificationsService extends Component
         }
 
         \Craft::$app->getDb()->createCommand()
-            ->delete('{{%inspireforms_notifications}}', ['uid' => $uid])
+            ->softDelete('{{%inspireforms_notifications}}', ['uid' => $uid])
             ->execute();
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE)) {
@@ -248,9 +248,6 @@ class NotificationsService extends Component
                 $html = $this->view->renderString($notification->html, $variables);
             }
         } catch (\Exception $e) {
-            if (getenv('ENVIRONMENT') == 'dev') {
-                throw $e;
-            }
             Forms::log($e->getMessage(), LogLevel::ERROR);
             return false;
         }

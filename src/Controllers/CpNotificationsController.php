@@ -35,11 +35,10 @@ class CpNotificationsController extends Controller
         $notification = $this->notifications()->getById($id);
 
         if (!$notification) {
-            return $this->asJson(['error' => \Craft::t('inspireforms', 'No notification model found.')]);
+            throw new BadRequestHttpException(\Craft::t('inspireforms', 'No notification model found.'));
         }
-
         if (!$this->notifications()->delete($notification)) {
-            return $this->asJson(['error' => $notification->getErrors()]);
+            throw new BadRequestHttpException(\Craft::t('inspireforms', 'Notification could not be deleted.'));
         }
 
         return $this->asJson(['success' => true]);

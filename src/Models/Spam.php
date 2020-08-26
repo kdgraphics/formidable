@@ -10,7 +10,6 @@ class Spam extends Model
 	public $form_id;
 	public $ip;
 	public $dateCreated;
-	public $dateDeleted;
 	public $dateUpdated;
 	public $uid;
 }

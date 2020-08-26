@@ -53,7 +53,9 @@ class Submission
 				}).done(function(data){
 					_this.remove();
 					Craft.cp.displayNotice(data.message);
-				});
+				}).fail(function(data){
+                    Craft.cp.displayError(data.responseJSON.error);
+                });
 			}
 		});
 	}

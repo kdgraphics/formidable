@@ -27,3 +27,15 @@
     })
 }}
 {% endblock %}
+
+{% block extraAdvanced %}
+    {{
+        forms.textField({
+            label: "Max length"|t('inspireforms'),
+            name: 'maxLength',
+            type: "number",
+            value: field.maxLength,
+            errors: field.getErrors('maxLength')
+        })
+    }}
+{% endblock %}

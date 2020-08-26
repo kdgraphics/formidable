@@ -1,0 +1,14 @@
+{% extends "inspireforms/fields/_field" %}
+
+{% block inner %}
+	<input type="number"
+	id="{{ field.generateId(form) }}"
+	name="{{ field.name }}"
+	class="{{ field.fieldClass }}" 
+	value="{{ oldValue }}"
+	{% if field.minLength %}min="{{ field.minLength }}"{% endif %}
+	{% if field.maxLength %}max="{{ field.maxLength }}"{% endif %}
+	{% if field.required %}required="required"{% endif %}
+	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
+	>
+{% endblock %}

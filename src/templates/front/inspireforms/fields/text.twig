@@ -6,6 +6,7 @@
 	name="{{ field.name }}"
 	class="{{ field.fieldClass }}" 
 	value="{{ oldValue }}"
+	{% if field.maxLength %}maxLength="{{ field.maxLength }}"{% endif %}
 	{% if field.required %}required="required"{% endif %}
 	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
 	>

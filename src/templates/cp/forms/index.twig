@@ -30,7 +30,7 @@
 	                    <a class="edit icon" title="{{ 'Edit'|t('inspireforms') }}" href="{{ url('inspireforms/forms/edit/' ~ form.id) }}" role="button"></a>
 	                </td>
 	                <td class="thin">
-	                    <a class="delete icon" title="{{ 'Delete'|t('inspireforms') }}" role="button"></a>
+	                    <a class="delete icon" title="{{ 'Delete'|t('inspireforms') }}" role="button" data-url="{{ url('inspireforms/forms/delete/'~form.id) }}" data-name="{{ form.name }}"></a>
 	                </td>
 	            </tr>
 	        {% endfor %}

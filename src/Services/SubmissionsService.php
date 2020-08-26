@@ -29,18 +29,19 @@ class SubmissionsService extends Component
 			'adminNotified' => false,
 			'notified' => false
 		]);
+
 		if ($submission->save()) {
 			$submission->notified = $this->sendUserEmail($form, $formSubmission);
 			$submission->adminNotified = $this->sendAdminEmail($form, $formSubmission);
-			$submission->save();
+			$submission->save(false);
 		}
 
-		foreach ($form->getFields() as $field) {
+		foreach ($form->fields as $field) {
 			(new SubmissionValue([
 				'submission_id' => $submission->id,
 				'field' => $field->name,
 				'value' => $formSubmission->{$field->name}
-			]))->save();
+			]))->save(false);
 		}
 
 		return $submission->toModel();

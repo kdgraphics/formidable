@@ -12,11 +12,10 @@ class Submission extends Model
 	public $notified;
 	public $adminNotified;
 	public $dateCreated;
-	public $dateDeleted;
 	public $dateUpdated;
-	public $uid;
 	public $form;
 	public $values;
+	public $uid;
 	public $_record;
 
 	public function setAsRead()

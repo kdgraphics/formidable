@@ -1,0 +1,21 @@
+{% extends "inspireforms/cp/fields/_field" %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+{{
+    forms.textField({
+        label: "Label"|t('inspireforms'),
+        name: 'label',
+        value: field.label,
+        errors: field.getErrors('label')
+    })
+}}
+{{
+    forms.lightswitchField({
+        label: "Required"|t('inspireforms'),
+        name: 'required',
+        on: field.required
+    })
+}}
+{% endblock %}

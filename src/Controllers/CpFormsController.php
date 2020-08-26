@@ -2,10 +2,12 @@
 
 namespace Inspire\Forms\Controllers;
 
+use Inspire\Forms\Assets\FormAsset;
 use Inspire\Forms\Assets\FormsAsset;
 use Inspire\Forms\Models\Form;
 use Inspire\Forms\Models\FormSubmission;
 use craft\helpers\ArrayHelper;
+use craft\helpers\StringHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 
@@ -13,6 +15,7 @@ class CpFormsController extends Controller
 {
 	public function actionIndex()
 	{
+        $this->view->registerAssetBundle(FormsAsset::class);
 		$this->renderTemplate('inspireforms/cp/forms/index', [
             'forms' => $this->forms()->getAll()
         ]);
@@ -30,7 +33,7 @@ class CpFormsController extends Controller
 			$session->setError(\Craft::t('inspireforms', 'Can\'t find form with id {id}.', ['id' => $id]));
 			return $this->redirect("inspireforms/form");
 		}
-		return $this->create($form, $form->getFields());
+		return $this->create($form);
 	}
 
 	public function actionSave()
@@ -38,80 +41,73 @@ class CpFormsController extends Controller
         $this->requirePostRequest();
         $data = $this->request()->getRequiredParam('data');
         $fieldsData = $this->request()->getParam('fields', []);
-        $fieldsValidated = true;
         $editing = $data['id'] ?? null;
         if ($editing and is_numeric($data['id'])) {
             $model = $this->forms()->getById($data['id']);
-            list($fieldsValidated, $fields) = $this->validateFields($fieldsData);
+            $model->fields = $this->buildFields($fieldsData);
         } else {
             $model = new Form();
         }
 
         $model->setAttributes($data);
-        $formValidated = $model->validate();
 
-        if ($fieldsValidated and $formValidated) {
-            $this->forms()->save($model, false);
-            if ($editing) {
-                $this->fields()->saveMany($fields, $model, false);
-                $toDelete = $this->gatherFieldsToDelete($model, $fields);
-                $this->fields()->deleteMany($toDelete);
-            }
+        if ($this->forms()->save($model)) {
             $this->session()->setNotice(\Craft::t('inspireforms', 'Form saved successfully.'));
             return $this->redirect("inspireforms/forms");
         } else {
             $this->session()->setError(\Craft::t('inspireforms', 'Please fix the errors before saving.'));
-            return $this->create($model, $fields);
+            return $this->create($model);
         }
     }
 
-    protected function gatherFieldsToDelete(Form $form, array $fields)
+    public function actionDelete(int $id)
     {
-        $allFields = $form->getFields();
-        $toDelete = [];
-        foreach ($allFields as $field) {
-            if (!ArrayHelper::contains($fields, 'id', $field->id)) {
-                $toDelete[] = $field;
-            }
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+        $form = $this->forms()->getById($id);
+        if (!$form) {
+            throw new BadRequestHttpException(\Craft::t('inspireforms', "Form with id {id} doesn't exist", ['id' => $id]));
         }
-        return $toDelete;
+        if (!$this->forms()->delete($form)) {
+            throw new BadRequestHttpException(\Craft::t('inspireforms', "Form {id} couldn't be deleted", ['id' => $id]));
+        }
+        return $this->asJson([
+            'success' => true,
+        ]);
     }
 
-    protected function validateFields(array $data)
+    protected function buildFields(array $data): array
     {
         $fields = [];
-        $validated = true;
         $order = 0;
         foreach ($data as $fdata) {
             if (!isset($fdata['handle'])) {
-                $validated = false;
                 continue;
             }
             if ($fdata['id']) {
                 $field = $this->fields()->getById((int)$fdata['id']);
                 if (!$field) {
-                    $validated = false;
                     continue;
                 }
             } else {
                 $field = $this->fields()->getRegistered($fdata['handle']);
+                $field->uid = StringHelper::UUID();
             }
             $field->order = $order;
             $field->setAttributes($fdata);
-            $validated = ($validated and $field->validate());
             $fields[] = $field;
             $order++;
         }
-        return [$validated, $fields];
+        return $fields;
     }
 
-    protected function create(Form $model, array $fields)
+    protected function create(Form $model)
     {
-    	$this->view->registerAssetBundle(FormsAsset::class);
+    	$this->view->registerAssetBundle(FormAsset::class);
 		return $this->renderTemplate('inspireforms/cp/forms/create', [
 			'form' => $model,
 			'notifications' => $this->notifications()->getAllAsArray(),
-			'fields' => $fields,
+			'fields' => $model->fields,
 			'registeredFields' => $this->fields()->getAllRegistered()
 		]);
     }
