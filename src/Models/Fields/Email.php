@@ -35,7 +35,7 @@ class Email extends Text
 	 */
 	public function getSiteRules(): array
 	{
-		$rules = parent::rules();
+		$rules = parent::getSiteRules();
 		$rules[] = [$this->name, 'email'];
 		return $rules;
 	}

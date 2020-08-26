@@ -51,9 +51,9 @@ class LightSwitch extends Field
 	 */
 	public function getSiteRules(): array
 	{
-		$rules = [$this->name, 'boolean'];
+		$rules = [[$this->name, 'boolean']];
 		if ($this->required) {
-			$rules[] = [$this->name, 'compare', 'compareValue' => 1, 'operator' => '=='];
+			$rules[] = [$this->name, 'compare', ['compareValue' => 1, 'operator' => '==']];
 		}
 		return $rules;
 	}

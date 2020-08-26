@@ -8,6 +8,7 @@ use Inspire\Forms\Models\Form;
 use Inspire\Forms\Models\FormSubmission;
 use Inspire\Forms\Services\FormsService;
 use craft\helpers\ArrayHelper;
+use yii\helpers\Url;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 
@@ -42,7 +43,7 @@ class FormsController extends Controller
             ]);
         }
         if ($form->redirect) {
-            return $this->redirect($form->redirect, 200);
+            return $this->redirect($form->redirect);
         }
         return $this->redirect($this->request()->getReferrer().'?success=1');
     }

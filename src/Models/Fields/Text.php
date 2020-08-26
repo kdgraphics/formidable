@@ -55,7 +55,7 @@ class Text extends Field
 	public function getSiteRules(): array
 	{
 		$rules = [
-			[$this->name, 'string', 'length' => $this->maxLength ? [0, $this->maxLength] : null], 
+			[$this->name, 'string', ['length' => $this->maxLength ? [0, $this->maxLength] : null]], 
 			[$this->name, 'trim']
 		];
 		if ($this->required) {

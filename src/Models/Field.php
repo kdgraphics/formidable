@@ -87,7 +87,6 @@ abstract class Field extends Model implements FieldInterface
 	{
 		return [
 			'name' => $this->name,
-            'form_id' => $this->form_id,
             'order' => $this->order,
             'fieldClass' => $this->fieldClass,
             'containerClass' => $this->containerClass,

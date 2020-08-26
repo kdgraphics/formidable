@@ -53,7 +53,7 @@ class Number extends Text
 			$length = [$this->minLength ?? 0, $this->maxLength ?? null];
 		}
 		$rules = [
-			[$this->name, 'string', 'length' => $length], 
+			[$this->name, 'string', ['length' => $length]], 
 			[$this->name, 'trim']
 		];
 		if ($this->required) {

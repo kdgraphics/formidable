@@ -326,7 +326,7 @@ class FormsService extends Component
 
         if ($formSubmission->validate()) {
             $submission = Forms::$plugin->submissions->create($form, $formSubmission);
-            $session->setFlash(self::SESSION_SUCCESS_KEY, true);
+            $session->setFlash(self::SESSION_SUCCESS_KEY);
             $this->trigger(self::EVENT_AFTER_SUBMITTING, new SubmissionEvent([
                 'submission' => $submission,
                 'form' => $form
