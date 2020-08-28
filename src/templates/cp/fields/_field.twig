@@ -14,10 +14,8 @@
     })
 }}
 
-{% block content %}{% endblock %}
-
 {{
-    forms.textareaField({
+    forms.textField({
         label: "Instructions"|t('inspireforms'),
         name: 'instructions',
         value: field.instructions,
@@ -26,10 +24,7 @@
     })
 }}
 
-<div class="actions">
-	<a href="#" class="delete">{{ 'Delete'|t('inspireforms') }}</a>
-	{% block extraActions %}{% endblock %}
-</div>
+{% block content %}{% endblock %}
 
 <div class="advanced">
 	<div class="header closed">Advanced</div>
@@ -46,6 +41,13 @@
 		        label: "Container class"|t('inspireforms'),
 		        name: 'containerClass',
 		        value: field.containerClass
+		    })
+		}}
+		{{
+		    forms.textField({
+		        label: "Label class"|t('inspireforms'),
+		        name: 'labelClass',
+		        value: field.labelClass
 		    })
 		}}
 		{% block extraAdvanced %}{% endblock %}

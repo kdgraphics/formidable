@@ -9,6 +9,7 @@ class LightSwitch extends Field
 {
 	public $label;
 	public $required;
+	public $enforceRequired;
 
 	/**
 	 * inheritDoc
@@ -53,8 +54,16 @@ class LightSwitch extends Field
 	{
 		$rules = [[$this->name, 'boolean']];
 		if ($this->required) {
-			$rules[] = [$this->name, 'compare', ['compareValue' => 1, 'operator' => '==']];
+			$rules[] = [$this->name, 'compare', ['compareValue' => 1, 'operator' => '==', 'message' => \Craft::t('inspireforms', '{name} must be checked', ['name' => ucfirst($this->name)])]];
 		}
 		return $rules;
+	}
+
+	/**
+	 * inheritDoc
+	 */
+	public function afterSubmissionValidated(FormSubmission $submission)
+	{
+		$submission->{$this->name} = $submission->{$this->name} ? \Craft::t('inspireforms', 'Yes') : \Craft::t('inspireforms', 'No');
 	}
 }

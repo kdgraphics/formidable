@@ -18,6 +18,7 @@ abstract class Field extends Model implements FieldInterface
 	public $order;
 	public $fieldClass;
 	public $containerClass;
+	public $labelClass;
 	public $instructions;
 	public $form_id;
 	private $options;
@@ -27,15 +28,15 @@ abstract class Field extends Model implements FieldInterface
 	public $dateDeleted;
 	public $uid;
 
-	protected $rootAttributes = ['id', 'name', 'order', 'form_id', 'options', 'dateCreated', 'dateUpdated', 'dateDeleted', 'uid', 'fieldClass', 'containerClass', 'instructions'];
+	protected $rootAttributes = ['id', 'name', 'order', 'form_id', 'options', 'dateCreated', 'dateUpdated', 'dateDeleted', 'uid', 'fieldClass', 'containerClass', 'instructions', 'type'];
 
 	public function rules()
 	{
 		return array_merge($this->getExtraCpRules(), [
 			[['id'], 'integer'],
 			['name', 'required'],
-			[['name', 'fieldClass', 'containerClass', 'instructions'], 'string'],
-			[['name', 'fieldClass', 'containerClass', 'instructions'], 'trim']
+			[['name', 'fieldClass', 'containerClass', 'instructions', 'labelClass'], 'string'],
+			[['name', 'fieldClass', 'containerClass', 'instructions', 'labelClass'], 'trim']
 		]);
 	}
 
@@ -95,5 +96,27 @@ abstract class Field extends Model implements FieldInterface
             'options' => $this->rebuildOptions(true),
             'uid' => $this->uid
 		];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function afterSubmissionValidated(FormSubmission $submission)
+	{
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function beforeSubmissionValidated(FormSubmission $submission)
+	{
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getSubmissionValue($value)
+	{
+		return $value;
 	}
 }

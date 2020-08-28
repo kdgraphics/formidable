@@ -3,11 +3,16 @@ namespace Inspire\Forms;
 
 use Craft;
 use Inspire\Forms\Events\RegisterFieldsEvent;
+use Inspire\Forms\Models\Fields\Checkboxes;
 use Inspire\Forms\Models\Fields\Email;
+use Inspire\Forms\Models\Fields\File;
 use Inspire\Forms\Models\Fields\LightSwitch;
 use Inspire\Forms\Models\Fields\Number;
+use Inspire\Forms\Models\Fields\Radio;
+use Inspire\Forms\Models\Fields\Select;
 use Inspire\Forms\Models\Fields\Text;
 use Inspire\Forms\Models\Fields\Textarea;
+use Inspire\Forms\Models\FormSubmission;
 use Inspire\Forms\Services\FieldsService;
 use Inspire\Forms\Services\FormsService;
 use Inspire\Forms\Services\NotificationsService;
@@ -23,6 +28,7 @@ use craft\web\UrlManager;
 use craft\web\View;
 use craft\web\twig\variables\Cp;
 use yii\base\Event;
+use yii\base\Model;
 use yii\log\Logger;
 
 class Forms extends Plugin
@@ -38,7 +44,11 @@ class Forms extends Plugin
         Email::class,
         Textarea::class,
         Number::class,
-        LightSwitch::class
+        LightSwitch::class,
+        Select::class,
+        Radio::class,
+        Checkboxes::class,
+        File::class
     ];
 
     public function init()

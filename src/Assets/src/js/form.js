@@ -20,18 +20,8 @@ class Form
 			this.addFieldBtn = $('#registered-fields-btn');
 			this.collapseBtn = $('#collapse-all');
 			this.initAddFieldBtn();
-			this.initCollapseBtn();
-			// this.initSubmit();
+			this.initCollapseBtn(); 
 		}
-	}
-
-	initSubmit()
-	{
-		this.form.submit(function(e){
-			e.preventDefault();
-			let data = $(this).serializeArray();
-			console.log(data);
-		});
 	}
 
 	initCollapseBtn()

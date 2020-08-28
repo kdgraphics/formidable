@@ -1,0 +1,59 @@
+{% extends "inspireforms/cp/fields/_field" %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+{{
+    forms.textField({
+        label: "Label"|t('inspireforms'),
+        name: 'label',
+        value: field.label,
+        errors: field.getErrors('label')
+    })
+}}
+{{
+    forms.textField({
+        label: "Extensions"|t('inspireforms'),
+        instructions: "extensions allowed (no dot), empty for all",
+        name: 'extensions',
+        value: field.extensions,
+        errors: field.getErrors('extensions')
+    })
+}}
+{{
+    forms.selectField({
+        label: 'Volume'|t('inspireforms'),
+        name: 'volume',
+        value: field.volume,
+        options: field.getVolumes()
+    })
+}}
+{{
+    forms.textField({
+        type: 'number',
+        step: 0.1,
+        instructions: 'in Mb, no value means unlimited'|t('inspireforms'),
+        label: "Max size"|t('inspireforms'),
+        name: 'size',
+        value: field.size,
+        errors: field.getErrors('size')
+    })
+}}
+{{
+    forms.lightswitchField({
+        label: "Required"|t('inspireforms'),
+        name: 'required',
+        on: field.required
+    })
+}}
+{% endblock %}
+
+{% block extraAdvanced %}
+    {{
+        forms.lightswitchField({
+            label: "Enforce required"|t('inspireforms'),
+            name: 'enforceRequired',
+            on: field.enforceRequired
+        })
+    }}
+{% endblock %}

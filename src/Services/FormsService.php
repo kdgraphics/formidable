@@ -67,6 +67,11 @@ class FormsService extends Component
 		return $this->forms;
 	}
 
+    /**
+     * Get all forms as array 'id' => 'name'
+     * 
+     * @return array
+     */
     public function getAllAsArray(): array
     {
         $forms = ['' => \Craft::t('inspireforms', 'All forms')];
@@ -291,6 +296,12 @@ class FormsService extends Component
         }
     }
 
+    /**
+     * Submit a form (through front end)
+     * 
+     * @param  FormModel $form
+     * @return int
+     */
     public function submit(FormModel $form): int
     {
         $session = \Craft::$app->session;
@@ -324,7 +335,14 @@ class FormsService extends Component
             'form' => $form
         ]));
 
+        foreach ($form->fields as $field) {
+            $field->beforeSubmissionValidated($formSubmission);
+        }
+
         if ($formSubmission->validate()) {
+            foreach ($form->fields as $field) {
+                $field->afterSubmissionValidated($formSubmission);
+            }
             $submission = Forms::$plugin->submissions->create($form, $formSubmission);
             $session->setFlash(self::SESSION_SUCCESS_KEY);
             $this->trigger(self::EVENT_AFTER_SUBMITTING, new SubmissionEvent([

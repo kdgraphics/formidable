@@ -40,4 +40,25 @@ interface FieldInterface
 	 * @return array
 	 */
 	public function getSiteRules(): array;
+
+	/**
+	 * Treatment before submission is validated
+	 * 
+	 * @param FormSubmission $submission
+	 */
+	public function beforeSubmissionValidated(FormSubmission $submission);
+
+	/**
+	 * Treatment after submission is validated
+	 * 
+	 * @param FormSubmission $submission
+	 */
+	public function afterSubmissionValidated(FormSubmission $submission);
+
+	/**
+	 * Transform a submission value
+	 * 
+	 * @param mixed $value
+	 */
+	public static function getSubmissionValue($value);
 }

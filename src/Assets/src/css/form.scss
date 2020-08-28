@@ -76,6 +76,9 @@ $grey: rgba(96, 125, 159, 0.25);
 	padding: 0 !important;
 	border: none !important;
 	box-shadow: none !important;
+	&:not(.field-skeleton){
+		display: block !important;
+	}
 	.content {
 		padding-bottom: 0;
 	}
@@ -84,10 +87,61 @@ $grey: rgba(96, 125, 159, 0.25);
 		padding-left: 5px;
 		box-sizing: border-box;
 		margin:0;
-		margin-bottom: 10px;
+		margin-bottom: 10px !important;
+		.instructions {
+			font-size: 80%;
+			line-height: 1.2;
+		}
 		&:nth-child(2n+1) {
 			padding-right: 5px;
 			padding-left: 0;
+		}
+		&.choices {
+			width: 100%;
+			padding-right: 0;
+			input {
+				border: 1px solid $grey;
+				padding:5px;
+				width: calc(50% - 45px);
+			}
+			.add-choice {
+				display: inline-block;
+				margin-top: 10px;
+			}
+			.list {
+				li:nth-child(2) {
+					.delete-choice {
+						display:none;
+					}
+				}
+			}
+			.delete-container {
+				padding-left: 10px;
+				width: 50px;
+			}
+			.choice {
+				display: flex;
+			}
+			.move-choice {
+				padding-top: 10px;
+				width: 40px;
+				.up,.down {
+					width: 0;
+					height: 0;
+					float:left;
+					cursor: pointer;
+				}
+				.up {
+					border-left: 8px solid transparent;
+	  				border-right: 8px solid transparent;
+	  				border-bottom: 12px solid $grey;
+				}
+				.down {
+					border-left: 8px solid transparent;
+		  			border-right: 8px solid transparent;
+		  			border-top: 12px solid $grey;
+		  		}
+			}
 		}
 	}
 	.advanced {
@@ -97,7 +151,6 @@ $grey: rgba(96, 125, 159, 0.25);
 		.content {
 			border: 0;
 			padding: 0 10px;
-			padding-bottom: 0;
 		}
 	}
 	.actions {
@@ -119,14 +172,27 @@ $grey: rgba(96, 125, 159, 0.25);
 		}
 		.type {
 			text-align: right;
+			flex-grow: 1;
 		}
 		.name {
 			font-weight: bold;
-			flex-grow: 1;
+		}
+		.delete {
+			margin-left: 10px;
 		}
 		&.closed {
 			border-bottom-right-radius: 5px;
 			border-bottom-left-radius: 5px;
+		}
+	}
+	.lightswitch-field {
+		input {
+			padding: 5px 0;
+		}
+	}
+	&.select {
+		&:after {
+			content: '';
 		}
 	}
 }

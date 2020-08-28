@@ -40,7 +40,8 @@ class SubmissionsService extends Component
 			(new SubmissionValue([
 				'submission_id' => $submission->id,
 				'field' => $field->name,
-				'value' => $formSubmission->{$field->name}
+				'value' => $formSubmission->{$field->name},
+				'type' => $field->handle()
 			]))->save(false);
 		}
 

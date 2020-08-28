@@ -1,0 +1,27 @@
+{% extends "inspireforms/cp/fields/select" %}
+
+{% import "_includes/forms" as forms %}
+
+{% block extraAdvanced %}
+    {{
+        forms.textField({
+            label: "Choice label class"|t('inspireforms'),
+            name: 'choiceLabelClass',
+            value: field.choiceLabelClass
+        })
+    }}
+    {{
+        forms.textField({
+            label: "Choice container class"|t('inspireforms'),
+            name: 'choiceContainerClass',
+            value: field.choiceContainerClass
+        })
+    }}
+    {{
+        forms.lightswitchField({
+            label: "Enforce required"|t('inspireforms'),
+            name: 'enforceRequired',
+            on: field.enforceRequired
+        })
+    }}
+{% endblock %}

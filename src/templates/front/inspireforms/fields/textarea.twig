@@ -4,9 +4,9 @@
 	<textarea
 	id="{{ field.generateId(form) }}"
 	name="{{ field.name }}"
-	class="{{ field.fieldClass }}"
+	class="{{ field.fieldClass }}{% if error %} is-invalid{% endif %}"
 	{% if field.maxLength %}maxLength="{{ field.maxLength }}"{% endif %}
-	{% if field.required %}required="required"{% endif %}
+	{% if field.required and field.enforceRequired %}required="required"{% endif %}
 	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
 	>{{ oldValue }}</textarea>
 {% endblock %}

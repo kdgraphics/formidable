@@ -1,7 +1,7 @@
 {% macro errorList(errors) %}
     {% if errors %}
         {% for error in errors %}
-            <div class="invalid">{{ error }}</div>
+            <div class="invalid-feedback">{{ error }}</div>
         {% endfor %}
     {% endif %}
 {% endmacro %}

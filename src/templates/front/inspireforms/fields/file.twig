@@ -1,0 +1,11 @@
+{% extends "inspireforms/fields/_field" %}
+
+{% block inner %}
+	<input type="file"
+	id="{{ field.generateId(form) }}"
+	name="{{ field.name }}"
+	class="{{ field.fieldClass }}{% if error %} is-invalid{% endif %}" 
+	{% if field.extensions %}accept="{{ field.getHtmlExtensions() }}"{% endif %}
+	{% if field.required and field.enforceRequired %}required="required"{% endif %}
+	>
+{% endblock %}

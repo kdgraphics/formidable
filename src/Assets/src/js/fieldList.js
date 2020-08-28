@@ -5,6 +5,7 @@ class FieldList
 	constructor(container)
 	{
 		this.container = container;
+		this.list = container.find('#field-list');
 		this.addUrl = container.data('url');
 		this.skeleton = container.find('.field-skeleton');
 		this.fields = {};
@@ -12,7 +13,7 @@ class FieldList
 		this.drag = new Garnish.DragSort(container.find('li'), {
 			handle:'.handle',
 			axis: 'y',
-			container: container.find('ul')
+			container: container.find('ul#field-list')
 		});
 	}
 
@@ -22,10 +23,13 @@ class FieldList
 		this.container.find('ul li').each(function(ind, item) {
 			let id = _this.newId();
 			let field = $(item).data('id', id);
-			field.find('textarea, input, select').each(function(ind, elem){
+			field.find('textarea, input:not(.choice-elem), select').each(function(ind, elem){
 				$(elem).attr('name', 'fields['+id+']['+$(elem).attr('name')+']');
 			});
 			_this.fields[id] = new Field(field, id, _this);
+			if (field.find('.field.has-errors').length) {
+				_this.fields[id].open();
+			}
 		});
 	}
 
@@ -64,12 +68,12 @@ class FieldList
 				.show()
 				.data('id', id);
 			field.find('.content').append(data.html);
-			field.find('textarea, input, select').each(function(ind, elem){
+			field.find('textarea, input:not(.choice-elem), select').each(function(ind, elem){
 				$(elem).attr('name', 'fields['+id+']['+$(elem).attr('name')+']');
 			});
 			field.find('.type').html(data.friendlyName);
 			_this.fields[id] = new Field(field, id, _this);
-			_this.container.find('ul').append(field);
+			_this.list.append(field);
 			_this.drag.addItems(field);
 		});
 	}

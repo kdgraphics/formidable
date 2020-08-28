@@ -21,4 +21,11 @@
             errors: field.getErrors('maxLength')
         })
     }}
+    {{
+        forms.lightswitchField({
+            label: "Enforce required"|t('inspireforms'),
+            name: 'enforceRequired',
+            on: field.enforceRequired
+        })
+    }}
 {% endblock %}

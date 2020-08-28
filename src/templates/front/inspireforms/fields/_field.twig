@@ -3,14 +3,14 @@
 <div class="{{ field.containerClass }}">
 	{% block label %}
 		{% if field.label %}
-			<label for="{{ field.generateId(form) }}">
+			<label for="{{ field.generateId(form) }}" class="{{ field.labelClass }}">
 				{{ field.label }}{% if field.required %} *{% endif %}
 			</label>
 		{% endif %}
 	{% endblock %}
+	{% block inner %}{% endblock %}
 	{% block instructions %}
 		<div class="instructions">{{ field.instructions }}</div>
 	{% endblock %}
-	{% block inner %}{% endblock %}
 	{% block errors %}{{ errorList(error) }}{% endblock %}
 </div>

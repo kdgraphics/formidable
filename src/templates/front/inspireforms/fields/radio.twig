@@ -1,0 +1,17 @@
+{% extends "inspireforms/fields/_field" %}
+
+{% block inner %}
+	{% for key, choice in field.choices %}
+		<div class="{{ field.choiceContainerClass }}">
+			<input
+				type="radio"
+				value="{{ choice.value == '{empty}' ? '' : choice.value }}"
+				id="{{ field.generateId(form) }}-{{ key }}"
+				name="{{ field.name }}"
+				class="{{ field.fieldClass }}{% if error %} is-invalid{% endif %}"
+				{% if field.required and field.enforceRequired %}required="required"{% endif %}
+			>
+			<label class="{{ field.choiceLabelClass }}" for="{{ field.generateId(form) }}-{{ key }}">{{ choice.label }}</label>
+		</div>
+	{% endfor %}
+{% endblock %}

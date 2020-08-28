@@ -1,3 +1,5 @@
+
+
 <div class="submission">
 	<div class="header header-details">{{ 'Details'|t('inspireforms') }}</div>
 	<div class="content content-details">
@@ -23,7 +25,7 @@
 		{% for value in submission.values %}
 			<div class="group">
 				<label>{{ value.field }} :</label>
-				<div class="value">{{ value.value }}</div>
+				<div class="value">{{ value.getValue()|raw }}</div>
 			</div>
 		{% endfor %}
 	</div>

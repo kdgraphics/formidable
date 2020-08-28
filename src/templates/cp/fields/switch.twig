@@ -19,3 +19,13 @@
     })
 }}
 {% endblock %}
+
+{% block extraAdvanced %}
+    {{
+        forms.lightswitchField({
+            label: "Enforce required"|t('inspireforms'),
+            name: 'enforceRequired',
+            on: field.enforceRequired
+        })
+    }}
+{% endblock %}

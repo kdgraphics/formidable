@@ -10,6 +10,7 @@ class Text extends Field
 	public $placeholder;
 	public $label;
 	public $required;
+	public $enforceRequired;
 	public $maxLength;
 
 	/**
@@ -45,7 +46,7 @@ class Text extends Field
 			[['placeholder','label'], 'string'],
 			[['placeholder','label'], 'trim'],
 			['maxLength', 'number'],
-			['required', 'boolean']
+			[['required', 'enforceRequired'], 'boolean']
 		];
 	}
 

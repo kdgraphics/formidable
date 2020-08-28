@@ -47,7 +47,7 @@ class CpSubmissionsController extends Controller
         
         $submission = $this->submissions()->view($id);
         if (!$submission) {
-            throw new BadRequestHttpException(\Craft::t('inspireforms', "Submission with id $id doesn't exist"));
+            throw new BadRequestHttpException(\Craft::t('inspireforms', "Submission with id {id} doesn't exist", ['id' => $id]));
         }
 
         $response = [
@@ -64,7 +64,7 @@ class CpSubmissionsController extends Controller
         
         $success = $this->submissions()->delete($id);
         if (!$success) {
-            throw new BadRequestHttpException(\Craft::t('indpireforms', "Error while deleting submission $id"));
+            throw new BadRequestHttpException(\Craft::t('inspireforms', "Error while deleting submission {id}", ['id' => $id]));
         }
 
         $response = [

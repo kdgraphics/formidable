@@ -2,7 +2,7 @@
 
 {% set id = 'inspireform-'~form.handle~form.id %}
 
-<form id="{{ id }}" action="/inspireforms/submit/{{ form.id }}" method="{{ form.method }}" class="{{ form.class }}">
+<form id="{{ id }}" action="/inspireforms/submit/{{ form.id }}" method="{{ form.method }}" class="{{ form.class }}" enctype="multipart/form-data">
 	{{ csrfInput() }}
 	{% if form.honeypot %}
 		{% include "inspireforms/fields/_honeypot" %}

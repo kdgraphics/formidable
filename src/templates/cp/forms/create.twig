@@ -21,13 +21,14 @@
 					<div class="header handle">
 						<div class="icon move"></div>
 						<div class="name"></div>
+						<a href="#" class="delete">{{ 'Delete'|t('inspireforms') }}</a>
 						<div class="type"></div>
 					</div>
 					<div class="content"></div>
 				</li>
 				<div class="top">
 					<h2>Fields</h2>
-					<a href="#" id="collapse-all" data-label-collapse="{{ 'Collapse all'|t('inspireforms') }}" data-label-show="{{ 'Show all'|t('inspireforms') }}">{{ 'Collapse all'|t('inspireforms') }}</a>
+					<a href="#" class="collapsed" id="collapse-all" data-label-collapse="{{ 'Collapse all'|t('inspireforms') }}" data-label-show="{{ 'Show all'|t('inspireforms') }}">{{ 'Show all'|t('inspireforms') }}</a>
 					<div id="registered-fields-btn" class="btn menubtn add icon">Add field</div>
 					<div class="menu">
 						<ul>
@@ -41,12 +42,13 @@
 					{% if fields %}
 						{% for field in fields %}
 							<li class="inspireforms-field {{ field.handle() }}">
-								<div class="header handle">
+								<div class="header handle closed">
 									<div class="icon move"></div>
 									<div class="name">{{ field.name }}</div>
+									<a href="#" class="delete">{{ 'Delete'|t('inspireforms') }}</a>
 									<div class="type">{{ field.friendlyName() }}</div>
 								</div>
-								<div class="content">
+								<div class="content" style="display:none">
 									{% include field.backendTemplate() %}
 								</div>
 							</li>

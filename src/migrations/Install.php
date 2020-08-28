@@ -88,6 +88,7 @@ class Install extends Migration
 
         $this->createTable('{{%inspireforms_submissions_values}}', [
             'id' => $this->primaryKey(),
+            'type' => $this->string(255)->notNull(),
             'field' => $this->string(255)->notNull(),
             'submission_id' => $this->integer(11)->notNull(),
             'value' => $this->text(),
