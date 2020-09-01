@@ -133,6 +133,7 @@ class File extends Field
 
 	/**
 	 * List craft volumes
+	 * 
 	 * @return array
 	 */
 	public function getVolumes(): array
@@ -145,7 +146,7 @@ class File extends Field
 	}
 
 	/**
-	 * Add a dot on every extension
+	 * Adds a dot on every extension
 	 * 
 	 * @return string
 	 */
@@ -162,6 +163,19 @@ class File extends Field
 	public static function getSubmissionValue($value)
 	{
 		$asset = Asset::find()->where(['assets.id' => $value])->one();
-		return '<a target="_blank" href="'.$asset->getCpEditUrl().'">'.$asset->filename.'</a>';
+		if ($asset) {
+			return '<a target="_blank" href="'.$asset->getCpEditUrl().'">'.$asset->filename.'</a>';
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getCsvValue($value)
+	{
+		$asset = Asset::find()->where(['assets.id' => $value])->one();
+		if ($asset) {
+			return $asset->filename;
+		}
 	}
 }

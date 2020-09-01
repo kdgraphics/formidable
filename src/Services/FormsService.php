@@ -11,6 +11,7 @@ use Inspire\Forms\Models\FormSubmission;
 use Inspire\Forms\Models\Records\Form as FormRecord;
 use craft\base\Component;
 use craft\events\ConfigEvent;
+use craft\events\RebuildConfigEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
@@ -30,7 +31,7 @@ class FormsService extends Component
     const SESSION_SUCCESS_KEY = 'inspireforms_success';
     const SESSION_OLDINPUT_KEY = 'inspireforms_oldinput';
 
-	const CONFIG_KEY = 'inspireforms.1-forms';
+	const CONFIG_KEY = 'forms';
 
     const SPAM = 1;
     const VALID = 2;
@@ -158,7 +159,7 @@ class FormsService extends Component
         
         $configData = $model->getConfig();
 
-        $configPath = self::CONFIG_KEY . '.' . $model->uid;
+        $configPath = Forms::CONFIG_KEY . '.' . self::CONFIG_KEY . '.' . $model->uid;
         $projectConfig->set($configPath, $configData);
 
         if ($isNew) {
@@ -187,7 +188,7 @@ class FormsService extends Component
                 'form' => $model,
             ]));
         }
-
+        
         \Craft::$app->getProjectConfig()->remove(self::CONFIG_KEY . '.' . $model->uid);
 
         return true;
@@ -211,8 +212,8 @@ class FormsService extends Component
 
             $form->name = $data['name'];
             $form->handle = $data['handle'];
-            $form->notifyAdmin_id = $notifications->getRecordByUid($data['notifyAdmin'])->id ?? null;
-            $form->notify_id = $notifications->getRecordByUid($data['notify'])->id ?? null;
+            $form->notifyAdmin_id = $data['notifyAdmin'] ? $notifications->getRecordByUid($data['notifyAdmin'])->id : null;
+            $form->notify_id = $data['notify'] ? $notifications->getRecordByUid($data['notify'])->id : null;
             $form->notifyField = $data['notifyField'];
             $form->notifyEmails = $data['notifyEmails'];
             $form->honeypot = $data['honeypot'];
@@ -222,6 +223,8 @@ class FormsService extends Component
             $form->class = $data['class'];
             $form->method = $data['method'];
             $form->submitLabel = $data['submitLabel'];
+            $form->color = $data['color'];
+            $form->captcha = $data['captcha'];
             $form->uid = $formUid;
 
             $form->save(false);
@@ -296,6 +299,13 @@ class FormsService extends Component
         }
     }
 
+    public function rebuildConfig(RebuildConfigEvent $e)
+    {
+        foreach ($this->getAll() as $form) {
+            $e->config[Forms::CONFIG_KEY.'.'.self::CONFIG_KEY.'.'.$form->uid] = $form->getConfig();
+        }
+    }
+
     /**
      * Submit a form (through front end)
      * 
@@ -309,7 +319,7 @@ class FormsService extends Component
 
         if ($form->honeypot) {
             if (isset($posted[$form->honeypotField]) and !empty($posted[$form->honeypotField])) {
-                $spam = Forms::$plugin->spam->create($form);
+                $spam = Forms::$plugin->spam->create($form, $posted);
                 $this->trigger(self::EVENT_ON_SPAM, new SpamEvent([
                     'spam' => $spam,
                     'form' => $form

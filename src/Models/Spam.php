@@ -12,4 +12,13 @@ class Spam extends Model
 	public $dateCreated;
 	public $dateUpdated;
 	public $uid;
+	public $values;
+	public $form;
+
+	public function toArray(array $fields = [], array $expand = [], $recursive = true)
+	{
+		$array = parent::toArray($fields, $expand, $recursive);
+		$array['dateCreated'] = $this->dateCreated->format('d/m/Y');
+		return $array;
+	}
 }

@@ -14,6 +14,13 @@ class Spam extends ActiveRecord
 
 	public function toModel()
 	{
-		return new SpamModel($this->getAttributes());
+		$model = new SpamModel($this->getAttributes());
+		$model->form = $this->form->toModel();
+		return $model;
+	}
+
+	public function getForm()
+	{
+		return $this->hasOne(Form::className(), ['id' => 'form_id']);
 	}
 }

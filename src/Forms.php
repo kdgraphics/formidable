@@ -2,7 +2,10 @@
 namespace Inspire\Forms;
 
 use Craft;
+use Inspire\Forms\Captchas\GoogleV3;
+use Inspire\Forms\Events\RegisterCaptchasEvent;
 use Inspire\Forms\Events\RegisterFieldsEvent;
+use Inspire\Forms\Models\Fields\CaptchaV3;
 use Inspire\Forms\Models\Fields\Checkboxes;
 use Inspire\Forms\Models\Fields\Email;
 use Inspire\Forms\Models\Fields\File;
@@ -13,6 +16,8 @@ use Inspire\Forms\Models\Fields\Select;
 use Inspire\Forms\Models\Fields\Text;
 use Inspire\Forms\Models\Fields\Textarea;
 use Inspire\Forms\Models\FormSubmission;
+use Inspire\Forms\Services\CaptchasService;
+use Inspire\Forms\Services\CsvExporterService;
 use Inspire\Forms\Services\FieldsService;
 use Inspire\Forms\Services\FormsService;
 use Inspire\Forms\Services\NotificationsService;
@@ -20,10 +25,12 @@ use Inspire\Forms\Services\SpamService;
 use Inspire\Forms\Services\SubmissionsService;
 use Inspire\Forms\Twig\TwigForms;
 use craft\base\Plugin;
+use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCpNavItemsEvent;
 use craft\events\RegisterTemplateRootsEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\log\FileTarget;
+use craft\services\ProjectConfig;
 use craft\web\UrlManager;
 use craft\web\View;
 use craft\web\twig\variables\Cp;
@@ -35,9 +42,11 @@ class Forms extends Plugin
 {
     public $controllerNamespace = "Inspire\\Forms\\Controllers";
 
-    public $schemaVersion = '1.0.0';
+    public $schemaVersion = '1.0.3';
 
     public static $plugin;
+
+    const CONFIG_KEY = 'inspireforms';
 
     protected $availableFields = [
         Text::class,
@@ -49,6 +58,10 @@ class Forms extends Plugin
         Radio::class,
         Checkboxes::class,
         File::class
+    ];
+
+    protected $availableCaptchas = [
+        GoogleV3::class
     ];
 
     public function init()
@@ -66,6 +79,7 @@ class Forms extends Plugin
         $this->registerFrontRoutes();
         $this->registerProjectConfig();
         $this->registerFields();
+        $this->registerCaptchas();
         $this->registerTwigExtension();
         $this->registerFrontTemplates();
     }
@@ -107,8 +121,20 @@ class Forms extends Plugin
     		'forms' => FormsService::class,
             'notifications' => NotificationsService::class,
             'submissions' => SubmissionsService::class,
-            'spam' => SpamService::class
+            'csvExporter' => CsvExporterService::class,
+            'spam' => SpamService::class,
+            'captchas' => CaptchasService::class
     	]);
+    }
+
+    protected function registerCaptchas()
+    {
+        $captchas = $this->availableCaptchas;
+        Event::on(CaptchasService::class, CaptchasService::EVENT_REGISTER_CAPTCHAS, function (RegisterCaptchasEvent $event) use ($captchas)  {
+            foreach ($captchas as $captcha) {
+                $event->addCaptcha(new $captcha);
+            }
+        });
     }
 
     protected function registerFields()
@@ -139,10 +165,18 @@ class Forms extends Plugin
                 'inspireforms/fields/add/<handle:\w+>' => 'inspireforms/cp-fields/create',
                 'inspireforms/submissions' => 'inspireforms/cp-submissions',
                 'inspireforms/submissions/load' => 'inspireforms/cp-submissions/load',
-                'inspireforms/submissions/get/<id:\d+>' => 'inspireforms/cp-submissions/get',
+                'inspireforms/submissions/loadAll' => 'inspireforms/cp-submissions/load-all',
                 'inspireforms/submissions/view/<id:\d+>' => 'inspireforms/cp-submissions/view',
                 'inspireforms/submissions/delete/<id:\d+>' => 'inspireforms/cp-submissions/delete',
-                'inspireforms/submissions/delete-many' => 'inspireforms/cp-submissions/deletemany'
+                'inspireforms/submissions/delete-many' => 'inspireforms/cp-submissions/deletemany',
+                'inspireforms/submissions/export' => 'inspireforms/cp-submissions/export',
+                'inspireforms/submissions/export-all' => 'inspireforms/cp-submissions/export-all',
+                'inspireforms/spam' => 'inspireforms/cp-spam',
+                'inspireforms/spam/load' => 'inspireforms/cp-spam/load',
+                'inspireforms/spam/loadAll' => 'inspireforms/cp-spam/load-all',
+                'inspireforms/spam/view/<id:\d+>' => 'inspireforms/cp-spam/view',
+                'inspireforms/spam/delete/<id:\d+>' => 'inspireforms/cp-spam/delete',
+                'inspireforms/spam/delete-many' => 'inspireforms/cp-spam/deletemany'
             ]);
         });
     }
@@ -159,13 +193,18 @@ class Forms extends Plugin
     protected function registerProjectConfig()
     {
         Craft::$app->projectConfig
-            ->onAdd(NotificationsService::CONFIG_KEY.'.{uid}', [$this->notifications, 'handleChanged'])
-            ->onUpdate(NotificationsService::CONFIG_KEY.'.{uid}', [$this->notifications, 'handleChanged'])
-            ->onRemove(NotificationsService::CONFIG_KEY.'.{uid}', [$this->notifications, 'handleDeleted']);
+            ->onAdd(Forms::CONFIG_KEY.'.'.NotificationsService::CONFIG_KEY.'.{uid}', [$this->notifications, 'handleChanged'])
+            ->onUpdate(Forms::CONFIG_KEY.'.'.NotificationsService::CONFIG_KEY.'.{uid}', [$this->notifications, 'handleChanged'])
+            ->onRemove(Forms::CONFIG_KEY.'.'.NotificationsService::CONFIG_KEY.'.{uid}', [$this->notifications, 'handleDeleted']);
 
         Craft::$app->projectConfig
-            ->onAdd(FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleChanged'])
-            ->onUpdate(FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleChanged'])
-            ->onRemove(FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleDeleted']);
+            ->onAdd(Forms::CONFIG_KEY.'.'.FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleChanged'])
+            ->onUpdate(Forms::CONFIG_KEY.'.'.FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleChanged'])
+            ->onRemove(Forms::CONFIG_KEY.'.'.FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleDeleted']);
+
+        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $e) {
+            Forms::$plugin->notifications->rebuildConfig($e);
+            // Forms::$plugin->forms->rebuildConfig($e);
+        });
     }
 }

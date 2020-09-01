@@ -42,4 +42,16 @@ class Notification extends Model
 	{
 		return Forms::$plugin->notifications->send($this, $submission, $email);
 	}
+
+	public function getConfig(): array
+	{
+		return [
+            'name' => $this->name,
+            'method' => $this->method,
+            'template' => $this->template,
+            'html' => $this->html,
+            'sentFrom' => $this->sentFrom,
+            'subject' => $this->subject
+        ];
+	}
 }

@@ -63,6 +63,4 @@ class Notification
 	}
 }
 
-$(document).ready(function(){
-	new Notification;
-});
+export default Notification;

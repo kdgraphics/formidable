@@ -40,6 +40,20 @@ class CpSubmissionsController extends Controller
         ]);
     }
 
+    public function actionLoadAll()
+    {
+        $this->requireAcceptsJson();
+        $this->requirePostRequest();
+
+        $filters = $this->request()->getBodyParam('filters', []);
+        $dataProvider = $this->submissions()->getAll($filters);
+
+        return $this->asJson([
+            'submissions' => $dataProvider->getModels(),
+            'totalCount' => $dataProvider->getTotalCount()
+        ]);
+    }
+
     public function actionView(int $id)
     {
         $this->requireAcceptsJson();
@@ -84,6 +98,31 @@ class CpSubmissionsController extends Controller
         $response = [
             'success' => true,
             'message' => \Craft::t('inspireforms', 'Submissions deleted')
+        ];
+        return $this->asJson($response);
+    }
+
+    public function actionExport()
+    {
+        $this->requireAcceptsJson();
+        $this->requirePostRequest();
+
+        $ids = $this->request()->getRequiredParam('ids');
+        $response = [
+            'success' => true,
+            'data' => $this->submissions()->exportAsCsv($ids)
+        ];
+        return $this->asJson($response);
+    }
+
+    public function actionExportAll()
+    {
+        $this->requireAcceptsJson();
+        $this->requirePostRequest();
+
+        $response = [
+            'success' => true,
+            'data' => $this->submissions()->exportAll()
         ];
         return $this->asJson($response);
     }

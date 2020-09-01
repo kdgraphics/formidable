@@ -119,4 +119,12 @@ abstract class Field extends Model implements FieldInterface
 	{
 		return $value;
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getCsvValue($value)
+	{
+		return $value;
+	}
 }

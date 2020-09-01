@@ -143,6 +143,4 @@ class Form
 	}
 }
 
-$(document).ready(function(){
-	new Form;
-});
+export default Form;

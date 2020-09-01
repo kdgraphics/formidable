@@ -74,6 +74,17 @@
 }}
 
 {{
+    forms.selectField({
+        label: "Captcha"|t('inspireforms'),
+        id: 'captcha',
+        name: 'data[captcha]',
+        value: form.captcha,
+        errors: form.getErrors('captcha'),
+        options: {(''):"No"|t('inspireforms')} + form.getCaptchas()
+    })
+}}
+
+{{
     forms.lightswitchField({
         label: "Honeypot"|t('inspireforms'),
         id: 'honeypot',
@@ -146,6 +157,16 @@
                 required: true,
                 value: form.submitLabel ?? 'Submit'|t('inspireforms'),
                 errors: form.getErrors('submitLabel')
+            })
+        }}
+
+        {{
+            forms.colorField({
+                label: "Chart color"|t('inspireforms'),
+                id: 'color',
+                name: 'data[color]',
+                value: form.color ?? "#000",
+                errors: form.getErrors('color')
             })
         }}
     </div>

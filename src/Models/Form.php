@@ -24,6 +24,8 @@ class Form extends Model
 	public $redirect;
 	public $class;
 	public $method;
+	public $color;
+	public $captcha;
 	public $submitLabel;
 	public $dateCreated;
 	public $dateUpdated;
@@ -34,8 +36,8 @@ class Form extends Model
 	public function rules()
 	{
 		return [
-			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails','redirect', 'class', 'method', 'submitLabel'], 'string'],
-			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'redirect', 'class', 'submitLabel'], 'trim'],
+			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails','redirect', 'class', 'method', 'submitLabel', 'color'], 'string'],
+			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'redirect', 'class', 'submitLabel', 'color'], 'trim'],
 			[['id', 'notifyAdmin_id', 'notify_id'], 'integer'],
 			[['honeypot', 'saveSubmissions'], 'boolean'],
 			['notifyEmails', 'validateEmails'],
@@ -43,6 +45,11 @@ class Form extends Model
 			['method', 'in', 'range' => ['GET', 'POST']],
 			['notifyEmails', 'required', 'when' => function($model){
 				return $model->notifyAdmin_id != 0;
+			}],
+			['captcha', function($attribute){
+				if (!in_array($this->$attribute, array_keys($this->getCaptchas()))) {
+					$this->addError($attribute, \Craft::t('inspireforms', 'Captcha is not valid'));
+				}
 			}],
 			['notifyField', 'required', 'when' => function($model){
 				return $model->notify_id != 0;
@@ -57,6 +64,35 @@ class Form extends Model
 		];
 	}
 
+	/**
+	 * Get available captchas
+	 * 
+	 * @return array
+	 */
+	public function getCaptchas(): array
+	{
+		$captchas = [];
+		foreach (Forms::$plugin->captchas->getAllRegistered() as $captcha) {
+			$captchas[$captcha->handle()] = $captcha->friendlyName();
+		}
+		return $captchas;
+	}
+
+	/**
+	 * Get this form captcha
+	 * 
+	 * @return ?CaptchaInterface
+	 */
+	public function getCaptcha(): ?CaptchaInterface
+	{
+		return $this->captcha ? Forms::$plugin->captchas->getRegistered($this->captcha) : null;
+	}
+
+	/**
+	 * Get project config
+	 * 
+	 * @return array
+	 */
 	public function getConfig(): array
 	{
 		$config = [
@@ -73,6 +109,8 @@ class Form extends Model
             'class' => $this->class,
             'submitLabel' => $this->submitLabel,
             'method' => $this->method,
+            'color' => $this->color,
+            'captcha' => $this->captcha,
             'fields' => []
 		];
 		foreach ($this->fields as $field) {
@@ -81,6 +119,12 @@ class Form extends Model
 		return $config;
 	}
 
+	/**
+	 * Validate emails
+	 * 
+	 * @param object $model
+	 * @param string $attribute
+	 */
 	public function validateEmails($model, $attribute)
 	{
 		if (!$this->notifyEmails) {
@@ -97,7 +141,13 @@ class Form extends Model
 		return $pass;
 	}
 
-	public function render($template = null)
+	/**
+	 * Renders the form (front end)
+	 * 
+	 * @param ?string $template
+	 * @return string
+	 */
+	public function render(?string $template = null)
 	{
 		if (!$template) {
 			$template = 'inspireforms/forms/form';
@@ -116,6 +166,13 @@ class Form extends Model
 		]);
 	}
 
+	/**
+	 * Validate handle 
+	 * 
+	 * @param Form $model
+	 * @param string $attribute
+	 * @return bool
+	 */
 	public function validateHandle($model, $attribute)
 	{
 		$exists = Forms::$plugin->forms->getByHandle($this->handle);
@@ -125,6 +182,11 @@ class Form extends Model
 		return true;
 	}
 
+	/**
+	 * Get user notification
+	 * 
+	 * @return ?Notification
+	 */
 	public function getNotify(): ?Notification
 	{
 		if (!$this->notify_id) {
@@ -133,6 +195,11 @@ class Form extends Model
 		return Forms::$plugin->notifications->getById($this->notify_id);
 	}
 
+	/**
+	 * Get admin notification
+	 * 
+	 * @return ?Notification
+	 */
 	public function getAdminNotify(): ?Notification
 	{
 		if (!$this->notifyAdmin_id) {

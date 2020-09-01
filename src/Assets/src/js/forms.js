@@ -38,6 +38,4 @@ class Forms
 	}
 }
 
-$(document).ready(function(){
-	new Forms;
-});
+export default Forms;

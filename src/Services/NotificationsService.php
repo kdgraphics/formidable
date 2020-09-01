@@ -11,6 +11,7 @@ use Inspire\Forms\Models\Records\Notification as NotificationRecord;
 use Psr\Log\LogLevel;
 use craft\base\Component;
 use craft\events\ConfigEvent;
+use craft\events\RebuildConfigEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
@@ -24,7 +25,7 @@ class NotificationsService extends Component
 	const EVENT_AFTER_DELETE = 'after_delete';
     const EVENT_BEFORE_DELETE = 'before_delete';
     const EVENT_BEFORE_SENDING_EMAIL = 'before_email';
-	const CONFIG_KEY = 'inspireforms.0-notifications';
+	const CONFIG_KEY = 'notifications';
 
 	protected $notifications;
 
@@ -120,16 +121,9 @@ class NotificationsService extends Component
 
         $projectConfig = \Craft::$app->getProjectConfig();
 
-        $configData = [
-            'name' => $model->name,
-            'method' => $model->method,
-            'template' => $model->template,
-            'html' => $model->html,
-            'sentFrom' => $model->sentFrom,
-            'subject' => $model->subject
-        ];
+        $configData = $model->getConfig();
 
-        $configPath = self::CONFIG_KEY . '.' . $model->uid;
+        $configPath = Forms::CONFIG_KEY . '.' . self::CONFIG_KEY . '.' . $model->uid;
         $projectConfig->set($configPath, $configData);
 
         if ($isNew) {
@@ -233,6 +227,26 @@ class NotificationsService extends Component
         }
     }
 
+    /**
+     * Respond to rebuild config event
+     * 
+     * @param  RebuildConfigEvent $e
+     */
+    public function rebuildConfig(RebuildConfigEvent $e)
+    {
+        foreach ($this->getAll() as $notification) {
+            $e->config[Forms::CONFIG_KEY.'.'.self::CONFIG_KEY.'.'.$notification->uid] = $notification->getConfig();
+        }
+    }
+
+    /**
+     * Send the notification to some emails when a form is submitted
+     * 
+     * @param  NotificationModel $notification
+     * @param  FormSubmission    $submission
+     * @param  string|array      $email
+     * @return bool
+     */
     public function send(NotificationModel $notification, FormSubmission $submission, $email): bool
     {
         $oldMode = $this->view->getTemplateMode();

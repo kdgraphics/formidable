@@ -2,6 +2,7 @@
 
 namespace Inspire\Forms\Services;
 
+use Inspire\Forms\Forms;
 use Inspire\Forms\Models\Form;
 use Inspire\Forms\Models\FormSubmission;
 use Inspire\Forms\Models\Records\Submission;
@@ -9,6 +10,7 @@ use Inspire\Forms\Models\Records\SubmissionValue;
 use Inspire\Forms\Models\Submission as SubmissionModel;
 use Inspire\Forms\Providers\SubmissionProvider;
 use craft\base\Component;
+use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use yii\data\ActiveDataProvider;
 
@@ -115,7 +117,7 @@ class SubmissionsService extends Component
 	}
 
 	/**
-	 * Get some submissions, filtered ad pagered
+	 * Get some submissions, filtered and pagered
 	 * 
 	 * @param  array   $filters 
 	 * @param  integer $page
@@ -130,6 +132,53 @@ class SubmissionsService extends Component
 			'page' => $page
 		]);
 
+		return $this->filterDataProvider($provider, $filters);
+	}
+
+	/**
+	 * Get some submissions, filtered
+	 * 
+	 * @param  array   $filters 
+	 * @return ActiveDataProvider
+	 */
+	public function getAll(array $filters = []): ActiveDataProvider
+	{
+		$provider = new SubmissionProvider;
+		$provider->query->orderBy(['dateCreated' => SORT_ASC]);
+
+		return $this->filterDataProvider($provider, $filters);
+	}
+
+	/**
+	 * Export all submissions as csv
+	 * @return ?string
+	 */
+	public function exportAll(): ?string
+	{
+		$query = Submission::find();
+		return Forms::$plugin->csvExporter->exportFromQuery($query);
+	}
+
+	/**
+	 * Export submissions as csv
+	 * @param  array  $ids
+	 * @return ?string
+	 */
+	public function exportAsCsv(array $ids): ?string
+	{
+		$query = Submission::find()->where(['in', 'id', $ids]);
+		return Forms::$plugin->csvExporter->exportFromQuery($query);
+	}
+
+	/**
+	 * Filters the submission data provider
+	 * 
+	 * @param  SubmissionProvider $provider
+	 * @param  array              $filters
+	 * @return SubmissionProvider
+	 */
+	protected function filterDataProvider(SubmissionProvider $provider, array $filters): SubmissionProvider
+	{
 		if (isset($filters['form']) and is_numeric($filters['form'])) {
 			$provider->query->andWhere(['form_id' => $filters['form']]);
 		}
@@ -168,6 +217,7 @@ class SubmissionsService extends Component
 			return false;
 		}
 		if (!filter_var($formSubmission->{$form->notifyField}, FILTER_VALIDATE_EMAIL)) {
+			Forms::log("Can't notify user for form {$form->handle} : Value {$formSubmission->{$form->notifyField}} for field {$form->notifyField} is not a valid email");
  			return false;
 		}
 		return $notification->send($formSubmission, $formSubmission->{$form->notifyField});

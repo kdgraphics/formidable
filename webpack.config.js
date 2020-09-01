@@ -10,16 +10,11 @@ module.exports = {
     forms: [Path.resolve(assetDir + '/src/forms.js')],
     form: [Path.resolve(assetDir + '/src/form.js')],
     submissions: [Path.resolve(assetDir + '/src/submissions.js')],
+    spam: [Path.resolve(assetDir + '/src/spam.js')],
   },
-  mode: 'development',
+  mode: 'production',
   output: {
     path: assetDir + '/dist'
-  },
-  optimization: {
-    splitChunks: {
-      chunks: 'all',
-      name: false
-    }
   },
   plugins: [
     new CleanWebpackPlugin()

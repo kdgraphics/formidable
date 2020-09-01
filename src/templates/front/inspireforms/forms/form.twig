@@ -12,13 +12,16 @@
 		{% set oldValue = oldInput[field.name] is defined ? oldInput[field.name] : null %}
 		{% include field.frontendTemplate() %}
 	{% endfor %}
+	{% if form.captcha %}
+		{{ form.getCaptcha().render()|raw }}
+	{% endif %}
 	<button type="submit" class="btn btn-primary" id="submit">{{ form.submitLabel }}</button>
 </form>
 
 {% if form.honeypot %}
 	{% js %}
 		document.addEventListener('DOMContentLoaded', (event) => {
-			document.getElementById('{{ id }}').querySelector("[name={{ form.honeypotField }}]").style.display = "none";
+			document.getElementById('{{ id }}').querySelector("[id=field-{{ form.honeypotField }}]").style.display = "none";
 		});
 	{% endjs %}
 {% endif %}

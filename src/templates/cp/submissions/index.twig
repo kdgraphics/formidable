@@ -10,11 +10,11 @@
 	<div style="display:none" class="btn menubtn" id="submission-actions">{{ "Selection"|t('inspireforms') }}</div>
 	<div class="menu">
 		<ul>
-			<li><a data-url="{{ url('inspireforms/submissions/export') }}" class="export">{{ "Export as CSV"|t('inspireforms') }}</a></li>
-			<li><a data-url="{{ url('inspireforms/submissions/deleteMany') }}" class="delete">{{ "Delete"|t('inspireforms') }}</a></li>
+			<li><a class="export">{{ "Export as CSV"|t('inspireforms') }}</a></li>
+			<li><a class="delete">{{ "Delete"|t('inspireforms') }}</a></li>
 		</ul>
 	</div>
-	<a href="" class="btn">{{ "Export all as CSV"|t('inspireforms') }}</a>
+	<a href="" class="btn" id="export-all-btn">{{ "Export all as CSV"|t('inspireforms') }}</a>
 {% endblock %}
 
 {% block content %}
@@ -25,100 +25,140 @@
 			</div>
 			<div class="body"></div>
 		</div>
-		<form method="post" action="{{ url('inspireforms/submissions/load') }}" autocomplete="off">
-			{{ csrfInput() }}
-			<table id="submission-list" class="data fullwidth collapsible">
-		        <thead class="filters">
-		        	<th class="thin selectAll">
-		        		{{
-							formsBase.checkboxField({
-								id:'selectAll'
-							})
-						}}
-		        	</th>
-	        		<th scope="row" class="form">
-						{{
-							formsBase.selectField({
-								name:'filters[form]',
-								options: forms
-							})
-						}}
-	        		</th>
-	        		<th>
-	        			{{
-							formsBase.selectField({
-								name: "filters[read]",
-								options: {(''):'All statuses'|t('inspireforms'), 0:'New'|t('inspireforms'),1:'Read'|t('inspireforms')},
-								value: 0
-							})
-						}}
-	        		</th>
-	        		<th class="submitted">
-	        			{{
-	        				formsBase.dateField({
-	        					title: "From"|t('inspireforms'),
-	        					name: "filters[submittedFrom]"
-	        				})
-	        			}}
-	        			{{
-	        				formsBase.dateField({
-	        					title: "To"|t('inspireforms'),
-	        					name: "filters[submittedTo]"
-	        				})
-	        			}}
-	        		</th>
-	        		<th>
-	        			{{
-							formsBase.selectField({
-								name: "filters[notified]",
-								options: {(''):'User notified'|t('inspireforms'), 1:'Yes'|t('inspireforms'),0:'No'|t('inspireforms')}
-							})
-						}}
-	        		</th>
-	        		<th>
-	        			{{
-							formsBase.selectField({
-								name: "filters[adminNotified]",
-								options: {(''):'Admin notified'|t('inspireforms'), 1:'Yes'|t('inspireforms'),0:'No'|t('inspireforms')}
-							})
-						}}
-	        		</th>
-	        		<th class="thin" colspan="2"><input type="reset" class="btn icon reset" value="Reset"></th>
-		        </thead>
-		        <tbody>
-		        	<tr><td colspan="8" id="no-submissions"><h3>No submissions found</h3></td></tr>
-		        	<tr class="skeleton" style="display:none">
-		            	<td scope="row" data-title="{{ 'Select'|t('inspireforms') }}" class="thin">
-		            		{{
+		<div id="table-view">
+			<form method="post" autocomplete="off">
+				{{ csrfInput() }}
+				<table id="submission-list" class="data fullwidth collapsible">
+			        <thead class="filters">
+			        	<th class="thin selectAll">
+			        		{{
 								formsBase.checkboxField({
-									id:'select'
+									id:'selectAll'
 								})
 							}}
-		            	</td>
-		                <td scope="row" data-title="{{ 'Form'|t('inspireforms') }}" class="form"></td>
-		                <td scope="row" data-title="{{ 'New'|t('inspireforms') }}" class="read"></td>
-		                <td data-title="{{ 'Created'|t('inspireforms') }}" class="created"></td>
-		                <td data-title="{{ 'User notified'|t('inspireforms') }}" class="notified"></td>
-		                <td data-title="{{ 'Admin notified'|t('inspireforms') }}" class="adminNotified"></td>
-		                <td class="thin">
-		                    <a class="expand icon" title="{{ 'View'|t('inspireforms') }}" href="#" role="button"></a>
-		                </td>
-		                <td class="thin">
-		                    <a class="delete icon" title="{{ 'Delete'|t('inspireforms') }}" role="button"></a>
-		                </td>
-		            </tr>
-		        </tbody>
-		    </table>
-		    <div class="bottom">
-				<div id="pagination"></div>
-				{{
-					formsBase.selectField({
-						label: 'Page size',
-						name: "pageSize",
-						options: {10:10, 20:20, 50:50, 100:100}
-					})
-				}}
+			        	</th>
+		        		<th scope="row" class="form">
+							{{
+								formsBase.selectField({
+									name:'filters[form]',
+									options: forms
+								})
+							}}
+		        		</th>
+		        		<th>
+		        			{{
+								formsBase.selectField({
+									name: "filters[read]",
+									options: {(''):'All statuses'|t('inspireforms'), 0:'New'|t('inspireforms'),1:'Read'|t('inspireforms')},
+									value: 0
+								})
+							}}
+		        		</th>
+		        		<th class="submitted">
+		        			{{
+		        				formsBase.dateField({
+		        					title: "From"|t('inspireforms'),
+		        					name: "filters[submittedFrom]"
+		        				})
+		        			}}
+		        			{{
+		        				formsBase.dateField({
+		        					title: "To"|t('inspireforms'),
+		        					name: "filters[submittedTo]"
+		        				})
+		        			}}
+		        		</th>
+		        		<th>
+		        			{{
+								formsBase.selectField({
+									name: "filters[notified]",
+									options: {(''):'User notified'|t('inspireforms'), 1:'Yes'|t('inspireforms'),0:'No'|t('inspireforms')}
+								})
+							}}
+		        		</th>
+		        		<th>
+		        			{{
+								formsBase.selectField({
+									name: "filters[adminNotified]",
+									options: {(''):'Admin notified'|t('inspireforms'), 1:'Yes'|t('inspireforms'),0:'No'|t('inspireforms')}
+								})
+							}}
+		        		</th>
+		        		<th class="thin" colspan="2"><input type="reset" class="btn icon reset" value="Reset"></th>
+			        </thead>
+			        <tbody>
+			        	<tr><td colspan="8" id="no-submissions"><h3>No submissions found</h3></td></tr>
+			        	<tr class="skeleton" style="display:none">
+			            	<td scope="row" data-title="{{ 'Select'|t('inspireforms') }}" class="thin">
+			            		{{
+									formsBase.checkboxField({
+										id:'select'
+									})
+								}}
+			            	</td>
+			                <td scope="row" data-title="{{ 'Form'|t('inspireforms') }}" class="form"></td>
+			                <td scope="row" data-title="{{ 'New'|t('inspireforms') }}" class="read"></td>
+			                <td data-title="{{ 'Created'|t('inspireforms') }}" class="created"></td>
+			                <td data-title="{{ 'User notified'|t('inspireforms') }}" class="notified"></td>
+			                <td data-title="{{ 'Admin notified'|t('inspireforms') }}" class="adminNotified"></td>
+			                <td class="thin">
+			                    <a class="expand icon" title="{{ 'View'|t('inspireforms') }}" href="#" role="button"></a>
+			                </td>
+			                <td class="thin">
+			                    <a class="delete icon" title="{{ 'Delete'|t('inspireforms') }}" role="button"></a>
+			                </td>
+			            </tr>
+			        </tbody>
+			    </table>
+			    <div class="bottom">
+					<div id="pagination"></div>
+					<a href="#" class="switch-view chart">{{ 'Chart view'|t('inspireforms') }}</a>
+					{{
+						formsBase.selectField({
+							label: 'Page size',
+							name: "pageSize",
+							id: 'page-selector',
+							options: {10:10, 20:20, 50:50, 100:100}
+						})
+					}}
+				</div>
+			</form>
+		</div>
+		<div id="chart-view" style="display:none">
+			<form method="post" autocomplete="off">
+				{{ csrfInput() }}
+				<table class="data fullwidth collapsible">
+			        <thead class="filters">
+		        		<th scope="row" class="form">
+							{{
+								formsBase.selectField({
+									name:'filters[form]',
+									options: forms
+								})
+							}}
+		        		</th>
+		        		<th class="submitted">
+		        			{{
+		        				formsBase.dateField({
+		        					title: "From"|t('inspireforms'),
+		        					name: "filters[submittedFrom]"
+		        				})
+		        			}}
+		        			{{
+		        				formsBase.dateField({
+		        					title: "To"|t('inspireforms'),
+		        					name: "filters[submittedTo]"
+		        				})
+		        			}}
+		        		</th>
+		        		<th class="thin" colspan="2"><input type="reset" class="btn icon reset" value="Reset"></th>
+			        </thead>
+			    </table>
+			</form>
+			<canvas id="chart-container"></canvas>
+			<div class="bottom">
+				<a href="#" class="switch-view table">{{ 'Table view'|t('inspireforms') }}</a>
 			</div>
-		</form>
+		</div>
 	</div>
 {% endblock %}

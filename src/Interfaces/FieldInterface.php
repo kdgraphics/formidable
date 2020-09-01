@@ -59,6 +59,14 @@ interface FieldInterface
 	 * Transform a submission value
 	 * 
 	 * @param mixed $value
+	 * @return  mixed
 	 */
 	public static function getSubmissionValue($value);
+
+	/**
+	 * Get value for csv export
+	 * @param mixed $value
+	 * @return mixed
+	 */
+	public static function getCsvValue($value);
 }
