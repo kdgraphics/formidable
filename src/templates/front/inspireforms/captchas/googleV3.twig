@@ -1,0 +1,25 @@
+{% set siteKey = plugin('inspireforms').settings.siteKey %}
+
+<div id="captcha-field">
+	<input type="text" required="required" name="_recaptcha_response">
+</div>
+
+{% if siteKey is empty %}
+	{{ 'The site key was not set for the Craft Recaptcha 3 plugin.'|t('inspireforms') }}
+	<a href="/admin/settings/plugins/inspireforms" target="_blank">{{ 'Please visit the settings page to add this key.'|t('inspireforms') }}</a>
+{% else %}
+  	{% set action = action|default('contact') %}
+  	
+  	<script src="https://www.google.com/recaptcha/api.js?render={{ siteKey }}"></script>
+	
+	{% js %}
+		grecaptcha.ready(function () {
+		    grecaptcha.execute('{{ siteKey }}', { action: 'contact' }).then(function (token) {
+		        document.getElementById('captcha-field').querySelector("[name=_recaptcha_response]").value = token;
+		    });
+		});
+		document.addEventListener('DOMContentLoaded', (event) => {
+			document.getElementById('captcha-field').style.display = "none";
+		});
+	{% endjs %}
+{% endif %}

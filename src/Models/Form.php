@@ -4,6 +4,7 @@ namespace Inspire\Forms\Models;
 
 use Inspire\Forms\Events\FormEvent;
 use Inspire\Forms\Forms;
+use Inspire\Forms\Interfaces\CaptchaInterface;
 use Inspire\Forms\Models\Notification;
 use Inspire\Forms\Services\FormsService;
 use craft\base\Model;

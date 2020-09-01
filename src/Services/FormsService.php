@@ -328,6 +328,17 @@ class FormsService extends Component
             }
         }
 
+        if ($form->captcha) {
+            if (!$form->getCaptcha()->verify($form, $posted)) {
+                $spam = Forms::$plugin->spam->create($form, $posted);
+                $this->trigger(self::EVENT_ON_SPAM, new SpamEvent([
+                    'spam' => $spam,
+                    'form' => $form
+                ]));
+                return self::SPAM;
+            }
+        }
+
         $values = [];
         foreach ($form->fields as $field) {
             $values[$field->name] = $posted[$field->name] ?? null;

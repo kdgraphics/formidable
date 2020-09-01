@@ -2,6 +2,8 @@
 
 namespace Inspire\Forms\Interfaces;
 
+use Inspire\Forms\Models\Form;
+
 interface CaptchaInterface
 {
 	/**
@@ -24,4 +26,11 @@ interface CaptchaInterface
 	 * @return string
 	 */
 	public function render(): string;
+
+	/**
+	 * Verify captcha after posting
+	 * 
+	 * @return bool
+	 */
+	public function verify(Form $form, array $posted): bool;
 }

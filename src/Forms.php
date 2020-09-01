@@ -16,6 +16,7 @@ use Inspire\Forms\Models\Fields\Select;
 use Inspire\Forms\Models\Fields\Text;
 use Inspire\Forms\Models\Fields\Textarea;
 use Inspire\Forms\Models\FormSubmission;
+use Inspire\Forms\Models\Settings;
 use Inspire\Forms\Services\CaptchasService;
 use Inspire\Forms\Services\CsvExporterService;
 use Inspire\Forms\Services\FieldsService;
@@ -43,6 +44,8 @@ class Forms extends Plugin
     public $controllerNamespace = "Inspire\\Forms\\Controllers";
 
     public $schemaVersion = '1.0.3';
+
+    public $hasCpSettings = true;
 
     public static $plugin;
 
@@ -82,6 +85,32 @@ class Forms extends Plugin
         $this->registerCaptchas();
         $this->registerTwigExtension();
         $this->registerFrontTemplates();
+    }
+
+    /**
+     * Creates and returns the model used to store the plugin’s settings.
+     *
+     * @return \craft\base\Model|null
+     */
+    protected function createSettingsModel()
+    {
+        return new Settings();
+    }
+
+    /**
+     * Returns the rendered settings HTML, which will be inserted into the content
+     * block on the settings page.
+     *
+     * @return string The rendered settings HTML
+     */
+    protected function settingsHtml(): string
+    {
+        return Craft::$app->view->renderTemplate(
+            'inspireforms/cp/settings',
+            [
+                'settings' => $this->getSettings()
+            ]
+        );
     }
 
     public static function log($message, $level = Logger::LEVEL_INFO)
