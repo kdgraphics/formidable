@@ -113,11 +113,20 @@ class Forms extends Plugin
         );
     }
 
+    /**
+     * Log a specific form message 
+     * 
+     * @param $message [description]
+     * @param $level   [description]
+     */
     public static function log($message, $level = Logger::LEVEL_INFO)
     {
         \Craft::getLogger()->log($message, $level, 'inspireforms');
     }
 
+    /**
+     * Registers cp nav item
+     */
     protected function registerNavItem()
     {
         $_this = $this;
@@ -131,6 +140,9 @@ class Forms extends Plugin
         });
     }
 
+    /**
+     * Registers front templates
+     */
     protected function registerFrontTemplates()
     {
         Event::on(View::class, View::EVENT_REGISTER_SITE_TEMPLATE_ROOTS, function (RegisterTemplateRootsEvent $event) {
@@ -138,11 +150,17 @@ class Forms extends Plugin
         });
     }
 
+    /**
+     * Registers twig extensions
+     */
     protected function registerTwigExtension()
     {
         Craft::$app->view->registerTwigExtension(new TwigForms);
     }
 
+    /**
+     * Registers Forms services
+     */
     protected function registerComponents()
     {
     	$this->setComponents([
@@ -156,6 +174,9 @@ class Forms extends Plugin
     	]);
     }
 
+    /**
+     * Registers captcha services
+     */
     protected function registerCaptchas()
     {
         $captchas = $this->availableCaptchas;
@@ -166,6 +187,9 @@ class Forms extends Plugin
         });
     }
 
+    /**
+     * Register form fields
+     */
     protected function registerFields()
     {
         $fields = $this->availableFields;
@@ -176,6 +200,9 @@ class Forms extends Plugin
         });
     }
 
+    /**
+     * Register cp routes
+     */
     protected function registerCpRoutes()
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
@@ -210,6 +237,9 @@ class Forms extends Plugin
         });
     }
 
+    /**
+     * Registers front end routes
+     */
     protected function registerFrontRoutes()
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
@@ -219,6 +249,9 @@ class Forms extends Plugin
         });
     }
 
+    /**
+     * Project config events registering
+     */
     protected function registerProjectConfig()
     {
         Craft::$app->projectConfig
@@ -233,7 +266,7 @@ class Forms extends Plugin
 
         Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $e) {
             Forms::$plugin->notifications->rebuildConfig($e);
-            // Forms::$plugin->forms->rebuildConfig($e);
+            Forms::$plugin->forms->rebuildConfig($e);
         });
     }
 }

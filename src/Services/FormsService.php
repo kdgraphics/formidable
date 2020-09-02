@@ -302,7 +302,7 @@ class FormsService extends Component
     public function rebuildConfig(RebuildConfigEvent $e)
     {
         foreach ($this->getAll() as $form) {
-            $e->config[Forms::CONFIG_KEY.'.'.self::CONFIG_KEY.'.'.$form->uid] = $form->getConfig();
+            $e->config[Forms::CONFIG_KEY][self::CONFIG_KEY][$form->uid] = $form->getConfig();
         }
     }
 
