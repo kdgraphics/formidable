@@ -23,7 +23,7 @@ class CpFormsController extends Controller
 
 	public function actionCreate()
 	{
-		return $this->create(new Form, []);
+		return $this->create(new Form);
 	}
 
 	public function actionEdit(int $id)

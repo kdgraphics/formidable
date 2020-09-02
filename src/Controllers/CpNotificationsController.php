@@ -30,8 +30,6 @@ class CpNotificationsController extends Controller
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $request = \Craft::$app->getRequest();
-
         $notification = $this->notifications()->getById($id);
 
         if (!$notification) {

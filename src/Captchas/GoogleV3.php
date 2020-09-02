@@ -55,18 +55,4 @@ class GoogleV3 implements CaptchaInterface
         }
         return false;
 	}
-
-	public function getValueUid()
-	{
-		$uid = StringHelper::UUID();
-		\Craft::$app->session->set(self::SESSION_KEY_VALUE, $uid);
-		return $uid;
-	}
-
-	public function getNameUid()
-	{
-		$uid = StringHelper::UUID();
-		\Craft::$app->session->set(self::SESSION_KEY_NAME, $uid);
-		return $uid;
-	}
 }
