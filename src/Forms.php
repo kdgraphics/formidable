@@ -43,7 +43,7 @@ class Forms extends Plugin
 {
     public $controllerNamespace = "Inspire\\Forms\\Controllers";
 
-    public $schemaVersion = '1.0.4';
+    public $schemaVersion = '1.0.3';
 
     public $hasCpSettings = true;
 
