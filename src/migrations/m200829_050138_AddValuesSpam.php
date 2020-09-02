@@ -8,7 +8,7 @@ use craft\db\Migration;
 /**
  * m200829_050137_AddValuesSpam migration.
  */
-class m200829_050137_AddValuesSpam extends Migration
+class m200829_050138_AddValuesSpam extends Migration
 {
     /**
      * @inheritdoc
