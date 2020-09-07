@@ -1,42 +1,21 @@
-{% extends "inspireforms/cp/_base" %}
+{% extends "_layouts/cp" %}
 
 {% set title = "Notifications" %}
 
-{% set selectedTab = 'notifications' %}
+{% set selectedSubnavItem = 'notifications' %}
 
-{% block actionButton %}
-	<a href="{{ url('inspireforms/notifications/add') }}" class="btn submit add icon">{{ "New Notification"|t('inspireforms') }}</a>
+{% block sidebar %}
+	<notifications-menu></notifications-menu>
+{% endblock %}
+
+{% block toolbar %}
+	<notifications-toolbar></notifications-toolbar>
 {% endblock %}
 
 {% block content %}
-	<div id="no-notifications" {{ notifications|length > 0 ? 'style="display:none"' : ''}}>
-		<p>No notifications found</p>
-		<a href="{{ url('inspireforms/notifications/add') }}" class="btn submit add icon">{{ "New notification"|t('inspireforms') }}</a>
-	</div>
-	{% if notifications|length > 0 %}
-		<table id="notification-list" class="data fullwidth collapsible">
-	        <thead>
-	            <th scope="col">{{ "Name"|t('inspireforms') }}</th>
-	            <th scope="col">{{ "Subject"|t('inspireforms') }}</th>
-	            <th scope="col">{{ "Method"|t('inspireforms') }}</th>
-	            <td class="thin"></td>
-	            <td class="thin"></td>
-	        </thead>
-	        <tbody>
-	        {% for notification in notifications %}
-	            <tr data-id="{{ notification.id }}" data-name="{{ notification.name|t('inspireforms') }}">
-	                <td scope="row" data-title="{{ 'Name'|t('inspireforms') }}"><a href="{{ url('inspireforms/notifications/edit/' ~ notification.id) }}">{{ notification.name }}</a></th>
-	                <td scope="row" data-title="{{ 'Subject'|t('inspireforms') }}">{{ notification.subject }}</th>
-	                <td data-title="{{ 'Method'|t('inspireforms') }}">{{ notification.method }}</td>
-	                <td class="thin">
-	                    <a class="edit icon" title="{{ 'Edit'|t('inspireforms') }}" href="{{ url('inspireforms/notifications/edit/' ~ notification.id) }}" role="button"></a>
-	                </td>
-	                <td class="thin">
-	                    <a class="delete icon" title="{{ 'Delete'|t('inspireforms') }}" role="button" data-name="{{ notification.name }}" data-url="{{ url('inspireforms/notifications/delete/'~notification.id) }}"></a>
-	                </td>
-	            </tr>
-	        {% endfor %}
-	        </tbody>
-	    </table>
-	{% endif %}
+	<notifications 
+		:all-notifications="{{ notifications ? notifications|json_encode : '{}' }}"
+		:current-notification="{{ notification|json_encode }}"
+	></notifications>
+	<confirm-dialog></confirm-dialog>
 {% endblock %}

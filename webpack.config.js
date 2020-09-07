@@ -1,52 +1,55 @@
-const Path = require('path');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const webpack = require('webpack');
+// webpack.config.js
+const { VueLoaderPlugin } = require('vue-loader');
+const path = require('path');
 
-assetDir = Path.resolve(__dirname, 'src/Assets');
+const env = process.env.NODE_ENV;
 
-module.exports = {
+const config = {
   entry: {
-    notifications: [Path.resolve(assetDir + '/src/notifications.js')],
-    forms: [Path.resolve(assetDir + '/src/forms.js')],
-    form: [Path.resolve(assetDir + '/src/form.js')],
-    submissions: [Path.resolve(assetDir + '/src/submissions.js')],
-    spam: [Path.resolve(assetDir + '/src/spam.js')],
+    notifications: path.join(__dirname, 'src/Assets/src', 'notifications.js'),
+    // utilities: path.join(__dirname, 'src/Assets/src', 'utilities.js')
   },
-  mode: 'production',
+  mode: env,
   output: {
-    path: assetDir + '/dist'
-  },
-  plugins: [
-    new CleanWebpackPlugin()
-  ],
-  resolve: {
-    modules: ['node_modules'],
+    path: path.join(__dirname, 'src/Assets/dist')
   },
   module: {
     rules: [
       {
-        test: /\.mjs$/,
-        include: /node_modules/,
-        type: 'javascript/auto'
+        test: /\.vue$/,
+        loader: 'vue-loader',
       },
       {
         test: /\.js$/,
-        include: assetDir,
-        enforce: 'pre',
-        loader: 'eslint-loader',
-        options: {
-          emitWarning: true
-        }
+        loader: 'babel-loader',
+        include: [path.join(__dirname, 'src')],
       },
       {
-        test: /\.js$/,
-        include: assetDir,
-        loader: 'babel-loader'
+        test: /\.css$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+        ],
       },
       {
-        test: /\.(scss)$/i,
-        use: ['style-loader', 'css-loader', 'sass-loader']
+        test: /\.scss$/,
+        use: [
+          'vue-style-loader',
+          'css-loader',
+          'sass-loader'
+        ]
       }
-    ]
-  }
+    ],
+  },
+  resolve: {
+    alias: {
+      'vue$': 'vue/dist/vue.esm.js'
+    },
+    extensions: ['*', '.js', '.vue', '.json']
+  },
+  plugins: [
+    new VueLoaderPlugin(),
+  ],
 };
+
+module.exports = config;

@@ -133,9 +133,13 @@ class Forms extends Plugin
         Event::on(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS,
             function(RegisterCpNavItemsEvent $event) use ($_this){
                 $event->navItems[] = [
-                    'url' => 'inspireforms/forms',
-                    'label' => 'Forms',
-                    'badgeCount' => $_this->submissions->countUnread()
+                    'url' => 'inspireforms',
+                    'label' => \Craft::t('inspireforms', 'Forms'),
+                    'badgeCount' => $_this->submissions->countUnread(),
+                    'subnav' => [
+                        'forms' => ['url' => 'inspireforms/forms', 'label' => \Craft::t('inspireforms', 'Forms')],
+                        'notifications' => ['url' => 'inspireforms/notifications', 'label' => \Craft::t('inspireforms', 'Notifications')]
+                    ]
                 ];
         });
     }
@@ -214,9 +218,10 @@ class Forms extends Plugin
                 'inspireforms/forms/edit/<id:\d+>' => 'inspireforms/cp-forms/edit',
                 'inspireforms/forms/delete/<id:\d+>' => 'inspireforms/cp-forms/delete',
                 'inspireforms/notifications' => 'inspireforms/cp-notifications',
-                'inspireforms/notifications/add' => 'inspireforms/cp-notifications/create',
+                'inspireforms/notifications/get/<id:\d+>' => 'inspireforms/cp-notifications/get',
+                'inspireforms/notifications/add' => 'inspireforms/cp-notifications',
                 'inspireforms/notifications/save' => 'inspireforms/cp-notifications/save',
-                'inspireforms/notifications/edit/<id:\d+>' => 'inspireforms/cp-notifications/edit',
+                'inspireforms/notifications/edit/<id:\d+>' => 'inspireforms/cp-notifications',
                 'inspireforms/notifications/delete/<id:\d+>' => 'inspireforms/cp-notifications/delete',
                 'inspireforms/fields/add/<handle:\w+>' => 'inspireforms/cp-fields/create',
                 'inspireforms/submissions' => 'inspireforms/cp-submissions',
