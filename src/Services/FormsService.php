@@ -189,7 +189,7 @@ class FormsService extends Component
             ]));
         }
         
-        \Craft::$app->getProjectConfig()->remove(self::CONFIG_KEY . '.' . $model->uid);
+        \Craft::$app->getProjectConfig()->remove(Forms::CONFIG_KEY . '.' . self::CONFIG_KEY . '.' . $model->uid);
 
         return true;
     }
@@ -258,7 +258,7 @@ class FormsService extends Component
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE)) {
             $this->trigger(self::EVENT_AFTER_SAVE, new FormEvent([
-                'form' => $record->toModel(),
+                'form' => $form->toModel(),
                 'isNew' => $isNew,
             ]));
         }

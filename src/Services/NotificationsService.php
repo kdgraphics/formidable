@@ -147,7 +147,7 @@ class NotificationsService extends Component
             ]));
         }
 
-        \Craft::$app->getProjectConfig()->remove(self::CONFIG_KEY . '.' . $model->uid);
+        \Craft::$app->getProjectConfig()->remove(Forms::CONFIG_KEY . '.' . self::CONFIG_KEY . '.' . $model->uid);
 
         return true;
     }
