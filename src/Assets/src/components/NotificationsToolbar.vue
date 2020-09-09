@@ -9,9 +9,6 @@ import { EventBus } from './../EventBus.js';
 
 export default {
   methods: {
-    t(str) {
-      return Craft.t('inspireforms', str);
-    },
     add() {
       EventBus.$emit('add-notification-click');
     }

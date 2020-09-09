@@ -7,7 +7,8 @@ const env = process.env.NODE_ENV;
 const config = {
   entry: {
     notifications: path.join(__dirname, 'src/Assets/src', 'notifications.js'),
-    // utilities: path.join(__dirname, 'src/Assets/src', 'utilities.js')
+    forms: path.join(__dirname, 'src/Assets/src', 'forms.js'),
+    fields: path.join(__dirname, 'src/Assets/src', 'fields.js'),
   },
   mode: env,
   output: {

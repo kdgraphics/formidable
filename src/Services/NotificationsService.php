@@ -39,7 +39,7 @@ class NotificationsService extends Component
 		if (is_null($this->notifications)) {
 			$this->notifications = [];
 			foreach (NotificationRecord::find()->all() as $record) {
-				$this->notifications[] = $record->toModel();
+				$this->notifications[$record->id] = $record->toModel();
 			}
 		}
 		return $this->notifications;

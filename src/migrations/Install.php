@@ -26,6 +26,7 @@ class Install extends Migration
             'honeypot' => $this->boolean()->defaultValue(true),
             'honeypotField' => $this->string(255),
             'saveSubmissions' => $this->boolean()->defaultValue(true),
+            'saveSpam' => $this->boolean()->defaultValue(true),
             'redirect' => $this->string(255),
             'method' => $this->string(255),
             'class' => $this->string(255),

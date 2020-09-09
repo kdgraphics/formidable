@@ -153,9 +153,6 @@ export default {
     }
   },
   methods: {
-    t(str) {
-      return Craft.t('inspireforms', str);
-    },
     fixSideBar() {
       let size = Object.keys(this.notifications).length;
       let elem = document.querySelector('#main-content');

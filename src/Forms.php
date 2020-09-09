@@ -213,9 +213,9 @@ class Forms extends Plugin
             $event->rules = array_merge($event->rules, [
                 'inspireforms' => 'inspireforms/cp-forms',
                 'inspireforms/forms' => 'inspireforms/cp-forms',
-                'inspireforms/forms/add' => 'inspireforms/cp-forms/create',
+                'inspireforms/forms/add' => 'inspireforms/cp-forms',
                 'inspireforms/forms/save' => 'inspireforms/cp-forms/save',
-                'inspireforms/forms/edit/<id:\d+>' => 'inspireforms/cp-forms/edit',
+                'inspireforms/forms/edit/<id:\d+>' => 'inspireforms/cp-forms',
                 'inspireforms/forms/delete/<id:\d+>' => 'inspireforms/cp-forms/delete',
                 'inspireforms/notifications' => 'inspireforms/cp-notifications',
                 'inspireforms/notifications/get/<id:\d+>' => 'inspireforms/cp-notifications/get',

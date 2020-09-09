@@ -15,6 +15,7 @@ abstract class Field extends Model implements FieldInterface
 	const EVENT_RENDER = 'render';
 	public $id;
 	public $name;
+	public $friendlyName;
 	public $order;
 	public $fieldClass;
 	public $containerClass;
@@ -29,6 +30,13 @@ abstract class Field extends Model implements FieldInterface
 	public $uid;
 
 	protected $rootAttributes = ['id', 'name', 'order', 'form_id', 'options', 'dateCreated', 'dateUpdated', 'dateDeleted', 'uid', 'fieldClass', 'containerClass', 'instructions', 'type'];
+
+	public function init()
+	{
+		parent::init();
+		$this->type = $this->handle();
+		$this->friendlyName = $this->friendlyName();
+	}
 
 	public function rules()
 	{

@@ -3,6 +3,7 @@
 namespace Inspire\Forms\Controllers;
 
 use Inspire\Forms\Forms;
+use Inspire\Forms\Services\CaptchasService;
 use Inspire\Forms\Services\FieldsService;
 use Inspire\Forms\Services\FormsService;
 use Inspire\Forms\Services\NotificationsService;
@@ -47,5 +48,10 @@ class Controller extends CraftController
 	protected function spam(): SpamService
 	{
 		return Forms::$plugin->spam;
+	}
+
+	protected function captchas(): CaptchasService
+	{
+		return Forms::$plugin->captchas;
 	}
 }

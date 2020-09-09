@@ -24,6 +24,6 @@ class m200901_060621_AddFormColour extends Migration
     public function safeDown()
     {
         $this->dropColumn('{{%inspireforms_forms}}', 'color');
-        return false;
+        return true;
     }
 }

@@ -24,6 +24,6 @@ class m200901_174843_AddCaptcha extends Migration
     public function safeDown()
     {
         $this->dropColumn('{{%inspireforms_forms}}', 'captcha');
-        return false;
+        return true;
     }
 }

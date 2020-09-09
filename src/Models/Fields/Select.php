@@ -11,6 +11,7 @@ class Select extends Field
 	public $required;
 	public $enforceRequired;
 	public $choices;
+	public $default;
 
 	/**
 	 * inheritDoc
@@ -42,8 +43,8 @@ class Select extends Field
 	public function getExtraCpRules(): array
 	{
 		return [
-			[['label'], 'string'],
-			[['label'], 'trim'],
+			[['label', 'default'], 'string'],
+			[['label', 'default'], 'trim'],
 			[['required', 'enforceRequired'], 'boolean'],
 			['choices', 'required'],
 			['choices', 'validateChoices']

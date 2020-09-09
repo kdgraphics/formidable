@@ -9,6 +9,14 @@ import VueConfirmDialog from 'vue-confirm-dialog';
 
 Vue.use(VueConfirmDialog);
 
+Vue.mixin({
+  methods: {
+    t: (str, params) => {
+      return Craft.t('inspireforms', str, params);
+    }
+  }
+});
+
 new Vue({
   el: '#main',
   store: NotificationsStore,

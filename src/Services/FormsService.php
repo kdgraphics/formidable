@@ -219,6 +219,7 @@ class FormsService extends Component
             $form->honeypot = $data['honeypot'];
             $form->honeypotField = $data['honeypotField'];
             $form->saveSubmissions = $data['saveSubmissions'];
+            $form->saveSpam = $data['saveSpam'];
             $form->redirect = $data['redirect'];
             $form->class = $data['class'];
             $form->method = $data['method'];

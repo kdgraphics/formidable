@@ -2,6 +2,7 @@
 
 namespace Inspire\Forms\Controllers;
 
+use Inspire\Forms\Assets\FieldsAsset;
 use Inspire\Forms\Assets\FormAsset;
 use Inspire\Forms\Assets\FormsAsset;
 use Inspire\Forms\Models\Form;
@@ -13,11 +14,20 @@ use yii\web\HttpException;
 
 class CpFormsController extends Controller
 {
-	public function actionIndex()
+	public function actionIndex(?int $id = null)
 	{
+        $this->view->registerAssetBundle(FieldsAsset::class);
         $this->view->registerAssetBundle(FormsAsset::class);
+
 		$this->renderTemplate('inspireforms/cp/forms/index', [
-            'forms' => $this->forms()->getAll()
+            'forms' => $this->forms()->getAll(),
+            'formId' => $id ?? 0,
+            'notifications' => $this->notifications()->getAll(),
+            'captchas' => $this->captchas()->getAllAsArray(),
+            'registeredFields' => $this->fields()->getAllRegistered(),
+            'volumes' => array_map(function($volume) {
+                return ['id' => $volume->id, 'name' => $volume->name];
+            }, \Craft::$app->volumes->getAllVolumes())
         ]);
 	}
 
@@ -39,12 +49,12 @@ class CpFormsController extends Controller
 	public function actionSave()
     {
         $this->requirePostRequest();
+        $this->requireAcceptsJson();
         $data = $this->request()->getRequiredParam('data');
-        $fieldsData = $this->request()->getParam('fields', []);
+        
         $editing = $data['id'] ?? null;
         if ($editing and is_numeric($data['id'])) {
             $model = $this->forms()->getById($data['id']);
-            $model->fields = $this->buildFields($fieldsData);
         } else {
             $model = new Form();
         }
@@ -52,12 +62,23 @@ class CpFormsController extends Controller
         $model->setAttributes($data);
 
         if ($this->forms()->save($model)) {
-            $this->session()->setNotice(\Craft::t('inspireforms', 'Form saved successfully.'));
-            return $this->redirect("inspireforms/forms");
+            return $this->asJson([
+                'success' => true,
+                'message' => \Craft::t('inspireforms', 'Form saved successfully.'),
+                'form' => $model
+            ]);
         } else {
-            $this->session()->setError(\Craft::t('inspireforms', 'Please fix the errors before saving.'));
-            return $this->create($model);
+            return $this->asJson([
+                'errors' => $model->getErrors(),
+                'message' => \Craft::t('inspireforms', 'Please fix the errors before saving.')
+            ]);
         }
+    }
+
+    public function saveFields(int $formId)
+    {
+        $fieldsData = $this->request()->getParam('fields', []);
+        $model->fields = $this->buildFields($fieldsData);
     }
 
     public function actionDelete(int $id)

@@ -132,20 +132,6 @@ class File extends Field
 	}
 
 	/**
-	 * List craft volumes
-	 * 
-	 * @return array
-	 */
-	public function getVolumes(): array
-	{
-		$volumes = [];
-		foreach (\Craft::$app->volumes->getAllVolumes() as $volume) {
-			$volumes[$volume->id] = $volume->name;
-		}
-		return $volumes;
-	}
-
-	/**
 	 * Adds a dot on every extension
 	 * 
 	 * @return string

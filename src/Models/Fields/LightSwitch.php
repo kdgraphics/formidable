@@ -10,6 +10,7 @@ class LightSwitch extends Field
 	public $label;
 	public $required;
 	public $enforceRequired;
+	public $default;
 
 	/**
 	 * inheritDoc
@@ -43,7 +44,7 @@ class LightSwitch extends Field
 		return [
 			['label', 'string'],
 			['label', 'trim'],
-			['required', 'boolean']
+			[['required', 'default'], 'boolean']
 		];
 	}
 

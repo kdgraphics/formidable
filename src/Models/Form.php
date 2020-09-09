@@ -22,6 +22,7 @@ class Form extends Model
 	public $honeypot;
 	public $honeypotField;
 	public $saveSubmissions;
+	public $saveSpam;
 	public $redirect;
 	public $class;
 	public $method;
@@ -40,7 +41,7 @@ class Form extends Model
 			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails','redirect', 'class', 'method', 'submitLabel', 'color'], 'string'],
 			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'redirect', 'class', 'submitLabel', 'color'], 'trim'],
 			[['id', 'notifyAdmin_id', 'notify_id'], 'integer'],
-			[['honeypot', 'saveSubmissions'], 'boolean'],
+			[['honeypot', 'saveSubmissions', 'saveSpam'], 'boolean'],
 			['notifyEmails', 'validateEmails'],
 			['handle', 'validateHandle'],
 			['method', 'in', 'range' => ['GET', 'POST']],
@@ -106,6 +107,7 @@ class Form extends Model
             'honeypot' => $this->honeypot,
             'honeypotField' => $this->honeypotField,
             'saveSubmissions' => $this->saveSubmissions,
+            'saveSpam' => $this->saveSpam,
             'redirect' => $this->redirect,
             'class' => $this->class,
             'submitLabel' => $this->submitLabel,

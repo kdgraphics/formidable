@@ -12,6 +12,7 @@ class Text extends Field
 	public $required;
 	public $enforceRequired;
 	public $maxLength;
+	public $default;
 
 	/**
 	 * inheritDoc
@@ -43,8 +44,8 @@ class Text extends Field
 	public function getExtraCpRules(): array
 	{
 		return [
-			[['placeholder','label'], 'string'],
-			[['placeholder','label'], 'trim'],
+			[['placeholder','label', 'default'], 'string'],
+			[['placeholder','label', 'default'], 'trim'],
 			['maxLength', 'number'],
 			[['required', 'enforceRequired'], 'boolean']
 		];

@@ -6,6 +6,7 @@ class Radio extends Select
 {
 	public $choiceContainerClass;
 	public $choiceLabelClass;
+	public $default;
 
 	/**
 	 * inheritDoc
@@ -37,8 +38,8 @@ class Radio extends Select
 	public function getExtraCpRules(): array
 	{
 		$rules = parent::getExtraCpRules();
-		$rules[] = [['choiceContainerClass', 'choiceLabelClass'], 'trim'];
-		$rules[] = [['choiceContainerClass', 'choiceLabelClass'], 'string'];
+		$rules[] = [['choiceContainerClass', 'choiceLabelClass', 'default'], 'trim'];
+		$rules[] = [['choiceContainerClass', 'choiceLabelClass', 'default'], 'string'];
 		return $rules;
 	}
 }

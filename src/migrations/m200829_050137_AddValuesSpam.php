@@ -24,6 +24,6 @@ class m200829_050137_AddValuesSpam extends Migration
     public function safeDown()
     {
         $this->dropColumn('{{%inspireforms_spams}}', 'values');
-        return false;
+        return true;
     }
 }

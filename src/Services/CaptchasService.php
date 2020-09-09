@@ -32,6 +32,23 @@ class CaptchasService extends Component
     }
 
     /**
+     * Get all captchas as an array index by the handle
+     * 
+     * @return array
+     */
+    public function getAllAsArray(): array
+    {
+        $captchas = [];
+        foreach ($this->getAllRegistered() as $captcha) {
+            $captchas[$captcha->handle()] = [
+                'name' => $captcha->friendlyName(),
+                'handle' => $captcha->handle()
+            ];
+        }
+        return $captchas;
+    }
+
+    /**
      * Get a registered captcha by handle
      * 
      * @param  string $handle

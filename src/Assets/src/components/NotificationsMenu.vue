@@ -31,9 +31,6 @@ export default {
     });
   },
   methods: {
-    t(str) {
-      return Craft.t('inspireforms', str);
-    },
     edit(id) {
       EventBus.$emit('edit-notification-click', {id: id});
     },
