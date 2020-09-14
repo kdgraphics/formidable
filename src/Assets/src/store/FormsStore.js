@@ -7,72 +7,37 @@ export default new Vuex.Store({
   state: {
     isAdding: false,
     isDeleting: false,
-    isEditing: false,
-    volumes: {},
+    isSaving: false,
     form: {},
-    originalForm: {},
     fields: {},
-    forms: [],
-    notifications: [],
-    captchas: [],
-    deletedFields: 0,
-    addedFields: 0,
-    fieldsStatuses: {},
+    rules: {},
+    fieldNames: [],
     configHasChanged: false,
     fieldsHaveChanged: false,
     rulesHaveChanged: false,
-    errors: {},
-    selectedTab: null,
-    selectedField: null,
-    registeredFields: {}
-  },
-  getter: {
-    hasUnsavedChanges: state => {
-      return state.rulesHaveChanged || state.fieldsHaveChanged || state.configHasChanged
-    }
+    hasUnsavedChanges: false,
+    activeMenu: null,
+    conditionTypes: {},
+    fieldsHaveErrors: false,
+    rulesHaveErrors: false,
+    configHasErrors: false,
+    hasErrors: false
   },
   mutations: {
+    setIsSaving(state, value) {
+      if (value) {
+        state.errors = {};
+      }
+      state.isSaving = value;
+    },
+    setHasUnsavedChanges(state, value) {
+      state.hasUnsavedChanges = value;
+    },
     setIsAdding (state, value) {
       state.isAdding = value;
     },
-    setIsEditing (state, value) {
-      state.isEditing = value;
-    },
     setIsDeleting (state, value) {
       state.isDeleting = value;
-    },
-    setForms (state, value) {
-      state.forms = value;
-    },
-    setNotifications (state, value) {
-      state.notifications = value;
-    },
-    setCaptchas (state, value) {
-      state.captchas = value;
-    },
-    setErrors (state, value) {
-      state.errors = value;
-    },
-    setVolumes (state, value) {
-      state.volumes = value;
-    },
-    replaceForm (state, value) {
-      state.forms[value.id] = value;
-    },
-    removeForm (state, value) {
-      delete state.forms[value];
-    },
-    setSelectedTab(state, value) {
-      state.selectedTab = value;
-    },
-    replaceForm(state, value) {
-      state.forms[value.id] = value;
-    },
-    setSelectedField(state, value) {
-      state.selectedField = value;
-    },
-    setRegisteredFields(state, value) {
-      state.registeredFields = value;
     },
     setConfigHasChanged(state, value) {
       state.configHasChanged = value;
@@ -80,69 +45,76 @@ export default new Vuex.Store({
     setFieldsHaveChanged(state, value) {
       state.fieldsHaveChanged = value;
     },
-    setForm(state, id) {
-      state.fields = state.forms[id].fields;
-      delete state.forms[id].fields;
-      state.form = state.forms[id];
-      state.originalForm = {...state.forms[id]};
-      state.errors = {};
-      state.isAdding = false;
-      state.isEditing = true;
-      state.selectedTab = 'config';
+    setRulesHaveChanged(state, value) {
+      state.rulesHaveChanged = value;
     },
-    changeFieldStatus(state, value) {
-      state.fieldsStatuses[value.index] = value.status;
+    setFields(state, value) {
+      state.fields = value;
     },
-    addNewField(state, type) {
-      let field = {...state.registeredFields[type]};
-      state.fields.push(field);
-      state.selectedField = state.fields.length - 1;
-      state.addedFields++;
+    setRules(state, value) {
+      state.rules = value;
     },
-    deleteField(state, value) {
-      if (state.fields[state.selectedField].id) {
-        state.deletedFields++;
-      } else {
-        state.addedFields--;
-      }
-      delete state.fields[state.selectedField];
-      state.fields = state.fields.filter(val => val);
+    setForm(state, value) {
+      state.form = value;
     },
-    duplicateField(state, value) {
-      let field = {...state.fields[state.selectedField]};
-      state.fields.push(field);
-      state.addedFields++;
+    setActiveMenu(state, value) {
+      state.activeMenu = value;
+    },
+    setConditionTypes(state, value) {
+      state.conditionTypes = value;
+    },
+    setRulesHaveErrors(state, value) {
+      state.rulesHaveErrors = value;
+    },
+    setFieldsHaveErrors(state, value) {
+      state.fieldsHaveErrors = value;
+    },
+    setConfigHasErrors(state, value) {
+      state.configHasErrors = value;
+    },
+    setHasErrors(state, value) {
+      state.hasErrors = value;
+    },
+    setFieldNames(state, value) {
+      state.fieldNames = value;
     },
   },
   actions: {
-    changeFieldStatus({commit, dispatch}, value) {
-      commit('changeFieldStatus', value);
-      dispatch('calculateFieldsChangedStatus');
+    configHasErrors({commit, dispatch, state}, value) {
+      commit('setConfigHasErrors', value);
+      dispatch('checkIfErrors');
     },
-    addField({commit, dispatch}, type) {
-      commit('addNewField', type);
-      dispatch('calculateFieldsChangedStatus');
+    fieldsHaveErrors({commit, dispatch, state}, value) {
+      commit('setFieldsHaveErrors', value);
+      dispatch('checkIfErrors');
     },
-    deleteField({commit, dispatch}) {
-      commit('deleteField');
-      dispatch('calculateFieldsChangedStatus');
+    rulesHaveErrors({commit, dispatch, state}, value) {
+      commit('setRulesHaveErrors', value);
+      dispatch('checkIfErrors');
     },
-    duplicateField({commit, dispatch}) {
-      commit('duplicateField');
-      dispatch('calculateFieldsChangedStatus');
+    configHasChanged({commit, dispatch, state}, value) {
+      commit('setConfigHasChanged', value);
+      dispatch('checkIfChanges');
     },
-    calculateFieldsChangedStatus({commit, state}) {
-      if (state.addedFields || state.deletedFields) {
-        commit('setFieldsHaveChanged', true);
-        return;
-      }
-      for(let index in state.fieldsStatuses) {
-        if(state.fieldsStatuses[index]) {
-          commit('setFieldsHaveChanged', true);
-          return;
-        }
-      }
+    fieldsHaveChanged({commit, dispatch, state}, value) {
+      commit('setFieldsHaveChanged', value);
+      dispatch('checkIfChanges');
+    },
+    rulesHaveChanged({commit, dispatch, state}, value) {
+      commit('setRulesHaveChanged', value);
+      dispatch('checkIfChanges');
+    },
+    checkIfChanges({commit, state}) {
+      commit('setHasUnsavedChanges', state.rulesHaveChanged || state.fieldsHaveChanged || state.configHasChanged);
+    },
+    checkIfErrors({commit, state}) {
+      commit('setHasErrors', state.rulesHaveErrors || state.fieldsHaveErrors || state.configHasErrors);
+    },
+    resetChanges({dispatch, state, commit}) {
+      commit('setConfigHasChanged', false);
+      commit('setRulesHaveChanged', false);
       commit('setFieldsHaveChanged', false);
+      commit('setHasUnsavedChanges', false);
     }
   }
 });

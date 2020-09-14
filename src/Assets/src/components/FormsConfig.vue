@@ -1,104 +1,103 @@
 <template>
-	<div id="forms-config" v-show="selectedTab == 'config'">
+	<div id="forms-config" v-show="activeMenu == 'config'">
     <form method="post" accept-charset="UTF-8" ref="form" id="forms-form">
-      <input type="hidden" name="id" v-model="form.id">
       <div class="field first">
         <div class="heading">
-          <label class="required">{{ t('Name') }}</label>
+          <label class="required" for="form-name">{{ t('Name') }}</label>
         </div>
         <div class="input ltr">
-          <input name="name" id="form-name" v-model="form.name" class="text fullwidth" required="required">
+          <input id="form-name" v-model="form.name" :class="'text fullwidth' + (errors.name ? ' error' : '')">
         </div>
       </div>
       <div class="field">
         <div class="heading">
-          <label class="required">{{ t('Handle') }}</label>
+          <label class="required" for="form-handle">{{ t('Handle') }}</label>
         </div>
         <div class="input ltr">
-          <input id="form-handle" v-model="form.handle" name="handle" class="text fullwidth" required="required" :disabled="isEditing">
+          <input id="form-handle" v-model="form.handle" :class="'text fullwidth' + (errors.handle ? ' error' : '')">
         </div>
       </div>
       <div class="field">
         <div class="heading">
-          <label>{{ t('Captcha') }}</label>
+          <label for="form-captcha">{{ t('Captcha') }}</label>
         </div>
         <div class="input ltr">
           <div class="select">
-            <select v-model="form.captcha" name="captcha" class="text fullwidth">
+            <select v-model="form.captcha" class="text fullwidth" id="form-captcha">
               <option :value="null">{{ t('No captcha') }}</option>
               <option v-for="captcha in captchas" :value="captcha.handle" :key="captcha.handle">{{ captcha.name }}</option>
             </select>
           </div>
         </div>
       </div>
-      <div id="redirect-field" class="field" aria-describedby="redirect-field-instructions">
+      <div class="field" aria-describedby="redirect-field-instructions">
         <div class="heading">
-          <label id="redirect-field-label" for="redirect">{{ t('Redirect') }}</label>                                    
+          <label for="form-redirect">{{ t('Redirect') }}</label>                                    
         </div>
         <div id="redirect-field-instructions" class="instructions">
           <p>{{ t('Url to redirect users after submission') }}</p>
         </div>
         <div class="input ltr">
-          <input type="text" id="redirect" class="text fullwidth" name="redirect" v-model="form.redirect">
+          <input type="text" id="form-redirect" class="text fullwidth" v-model="form.redirect">
         </div>
       </div>
       <div class="lightswitch-field field">
         <div class="heading">
-          <label for="honeypot">{{ t('Honeypot') }}</label>
+          <label for="form-honeypot">{{ t('Honeypot') }}</label>
         </div>
         <div class="input ltr">
-          <div id="honeypot" class="lightswitch on" tabindex="0" role="switch" :aria-checked="form.honeypot">
+          <div id="form-honeypot" class="lightswitch on" tabindex="0" role="switch" :aria-checked="form.honeypot">
             <div class="lightswitch-container">
               <div class="handle"></div>
             </div>
-            <input type="hidden" name="honeypot" v-model="form.honeypot">
+            <input type="hidden" v-model="form.honeypot">
           </div>
         </div>
       </div>
-      <div v-if="form.honeypot" id="honeypotField-field" class="field" aria-describedby="honeypotField-field-instructions">
+      <div v-if="form.honeypot" class="field" aria-describedby="honeypotField-field-instructions">
         <div class="heading">
-          <label id="honeypotField-field-label" class="required" for="honeypotField">{{ t('Honeypot field name') }}</label>
+          <label class="required" for="form-honeypotField">{{ t('Honeypot field name') }}</label>
         </div>
         <div id="honeypotField-field-instructions" class="instructions">
           <p>{{ t('A name that is not an existing field, and has a quite sensitive name') }}</p>
         </div>
         <div class="input ltr">
-          <input type="text" id="honeypotField" class="text fullwidth" name="honeypotField" v-model="form.honeypotField" required="required">
+          <input type="text" id="form-honeypotField" :class="'text fullwidth' + (errors.honeypotField ? ' error' : '')" v-model="form.honeypotField">
         </div>
       </div>
       <div class="lightswitch-field field">
         <div class="heading">
-          <label for="saveSubmissions">{{ t('Save submissions') }}</label>
+          <label for="form-saveSubmissions">{{ t('Save submissions') }}</label>
         </div>
         <div class="input ltr">
-          <div id="saveSubmissions" class="lightswitch on" tabindex="0" role="switch" :aria-checked="form.saveSubmissions">
+          <div id="form-saveSubmissions" class="lightswitch on" tabindex="0" role="switch" :aria-checked="form.saveSubmissions">
             <div class="lightswitch-container">
               <div class="handle"></div>
             </div>
-            <input type="hidden" name="saveSubmissions" v-model="form.saveSubmissions">
+            <input type="hidden" v-model="form.saveSubmissions">
           </div>
         </div>
       </div>
       <div class="lightswitch-field field">
         <div class="heading">
-          <label for="saveSpam">{{ t('Save spam') }}</label>
+          <label for="form-saveSpam">{{ t('Save spam') }}</label>
         </div>
         <div class="input ltr">
-          <div id="saveSpam" ref="lightswitch" :class="{'lightswitch': true, 'on':form.saveSpam == 1}" tabindex="0" role="switch" :aria-checked="form.saveSpam">
+          <div id="form-saveSpam" ref="lightswitch" :class="{'lightswitch': true, 'on':form.saveSpam == 1}" tabindex="0" role="switch" :aria-checked="form.saveSpam">
             <div class="lightswitch-container">
               <div class="handle"></div>
             </div>
-            <input type="hidden" name="saveSpam" v-model="form.saveSpam">
+            <input type="hidden" v-model="form.saveSpam">
           </div>
         </div>
       </div>
       <div class="field">
         <div class="heading">
-          <label>{{ t('User notification') }}</label>
+          <label for="form-notify_id">{{ t('User notification') }}</label>
         </div>
         <div class="input ltr">
           <div class="select">
-            <select v-model="form.notify_id" name="notify_id" class="text fullwidth">
+            <select v-model="form.notify_id" class="text fullwidth" id="form.notify_id">
               <option :value="null">{{ t('Don\'t notify') }}</option>
               <option v-for="notif in notifications" :value="notif.id" :key="notif.id">{{ notif.name }}</option>
             </select>
@@ -107,19 +106,19 @@
       </div>
       <div v-if="form.notify_id" class="field">
         <div class="heading">
-          <label class="required">{{ t('User email field') }}</label>
+          <label class="required" for="form.notifyField">{{ t('User email field') }}</label>
         </div>
         <div class="input ltr">
-          <input name="notifyField" class="text fullwidth" v-model="form.notifyField">
+          <input id="form-notifyField" :class="'text fullwidth' + (errors.notifyField ? ' error' : '')" v-model="form.notifyField">
         </div>
       </div>
       <div class="field">
         <div class="heading">
-          <label>{{ t('Admin notification') }}</label>
+          <label for="form-notifyAdmin_id">{{ t('Admin notification') }}</label>
         </div>
         <div class="input ltr">
           <div class="select">
-            <select v-model="form.notifyAdmin_id" name="notifyAdmin_id" class="text fullwidth">
+            <select v-model="form.notifyAdmin_id" id="form-notifyAdmin_id" class="text fullwidth">
               <option :value="null">{{ t('Don\'t notify') }}</option>
               <option v-for="notif in notifications" :value="notif.id" :key="notif.id">{{ notif.name }}</option>
             </select>
@@ -128,13 +127,13 @@
       </div>
       <div v-if="form.notifyAdmin_id" class="field" aria-describedby="emails-field-instructions">
         <div class="heading">
-          <label class="required">{{ t('Admin emails') }}</label>
+          <label class="required" for="form-notifyEmails">{{ t('Admin emails') }}</label>
         </div>
         <div id="emails-field-instructions" class="instructions">
           <p>{{ t('Comma separated emails') }}</p>
         </div>
         <div class="input ltr">
-          <textarea name="notifyEmails" class="text fullwidth" v-model="form.notifyEmails"></textarea>
+          <textarea id="form-notifyEmails" :class="'text fullwidth' + (errors.notifyEmails ? ' error' : '')" v-model="form.notifyEmails"></textarea>
         </div>
       </div>
 
@@ -144,36 +143,36 @@
           <div class="hidden"></div>
           <div id="method-field" class="field first">
             <div class="heading">
-              <label id="method-field-label" for="method">{{ t('Form method') }}</label>                                    
+              <label for="form-method">{{ t('Form method') }}</label>                                    
             </div>
             <div class="input ltr">
               <div class="select">
-                <select id="method" name="method" v-model="form.method">
+                <select id="form-method" v-model="form.method">
                   <option value="POST">POST</option>
                   <option value="GET">GET</option>
                 </select>
               </div>
             </div>
           </div>                        
-          <div id="class-field" class="field">
+          <div class="field">
             <div class="heading">
-              <label id="class-field-label" for="class">{{ t('Class') }}</label>
+              <label for="form-class">{{ t('Class') }}</label>
             </div>
             <div class="input ltr">
-              <input type="text" id="class" class="text fullwidth" name="class" v-model="form.class">
+              <input type="text" id="form-class" class="text fullwidth" v-model="form.class">
             </div>
           </div>
-          <div id="submitLabel-field" class="field">
+          <div class="field">
             <div class="heading">
-              <label id="submitLabel-field-label" class="required" for="submitLabel">{{ t('Submit label') }}</label>
+              <label class="required" for="form-submitLabel">{{ t('Submit label') }}</label>
             </div>
             <div class="input ltr">
-              <input type="text" id="submitLabel" class="text fullwidth" name="submitLabel" v-model="form.submitLabel">
+              <input type="text" id="form-submitLabel" :class="'text fullwidth' + (errors.submitLabel ? ' error' : '')" v-model="form.submitLabel">
             </div>
           </div>
           <div id="color-field" class="field">
             <div class="heading">
-              <label id="color-field-label" for="color">{{ t('Chart color') }}</label>
+              <label for="form-color">{{ t('Chart color') }}</label>
             </div>
             <div class="input ltr">
               <div id="color-container" ref="colorInput" class="flex color-container">
@@ -181,7 +180,7 @@
                   <div class="color-preview" :style="{'background-color': form.color}">
                   </div>
                 </div>
-                <input type="text" id="color" class="color-input text" name="color" v-model="form.color" size="10">
+                <input type="text" id="form-color" class="color-input text" v-model="form.color" size="10">
               </div>
             </div>
           </div>
@@ -192,43 +191,55 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from 'vuex';
-import { EventBus } from './../EventBus.js';
+import { mapMutations, mapState, mapActions } from 'vuex';
 import axios from 'axios';
 import Vue from 'vue';
+import { isEqual, cloneDeep, reduce, trim } from 'lodash';
 
 export default {
+  props: {
+    allNotifications: Object,
+    allCaptchas: Object,
+    allVolumes: Array,
+    formEdited: Object,
+  },
   computed: {
-    ...mapState({
-      form: state => state.form,
-      notifications: state => state.notifications,
-      captchas: state => state.captchas,
-      isEditing: state => state.isEditing,
-      originalForm: state => state.originalForm,
-      selectedTab: state => state.selectedTab,
-    })
+    ...mapState(['activeMenu', 'form', 'fields', 'fieldNames']),
+    hasErrors: function () {
+      return reduce(this.errors, function(result, value, key) {
+        return (result || value);
+      }, false);
+    }
   },
   data: function () {
     return {
-      showAdvanced: false
+      showAdvanced: false,
+      captchas: this.allCaptchas,
+      notifications: this.allNotifications,
+      volumes: this.allVolumes,
+      original: {},
+      errors: {},
     }
   },
   watch: {
     form: {
-      handler: function (form) {
-        for (const key in form) {
-          if (form[key] == '' && typeof this.originalForm[key] == 'undefined') {
-            continue;
-          }
-          if (form[key] != this.originalForm[key]) {
-            this.setConfigHasChanged(true);
-            return;
-          }
-        }
-        this.setConfigHasChanged(false);
+      handler: function () {
+        this.configHasChanged(!isEqual(this.form, this.original));
+        this.validate();
       },
       deep: true
+    },
+    fieldNames: function () {
+      this.validate();
+    },
+    hasErrors: function () {
+      this.configHasErrors(this.hasErrors);
     }
+  },
+  created() {
+    this.original = cloneDeep(this.formEdited);
+    this.setIsAdding(this.formEdited.id == null);
+    this.setForm(this.formEdited);
   },
   mounted() {
     this.$nextTick(() => {
@@ -247,8 +258,33 @@ export default {
     });
   },
   methods: {
+    validate() {
+      this.errors = {
+        name: trim(this.form.name) == '',
+        handle: trim(this.form.handle) == '',
+        notifyEmails: (this.form.notifyAdmin_id && trim(this.form.notifyEmails) == ''),
+        submitLabel: trim(this.form.submitLabel) == '',
+        notifyField: this.validateNotifyField(),
+        honeypotField: (this.form.honeypotField == '' || this.fieldNames.indexOf(this.form.honeypotField) != -1)
+      };
+    },
+    validateNotifyField () {
+      if (!this.form.notify_id) {
+        return false;
+      }
+      let _this = this;
+      let fields = this.fields.filter(function (field) {
+        return (field.type == 'email' && field.name == _this.form.notifyField);
+      });
+      return (fields.length == 0);
+    },
     ...mapMutations({
-      setConfigHasChanged: 'setConfigHasChanged'
+      setForm: 'setForm',
+      setIsAdding: 'setIsAdding'
+    }),
+    ...mapActions({
+      configHasChanged: 'configHasChanged',
+      configHasErrors: 'configHasErrors',
     })
   }
 };

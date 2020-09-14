@@ -8,7 +8,7 @@ const config = {
   entry: {
     notifications: path.join(__dirname, 'src/Assets/src', 'notifications.js'),
     forms: path.join(__dirname, 'src/Assets/src', 'forms.js'),
-    fields: path.join(__dirname, 'src/Assets/src', 'fields.js'),
+    hook: path.join(__dirname, 'src/Assets/src', 'hook.js'),
   },
   mode: env,
   output: {

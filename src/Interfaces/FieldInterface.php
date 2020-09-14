@@ -21,6 +21,13 @@ interface FieldInterface
 	public function friendlyName(): string;
 
 	/**
+	 * Get field type
+	 * 
+	 * @return FieldTypeInterface
+	 */
+	public function fieldType(): FieldTypeInterface;
+
+	/**
 	 * Template to render in back end
 	 *  
 	 * @return string

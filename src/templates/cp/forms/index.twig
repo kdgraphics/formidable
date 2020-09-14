@@ -1,36 +1,7 @@
 {% extends "_layouts/cp" %}
 
-{% set title = "Forms"|t('inspireforms') %}
-
-{% set tabs = ['dummy', 'tabs'] %}
-
-{% set bodyClass = ['inspireforms'] %}
-
-{% block tabs %}
-	<forms-tabs></forms-tabs>
-{% endblock %}
-
-{% block toolbar %}
-	<forms-toolbar></forms-toolbar>
-{% endblock %}
-
-{% block sidebar %}
-	<forms-menu></forms-menu>
-{% endblock %}
+{% set title = 'Forms'|t('inspireforms') %}
 
 {% block content %}
-	<forms 
-		:all-forms="{{ forms ? forms|json_encode : '{}' }}"
-		:form-id="{{ formId }}"
-		:all-notifications="{{ notifications ? notifications|json_encode : '{}' }}"
-		:all-captchas="{{ captchas ? captchas|json_encode : '{}' }}"
-		:all-volumes="{{ volumes ? volumes|json_encode : '{}' }}"
-	></forms>
-	<forms-config></forms-config>
-	<forms-fields
-		:registered-fields="{{ registeredFields|json_encode }}"></forms-fields>
-	<forms-rules></forms-rules>
-	<forms-submissions></forms-submissions>
-	<forms-spam></forms-spam>
-	<confirm-dialog></confirm-dialog>
+	<a href="/admin/inspireforms/forms/add" class="btn icon add">{{ 'Add new form'|t('inspireforms') }}</a>
 {% endblock %}

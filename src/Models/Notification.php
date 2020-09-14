@@ -17,7 +17,6 @@ class Notification extends Model
 	public $subject;
 	public $dateCreated;
 	public $dateUpdated;
-	public $dateDeleted;
 	public $uid;
 
 	public function rules()

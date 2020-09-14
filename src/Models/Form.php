@@ -8,6 +8,7 @@ use Inspire\Forms\Interfaces\CaptchaInterface;
 use Inspire\Forms\Models\Notification;
 use Inspire\Forms\Services\FormsService;
 use craft\base\Model;
+use craft\helpers\ArrayHelper;
 
 class Form extends Model
 {
@@ -25,15 +26,15 @@ class Form extends Model
 	public $saveSpam;
 	public $redirect;
 	public $class;
-	public $method;
+	public $method = 'POST';
 	public $color;
 	public $captcha;
 	public $submitLabel;
 	public $dateCreated;
 	public $dateUpdated;
-	public $dateDeleted;
 	public $uid;
 	public $fields = [];
+	public $rules = [];
 
 	public function rules()
 	{
@@ -97,7 +98,7 @@ class Form extends Model
 	 */
 	public function getConfig(): array
 	{
-		$config = [
+		return [
 			'name' => $this->name,
             'handle' => $this->handle,
             'notify' => $this->notify_id ? $this->getNotify()->uid : null,
@@ -113,13 +114,8 @@ class Form extends Model
             'submitLabel' => $this->submitLabel,
             'method' => $this->method,
             'color' => $this->color,
-            'captcha' => $this->captcha,
-            'fields' => []
+            'captcha' => $this->captcha
 		];
-		foreach ($this->fields as $field) {
-			$config['fields'][] = $field->getConfig();
-		}
-		return $config;
 	}
 
 	/**

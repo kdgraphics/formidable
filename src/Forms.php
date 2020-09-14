@@ -2,9 +2,11 @@
 namespace Inspire\Forms;
 
 use Craft;
+use Inspire\Forms\Assets\TestAsset;
 use Inspire\Forms\Captchas\GoogleV3;
 use Inspire\Forms\Events\RegisterCaptchasEvent;
 use Inspire\Forms\Events\RegisterFieldsEvent;
+use Inspire\Forms\Events\RegisterRulesEvent;
 use Inspire\Forms\Models\Fields\CaptchaV3;
 use Inspire\Forms\Models\Fields\Checkboxes;
 use Inspire\Forms\Models\Fields\Email;
@@ -16,12 +18,17 @@ use Inspire\Forms\Models\Fields\Select;
 use Inspire\Forms\Models\Fields\Text;
 use Inspire\Forms\Models\Fields\Textarea;
 use Inspire\Forms\Models\FormSubmission;
+use Inspire\Forms\Models\Rules\Required;
+use Inspire\Forms\Models\Rules\SmallerThan;
 use Inspire\Forms\Models\Settings;
 use Inspire\Forms\Services\CaptchasService;
+use Inspire\Forms\Services\ConditionGroupsService;
+use Inspire\Forms\Services\ConditionsService;
 use Inspire\Forms\Services\CsvExporterService;
 use Inspire\Forms\Services\FieldsService;
 use Inspire\Forms\Services\FormsService;
 use Inspire\Forms\Services\NotificationsService;
+use Inspire\Forms\Services\RulesService;
 use Inspire\Forms\Services\SpamService;
 use Inspire\Forms\Services\SubmissionsService;
 use Inspire\Forms\Twig\TwigForms;
@@ -43,7 +50,7 @@ class Forms extends Plugin
 {
     public $controllerNamespace = "Inspire\\Forms\\Controllers";
 
-    public $schemaVersion = '1.0.3';
+    public $schemaVersion = '1.0.5';
 
     public $hasCpSettings = true;
 
@@ -67,6 +74,11 @@ class Forms extends Plugin
         GoogleV3::class
     ];
 
+    protected $availableRules = [
+        Required::class,
+        SmallerThan::class
+    ];
+
     public function init()
     {
         parent::init();
@@ -83,6 +95,7 @@ class Forms extends Plugin
         $this->registerProjectConfig();
         $this->registerFields();
         $this->registerCaptchas();
+        $this->registerRules();
         $this->registerTwigExtension();
         $this->registerFrontTemplates();
     }
@@ -132,14 +145,26 @@ class Forms extends Plugin
         $_this = $this;
         Event::on(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS,
             function(RegisterCpNavItemsEvent $event) use ($_this){
-                $event->navItems[] = [
-                    'url' => 'inspireforms',
+                $navItem = [
+                    'url' => 'inspireforms/forms',
                     'label' => \Craft::t('inspireforms', 'Forms'),
-                    'badgeCount' => $_this->submissions->countUnread(),
                     'subnav' => [
-                        'forms' => ['url' => 'inspireforms/forms', 'label' => \Craft::t('inspireforms', 'Forms')],
-                        'notifications' => ['url' => 'inspireforms/notifications', 'label' => \Craft::t('inspireforms', 'Notifications')]
+                        'inspireforms-add' => [
+                            'url' => 'inspireforms/forms/add',
+                            'label' => \Craft::t('inspireforms', 'Add new form')
+                        ]
                     ]
+                ];
+                foreach ($_this->forms->getAll() as $form) {
+                    $navItem['subnav']['inspireforms-form-'.$form->id] = [
+                        'url' => 'inspireforms/forms/'.$form->id,
+                        'label' => $form->name
+                    ];
+                }
+                $event->navItems['inspireforms'] = $navItem;
+                $event->navItems[] = [
+                    'url' => 'inspireforms/notifications',
+                    'label' => \Craft::t('inspireforms', 'Notifications'),
                 ];
         });
     }
@@ -174,7 +199,10 @@ class Forms extends Plugin
             'submissions' => SubmissionsService::class,
             'csvExporter' => CsvExporterService::class,
             'spam' => SpamService::class,
-            'captchas' => CaptchasService::class
+            'captchas' => CaptchasService::class,
+            'rules' => RulesService::class,
+            'conditions' => ConditionsService::class,
+            'conditionGroups' => ConditionGroupsService::class,
     	]);
     }
 
@@ -187,6 +215,19 @@ class Forms extends Plugin
         Event::on(CaptchasService::class, CaptchasService::EVENT_REGISTER_CAPTCHAS, function (RegisterCaptchasEvent $event) use ($captchas)  {
             foreach ($captchas as $captcha) {
                 $event->addCaptcha(new $captcha);
+            }
+        });
+    }
+
+    /**
+     * Registers rules
+     */
+    protected function registerRules()
+    {
+        $rules = $this->availableRules;
+        Event::on(RulesService::class, RulesService::EVENT_REGISTER_RULES, function (RegisterRulesEvent $event) use ($rules)  {
+            foreach ($rules as $rule) {
+                $event->addRule(new $rule);
             }
         });
     }
@@ -211,11 +252,13 @@ class Forms extends Plugin
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, [
-                'inspireforms' => 'inspireforms/cp-forms',
-                'inspireforms/forms' => 'inspireforms/cp-forms',
-                'inspireforms/forms/add' => 'inspireforms/cp-forms',
+                'inspireforms/forms' => 'inspireforms/cp-forms/form',
+                'inspireforms/forms/add' => 'inspireforms/cp-forms/form',
                 'inspireforms/forms/save' => 'inspireforms/cp-forms/save',
-                'inspireforms/forms/edit/<id:\d+>' => 'inspireforms/cp-forms',
+                'inspireforms/forms/<id:\d+>' => 'inspireforms/cp-forms/form',
+                'inspireforms/forms/<id:\d+>/<menu:config>' => 'inspireforms/cp-forms/form',
+                'inspireforms/forms/<id:\d+>/<menu:fields>' => 'inspireforms/cp-forms/form',
+                'inspireforms/forms/<id:\d+>/<menu:rules>' => 'inspireforms/cp-forms/form',
                 'inspireforms/forms/delete/<id:\d+>' => 'inspireforms/cp-forms/delete',
                 'inspireforms/notifications' => 'inspireforms/cp-notifications',
                 'inspireforms/notifications/get/<id:\d+>' => 'inspireforms/cp-notifications/get',
@@ -260,14 +303,24 @@ class Forms extends Plugin
     protected function registerProjectConfig()
     {
         Craft::$app->projectConfig
-            ->onAdd(Forms::CONFIG_KEY.'.'.NotificationsService::CONFIG_KEY.'.{uid}', [$this->notifications, 'handleChanged'])
-            ->onUpdate(Forms::CONFIG_KEY.'.'.NotificationsService::CONFIG_KEY.'.{uid}', [$this->notifications, 'handleChanged'])
-            ->onRemove(Forms::CONFIG_KEY.'.'.NotificationsService::CONFIG_KEY.'.{uid}', [$this->notifications, 'handleDeleted']);
-
-        Craft::$app->projectConfig
-            ->onAdd(Forms::CONFIG_KEY.'.'.FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleChanged'])
-            ->onUpdate(Forms::CONFIG_KEY.'.'.FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleChanged'])
-            ->onRemove(Forms::CONFIG_KEY.'.'.FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleDeleted']);
+            ->onAdd(NotificationsService::CONFIG_KEY.'.{uid}',      [$this->notifications,   'handleChanged'])
+            ->onUpdate(NotificationsService::CONFIG_KEY.'.{uid}',   [$this->notifications,   'handleChanged'])
+            ->onRemove(NotificationsService::CONFIG_KEY.'.{uid}',   [$this->notifications,   'handleDeleted'])
+            ->onAdd(FormsService::CONFIG_KEY.'.{uid}',              [$this->forms,           'handleChanged'])
+            ->onUpdate(FormsService::CONFIG_KEY.'.{uid}',           [$this->forms,           'handleChanged'])
+            ->onRemove(FormsService::CONFIG_KEY.'.{uid}',           [$this->forms,           'handleDeleted'])
+            ->onAdd(FieldsService::CONFIG_KEY.'.{uid}',             [$this->fields,          'handleChanged'])
+            ->onUpdate(FieldsService::CONFIG_KEY.'.{uid}',          [$this->fields,          'handleChanged'])
+            ->onRemove(FieldsService::CONFIG_KEY.'.{uid}',          [$this->fields,          'handleDeleted'])
+            ->onAdd(RulesService::CONFIG_KEY.'.{uid}',              [$this->rules,           'handleChanged'])
+            ->onUpdate(RulesService::CONFIG_KEY.'.{uid}',           [$this->rules,           'handleChanged'])
+            ->onRemove(RulesService::CONFIG_KEY.'.{uid}',           [$this->rules,           'handleDeleted'])
+            ->onAdd(ConditionsService::CONFIG_KEY.'.{uid}',         [$this->conditions,      'handleChanged'])
+            ->onUpdate(ConditionsService::CONFIG_KEY.'.{uid}',      [$this->conditions,      'handleChanged'])
+            ->onRemove(ConditionsService::CONFIG_KEY.'.{uid}',      [$this->conditions,      'handleDeleted'])
+            ->onAdd(ConditionGroupsService::CONFIG_KEY.'.{uid}',    [$this->conditionGroups, 'handleChanged'])
+            ->onUpdate(ConditionGroupsService::CONFIG_KEY.'.{uid}', [$this->conditionGroups, 'handleChanged'])
+            ->onRemove(ConditionGroupsService::CONFIG_KEY.'.{uid}', [$this->conditionGroups, 'handleDeleted']);
 
         Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $e) {
             Forms::$plugin->notifications->rebuildConfig($e);

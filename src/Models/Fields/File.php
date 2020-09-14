@@ -3,6 +3,7 @@
 namespace Inspire\Forms\Models\Fields;
 
 use Inspire\Forms\Models\Field;
+use Inspire\Forms\Models\FieldTypes\FileField;
 use Inspire\Forms\Models\FormSubmission;
 use craft\elements\Asset;
 use craft\web\UploadedFile;
@@ -10,6 +11,8 @@ use yii\web\BadRequestHttpException;
 
 class File extends Field
 {
+	protected $fieldTypeClass = FileField::class;
+
 	public $label;
 	public $required;
 	public $enforceRequired;

@@ -33,7 +33,6 @@ class Install extends Migration
             'submitLabel' => $this->string(255),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'dateDeleted' => $this->dateTime(),
             'uid' => $this->uid(),
         ]);
 
@@ -47,7 +46,6 @@ class Install extends Migration
             'subject' => $this->string(255)->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'dateDeleted' => $this->dateTime(),
             'uid' => $this->uid(),
         ]);
 
@@ -63,7 +61,6 @@ class Install extends Migration
             'options' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'dateDeleted' => $this->dateTime(),
             'uid' => $this->uid()
         ]);
 
@@ -74,7 +71,6 @@ class Install extends Migration
             'adminNotified' => $this->boolean()->defaultValue(false),
             'notified' => $this->boolean()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
         ]);
 

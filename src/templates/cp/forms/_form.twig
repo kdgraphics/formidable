@@ -1,179 +1,33 @@
-{% import "_includes/forms" as forms %}
+{% extends "_layouts/cp" %}
 
-{{ csrfInput() }}
-<input type="hidden" name="action" value="inspireforms/cp-forms/save" />
-<input type="hidden" name="data[id]" value="{{form.id}}" />
+{% set bodyClass = ['inspireforms'] %}
 
-{{
-    forms.textField({
-        label: "Name"|t('inspireforms'),
-        name: 'data[name]',
-        id: 'form-name',
-        first: true,
-        autofocus: true,
-        required: true,
-        value: form.name,
-        errors: form.getErrors('name')
-    })
-}}
+{% block toolbar %}
+    <forms-toolbar></forms-toolbar>
+{% endblock %}
 
-{{
-    forms.textField({
-        label: "Handle"|t('inspireforms'),
-        id: 'form-handle',
-        name: 'data[handle]',
-        required: true,
-        disabled: form.id is not empty,
-        value: form.handle,
-        errors: form.getErrors('handle')
-    })
-}}
+{% block sidebar %}
+    <forms-menu :menu="'{{ menu }}'"></forms-menu>
+{% endblock %}
 
-{{
-    forms.selectField({
-        label: "User notification"|t('inspireforms'),
-        id: 'notify_id',
-        name: 'data[notify_id]',
-        value: form.notify_id,
-        errors: form.getErrors('notify_id'),
-        options: {(''):"Don't notify"|t('inspireforms')} + notifications
-    })
-}}
-
-{{
-    forms.textField({
-        label: "User email field"|t('inspireforms'),
-        id: 'notifyField',
-        name: 'data[notifyField]',
-        required: true,
-        value: form.notifyField,
-        errors: form.getErrors('notifyField')
-    })
-}}
-
-{{
-    forms.selectField({
-        label: "Admin notification"|t('inspireforms'),
-        id: 'notifyAdmin_id',
-        name: 'data[notifyAdmin_id]',
-        value: form.notifyAdmin_id,
-        errors: form.getErrors('notifyAdmin_id'),
-        options: {(''):"Don't notify"|t('inspireforms')} + notifications
-    })
-}}
-
-{{
-    forms.textareaField({
-        label: "Admin emails"|t('inspireforms'),
-        id: 'notifyEmails',
-        name: 'data[notifyEmails]',
-        required: true,
-        value: form.notifyEmails,
-        instructions: 'Comma separated emails'|t('inspireforms')
-    })
-}}
-
-{{
-    forms.selectField({
-        label: "Captcha"|t('inspireforms'),
-        id: 'captcha',
-        name: 'data[captcha]',
-        value: form.captcha,
-        errors: form.getErrors('captcha'),
-        options: {(''):"No"|t('inspireforms')} + form.getCaptchas()
-    })
-}}
-
-{{
-    forms.lightswitchField({
-        label: "Honeypot"|t('inspireforms'),
-        id: 'honeypot',
-        name: 'data[honeypot]',
-        on: form.honeypot ?? true
-    })
-}}
-
-{{
-    forms.textField({
-        label: "Honeypot field name"|t('inspireforms'),
-        id: 'honeypotField',
-        name: 'data[honeypotField]',
-        required: true,
-        instructions: "A name that is not an existing field, and has a quite sensitive name",
-        value: form.honeypotField ?? 'secondary_name',
-        errors: form.getErrors('honeypotField')
-    })
-}}
-
-{{
-    forms.textField({
-        label: "Redirect"|t('inspireforms'),
-        id: 'redirect',
-        name: 'data[redirect]',
-        value: form.redirect,
-        errors: form.getErrors('redirect'),
-        instructions: "Url to redirect users after submission"|t('inspireforms')
-    })
-}}
-
-{{
-    forms.lightswitchField({
-        label: "Save submissions"|t('inspireforms'),
-        id: 'saveSubmissions',
-        name: 'data[saveSubmissions]',
-        on: form.saveSubmissions ?? true
-    })
-}}
-
-<div class="advanced">
-    <div class="header closed">Advanced
-    </div>
-    <div class="content" style="display:none">
-        {{
-            forms.selectField({
-                label: "Method"|t('inspireforms'),
-                id: 'method',
-                name: 'data[method]',
-                value: form.method,
-                errors: form.getErrors('method'),
-                options: {'POST':"POST", 'GET': 'GET'}
-            })
-        }}
-        {{
-            forms.textField({
-                label: "Class"|t('inspireforms'),
-                id: 'class',
-                name: 'data[class]',
-                value: form.class,
-                errors: form.getErrors('class')
-            })
-        }}
-
-        {{
-            forms.textField({
-                label: "Submit label"|t('inspireforms'),
-                id: 'submitLabel',
-                name: 'data[submitLabel]',
-                required: true,
-                value: form.submitLabel ?? 'Submit'|t('inspireforms'),
-                errors: form.getErrors('submitLabel')
-            })
-        }}
-
-        {{
-            forms.colorField({
-                label: "Chart color"|t('inspireforms'),
-                id: 'color',
-                name: 'data[color]',
-                value: form.color ?? "#000",
-                errors: form.getErrors('color')
-            })
-        }}
-    </div>
-</div>
-
-<div class="buttons">
-    <div class="btngroup submit first">
-        <input type="submit" class="btn submit" value="{{ 'Save'|t('inspireforms') }}" />
-    </div>
-</div>
+{% block content %}
+    <forms-config
+        :form-edited="{{ form|json_encode }}"
+        :all-notifications="{{ notifications ? notifications|json_encode : '{}' }}"
+        :all-captchas="{{ captchas ? captchas|json_encode : '{}' }}"
+        :all-volumes="{{ volumes ? volumes|json_encode : '{}' }}"
+    ></forms-config>
+    <forms-fields
+        :registered-fields="{{ registeredFields|json_encode }}"
+        :all-fields="{{ fields|json_encode }}"
+    >
+    </forms-fields>
+    <forms-rules
+        :valid-types="{{ validConditions|json_encode }}"
+        :registered-rules="{{ registeredRules ? registeredRules|json_encode : '{}' }}"
+        :all-rules="{{ rules ? rules|json_encode : '[]' }}"
+    ></forms-rules>
+    <forms-submissions></forms-submissions>
+    <forms-spam></forms-spam>
+    <confirm-dialog></confirm-dialog>
+{% endblock %}

@@ -5,14 +5,17 @@ namespace Inspire\Forms\Models;
 use Inspire\Forms\Events\FieldEvent;
 use Inspire\Forms\Forms;
 use Inspire\Forms\Interfaces\FieldInterface;
+use Inspire\Forms\Interfaces\FieldTypeInterface;
+use Inspire\Forms\Models\FieldTypes\TextField;
 use Inspire\Forms\Models\FormSubmission;
 use craft\base\Model;
-use craft\helpers\Json;
-use craft\helpers\StringHelper;
 
 abstract class Field extends Model implements FieldInterface
 {
 	const EVENT_RENDER = 'render';
+
+	protected $fieldTypeClass = TextField::class;
+
 	public $id;
 	public $name;
 	public $friendlyName;
@@ -22,26 +25,34 @@ abstract class Field extends Model implements FieldInterface
 	public $labelClass;
 	public $instructions;
 	public $form_id;
-	private $options;
 	public $type;
 	public $dateCreated;
 	public $dateUpdated;
-	public $dateDeleted;
 	public $uid;
+	public $validConditions;
+	public $validRules;
+	private $options;
 
-	protected $rootAttributes = ['id', 'name', 'order', 'form_id', 'options', 'dateCreated', 'dateUpdated', 'dateDeleted', 'uid', 'fieldClass', 'containerClass', 'instructions', 'type'];
+	protected $rootAttributes = ['id', 'name', 'order', 'form_id', 'options', 'dateCreated', 'dateUpdated', 'uid', 'fieldClass', 'containerClass', 'instructions', 'type', 'friendlyName', 'validRules', 'validConditions'];
 
 	public function init()
 	{
 		parent::init();
 		$this->type = $this->handle();
 		$this->friendlyName = $this->friendlyName();
+		$this->validConditions = $this->fieldType()->getValidConditionTypes();
+		$this->validRules = $this->fieldType()->getValidRuleTypes();
+	}
+
+	public function fieldType(): FieldTypeInterface
+	{
+		return $this->fieldTypeClass::getInstance();
 	}
 
 	public function rules()
 	{
 		return array_merge($this->getExtraCpRules(), [
-			[['id'], 'integer'],
+			[['id', 'order'], 'integer'],
 			['name', 'required'],
 			[['name', 'fieldClass', 'containerClass', 'instructions', 'labelClass'], 'string'],
 			[['name', 'fieldClass', 'containerClass', 'instructions', 'labelClass'], 'trim']
@@ -56,12 +67,22 @@ abstract class Field extends Model implements FieldInterface
 		return 'inspireforms/fields/'.$this->handle();
 	}
 
-	public function getForm()
+	/**
+	 * Get form model
+	 * 
+	 * @return ?Form
+	 */
+	public function getForm(): ?Form
 	{
 		return Forms::$plugin->forms->getById($this->form_id);
 	}
 
-	public function setOptions($value)
+	/**
+	 * Extract all options in object
+	 * 
+	 * @param string $value
+	 */
+	public function setOptions(string $value)
 	{
 		$this->options = decodeJson($value, true);
 		foreach($this->options as $name => $value) {
@@ -69,11 +90,23 @@ abstract class Field extends Model implements FieldInterface
 		}
 	}
 
-	public function generateId(Form $form)
+	/**
+	 * Unique id for this field
+	 * 
+	 * @param  Form   $form
+	 * @return string
+	 */
+	public function generateId(Form $form): string
 	{
 		return $form->handle.'-field-'.$this->name;
 	}
 
+	/**
+	 * Rebuild options in json/array
+	 * 
+	 * @param  bool|boolean $asJson
+	 * @return string|array
+	 */
 	public function rebuildOptions(bool $asJson = false)
 	{
 		$keys = array_diff(array_keys($this->attributes), $this->rootAttributes);
@@ -101,8 +134,7 @@ abstract class Field extends Model implements FieldInterface
             'containerClass' => $this->containerClass,
             'instructions' => $this->instructions,
             'type' => $this->handle(),
-            'options' => $this->rebuildOptions(true),
-            'uid' => $this->uid
+            'options' => $this->rebuildOptions(true)
 		];
 	}
 

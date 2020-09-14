@@ -9,14 +9,18 @@ class FormsAsset extends AssetBundle
 {
 	public function init()
     {
-        $this->sourcePath = "@Inspire/Forms/Assets/dist";
+        $this->sourcePath = __DIR__ . '/dist';
 
         $this->depends = [
             CpAsset::class,
         ];
 
         $this->js = [
-            'forms.js'
+            'forms.js',
+        ];
+
+        $this->css = [
+            'main.css'
         ];
 
         parent::init();

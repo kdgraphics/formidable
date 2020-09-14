@@ -7,6 +7,7 @@ use Inspire\Forms\Events\NotificationEvent;
 use Inspire\Forms\Forms;
 use Inspire\Forms\Models\FormSubmission;
 use Inspire\Forms\Models\Notification as NotificationModel;
+use Inspire\Forms\Models\Records\Form as FormRecord;
 use Inspire\Forms\Models\Records\Notification as NotificationRecord;
 use Psr\Log\LogLevel;
 use craft\base\Component;
@@ -24,8 +25,10 @@ class NotificationsService extends Component
 	const EVENT_BEFORE_APPLY_DELETE = 'before_apply_delete';
 	const EVENT_AFTER_DELETE = 'after_delete';
     const EVENT_BEFORE_DELETE = 'before_delete';
+
     const EVENT_BEFORE_SENDING_EMAIL = 'before_email';
-	const CONFIG_KEY = 'notifications';
+
+	const CONFIG_KEY = Forms::CONFIG_KEY . '.notifications';
 
 	protected $notifications;
 
@@ -116,18 +119,18 @@ class NotificationsService extends Component
         if ($isNew) {
             $model->uid = StringHelper::UUID();
         } else {
-            $model->uid = Db::uidById('{{%inspireforms_notifications}}', $model->id);
+            $model->uid = Db::uidById(NotificationRecord::tableName(), $model->id);
         }
 
         $projectConfig = \Craft::$app->getProjectConfig();
 
         $configData = $model->getConfig();
 
-        $configPath = Forms::CONFIG_KEY . '.' . self::CONFIG_KEY . '.' . $model->uid;
+        $configPath = self::CONFIG_KEY . '.' . $model->uid;
         $projectConfig->set($configPath, $configData);
 
         if ($isNew) {
-            $model->id = Db::idByUid('{{%inspireforms_notifications}}', $model->uid);
+            $model->id = Db::idByUid(NotificationRecord::tableName(), $model->uid);
         }
 
         return true;
@@ -147,7 +150,7 @@ class NotificationsService extends Component
             ]));
         }
 
-        \Craft::$app->getProjectConfig()->remove(Forms::CONFIG_KEY . '.' . self::CONFIG_KEY . '.' . $model->uid);
+        \Craft::$app->getProjectConfig()->remove(self::CONFIG_KEY . '.' . $model->uid);
 
         return true;
     }
@@ -217,7 +220,14 @@ class NotificationsService extends Component
         }
 
         \Craft::$app->getDb()->createCommand()
-            ->softDelete('{{%inspireforms_notifications}}', ['uid' => $uid])
+            ->update(FormRecord::tableName(), ['notify_id' => null], ['notify_id' => $notification->id])
+            ->execute();
+        \Craft::$app->getDb()->createCommand()
+            ->update(FormRecord::tableName(), ['notifyAdmin_id' => null], ['notifyAdmin_id' => $notification->id])
+            ->execute();
+
+        \Craft::$app->getDb()->createCommand()
+            ->softDelete(NotificationRecord::tableName(), ['uid' => $uid])
             ->execute();
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE)) {

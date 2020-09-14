@@ -1,18 +1,22 @@
 import Vue from 'vue';
 
 import FormsMenu from './components/FormsMenu.vue';
-import Forms from './components/Forms.vue';
 import FormsConfig from './components/FormsConfig.vue';
 import FormsFields from './components/FormsFields.vue';
 import FormsField from './components/FormsField.vue';
 import FormsRules from './components/FormsRules.vue';
+import FormsRule from './components/FormsRule.vue';
 import FormsSpam from './components/FormsSpam.vue';
 import FormsSubmissions from './components/FormsSubmissions.vue';
 import FormsToolbar from './components/FormsToolbar.vue';
-import FormsTabs from './components/FormsTabs.vue';
 import ConfirmDialog from './components/ConfirmDialog.vue';
+import RuleCondition from './components/RuleCondition.vue';
+import RuleConditionGroup from './components/RuleConditionGroup.vue';
+import Choices from './fields/Choices.vue';
 import FormsStore from './store/FormsStore';
 import VueConfirmDialog from 'vue-confirm-dialog';
+import Multiselect from 'vue-multiselect';
+import { capitalize } from 'lodash';
 
 Vue.use(VueConfirmDialog);
 
@@ -20,6 +24,9 @@ Vue.mixin({
   methods: {
     t: (str, params) => {
       return Craft.t('inspireforms', str, params);
+    },
+    capitalize: (str) => {
+      return capitalize(str);
     }
   }
 });
@@ -27,22 +34,28 @@ Vue.mixin({
 for (const [type, component] of Object.entries(window.formFields)) {
   Vue.component('field-' + type, component);
 }
+for (const [type, component] of Object.entries(window.formRules)) {
+  Vue.component('rule-' + type, component);
+}
 
 Vue.component('forms-field', FormsField);
+Vue.component('forms-rule', FormsRule);
+Vue.component('field-choices', Choices);
+Vue.component('multiselect', Multiselect);
+Vue.component('condition', RuleCondition);
+Vue.component('condition-group', RuleConditionGroup);
 
 new Vue({
   el: '#main',
   store: FormsStore,
   components: {
     FormsMenu,
-    Forms,
     FormsConfig,
     FormsFields,
     FormsRules,
     FormsSpam,
     FormsSubmissions,
     FormsToolbar,
-    FormsTabs,
     ConfirmDialog,
   }
 });

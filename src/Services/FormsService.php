@@ -3,6 +3,7 @@
 namespace Inspire\Forms\Services;
 
 use Inspire\Forms\Events\FormEvent;
+use Inspire\Forms\Events\HookAssetsEvent;
 use Inspire\Forms\Events\SpamEvent;
 use Inspire\Forms\Events\SubmissionEvent;
 use Inspire\Forms\Forms;
@@ -31,7 +32,9 @@ class FormsService extends Component
     const SESSION_SUCCESS_KEY = 'inspireforms_success';
     const SESSION_OLDINPUT_KEY = 'inspireforms_oldinput';
 
-	const CONFIG_KEY = 'forms';
+    const EVENT_HOOK_ASSETS = 'inspireforms_hook';
+
+	const CONFIG_KEY = Forms::CONFIG_KEY . '.forms';
 
     const SPAM = 1;
     const VALID = 2;
@@ -44,6 +47,29 @@ class FormsService extends Component
      * @var array
      */
 	protected $forms;
+
+    /**
+     * Registered fields assets. Assets typically provides with Vue components to render the fields.
+     * Components must be registered in window.formFields
+     * 
+     * @var array
+     */
+    protected $fieldsAssets;
+
+    /**
+     * Get all the registered assets. triggers the event for other plugins to register assets
+     * 
+     * @return array
+     */
+    public function getRegisteredAssets(): array
+    {
+        if ($this->fieldsAssets == null) {
+            $event = new HookAssetsEvent;
+            $this->trigger(self::EVENT_HOOK_ASSETS, $event); 
+            $this->fieldsAssets = $event->getAssets();
+        }
+        return $this->fieldsAssets;
+    }
 
 	/**
 	 * Get all forms
@@ -90,7 +116,7 @@ class FormsService extends Component
      */
 	public function getRecordByUid(string $uid): FormRecord
 	{
-		return FormRecord::findOne(['uid' => $uid]) ?? new FormRecord();
+		return FormRecord::findOne(['uid' => $uid]) ?? new FormRecord(['uid' => $uid]);
 	}
 
     /**
@@ -129,85 +155,49 @@ class FormsService extends Component
     /**
      * Save a form. Adds/Modifies the project config
      * 
-     * @param  FormModel $model
-     * @param  bool              $validate
+     * @param  FormModel $form
      * @return bool
      */
-	public function save(FormModel $model, bool $validate = true): bool
+	public function save(FormModel $form): bool
 	{
-		$isNew = empty($model->id);
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE)) {
             $this->trigger(self::EVENT_BEFORE_SAVE, new FormEvent([
-                'form' => $model,
-                'isNew' => $isNew,
+                'form' => $form,
+                'isNew' => empty($form->id),
             ]));
         }
-
-        if ($validate) {
-            if (!$model->validate() or !$this->validateFields($model->fields)) {
-                return false;
-            }
-        }
-
-        if ($isNew) {
-            $model->uid = StringHelper::UUID();
-        } else {
-            $model->uid = Db::uidById('{{%inspireforms_forms}}', $model->id);
-        }
-
+        $form->uid = $form->id ? $form->uid : StringHelper::UUID();
         $projectConfig = \Craft::$app->getProjectConfig();
-        
-        $configData = $model->getConfig();
-
-        $configPath = Forms::CONFIG_KEY . '.' . self::CONFIG_KEY . '.' . $model->uid;
+        $configData = $form->getConfig();
+        $configPath = self::CONFIG_KEY . '.' . $form->uid;
         $projectConfig->set($configPath, $configData);
 
-        if ($isNew) {
-            $model->id = Db::idByUid('{{%inspireforms_forms}}', $model->uid);
-        } else {
-            foreach ($model->fields as $field) {
-                $field->id = Db::idByUid('{{%inspireforms_fields}}', $field->uid);
-            }
-            $toDelete = $this->gatherFieldsToDelete($model);
-            Forms::$plugin->fields->deleteMany($toDelete);
+        if (!$form->id) {
+            $form->id = Db::idByUid(FormRecord::tableName(), $form->uid);
         }
+
+        Forms::$plugin->fields->deleteMany($this->gatherFieldsToDelete($form));
+        Forms::$plugin->fields->saveMany($form->fields, $form);
+        Forms::$plugin->rules->deleteMany($this->gatherRulesToDelete($form));
+        Forms::$plugin->rules->saveMany($form->rules, $form);
 
         return true;
 	}
 
     /**
-     * Delete form model
+     * Handle a added or modified config
      * 
-     * @param  FormModel $model
-     * @return bool
+     * @param ConfigEvent $event
      */
-    public function delete(FormModel $model): bool
+    public function handleChanged(ConfigEvent $event)
     {
-        if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE)) {
-            $this->trigger(self::EVENT_BEFORE_DELETE, new FormEvent([
-                'form' => $model,
-            ]));
-        }
-        
-        \Craft::$app->getProjectConfig()->remove(Forms::CONFIG_KEY . '.' . self::CONFIG_KEY . '.' . $model->uid);
-
-        return true;
-    }
-
-	/**
-	 * Handle a added or modified config
-	 * 
-	 * @param ConfigEvent $event
-	 */
-	public function handleChanged(ConfigEvent $event)
-    {
-        $formUid = $event->tokenMatches[0];
+        $uid = $event->tokenMatches[0];
         $data = $event->newValue;
         $notifications = Forms::$plugin->notifications;
         $transaction = \Craft::$app->getDb()->beginTransaction();
 
         try {
-            $form = $this->getRecordByUid($formUid);
+            $form = $this->getRecordByUid($uid);
             $isNew = $form->getIsNewRecord();
 
             $form->name = $data['name'];
@@ -226,8 +216,6 @@ class FormsService extends Component
             $form->submitLabel = $data['submitLabel'];
             $form->color = $data['color'];
             $form->captcha = $data['captcha'];
-            $form->uid = $formUid;
-
             $form->save(false);
             $transaction->commit();
         } catch (\Throwable $e) {
@@ -235,27 +223,8 @@ class FormsService extends Component
             throw $e;
         }
 
-        if (isset($data['fields'])) {
-            foreach ($data['fields'] as $data) {
-                $transaction = \Craft::$app->getDb()->beginTransaction();
-                $field = Forms::$plugin->fields->getRecordByUid($data['uid']);
-                $field->name = $data['name'];
-                $field->form_id = $form->id;
-                $field->order = $data['order'];
-                $field->type = $data['type'];
-                $field->options = $data['options'];
-                $field->fieldClass = $data['fieldClass'];
-                $field->containerClass = $data['containerClass'];
-                $field->instructions = $data['instructions'];
-                $field->uid = $data['uid'];
-                $field->save(false);
-                $transaction->commit();
-            }
-        }
-
         // Clear caches
         $this->forms = null;
-
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE)) {
             $this->trigger(self::EVENT_AFTER_SAVE, new FormEvent([
@@ -263,6 +232,83 @@ class FormsService extends Component
                 'isNew' => $isNew,
             ]));
         }
+    }
+
+    /**
+     * Validate form data
+     * 
+     * @param  array  $data [description]
+     * @return FormModel
+     */
+    public function validateData(array $data): FormModel
+    {
+        if (isset($data['id']) and is_numeric($data['id'])) {
+            $form = $this->getById($data['id']);
+        } else {
+            $form = new FormModel();
+        }
+        $form->setAttributes($data);
+        $form->validate();
+        return $form;
+    }
+
+    /**
+     * Delete form model
+     * 
+     * @param  FormModel $model
+     * @return bool
+     */
+    public function delete(FormModel $model): bool
+    {
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE)) {
+            $this->trigger(self::EVENT_BEFORE_DELETE, new FormEvent([
+                'form' => $model,
+            ]));
+        }
+        
+        \Craft::$app->getProjectConfig()->remove(self::CONFIG_KEY . '.' . $model->uid);
+
+        return true;
+    }
+
+    /**
+     * Gathers all the validation errors for a form
+     * 
+     * @param  Form   $form
+     * @return array
+     */
+    public function gatherErrors(FormModel $form): array
+    {
+        $errors = [];
+        if ($errors = $form->getErrors()) {
+            $errors['form']['errors'] = $errors;
+        }
+        foreach ($form->fields as $index => $field) {
+            if ($errors = $field->getErrors()) {
+                $errors['fields'][$index] = $errors;
+            } 
+        }
+        foreach ($form->rules as $index => $rule) {
+            if ($errors = $rule->getErrors()) {
+                $errors['rules'][$index]['errors'] = $errors;
+            }
+            foreach ($rule->conditions as $index2 => $condition) {
+                if ($errors = $condition->getErrors()) {
+                    $errors['rules'][$index]['conditions'][$index2] = $errors;
+                }
+            }
+            foreach ($rule->conditionGroups as $index2 => $group) {
+                if ($errors = $group->getErrors()) {
+                    $errors['rules'][$index]['conditionsGroups'][$index2]['errors'] = $errors;
+                    foreach ($group->condition as $index3 => $condition) {
+                        if ($errors = $condition->getErrors()) {
+                            $errors['rules'][$index]['conditionsGroups'][$index2]['conditions'][$index3] = $errors;
+                        }
+                    }
+                }
+            }
+        }
+        return $errors;
     }
 
     /**
@@ -287,10 +333,7 @@ class FormsService extends Component
         }
 
         \Craft::$app->getDb()->createCommand()
-            ->softDelete('{{%inspireforms_forms}}', ['uid' => $uid])
-            ->execute();
-        \Craft::$app->getDb()->createCommand()
-            ->softDelete('{{%inspireforms_fields}}', ['form_id' => $form->id])
+            ->delete(FormRecord::tableName(), ['uid' => $uid])
             ->execute();
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE)) {
@@ -300,6 +343,11 @@ class FormsService extends Component
         }
     }
 
+    /**
+     * Respond to rebuild config event
+     * 
+     * @param  RebuildConfigEvent $e
+     */
     public function rebuildConfig(RebuildConfigEvent $e)
     {
         foreach ($this->getAll() as $form) {
@@ -378,26 +426,8 @@ class FormsService extends Component
     }
 
     /**
-     * Validates an array of fields
+     * Sort out fields to delete
      * 
-     * @param  array  $fields
-     * @return bool
-     */
-    protected function validateFields(array $fields): bool
-    {
-        $validated = true;
-        foreach ($fields as $field) {
-            if (!$field->validate()) {
-                $validated = false;
-            }
-        }
-        return $validated;
-    }
-
-    /**
-     * Sort out fields to delete for a form
-     * 
-     * @param  FormModel $form
      * @return array
      */
     protected function gatherFieldsToDelete(FormModel $form): array
@@ -407,6 +437,23 @@ class FormsService extends Component
         foreach ($allFields as $field) {
             if (!ArrayHelper::contains($form->fields, 'id', $field->id)) {
                 $toDelete[] = $field;
+            }
+        }
+        return $toDelete;
+    }
+
+    /**
+     * Sort out rules to delete
+     * 
+     * @return array
+     */
+    protected function gatherRulesToDelete(FormModel $form): array
+    {
+        $allRules = Forms::$plugin->rules->getFormRules($form);
+        $toDelete = [];
+        foreach ($allRules as $rule) {
+            if (!ArrayHelper::contains($form->rules, 'id', $rule->id)) {
+                $toDelete[] = $rule;
             }
         }
         return $toDelete;

@@ -24,7 +24,9 @@ Default fields have the handles : text, email, checkboxes, file, switch, number,
 
 ## Add
 
-To add a field, respond to the event `FieldsService::EVENT_REGISTER_FIELDS` :
+### Php file
+
+To add a field php class, respond to the event `FieldsService::EVENT_REGISTER_FIELDS` :
 
 ```
 Event::on(FieldsService::class, FieldsService::EVENT_REGISTER_FIELDS, function (RegisterFieldsEvent $event) {
@@ -35,9 +37,31 @@ Event::on(FieldsService::class, FieldsService::EVENT_REGISTER_FIELDS, function (
 
 if your field's handle is the same as one of the default field, it will replace it !
 
+### Vue component
+
+To add the corresponding field Vue components, respond to the event `FormsService::EVENT_HOOK_ASSETS` and add an `AssetBundle` class to it, linking to a javascript file.
+```
+Event::on(
+    FormsService::class,
+    FormsService::EVENT_REGISTER_ASSETS,
+    function (HookAssets $event) {
+        $event->addAsset(MyAsset::class);
+    }
+);
+```
+
+The javascript file will then register the component into the `formFields` js variable :
+```
+import TestField from './fields/TestField';
+
+window.formFields.test = TestField;
+```
+
+If the field name is the same than an existing one it will replace it !
+
 # Templating
 
-Load a field with its handle : `{% set form = inspireforms.forms.getByHandle('contactUs') %}`
+Load a form with its handle : `{% set form = inspireforms.forms.getByHandle('contactUs') %}`
 
 Render it with : `{{ form.render()|raw }}`
 
@@ -60,6 +84,16 @@ Each field has a default template too, if you want to override it :
 They define an email to be sent and can be attached to forms.
 
 The email will be built either through direct html or through a custom template, the 2 variables `submission` and `notification` are available. When building through html, you can use twig.
+
+# Captchas
+
+The plugin comes with a Google captcha V3 by default.
+You can add other captchas by responding to the event :
+```
+Event::on(CaptchasService::class, CaptchasService::EVENT_REGISTER_CAPTCHAS, function (RegisterCaptchasEvent $event) {
+    $event->addCaptcha(new $captcha);
+});
+```
 
 # Submissions
 

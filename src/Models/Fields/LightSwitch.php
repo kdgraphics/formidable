@@ -3,10 +3,13 @@
 namespace Inspire\Forms\Models\Fields;
 
 use Inspire\Forms\Models\Field;
+use Inspire\Forms\Models\FieldTypes\BooleanField;
 use Inspire\Forms\Models\FormSubmission;
 
 class LightSwitch extends Field
 {
+	protected $fieldTypeClass = BooleanField::class;
+
 	public $label;
 	public $required;
 	public $enforceRequired;

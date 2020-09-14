@@ -7,6 +7,7 @@ use Inspire\Forms\Services\CaptchasService;
 use Inspire\Forms\Services\FieldsService;
 use Inspire\Forms\Services\FormsService;
 use Inspire\Forms\Services\NotificationsService;
+use Inspire\Forms\Services\RulesService;
 use Inspire\Forms\Services\SpamService;
 use Inspire\Forms\Services\SubmissionsService;
 use craft\web\Controller as CraftController;
@@ -53,5 +54,10 @@ class Controller extends CraftController
 	protected function captchas(): CaptchasService
 	{
 		return Forms::$plugin->captchas;
+	}
+
+	protected function rules(): RulesService
+	{
+		return Forms::$plugin->rules;
 	}
 }

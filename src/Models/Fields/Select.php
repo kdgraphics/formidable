@@ -3,10 +3,13 @@
 namespace Inspire\Forms\Models\Fields;
 
 use Inspire\Forms\Models\Field;
+use Inspire\Forms\Models\FieldTypes\ArrayField;
 use Inspire\Forms\Models\FormSubmission;
 
 class Select extends Field
 {
+	protected $fieldTypeClass = ArrayField::class;
+
 	public $label;
 	public $required;
 	public $enforceRequired;

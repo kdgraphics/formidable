@@ -6,7 +6,7 @@
             <label class="required" :for="'field-'+field.index+'-name'">{{ t('Name') }}</label>
           </div>
           <div class="input ltr">
-            <input type="text" :id="'field-'+field.index+'-name'" class="text fullwidth" v-model="field.name" required="required">
+            <input type="text" :id="'field-'+field.index+'-name'" :class="'text fullwidth' + (errors.name ? ' error' : '')" v-model="field.name" required="required">
           </div>
         </div>
       </template>
@@ -57,6 +57,7 @@
 <script>
 import { mapMutations, mapState, mapActions } from 'vuex';
 import Vue from 'vue';
+import { isEqual, cloneDeep, reduce } from 'lodash';
 
 export default {
   props: {
@@ -66,36 +67,49 @@ export default {
   data: function () {
     return {
       showAdvanced: false,
-      originalField: {...this.field},
-      isNew: function () {
-        return (typeof this.field.id != 'number');
-      }
+      original: {},
+      errors: {}
+    }
+  },
+  computed: {
+    ...mapState(['fields']),
+    hasErrors: function () {
+      return reduce(this.errors, function(result, value, key) {
+        return (result || value);
+      }, false);
+    },
+    otherFieldNames: function () {
+      let _this = this;
+      return this.fields.filter(function (field) {
+        return field.order != _this.field.order;
+      }).map((field) => field.name);
     }
   },
   watch: {
     field: {
-      handler: function (field) {
-        if (this.isNew()) {
-          return;
-        }
-        for (const key in field) {
-          if (field[key] == '' && typeof this.originalField[key] == 'undefined') {
-            continue;
-          }
-          if (field[key] != this.originalField[key]) {
-            this.changeFieldStatus({index: this.index, status: true});
-            return;
-          }
-        }
-        this.changeFieldStatus({index: this.index, status: false});
+      handler: function () {
+        this.validate();
+        this.$emit('changed', {index: this.index, value: !isEqual(this.field, this.original)});
       },
       deep: true
+    },
+    hasErrors: function () {
+      this.$emit('errors', {index: this.index, value: this.hasErrors});
     }
   },
+  created() {
+    this.original = cloneDeep(this.field);
+    this.validate();
+  },
   methods: {
-    ...mapActions({
-      changeFieldStatus: 'changeFieldStatus'
-    })
+    /**
+     * Validate field's values
+     */
+    validate() {
+      this.errors = {
+        name: (!this.field.name || this.otherFieldNames.includes(this.field.name))
+      };
+    }
   }
 };
 </script>

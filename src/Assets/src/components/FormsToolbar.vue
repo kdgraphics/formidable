@@ -1,14 +1,14 @@
 <template>
   <div id="forms-toolbar" class="flex flex-grow">
-    <a href="#" class="btn submit add icon" @click.prevent="add()">{{ t('New') }}</a>
-    <button v-if="showSaveDelete.includes(selectedTab)" href="#" class="btn delete icon" @click.prevent="deleteForm()">{{ t('Delete') }}</button>
-    <button v-if="showSaveDelete.includes(selectedTab)" :disabled="!hasUnsavedChanges" href="#" class="btn save submit" @click.prevent="save()">{{ t('Save') }}</button>
+    <button href="#" class="btn delete icon" v-if="!isAdding" :disabled="isDeleting" @click.prevent="deleteForm()">{{ t('Delete') }}</button>
+    <button :disabled="!hasUnsavedChanges || isSaving || hasErrors" href="#" class="btn save submit" @click.prevent="save">{{ t('Save') }}</button>
   </div>
 </template>
 
 <script>
 import { EventBus } from './../EventBus.js';
-import { mapMutations, mapState } from 'vuex';
+import { mapMutations, mapState, mapActions } from 'vuex';
+import axios from 'axios';
 
 export default {
 	name: 'toolbar',
@@ -18,30 +18,30 @@ export default {
     }
   },
   computed: {
-  	...mapState({
-  		selectedTab: state => state.selectedTab,
-  		hasUnsavedChanges: state => state.hasUnsavedChanges,
-  		form: state => state.form,
-  		isAdding: state => state.isAdding,
-  	})
+  	...mapState(['hasUnsavedChanges', 'hasErrors', 'form', 'fields', 'rules', 'isAdding', 'isSaving', 'isDeleting']),
+  },
+  created() {
+    window.addEventListener('keydown', (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+        if (this.hasUnsavedChanges && !this.isSaving) {
+          event.preventDefault();
+          this.save(event);
+        }
+      }
+    });
   },
   methods: {
-    add() {
-      EventBus.$emit('add-form-click');
-    },
-    save(e) {
-      e.preventDefault();
-      let data = {data: this.form};
+    save() {
+      let data = {form: this.form, fields: this.fields, rules: this.rules};
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
-      this.setErrors({});
+      this.setIsSaving(true);
       axios.post('/admin/inspireforms/forms/save', data)
         .then((response) => {
           if (response.data.success) {
-            this.replaceForm(response.data.form);
             Craft.cp.displayNotice(response.data.message);
-            EventBus.$emit('form-saved', {form: response.data.form});
+            this.resetChanges();
             if (this.isAdding) {
-              this.$forms.doEdit(response.data.form, false);
+              this.setIsAdding(false);
             }
           } else {
             Craft.cp.displayError(response.data.message);
@@ -50,11 +50,21 @@ export default {
         })
         .catch((error) => {
           console.log(error);
+        })
+        .finally(() => {
+          this.setIsSaving(false);
         });
     },
     deleteForm() {
-      EventBus.$emit('delete-form-click');
-    }
+      
+    },
+    ...mapMutations({
+      setIsSaving: 'setIsSaving',
+      setIsAdding: 'setIsAdding',
+    }),
+    ...mapActions({
+      resetChanges: 'resetChanges'
+    })
   }
 };
 </script>

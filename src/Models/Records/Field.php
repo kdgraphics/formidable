@@ -5,12 +5,9 @@ namespace Inspire\Forms\Models\Records;
 use Inspire\Forms\Forms;
 use Inspire\Forms\Interfaces\FieldInterface;
 use craft\db\ActiveRecord;
-use craft\db\SoftDeleteTrait;
 
 class Field extends ActiveRecord
-{
-	use SoftDeleteTrait;
-	
+{	
 	public static function tableName()
 	{
 		return '{{%inspireforms_fields}}';
