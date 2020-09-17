@@ -6,20 +6,35 @@ use Inspire\Forms\Models\Rule;
 
 class Required extends Rule
 {
-	public $requiresValue = false;
-
+	/**
+	 * @inheritDoc
+	 */
 	public function name(): string 
 	{
 		return \Craft::t('inspireforms', 'Required');
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function handle(): string
 	{
 		return 'required';
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function defaultMessage(): string
 	{
 		return \Craft::t('inspireforms', '{field.name} is required.');
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function conditionName(): string
+	{
+		return \Craft::t('inspireforms', 'present');
 	}
 }

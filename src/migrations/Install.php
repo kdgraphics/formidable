@@ -30,6 +30,8 @@ class Install extends Migration
             'redirect' => $this->string(255),
             'method' => $this->string(255),
             'class' => $this->string(255),
+            'color' => $this->string(255),
+            'captcha' => $this->string(255),
             'submitLabel' => $this->string(255),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -78,6 +80,7 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'form_id' => $this->integer(11)->notNull(),
             'ip' => $this->string(255),
+            'values' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
@@ -94,12 +97,52 @@ class Install extends Migration
             'uid' => $this->uid()
         ]);
 
+        $this->createTable('{{%inspireforms_rules}}', [
+            'id' => $this->primaryKey(),
+            'form_id' => $this->integer(11)->notNull(),
+            'type' => $this->string(255)->notNull(),
+            'value' => $this->float(),
+            'message' => $this->text(),
+            'fields' => $this->json(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid()
+        ]);
+
+        $this->createTable('{{%inspireforms_conditiongroups}}', [
+            'id' => $this->primaryKey(),
+            'rule_id' => $this->integer(11)->notNull(),
+            'operator' => $this->string(5),
+            'negate' => $this->boolean(false),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid()
+        ]);
+
+        $this->createTable('{{%inspireforms_conditions}}', [
+            'id' => $this->primaryKey(),
+            'rule_id' => $this->integer(11),
+            'conditiongroup_id' => $this->integer(11),
+            'field' => $this->string(255)->notNull(),
+            'type' => $this->string(255)->notNull(),
+            'negate' => $this->boolean(false),
+            'operator' => $this->string(5),
+            'value' => $this->string(255),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid()
+        ]);
+
         $this->addForeignKey(null, '{{%inspireforms_forms}}', ['notify_id'], '{{%inspireforms_notifications}}', ['id'], 'SET NULL', null);
         $this->addForeignKey(null, '{{%inspireforms_forms}}', ['notifyAdmin_id'], '{{%inspireforms_notifications}}', ['id'], 'SET NULL', null);
         $this->addForeignKey(null, '{{%inspireforms_fields}}', ['form_id'], '{{%inspireforms_forms}}', ['id'], 'CASCADE', null);
         $this->addForeignKey(null, '{{%inspireforms_submissions}}', ['form_id'], '{{%inspireforms_forms}}', ['id'], 'CASCADE', null);
         $this->addForeignKey(null, '{{%inspireforms_spams}}', ['form_id'], '{{%inspireforms_forms}}', ['id'], 'CASCADE', null);
         $this->addForeignKey(null, '{{%inspireforms_submissions_values}}', ['submission_id'], '{{%inspireforms_submissions}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey(null, '{{%inspireforms_rules}}', ['form_id'], '{{%inspireforms_forms}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey(null, '{{%inspireforms_conditiongroups}}', ['rule_id'], '{{%inspireforms_rules}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey(null, '{{%inspireforms_conditions}}', ['rule_id'], '{{%inspireforms_conditions}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey(null, '{{%inspireforms_conditions}}', ['conditiongroup_id'], '{{%inspireforms_conditiongroups}}', ['id'], 'CASCADE', null);
     }
 
     /**
@@ -107,6 +150,11 @@ class Install extends Migration
      */
     public function safeDown()
     {
+        $this->dropTableIfExists('{{%inspireforms_rule_field}}');
+        $this->dropTableIfExists('{{%inspireforms_conditiongroups}}');
+        $this->dropTableIfExists('{{%inspireforms_conditions}}');
+        $this->dropTableIfExists('{{%inspireforms_conditionnable_rule}}');
+        $this->dropTableIfExists('{{%inspireforms_rules}}');
         $this->dropTableIfExists('{{%inspireforms_submissions_values}}');
         $this->dropTableIfExists('{{%inspireforms_spams}}');
         $this->dropTableIfExists('{{%inspireforms_submissions}}');

@@ -8,9 +8,7 @@ class FileField extends FieldType
 {
 	private static $instance = null;
 
-	protected $defaultConditionTypes = ['present'];
-
-	protected $defaultRuleTypes = ['required', 'smallerThan'];
+	protected $defaultRuleTypes = ['required', 'smallerThan', 'biggerThan', 'size'];
 
 	public static function getInstance()
 	{

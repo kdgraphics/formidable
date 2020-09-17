@@ -29,7 +29,6 @@
         :key="'' + form.id + index"
         :index="index"
         :rule="rule"
-        :valid-types="validTypes"
         :original="originals[index]"
         >
       </forms-rule>
@@ -50,8 +49,7 @@ import { EventBus } from '../EventBus';
 export default {
 	props: {
 		allRules: Array,
-		registeredRules: Object,
-    validTypes: Object
+		registeredRules: Object
 	},
   computed: {
     /**
@@ -96,8 +94,8 @@ export default {
   },
   created() {
     this.setRules(this.allRules);
+    this.setRegisteredRules(this.registeredRules);
     this.init();
-    this.setConditionTypes(this.validTypes);
   },
   watch: {
     loadedTime: function() {
@@ -173,6 +171,7 @@ export default {
     ...mapMutations({
       setRules: 'setRules',
       setConditionTypes: 'setConditionTypes',
+      setRegisteredRules: 'setRegisteredRules',
     }),
   	...mapActions({
       rulesHaveChanged: 'rulesHaveChanged',

@@ -47,7 +47,6 @@ class CpFormsController extends Controller
             'captchas' => $this->captchas()->getAllAsArray(),
             'fields' => $fields,
             'rules' => $rules,
-            'validConditions' => Condition::validTypes(),
             'registeredFields' => $this->fields()->getAllRegistered(),
             'registeredRules' => $this->rules()->getAllRegistered(),
             'volumes' => array_map(function($volume) {

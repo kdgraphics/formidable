@@ -18,7 +18,14 @@ use Inspire\Forms\Models\Fields\Select;
 use Inspire\Forms\Models\Fields\Text;
 use Inspire\Forms\Models\Fields\Textarea;
 use Inspire\Forms\Models\FormSubmission;
+use Inspire\Forms\Models\Rules\BiggerThan;
+use Inspire\Forms\Models\Rules\Contain;
+use Inspire\Forms\Models\Rules\EqualTo;
+use Inspire\Forms\Models\Rules\Off;
+use Inspire\Forms\Models\Rules\On;
 use Inspire\Forms\Models\Rules\Required;
+use Inspire\Forms\Models\Rules\SameThan;
+use Inspire\Forms\Models\Rules\Size;
 use Inspire\Forms\Models\Rules\SmallerThan;
 use Inspire\Forms\Models\Settings;
 use Inspire\Forms\Services\CaptchasService;
@@ -75,7 +82,14 @@ class Forms extends Plugin
     ];
 
     protected $availableRules = [
+        BiggerThan::class,
+        Contain::class,
+        EqualTo::class,
+        Off::class,
+        On::class,
         Required::class,
+        SameThan::class,
+        Size::class,
         SmallerThan::class
     ];
 

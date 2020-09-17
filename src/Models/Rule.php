@@ -10,11 +10,13 @@ use craft\helpers\ArrayHelper;
 
 abstract class Rule extends Model implements RuleInterface
 {
-	public $requiresValue = true;
+	public $requiresValue = false;
+	public $requiresField = false;
 
 	public $id;
 	public $type;
 	public $name;
+	public $conditionName;
 	public $message;
 	public $value;
 	public $form_id;
@@ -31,6 +33,7 @@ abstract class Rule extends Model implements RuleInterface
 		parent::init();
 		$this->type = $this->handle();
 		$this->name = $this->name();
+		$this->conditionName = $this->conditionName();
 		$this->defaultMessage = $this->defaultMessage();
 		$this->message = $this->defaultMessage();
 	}
@@ -86,38 +89,4 @@ abstract class Rule extends Model implements RuleInterface
             'fields' => $this->fields
 		];
 	}
-
-	/**
-     * Sort out conditions to delete
-     * 
-     * @return array
-     */
-    protected function gatherConditionsToDelete(): array
-    {
-        $allConditions = Forms::$plugin->rules->getRuleConditions($this);
-        $toDelete = [];
-        foreach ($allConditions as $condition) {
-            if (!ArrayHelper::contains($this->conditions, 'id', $condition->id)) {
-                $toDelete[] = $condition;
-            }
-        }
-        return $toDelete;
-    }
-
-    /**
-     * Sort out rules to delete
-     * 
-     * @return array
-     */
-    protected function gatherGroupsToDelete(): array
-    {
-        $allGroups = Forms::$plugin->rules->getRuleConditionGroups($this);
-        $toDelete = [];
-        foreach ($allGroups as $group) {
-            if (!ArrayHelper::contains($this->conditionGroups, 'id', $group->id)) {
-                $toDelete[] = $group;
-            }
-        }
-        return $toDelete;
-    }
 }

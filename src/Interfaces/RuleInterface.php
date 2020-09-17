@@ -24,4 +24,11 @@ interface RuleInterface
 	 * @return string
 	 */
 	public function defaultMessage(): string;
+
+	/**
+	 * Name when rule is used in a condition
+	 * 
+	 * @return string
+	 */
+	public function conditionName(): string;
 }

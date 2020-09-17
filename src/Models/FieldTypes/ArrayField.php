@@ -8,9 +8,7 @@ class ArrayField extends FieldType
 {
 	private static $instance = null;
 
-	protected $defaultConditionTypes = ['present', 'sameThan', 'biggerThan', 'smallerThan'];
-
-	protected $defaultRuleTypes = ['required', 'smallerThan'];
+	protected $defaultRuleTypes = ['required', 'smallerThan', 'biggerThan', 'size', 'sameThan'];
 
 	public static function getInstance()
 	{

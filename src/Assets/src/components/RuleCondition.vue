@@ -13,14 +13,14 @@
       </select>
     </div>
     <div class="select type no-shrink" :class="{'error' : errors.type}">
-      <select v-model="condition.type">
-        <option v-for="(type, value) in types" :value="value">{{ type.label }}</option>
+      <select v-model="rule">
+        <option v-for="item in types" :value="item">{{ item.conditionName }}</option>
       </select>
     </div>
-    <div class="value flex-grow" v-if="condition.type && conditionTypes[condition.type].requiresValue" :class="{'error' : errors.value}">
+    <div class="value flex-grow" v-if="type && type.requiresValue" :class="{'error' : errors.value}">
       <input v-model="condition.value" :placeholder="t('Value')" size="">
     </div>
-    <div class="value select no-shrink" v-if="condition.type && conditionTypes[condition.type].requiresField" :class="{'error' : errors.value}">
+    <div class="value select no-shrink" v-if="type && type.requiresField" :class="{'error' : errors.value}">
       <select v-model="condition.value">
         <option v-for="field in fields" :value="field.name">{{ field.name }}</option>
       </select>
@@ -41,9 +41,8 @@ export default {
   data() {
     return {
       errors: {},
-      types: {},
       field: null,
-      type: null
+      rule: null
     }
   },
   computed: {
@@ -55,6 +54,21 @@ export default {
         return (result || value);
       }, false);
     },
+    type: {
+      get: function() {
+        return this.rule;
+      },
+      set: function(rule) {
+        this.rule = rule;
+        this.condition.type = rule.handle;
+      }
+    },
+    types: function() {
+      if (!this.selectedField) {
+        return [];
+      }
+      return this.selectedField.validRules.map((type) => this.registeredRules[type]);
+    },
     selectedField: {
       get: function () {
         return this.field;
@@ -65,25 +79,16 @@ export default {
           this.$set(this.condition, 'type', null);
           this.$set(this.condition, 'value', null);
           this.$set(this.condition, 'field', null);
-          this.types = [];
           return;
         }
-        let types = {};
-        for (let key of field.validConditions) {
-          types[key] = this.conditionTypes[key];
-        }
-        this.types = types;
         this.$set(this.condition, 'field', field.name);
-        if (!has(types, this.condition.type)) {
-          this.$set(this.condition, 'type', null);
-          this.$set(this.condition, 'value', null);
-        }
       }
     },
-    ...mapState(['fields', 'conditionTypes'])
+    ...mapState(['fields', 'registeredRules'])
   },
   created() {
     this.selectedField = find(this.fields, (field) => field.name == this.condition.field);
+    this.rule = find(this.registeredRules, (rule) => rule.handle == this.condition.type);
     this.validate();
   },
   watch: {
@@ -114,8 +119,7 @@ export default {
       };
     },
     validateValue() {
-      let type = this.condition.type ? this.conditionTypes[this.condition.type] : null;
-      if (type && type.requiresField && !this.condition.value) {
+      if (this.type && (this.type.requiresField || this.type.requiredValue) && !this.condition.value) {
         return true;
       }
       return false;

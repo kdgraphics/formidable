@@ -34,7 +34,6 @@
     >
     </forms-fields>
     <forms-rules
-        :valid-types="{{ validConditions|json_encode }}"
         :registered-rules="{{ registeredRules ? registeredRules|json_encode : '{}' }}"
         :all-rules="{{ rules ? rules|json_encode : '[]' }}"
     ></forms-rules>

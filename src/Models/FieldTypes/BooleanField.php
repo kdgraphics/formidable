@@ -8,9 +8,7 @@ class BooleanField extends FieldType
 {
 	private static $instance = null;
 
-	protected $defaultConditionTypes = ['is on', 'is off', 'sameThan'];
-
-	protected $defaultRuleTypes = ['required'];
+	protected $defaultRuleTypes = ['required', 'on', 'off', 'sameThan'];
 
 	public static function getInstance()
 	{

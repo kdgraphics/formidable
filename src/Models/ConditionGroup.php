@@ -37,21 +37,4 @@ class ConditionGroup extends Model
 			'operator' => $this->operator
 		];
 	}
-
-	/**
-     * Sort out conditions to delete
-     * 
-     * @return array
-     */
-    protected function gatherConditionsToDelete(): array
-    {
-        $allConditions = Forms::$plugin->rules->getGroupConditions($this);
-        $toDelete = [];
-        foreach ($allConditions as $condition) {
-            if (!ArrayHelper::contains($this->conditions, 'id', $condition->id)) {
-                $toDelete[] = $condition;
-            }
-        }
-        return $toDelete;
-    }
 }

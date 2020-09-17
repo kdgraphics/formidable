@@ -8,9 +8,7 @@ class TextField extends FieldType
 {
 	private static $instance = null;
 
-	protected $defaultConditionTypes = ['present', 'smallerThan', 'biggerThan', 'equal', 'sameThan', 'contains'];
-
-	protected $defaultRuleTypes = ['required', 'smallerThan'];
+	protected $defaultRuleTypes = ['required', 'smallerThan', 'biggerThan', 'size', 'equalTo', 'contain'];
 
 	public static function getInstance()
 	{

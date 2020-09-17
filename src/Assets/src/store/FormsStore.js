@@ -11,13 +11,13 @@ export default new Vuex.Store({
     form: {},
     fields: [],
     rules: [],
+    registeredRules: [],
     fieldNames: [],
     configHasChanged: false,
     fieldsHaveChanged: false,
     rulesHaveChanged: false,
     hasUnsavedChanges: false,
     activeTab: null,
-    conditionTypes: [],
     fieldsHaveErrors: false,
     rulesHaveErrors: false,
     configHasErrors: false,
@@ -50,14 +50,14 @@ export default new Vuex.Store({
     setRules(state, value) {
       state.rules = value;
     },
+    setRegisteredRules(state, value) {
+      state.registeredRules = value;
+    },
     setForm(state, value) {
       state.form = value;
     },
     setActiveTab(state, value) {
       state.activeTab = value;
-    },
-    setConditionTypes(state, value) {
-      state.conditionTypes = value;
     },
     setRulesHaveErrors(state, value) {
       state.rulesHaveErrors = value;

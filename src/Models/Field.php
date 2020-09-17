@@ -29,18 +29,16 @@ abstract class Field extends Model implements FieldInterface
 	public $dateCreated;
 	public $dateUpdated;
 	public $uid;
-	public $validConditions;
 	public $validRules;
 	private $options;
 
-	protected $rootAttributes = ['id', 'name', 'order', 'form_id', 'options', 'dateCreated', 'dateUpdated', 'uid', 'fieldClass', 'containerClass', 'instructions', 'type', 'friendlyName', 'validRules', 'validConditions'];
+	protected $rootAttributes = ['id', 'name', 'order', 'form_id', 'options', 'dateCreated', 'dateUpdated', 'uid', 'fieldClass', 'containerClass', 'instructions', 'type', 'friendlyName', 'validRules'];
 
 	public function init()
 	{
 		parent::init();
 		$this->type = $this->handle();
 		$this->friendlyName = $this->friendlyName();
-		$this->validConditions = $this->fieldType()->getValidConditionTypes();
 		$this->validRules = $this->fieldType()->getValidRuleTypes();
 	}
 

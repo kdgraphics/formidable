@@ -18,52 +18,6 @@ class Condition extends Model
 	public $dateUpdated;
 	public $uid;
 
-	public static function validTypes(): array
-	{
-		return [
-			'present' => [
-				'label' => \Craft::t('inspireforms', 'is present'),
-				'requiresValue' => false,
-				'requiresField' => false
-			], 
-			'smallerThan' => [
-				'label' => \Craft::t('inspireforms', 'is smaller than'),
-				'requiresValue' => true,
-				'requiresField' => false
-			],
-			'biggerThan' => [
-				'label' => \Craft::t('inspireforms', 'is bigger than'),
-				'requiresValue' => true,
-				'requiresField' => false
-			], 
-			'equal' => [
-				'label' => \Craft::t('inspireforms', 'is equal to'),
-				'requiresValue' => true,
-				'requiresField' => false
-			],
-			'sameThan' => [
-				'label' => \Craft::t('inspireforms', 'is same than'),
-				'requiresValue' => false,
-				'requiresField' => true
-			],
-			'contains' => [
-				'label' => \Craft::t('inspireforms', 'contains'),
-				'requiresValue' => true,
-				'requiresField' => false
-			],
-			'is on' => [
-				'label' => \Craft::t('inspireforms', 'is on'),
-				'requiresValue' => false,
-				'requiresField' => false
-			],
-			'is off' => [
-				'label' => \Craft::t('inspireforms', 'is off'),
-				'requiresValue' => false,
-				'requiresField' => false
-			]
-		];
-	}
-
 	public function rules()
 	{
 		return [
