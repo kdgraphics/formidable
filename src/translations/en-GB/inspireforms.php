@@ -18,6 +18,7 @@ return [
 	'Delete' => 'Delete',
 	'New' => 'New',
 	'Do you want to delete this notification ?' => 'Do you want to delete this notification ?',
+	'Confirm deletion ?' => 'Confirm deletion ?',
 	'No notifications found' => 'No notifications found',
 	'Forms' => 'Forms',
 	'Config' => 'Config',
@@ -89,5 +90,12 @@ return [
 	'{type} is not a valid rule type' => '{type} is not a valid rule type',
 	'{type} is not a valid condition type' => '{type} is not a valid condition type',
 	'Selected' => 'Selected',
-	'Value to compare against' => 'Value to compare against'
+	'Value to compare against' => 'Value to compare against',
+	'No fields found' => 'No fields found',
+	'No rules found' => 'No rules found',
+	'Add new form' => 'Add new form',
+	'{form} form' => '{form} form',
+	'Add new notification' => 'Add new notification',
+	'{name} notification' => '{name} notification',
+	'This notification has been updated since you last loaded it, please reload the page' => 'This notification has been updated since you last loaded it, please reload the page'
 ];

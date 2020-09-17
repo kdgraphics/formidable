@@ -20,21 +20,21 @@ class Form extends Model
 	public $notifyAdmin_id;
 	public $notifyField;
 	public $notifyEmails;
-	public $honeypot;
+	public $honeypot = 1;
 	public $honeypotField;
-	public $saveSubmissions;
-	public $saveSpam;
+	public $saveSubmissions = 1;
+	public $saveSpam = 1;
 	public $redirect;
 	public $class;
 	public $method = 'POST';
-	public $color;
+	public $color = '#000000';
 	public $captcha;
 	public $submitLabel;
 	public $dateCreated;
 	public $dateUpdated;
 	public $uid;
-	public $fields = [];
-	public $rules = [];
+	public $fields;
+	public $rules;
 
 	public function rules()
 	{
@@ -65,6 +65,38 @@ class Form extends Model
 				return empty($model->$attribute);
 			}]
 		];
+	}
+
+	public function init()
+	{
+		$this->submitLabel = \Craft::t('inspireforms', 'Submit');
+		parent::init();
+	}
+
+	/**
+	 * Get form fields
+	 * 
+	 * @return array
+	 */
+	public function getFields(): array
+	{
+		if ($this->fields == null) {
+			$this->fields = Forms::$plugin->fields->getFormFields($this);
+		}
+		return $this->fields;
+	}
+
+	/**
+	 * Get form rules
+	 * 
+	 * @return array
+	 */
+	public function getRules(): array
+	{
+		if ($this->rules == null) {
+			$this->rules = Forms::$plugin->rules->getFormRules($this);
+		}
+		return $this->rules;
 	}
 
 	/**

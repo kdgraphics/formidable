@@ -41,16 +41,15 @@ export default {
   data() {
     return {
       errors: {},
-      original: {},
       types: {},
       field: null,
       type: null
     }
   },
   computed: {
-    hasChanges: function () {
-      return !isEqual(this.condition, this.original);
-    },
+    /**
+     * @return {Boolean} global error status
+     */
     hasErrors: function () {
       return reduce(this.errors, function(result, value, key) {
         return (result || value);
@@ -81,14 +80,16 @@ export default {
         }
       }
     },
-    ...mapState(['fieldNames', 'fields', 'conditionTypes'])
+    ...mapState(['fields', 'conditionTypes'])
   },
   created() {
-    this.original = cloneDeep(this.condition);
     this.selectedField = find(this.fields, (field) => field.name == this.condition.field);
     this.validate();
   },
   watch: {
+    hasErrors: function () {
+      this.$emit('error', {index: this.index, error: this.hasErrors});
+    },
     fields: {
       handler: function () {
         let field = find(this.fields, (field) => field.name == this.selectedField.name);
@@ -96,9 +97,6 @@ export default {
         this.validate();
       },
       deep: true
-    },
-    hasErrors: function () {
-      this.$emit('errors', {index: this.index, value: this.hasErrors});
     },
     condition: {
       handler: function () {
@@ -147,6 +145,7 @@ export default {
   }
   .delete, .icon-negate {
     font-size: 13px;
+    line-height: 26px;
   }
   .delete:before {
     margin-top: -4px;

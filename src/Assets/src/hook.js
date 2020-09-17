@@ -8,9 +8,6 @@ import FileField from './fields/FileField';
 import RadioField from './fields/RadioField';
 import CheckboxesField from './fields/CheckboxesField';
 
-import Required from './rules/Required';
-import SmallerThan from './rules/SmallerThan';
-
 window.formFields = {
 	text: TextField,
 	email: EmailField,
@@ -21,9 +18,4 @@ window.formFields = {
 	file: FileField,
 	radio: RadioField,
 	checkboxes: CheckboxesField,
-};
-
-window.formRules = {
-	required: Required,
-	smallerThan: SmallerThan
 };

@@ -69,7 +69,7 @@ class Condition extends Model
 		return [
 			[['type', 'negate', 'operator', 'field'], 'required'],
 			[['type', 'operator', 'field', 'value'], 'string'],
-			['type', 'in', 'range' => $this::validTypes()],
+			['type', 'in', 'range' => array_keys($this::validTypes())],
 			['negate', 'boolean'],
 			['operator', 'in', 'range' => ['and', 'or']]
 		];

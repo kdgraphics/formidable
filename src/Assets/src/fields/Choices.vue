@@ -22,6 +22,7 @@
 </template>
 
 <script>
+import { isEqual } from 'lodash';
 
 export default {
   props: {
@@ -42,7 +43,7 @@ export default {
       if (this.field.choices.length == 1) {
         return;
       }
-      this.field.choices.splice(id, 1);
+      this.$delete(this.field.choices, id);
     },
     moveChoice(from, to) {
       this.field.choices.splice(to, 0, this.field.choices.splice(from, 1)[0]);

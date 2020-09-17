@@ -1,67 +1,54 @@
 import Vuex from 'vuex';
 import Vue from 'vue';
+import {cloneDeep} from 'lodash';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
     isLoading: false,
-    isAdding: false,
-    isDeleting: false,
-    isEditing: false,
-    notification: {method: 'html'},
-    original: {},
+    isAdding: true,
+    notification: {},
     notifications: [],
     hasUnsavedChanges: false,
-    errors: {}
+    hasErrors: false,
+    loadedTime: 0,
+    counter: 0,
+    original: {}
   },
   mutations: {
     setIsLoading (state, value) {
       state.isLoading = value;
     },
-    setIsAdding (state, value) {
-      state.isAdding = value;
-    },
-    setIsEditing (state, value) {
-      state.isEditing = value;
-    },
-    setIsDeleting (state, value) {
-      state.isDeleting = value;
-    },
     setNotifications (state, value) {
       state.notifications = value;
-    },
-    setNotification (state, value) {
-      state.original = {...value};
-      state.notification = value;
     },
     setHasUnsavedChanges (state, value) {
       state.hasUnsavedChanges = value;
     },
-    setErrors (state, value) {
-      state.errors = value
+    setNotification(state, value) {
+      if (value) {
+        state.isAdding = false;
+        state.notification = state.notifications[value];
+      } else {
+        state.isAdding = true;
+        state.notification = {
+          name: '',
+          method: 'html',
+          html: '',
+          template: '',
+          subject: '',
+          sentFrom: ''
+        }
+      }
+      state.original = cloneDeep(state.notification);
+      state.counter = state.counter + 1;
     },
-    replaceNotification (state, value) {
-      state.notifications[value.id] = value;
+    setHasErrors(state, value) {
+      state.hasErrors = value;
     },
-    removeNotification (state, value) {
-      delete state.notifications[value];
-    },
-    addMode (state, value) {
-      state.hasUnsavedChanges = false;
-      state.errors = {};
-      state.notification = {method: 'html'};
-      state.original = {method: 'html'};
-      state.isEditing = false;
-      state.isAdding = true;
-    },
-    editMode (state, value) {
-      state.hasUnsavedChanges = false;
-      state.errors = {};
-      state.notification = value;
-      state.original = {...value};
-      state.isEditing = true;
-      state.isAdding = false;
-    },
+    setLoadedTime(state, value) {
+      state.loadedTime = value;
+    }
   }
 });

@@ -1,5 +1,5 @@
 <template>
-	<div id="form-rules" v-show="activeMenu == 'rules'" class="flex">
+	<div id="inspireform-rules" v-show="activeTab == 'rules'" class="flex">
     <div class="flex sidebar" id="rules-sidebar">
       <div id="registered-rules-btn" class="btn menubtn add icon">{{ t('Add rule') }}</div>
       <div class="menu">
@@ -9,7 +9,7 @@
       </div>
       <nav>
         <ul>
-          <li v-for="(rule, index) in allRules" :key="index" :class="{'sel': index == selectedRule}" :data-index="index">
+          <li v-for="(rule, index) in rules" :key="'' + form.id + index" :class="{'sel': index == selectedRule}" :data-index="index">
             <a href="#" @click.prevent="setSelectedRule(index)" class="rule-link">
               <div class="top">
                 <div class="name">{{ rule.name }}</div>
@@ -24,14 +24,16 @@
       </nav>
     </div>
     <div id="rules-container">
-      <forms-rule v-for="(rule, index) in allRules" v-show="index == selectedRule" v-on:errors="setRuleError" v-on:changed="setChanges"
+      <forms-rule v-for="(rule, index) in rules" v-show="index == selectedRule" v-on:error="onError" v-on:change="onChange"
         :class="rule.type+'-rule form-rule'" 
-        :key="index"
+        :key="'' + form.id + index"
         :index="index"
         :rule="rule"
         :valid-types="validTypes"
+        :original="originals[index]"
         >
       </forms-rule>
+      <div class="no-rules" v-if="rules.length == 0">{{ t('No rules found') }}</div>
       <div class="actions" v-show="selectedRule != null">
         <a class="delete" @click.prevent="deleteRule()">{{ t('Delete') }}</a>
         <a @click.prevent="duplicateRule()">{{ t('Duplicate') }}</a>
@@ -42,8 +44,8 @@
 
 <script>
 import { mapMutations, mapState, mapActions } from 'vuex';
-import { isEqual, cloneDeep, reduce } from 'lodash';
-import Vue from 'vue';
+import { isEqual, cloneDeep, reduce, mapValues } from 'lodash';
+import { EventBus } from '../EventBus';
 
 export default {
 	props: {
@@ -52,41 +54,73 @@ export default {
     validTypes: Object
 	},
   computed: {
+    /**
+     * @return {Boolean} global change status
+     */
     hasChanges: function () {
-      return reduce(this.changes, function(result, value, key) {
-        return (result || value);
-      }, false);
+      return (reduce(this.changes, function(result, value, key) {
+        return result || value
+      }, false) || this.deletedRules > 0 || this.addedRules > 0);
     },
+    /**
+     * @return {Boolean} global error status
+     */
     hasErrors: function () {
       return reduce(this.errors, function(result, value, key) {
         return (result || value);
       }, false);
     },
-    ...mapState(['activeMenu', 'rules'])
+    ...mapState(['activeTab', 'rules', 'form', 'loadedTime'])
   },
   data: function () {
     return {
+      /**
+       * @type {Integer}
+       */
       selectedRule: null,
       deletedRules: 0,
       addedRules: 0,
+      /**
+       * @type {Object} Keyed by rule index
+       */
       errors: {},
+      /**
+       * @type {Object} Keyed by rule index
+       */
       changes: {},
-      selectedFields: {}
+      /**
+       * @type {Object} Keyed by rule index
+       */
+      originals: {}
     }
   },
   created() {
-    this.selectedRule = this.allRules.length ? 0 : null;
     this.setRules(this.allRules);
+    this.init();
     this.setConditionTypes(this.validTypes);
+  },
+  watch: {
+    loadedTime: function() {
+      this.init();
+    },
+    hasErrors: function () {
+      this.rulesHaveErrors(this.hasErrors);
+    },
+    hasChanges: function () {
+      this.handleRulesChanged();
+    }
   },
   methods: {
     /**
-     * Callback for setting a field change status
+     * (re)initialise the rules
      */
-    setChanges(data) {
-      this.$set(this.changes, data.index, data.value);
-      let change = (this.deletedRules > 0 || this.addedRules > 0 || this.hasChanges);
-      this.rulesHaveChanged(change);
+    init () {
+      this.errors = {};
+      this.changes = {};
+      this.originals = cloneDeep(this.rules);
+      this.deletedRules = 0;
+      this.addedRules = 0;
+      this.selectedRule = this.rules.length ? 0 : null;
     },
     countConditions(index) {
       let count = this.rules[index].conditions.length;
@@ -96,14 +130,18 @@ export default {
       }
       return count;
     },
-    setRuleError(data) {
-      this.$set(this.errors, data.index, data.value);
-      this.setRulesHaveErrors(this.hasErrors);
+    addRule(type) {
+      this._addRule(cloneDeep(this.registeredRules[type]));
     },
-  	addRule(type) {
-  		this.rules.push(cloneDeep(this.registeredRules[type]));
+    duplicateRule() {
+      this._addRule(cloneDeep(this.rules[this.selectedRule]));
+    },
+  	_addRule(rule) {
+      rule.id = null;
+      let index = this.rules.length;
+      this.rules.push(rule);
       this.addedRules++;
-      this.selectedRule = this.rules.length - 1;
+      this.selectedRule = index;
   	},
   	deleteRule(index) {
       if (this.rules[this.selectedRule].id) {
@@ -111,9 +149,10 @@ export default {
       } else {
         this.addedRules--;
       }
-  		Vue.delete(this.rules, this.selectedRule);
-      this.setRuleError({index: index, value: false});
-      this.selectedRule = this.allRules.length ? 0 : null;
+  		this.$delete(this.rules, this.selectedRule);
+      this.$delete(this.errors, this.selectedRule);
+      this.$delete(this.changes, this.selectedRule);
+      this.selectedRule = this.rules.length ? 0 : null;
   	},
     setSelectedFields(data) {
       this.selectedFields[data.index] = data.fields.map((field) => field.map).join(', ');
@@ -121,19 +160,23 @@ export default {
     setSelectedRule(index) {
       this.selectedRule = index;
     },
-    duplicateRule() {
-      let rule = cloneDeep(this.rules[this.selectedRule]);
-      rule.id = null;
-      this.addedRules++;
-      this.rules.push(rule);
+    handleRulesChanged() {
+      let change = (this.deletedRules > 0 || this.addedRules > 0 || this.hasChanges);
+      this.rulesHaveChanged(change);
+    },
+    onError(data) {
+      this.$set(this.errors, data.index, data.error);
+    },
+    onChange(data) {
+      this.$set(this.changes, data.index, data.change);
     },
     ...mapMutations({
-      setRulesHaveErrors: 'setRulesHaveErrors',
       setRules: 'setRules',
       setConditionTypes: 'setConditionTypes',
     }),
   	...mapActions({
-      rulesHaveChanged: 'rulesHaveChanged'
+      rulesHaveChanged: 'rulesHaveChanged',
+      rulesHaveErrors: 'rulesHaveErrors'
   	})
   }
 };
@@ -192,7 +235,7 @@ export default {
   }
 }
 
-#form-rules {
+#inspireform-rules {
   align-items: flex-start;
 }
 

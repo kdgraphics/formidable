@@ -13,6 +13,9 @@ Vue.mixin({
   methods: {
     t: (str, params) => {
       return Craft.t('inspireforms', str, params);
+    },
+    changePageTitle: (str) => {
+      $('#page-title h1').html(str);
     }
   }
 });

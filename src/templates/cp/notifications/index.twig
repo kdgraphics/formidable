@@ -2,7 +2,7 @@
 
 {% set title = "Notifications" %}
 
-{% set selectedSubnavItem = 'notifications' %}
+{% set selectedSubnavItem = 'inspireforms-notifications' %}
 
 {% block sidebar %}
 	<notifications-menu></notifications-menu>
@@ -15,7 +15,8 @@
 {% block content %}
 	<notifications 
 		:all-notifications="{{ notifications ? notifications|json_encode : '{}' }}"
-		:current-notification="{{ notification|json_encode }}"
+		:id="{{ notificationId ?? 0 }}"
+		:loaded="{{ loaded }}"
 	></notifications>
 	<confirm-dialog></confirm-dialog>
 {% endblock %}

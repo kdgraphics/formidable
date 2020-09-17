@@ -145,28 +145,29 @@ class Forms extends Plugin
         $_this = $this;
         Event::on(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS,
             function(RegisterCpNavItemsEvent $event) use ($_this){
-                $navItem = [
-                    'url' => 'inspireforms/forms',
+                $event->navItems['inspireforms'] = [
+                    'url' => 'inspireforms',
                     'label' => \Craft::t('inspireforms', 'Forms'),
                     'subnav' => [
-                        'inspireforms-add' => [
-                            'url' => 'inspireforms/forms/add',
-                            'label' => \Craft::t('inspireforms', 'Add new form')
+                        'inspireforms-forms' => [
+                            'url' => 'inspireforms/forms',
+                            'label' => \Craft::t('inspireforms', 'Forms')
+                        ],
+                        'inspireforms-notifications' => [
+                            'url' => 'inspireforms/notifications',
+                            'label' => \Craft::t('inspireforms', 'Notifications'),
+                        ],
+                        'inspireforms-submissions' => [
+                            'url' => 'inspireforms/submissions',
+                            'label' => \Craft::t('inspireforms', 'Submissions'),
+                        ],
+                        'inspireforms-spam' => [
+                            'url' => 'inspireforms/spam',
+                            'label' => \Craft::t('inspireforms', 'Spam'),
                         ]
                     ]
                 ];
-                foreach ($_this->forms->getAll() as $form) {
-                    $navItem['subnav']['inspireforms-form-'.$form->id] = [
-                        'url' => 'inspireforms/forms/'.$form->id,
-                        'label' => $form->name
-                    ];
-                }
-                $event->navItems['inspireforms'] = $navItem;
-                $event->navItems[] = [
-                    'url' => 'inspireforms/notifications',
-                    'label' => \Craft::t('inspireforms', 'Notifications'),
-                ];
-        });
+            });
     }
 
     /**
@@ -252,13 +253,19 @@ class Forms extends Plugin
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, [
+                'inspireforms' => 'inspireforms/cp-forms/form',
                 'inspireforms/forms' => 'inspireforms/cp-forms/form',
+                'inspireforms/forms/get/<id:\d+>' => 'inspireforms/cp-forms/get',
+                'inspireforms/forms/new' => 'inspireforms/cp-forms/new',
                 'inspireforms/forms/add' => 'inspireforms/cp-forms/form',
+                'inspireforms/forms/add/<tab:config>' => 'inspireforms/cp-forms/form',
+                'inspireforms/forms/add/<tab:fields>' => 'inspireforms/cp-forms/form',
+                'inspireforms/forms/add/<tab:rules>' => 'inspireforms/cp-forms/form',
                 'inspireforms/forms/save' => 'inspireforms/cp-forms/save',
                 'inspireforms/forms/<id:\d+>' => 'inspireforms/cp-forms/form',
-                'inspireforms/forms/<id:\d+>/<menu:config>' => 'inspireforms/cp-forms/form',
-                'inspireforms/forms/<id:\d+>/<menu:fields>' => 'inspireforms/cp-forms/form',
-                'inspireforms/forms/<id:\d+>/<menu:rules>' => 'inspireforms/cp-forms/form',
+                'inspireforms/forms/<id:\d+>/<tab:config>' => 'inspireforms/cp-forms/form',
+                'inspireforms/forms/<id:\d+>/<tab:fields>' => 'inspireforms/cp-forms/form',
+                'inspireforms/forms/<id:\d+>/<tab:rules>' => 'inspireforms/cp-forms/form',
                 'inspireforms/forms/delete/<id:\d+>' => 'inspireforms/cp-forms/delete',
                 'inspireforms/notifications' => 'inspireforms/cp-notifications',
                 'inspireforms/notifications/get/<id:\d+>' => 'inspireforms/cp-notifications/get',

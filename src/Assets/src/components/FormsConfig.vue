@@ -1,5 +1,5 @@
 <template>
-	<div id="forms-config" v-show="activeMenu == 'config'">
+	<div id="forms-config" v-show="activeTab == 'config'">
     <form method="post" accept-charset="UTF-8" ref="form" id="forms-form">
       <div class="field first">
         <div class="heading">
@@ -14,7 +14,7 @@
           <label class="required" for="form-handle">{{ t('Handle') }}</label>
         </div>
         <div class="input ltr">
-          <input id="form-handle" v-model="form.handle" :class="'text fullwidth' + (errors.handle ? ' error' : '')">
+          <input id="form-handle" v-model="form.handle" :disabled="!isAdding" :class="'text fullwidth' + (errors.handle ? ' error' : '')">
         </div>
       </div>
       <div class="field">
@@ -43,30 +43,6 @@
       </div>
       <div class="lightswitch-field field">
         <div class="heading">
-          <label for="form-honeypot">{{ t('Honeypot') }}</label>
-        </div>
-        <div class="input ltr">
-          <div id="form-honeypot" class="lightswitch on" tabindex="0" role="switch" :aria-checked="form.honeypot">
-            <div class="lightswitch-container">
-              <div class="handle"></div>
-            </div>
-            <input type="hidden" v-model="form.honeypot">
-          </div>
-        </div>
-      </div>
-      <div v-if="form.honeypot" class="field" aria-describedby="honeypotField-field-instructions">
-        <div class="heading">
-          <label class="required" for="form-honeypotField">{{ t('Honeypot field name') }}</label>
-        </div>
-        <div id="honeypotField-field-instructions" class="instructions">
-          <p>{{ t('A name that is not an existing field, and has a quite sensitive name') }}</p>
-        </div>
-        <div class="input ltr">
-          <input type="text" id="form-honeypotField" :class="'text fullwidth' + (errors.honeypotField ? ' error' : '')" v-model="form.honeypotField">
-        </div>
-      </div>
-      <div class="lightswitch-field field">
-        <div class="heading">
           <label for="form-saveSubmissions">{{ t('Save submissions') }}</label>
         </div>
         <div class="input ltr">
@@ -74,7 +50,7 @@
             <div class="lightswitch-container">
               <div class="handle"></div>
             </div>
-            <input type="hidden" v-model="form.saveSubmissions">
+            <input type="hidden" name="saveSubmissions" v-model="form.saveSubmissions">
           </div>
         </div>
       </div>
@@ -87,8 +63,32 @@
             <div class="lightswitch-container">
               <div class="handle"></div>
             </div>
-            <input type="hidden" v-model="form.saveSpam">
+            <input type="hidden" name="saveSpam" v-model="form.saveSpam">
           </div>
+        </div>
+      </div>
+      <div class="lightswitch-field field">
+        <div class="heading">
+          <label for="form-honeypot">{{ t('Honeypot') }}</label>
+        </div>
+        <div class="input ltr">
+          <div id="form-honeypot" class="lightswitch on" tabindex="0" role="switch" :aria-checked="form.honeypot">
+            <div class="lightswitch-container">
+              <div class="handle"></div>
+            </div>
+            <input type="hidden" name="honeypot" v-model="form.honeypot">
+          </div>
+        </div>
+      </div>
+      <div v-if="form.honeypot" class="field" aria-describedby="honeypotField-field-instructions">
+        <div class="heading">
+          <label class="required" for="form-honeypotField">{{ t('Honeypot field name') }}</label>
+        </div>
+        <div id="honeypotField-field-instructions" class="instructions">
+          <p>{{ t('A name that is not an existing field, and has a quite sensitive name') }}</p>
+        </div>
+        <div class="input ltr">
+          <input type="text" id="form-honeypotField" :class="'text fullwidth' + (errors.honeypotField ? ' error' : '')" v-model="form.honeypotField">
         </div>
       </div>
       <div class="field">
@@ -109,7 +109,11 @@
           <label class="required" for="form.notifyField">{{ t('User email field') }}</label>
         </div>
         <div class="input ltr">
-          <input id="form-notifyField" :class="'text fullwidth' + (errors.notifyField ? ' error' : '')" v-model="form.notifyField">
+          <div class="select" :class="{'error' : errors.notifyField}">
+            <select v-model="notifyField" id="form.notifyField">
+              <option v-for="field in emailFields" :key="field.name" :value="field">{{ field.name }}</option>
+            </select>
+          </div>
         </div>
       </div>
       <div class="field">
@@ -192,9 +196,8 @@
 
 <script>
 import { mapMutations, mapState, mapActions } from 'vuex';
-import axios from 'axios';
-import Vue from 'vue';
-import { isEqual, cloneDeep, reduce, trim } from 'lodash';
+import { cloneDeep, reduce, trim, isEqual } from 'lodash';
+import slugify from 'slugify';
 
 export default {
   props: {
@@ -202,13 +205,35 @@ export default {
     allCaptchas: Object,
     allVolumes: Array,
     formEdited: Object,
+    loaded: Number
   },
   computed: {
-    ...mapState(['activeMenu', 'form', 'fields', 'fieldNames']),
+    ...mapState(['activeTab', 'form', 'fields', 'isAdding', 'loadedTime']),
+    /**
+     * @return {Boolean} global error state
+     */
     hasErrors: function () {
       return reduce(this.errors, function(result, value, key) {
         return (result || value);
       }, false);
+    },
+    /**
+     * @return {Array} list of field names
+     */
+    fieldNames: function () {
+      return this.fields.map((field) => field.name);
+    },
+    emailFields: function () {
+      return this.fields.filter((field) => field.type == 'email');
+    },
+    notifyField: {
+      get: function() {
+        return this.notifyFieldObject;
+      },
+      set: function(field) {
+        this.notifyFieldObject = field;
+        this.$set(this.form, 'notifyField', field.name);
+      }
     }
   },
   data: function () {
@@ -219,45 +244,70 @@ export default {
       volumes: this.allVolumes,
       original: {},
       errors: {},
+      notifyFieldObject: null
     }
   },
   watch: {
+    loadedTime: function() {
+      this.init();
+    },
     form: {
-      handler: function () {
+      handler: function() {
+        this.slugifyHandle();
         this.configHasChanged(!isEqual(this.form, this.original));
         this.validate();
       },
       deep: true
     },
-    fieldNames: function () {
+    fieldNames: function() {
       this.validate();
     },
-    hasErrors: function () {
+    hasErrors: function() {
       this.configHasErrors(this.hasErrors);
     }
   },
   created() {
-    this.original = cloneDeep(this.formEdited);
     this.setIsAdding(this.formEdited.id == null);
     this.setForm(this.formEdited);
+    this.setLoadedTime(this.loaded);
+    this.init();
   },
   mounted() {
     this.$nextTick(() => {
+      /**
+       * Initialize Craft elements,
+       * fixes color input on the form object
+       * fixes lightswitch inputs on the form object
+       */
       Craft.initUiElements(this.$refs.form);
       new Craft.ColorInput(this.$refs.colorInput);
-      new Craft.HandleGenerator('#form-name', '#form-handle');
       $(this.$refs.colorInput).on('change', function (e) {
         _this.form.color = $(e.target).val();
       });
       let _this = this;
       $(this.$el).find('.lightswitch').on('change', function(e){
         let input = $(e.target).find('input');
-        let value = (input.val() == 1);
+        let value = (input.val() == 1 ? 1 : 0);
         _this.form[input.attr('name')] = value;
       });
     });
   },
   methods: {
+    init() {
+      this.errors = {};
+      this.original = cloneDeep(this.form);
+      this.notifyFieldObject = this.fields.filter((field) => field.name == this.form.notifyField)[0];
+      if (this.isAdding) {
+        this.changePageTitle(this.t('Add new form'));
+      } else {
+        this.changePageTitle(this.t('{form} form', {form: this.form.name}));
+      }
+    },
+    slugifyHandle(){
+      if (this.isAdding && this.form.name) {
+        this.form.handle = slugify(this.form.name);
+      }
+    },
     validate() {
       this.errors = {
         name: trim(this.form.name) == '',
@@ -265,27 +315,23 @@ export default {
         notifyEmails: (this.form.notifyAdmin_id && trim(this.form.notifyEmails) == ''),
         submitLabel: trim(this.form.submitLabel) == '',
         notifyField: this.validateNotifyField(),
-        honeypotField: (this.form.honeypotField == '' || this.fieldNames.indexOf(this.form.honeypotField) != -1)
+        honeypotField: this.validateHoneypotField()
       };
+    },
+    validateHoneypotField() {
+      if (!this.form.honeypot) {
+        return false;
+      }
+      return (!this.form.honeypotField || this.fieldNames.indexOf(this.form.honeypotField) != -1);
     },
     validateNotifyField () {
       if (!this.form.notify_id) {
         return false;
       }
-      let _this = this;
-      let fields = this.fields.filter(function (field) {
-        return (field.type == 'email' && field.name == _this.form.notifyField);
-      });
-      return (fields.length == 0);
+      return (this.form.notifyField == null || this.form.notifyField == '');
     },
-    ...mapMutations({
-      setForm: 'setForm',
-      setIsAdding: 'setIsAdding'
-    }),
-    ...mapActions({
-      configHasChanged: 'configHasChanged',
-      configHasErrors: 'configHasErrors',
-    })
+    ...mapMutations(['setForm', 'setLoadedTime', 'setIsAdding']),
+    ...mapActions(['configHasChanged', 'configHasErrors'])
   }
 };
 </script>
@@ -299,6 +345,11 @@ export default {
   .field {
     width: 100%;
     margin-top: 0;
+  }
+  .select {
+    &.error {
+      border: 1px solid $red400;
+    }
   }
   .advanced {
     width: 100%;
@@ -333,10 +384,10 @@ export default {
     .field {
       width: calc(50% - 10px);
       &:nth-child(2n) {
-        padding-right: 5px;
+        padding-left: 10px;
       }
       &:nth-child(2n+1) {
-        padding-left: 5px;
+        padding-right: 10px;
       }
       &:nth-child(3) {
         margin-top: 0

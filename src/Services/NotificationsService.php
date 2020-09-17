@@ -220,15 +220,11 @@ class NotificationsService extends Component
         }
 
         \Craft::$app->getDb()->createCommand()
-            ->update(FormRecord::tableName(), ['notify_id' => null], ['notify_id' => $notification->id])
-            ->execute();
-        \Craft::$app->getDb()->createCommand()
-            ->update(FormRecord::tableName(), ['notifyAdmin_id' => null], ['notifyAdmin_id' => $notification->id])
+            ->delete(NotificationRecord::tableName(), ['uid' => $uid])
             ->execute();
 
-        \Craft::$app->getDb()->createCommand()
-            ->softDelete(NotificationRecord::tableName(), ['uid' => $uid])
-            ->execute();
+        // Clear caches
+        $this->notifications = null;
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE)) {
             $this->trigger(self::EVENT_AFTER_DELETE, new NotificationEvent([

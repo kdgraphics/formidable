@@ -56,21 +56,53 @@
 
 <script>
 import { mapMutations, mapState } from 'vuex';
+import { isEqual } from 'lodash';
 
 export default {
+  props: {
+    index: Number,
+    field: Object,
+    original: Object
+  },
+  data() {
+    return {
+      errors: {}
+    }
+  },
   computed: {
+    hasErrors: function () {
+      return reduce(this.errors, function(result, value, key) {
+        return (result || value);
+      }, false);
+    },
     ...mapState({
-      volumes: state => state.volumes
+      volumes: state => state.volumes,
     })
+  },
+  watch: {
+    field: {
+      hasErrors: function () {
+        this.$emit('error', {index: this.index, error: this.hasErrors});
+      },
+      handler: function () {
+        this.validate();
+        this.$emit('change', {index: this.index, change: !isEqual(this.field, this.original)});
+      },
+      deep: true
+    }
   },
   created() {
     if (!this.field.id) {
       this.field.volume = this.volumes[0].id;
     }
   },
-  props: {
-    index: Number,
-    field: Object
+  methods: {
+    /**
+     * Sets errors here in the errors object
+     */
+    validate () {
+      // this.$set(this.errors, 'field', value);
+    }
   }
 };
 

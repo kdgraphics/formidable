@@ -4,57 +4,19 @@ namespace Inspire\Forms\Controllers;
 
 use Inspire\Forms\Assets\NotificationAsset;
 use Inspire\Forms\Models\Notification;
+use yii\web\BadRequestHttpException;
 
 class CpNotificationsController extends Controller
 {
 	public function actionIndex(?int $id = null)
 	{
         $this->view->registerAssetBundle(NotificationAsset::class);
-        $notifications = [];
-        foreach ($this->notifications()->getAll() as $notif) {
-            $notifications[$notif->id] = [
-                'id' => $notif->id, 
-                'name' => $notif->name,
-                'sentFrom' => $notif->sentFrom,
-                'subject' => $notif->subject,
-            ];
-        }
-        $notification = null;
-        if ($id) {
-            $notification = $this->notifications()->getById($id);
-        }
 		$this->renderTemplate('inspireforms/cp/notifications/index', [
-            'notifications' => $notifications,
-            'notification' => $notification
+            'notifications' => $this->notifications()->getAll(),
+            'notificationId' => $id,
+            'loaded' => time()
         ]);
 	}
-
-	public function actionEdit(int $id)
-	{
-		$notification = $this->notifications()->getById($id);
-		if (!$notification) {
-			$session->setError(\Craft::t('inspireforms', 'Can\'t find notification with id {id}.', ['id' => $id]));
-			return $this->redirect("inspireforms/notifications");
-		}
-		return $this->create($notification);
-	}
-
-    public function actionGet(int $id)
-    {
-        $this->requirePostRequest();
-        $this->requireAcceptsJson();
-
-        $notification = $this->notifications()->getById($id);
-        if (!$notification) {
-            return $this->asJson([
-                'error' => \Craft::t('inspireforms', 'Can\'t find notification with id {id}.', ['id' => $id])
-            ]);
-        }
-        return $this->asJson([
-            'success' => true,
-            'notification' => $notification
-        ]);
-    }
 
     public function actionDelete(int $id)
     {
@@ -70,30 +32,36 @@ class CpNotificationsController extends Controller
             throw new BadRequestHttpException(\Craft::t('inspireforms', 'Notification could not be deleted.'));
         }
 
+        $notifications = $this->notifications()->getAll();
+
         return $this->asJson([
             'success' => true,
-            'message' => \Craft::t('inspireforms', 'Notification has been deleted.')
+            'message' => \Craft::t('inspireforms', 'Notification has been deleted.'),
+            'id' => $id,
+            'loaded' => time(),
+            'notifications' => $notifications,
+            'id' => $notifications ? $notifications[array_keys($notifications)[0]]->id : null
         ]);
     }
-
-	public function actionCreate()
-	{
-		return $this->create(new Notification);
-	}
 
 	public function actionSave()
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-
+        $loaded = $this->request()->getRequiredParam('loaded');
         $data = $this->request()->getRequiredParam('data');
+
         $id = $data['id'] ?? null;
+        $model = new Notification();
         if ($id and is_numeric($id)) {
             $model = $this->notifications()->getById($id);
-        } else {
-            $model = new Notification();
         }
 
+        if ($model->dateUpdated && $model->dateUpdated->getTimestamp() > $loaded) {
+            return $this->asJson([
+                'message' => \Craft::t('inspireforms', 'This notification has been updated since you last loaded it, please reload the page')
+            ]);
+        }
         $model->setAttributes($data);
 
         if (!$this->notifications()->save($model)) {
@@ -105,15 +73,9 @@ class CpNotificationsController extends Controller
         return $this->asJson([
             'message' => \Craft::t('inspireforms', 'Notification saved successfully.'),
             'success' => true,
-            'notification' => $model
+            'id' => $model->id,
+            'loaded' => time(),
+            'notifications' => $this->notifications()->getAll()
         ]);
-    }
-
-    protected function create(Notification $model)
-    {
-    	$this->view->registerAssetBundle(NotificationAsset::class);
-		return $this->renderTemplate('inspireforms/cp/notifications/create', [
-			'notification' => $model
-		]);
     }
 }

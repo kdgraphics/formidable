@@ -2,9 +2,9 @@
 
 namespace Inspire\Forms\Controllers;
 
-use Inspire\Forms\Assets\HookAsset;
 use Inspire\Forms\Assets\FormAsset;
 use Inspire\Forms\Assets\FormsAsset;
+use Inspire\Forms\Assets\HookAsset;
 use Inspire\Forms\Models\Condition;
 use Inspire\Forms\Models\Form;
 use Inspire\Forms\Models\FormSubmission;
@@ -12,10 +12,11 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
+use yii\web\NotFoundHttpException;
 
 class CpFormsController extends Controller
 {
-	public function actionForm(int $id = null, string $menu = 'config')
+	public function actionForm(int $id = null, string $tab = 'config')
 	{
         $template = 'create';
         if ($id) {
@@ -28,10 +29,8 @@ class CpFormsController extends Controller
             $form = new Form;
         }
 
-        $fields = $form->fields;
-        $rules = $form->rules;
-        unset($form->fields);
-        unset($form->rules);
+        $fields = $form->getFields();
+        $rules = $form->getRules();
 
         $this->view->registerAssetBundle(HookAsset::class);
         foreach ($this->forms()->getRegisteredAssets() as $asset) {
@@ -40,8 +39,10 @@ class CpFormsController extends Controller
         $this->view->registerAssetBundle(FormsAsset::class);
 
 		$this->renderTemplate('inspireforms/cp/forms/'.$template, [
-            'menu' => $menu,
+            'loaded' => time(),
+            'tab' => $tab,
             'form' => $form,
+            'forms' => $this->forms()->getAllAsArray(),
             'notifications' => $this->notifications()->getAll(),
             'captchas' => $this->captchas()->getAllAsArray(),
             'fields' => $fields,
@@ -55,36 +56,73 @@ class CpFormsController extends Controller
         ]);
 	}
 
-	public function actionIndex()
+	public function actionGet(int $id)
 	{
-		$this->renderTemplate('inspireforms/cp/forms/index', [
-            'forms' => $this->forms()->getAll()
-        ]);
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $form = $this->forms()->getById($id);
+
+        if (!$form) {
+            throw new NotFoundHttpException(\Craft::t('inspireforms', "Form with id {id} doesn't exist", ['id' => $id]));
+        }
+
+		return $this->asJson([
+            'loaded' => time(),
+            'success' => true,
+            'form' => $form,
+            'fields' => $form->getFields(),
+            'rules' => $form->getRules(),
+        ]);    
 	}
+
+    public function actionNew()
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        return $this->asJson([
+            'loaded' => time(),
+            'success' => true,
+            'form' => new Form,
+        ]);    
+    }
 
 	public function actionSave()
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
+
+        $loaded = $this->request()->getRequiredParam('loaded');
         $formData = $this->request()->getRequiredParam('form');
         $fieldsData = $this->request()->getRequiredParam('fields');
         $rulesData = $this->request()->getRequiredParam('rules');
         
         $form = $this->forms()->validateData($formData);
-        $form->fields = $this->fields()->validateData($fieldsData);
-        $form->rules = $this->rules()->validateData($rulesData);
 
-        if ($errors = $this->forms()->gatherErrors($form)) {
+        if ($form->dateUpdated && $form->dateUpdated->getTimestamp() > $loaded) {
+            return $this->asJson([
+                'message' => \Craft::t('inspireforms', 'This form has been updated since you last loaded it, please reload the page')
+            ]);
+        }
+
+        $fields = $this->fields()->validateData($fieldsData);
+        $rules = $this->rules()->validateData($rulesData);
+
+        if ($errors = $this->forms()->gatherErrors($form, $fields, $rules)) {
             return $this->asJson([
                 'errors' => $errors,
                 'message' => \Craft::t('inspireforms', 'Please fix the errors before saving.')
             ]);
         }
-        if ($this->forms()->save($form)) {
+        if ($this->forms()->save($form, $fields, $rules)) {
             return $this->asJson([
+                'loaded' => time(),
                 'success' => true,
                 'message' => \Craft::t('inspireforms', 'Form saved successfully.'),
-                'form' => $form
+                'form' => $form,
+                'fields' => $fields,
+                'rules' => $rules,
             ]);    
         }
         return $this->asJson([
@@ -101,7 +139,9 @@ class CpFormsController extends Controller
             throw new BadRequestHttpException(\Craft::t('inspireforms', "Form with id {id} doesn't exist", ['id' => $id]));
         }
         if (!$this->forms()->delete($form)) {
-            throw new BadRequestHttpException(\Craft::t('inspireforms', "Form {id} couldn't be deleted", ['id' => $id]));
+            return $this->asJson([
+                'message' => \Craft::t('inspireforms', "Form couldn't be deleted")
+            ]);
         }
         return $this->asJson([
             'success' => true,

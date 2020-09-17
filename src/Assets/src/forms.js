@@ -1,9 +1,9 @@
 import Vue from 'vue';
 
+import FormsTabs from './components/FormsTabs.vue';
 import FormsMenu from './components/FormsMenu.vue';
 import FormsConfig from './components/FormsConfig.vue';
 import FormsFields from './components/FormsFields.vue';
-import FormsField from './components/FormsField.vue';
 import FormsRules from './components/FormsRules.vue';
 import FormsRule from './components/FormsRule.vue';
 import FormsSpam from './components/FormsSpam.vue';
@@ -16,9 +16,7 @@ import Choices from './fields/Choices.vue';
 import FormsStore from './store/FormsStore';
 import VueConfirmDialog from 'vue-confirm-dialog';
 import Multiselect from 'vue-multiselect';
-import { capitalize } from 'lodash';
-
-Vue.use(VueConfirmDialog);
+import { capitalize, isEqual } from 'lodash';
 
 Vue.mixin({
   methods: {
@@ -27,6 +25,9 @@ Vue.mixin({
     },
     capitalize: (str) => {
       return capitalize(str);
+    },
+    changePageTitle: (str) => {
+      $('#page-title h1').html(str);
     }
   }
 });
@@ -34,11 +35,8 @@ Vue.mixin({
 for (const [type, component] of Object.entries(window.formFields)) {
   Vue.component('field-' + type, component);
 }
-for (const [type, component] of Object.entries(window.formRules)) {
-  Vue.component('rule-' + type, component);
-}
 
-Vue.component('forms-field', FormsField);
+Vue.use(VueConfirmDialog);
 Vue.component('forms-rule', FormsRule);
 Vue.component('field-choices', Choices);
 Vue.component('multiselect', Multiselect);
@@ -49,6 +47,7 @@ new Vue({
   el: '#main',
   store: FormsStore,
   components: {
+    FormsTabs,
     FormsMenu,
     FormsConfig,
     FormsFields,

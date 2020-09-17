@@ -70,7 +70,7 @@ class FieldsService extends Component
     {
         $fields = [];
         foreach (FieldRecord::find()->where(['form_id' => $form->id])->orderBy(['order' => SORT_ASC])->all() as $record) {
-            $fields[$record->id] = $record->toModel();
+            $fields[] = $record->toModel();
         }
         return $fields;
     }

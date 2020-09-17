@@ -186,7 +186,7 @@ class RulesService extends Component
     {
         $rules = [];
         foreach (RuleRecord::find()->where(['form_id' => $form->id])->all() as $rule) {
-            $rules[$rule->id] = $rule->toModel();
+            $rules[] = $rule->toModel();
         }
         return $rules;
     }

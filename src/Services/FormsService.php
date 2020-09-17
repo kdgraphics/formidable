@@ -87,7 +87,7 @@ class FormsService extends Component
             //     return $forms;
             // });
             $this->forms = [];
-            foreach (FormRecord::find()->with('fields')->all() as $record) {
+            foreach (FormRecord::find()->all() as $record) {
                 $this->forms[$record->id] = $record->toModel();
             }
         }
@@ -101,7 +101,7 @@ class FormsService extends Component
      */
     public function getAllAsArray(): array
     {
-        $forms = ['' => \Craft::t('inspireforms', 'All forms')];
+        $forms = [];
         foreach ($this->getAll() as $form) {
             $forms[$form->id] = $form->name;
         }
@@ -156,13 +156,17 @@ class FormsService extends Component
      * Save a form. Adds/Modifies the project config
      * 
      * @param  FormModel $form
+     * @param  array     $fields
+     * @param  array     $rules
      * @return bool
      */
-	public function save(FormModel $form): bool
+	public function save(FormModel $form, array $fields, array $rules): bool
 	{
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE)) {
             $this->trigger(self::EVENT_BEFORE_SAVE, new FormEvent([
                 'form' => $form,
+                'fields' => $fields,
+                'rules' => $rules,
                 'isNew' => empty($form->id),
             ]));
         }
@@ -176,10 +180,10 @@ class FormsService extends Component
             $form->id = Db::idByUid(FormRecord::tableName(), $form->uid);
         }
 
-        Forms::$plugin->fields->deleteMany($this->gatherFieldsToDelete($form));
-        Forms::$plugin->fields->saveMany($form->fields, $form);
-        Forms::$plugin->rules->deleteMany($this->gatherRulesToDelete($form));
-        Forms::$plugin->rules->saveMany($form->rules, $form);
+        Forms::$plugin->fields->deleteMany($this->gatherFieldsToDelete($form, $fields));
+        Forms::$plugin->fields->saveMany($fields, $form);
+        Forms::$plugin->rules->deleteMany($this->gatherRulesToDelete($form, $rules));
+        Forms::$plugin->rules->saveMany($rules, $form);
 
         return true;
 	}
@@ -277,18 +281,18 @@ class FormsService extends Component
      * @param  Form   $form
      * @return array
      */
-    public function gatherErrors(FormModel $form): array
+    public function gatherErrors(FormModel $form, array $fields, array $rules): array
     {
         $errors = [];
         if ($errors = $form->getErrors()) {
             $errors['form']['errors'] = $errors;
         }
-        foreach ($form->fields as $index => $field) {
+        foreach ($fields as $index => $field) {
             if ($errors = $field->getErrors()) {
                 $errors['fields'][$index] = $errors;
             } 
         }
-        foreach ($form->rules as $index => $rule) {
+        foreach ($rules as $index => $rule) {
             if ($errors = $rule->getErrors()) {
                 $errors['rules'][$index]['errors'] = $errors;
             }
@@ -428,14 +432,16 @@ class FormsService extends Component
     /**
      * Sort out fields to delete
      * 
+     * @param  FormModel $form
+     * @param  array     $fields
      * @return array
      */
-    protected function gatherFieldsToDelete(FormModel $form): array
+    protected function gatherFieldsToDelete(FormModel $form, array $fields): array
     {
         $allFields = Forms::$plugin->fields->getFormFields($form);
         $toDelete = [];
         foreach ($allFields as $field) {
-            if (!ArrayHelper::contains($form->fields, 'id', $field->id)) {
+            if (!ArrayHelper::contains($fields, 'id', $field->id)) {
                 $toDelete[] = $field;
             }
         }
@@ -445,14 +451,16 @@ class FormsService extends Component
     /**
      * Sort out rules to delete
      * 
+     * @param  FormModel $form
+     * @param  array     $rules
      * @return array
      */
-    protected function gatherRulesToDelete(FormModel $form): array
+    protected function gatherRulesToDelete(FormModel $form, array $rules): array
     {
         $allRules = Forms::$plugin->rules->getFormRules($form);
         $toDelete = [];
         foreach ($allRules as $rule) {
-            if (!ArrayHelper::contains($form->rules, 'id', $rule->id)) {
+            if (!ArrayHelper::contains($rules, 'id', $rule->id)) {
                 $toDelete[] = $rule;
             }
         }

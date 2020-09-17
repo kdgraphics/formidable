@@ -2,16 +2,27 @@
 
 {% set bodyClass = ['inspireforms'] %}
 
+{% set selectedSubnavItem = 'inspireforms-forms' %}
+
+{% set tabs = {dummy: 'dummy'} %}
+
 {% block toolbar %}
     <forms-toolbar></forms-toolbar>
 {% endblock %}
 
+{% block tabs %}
+    <forms-tabs :tab="'{{ tab }}'"></forms-tabs>
+{% endblock %}
+
 {% block sidebar %}
-    <forms-menu :menu="'{{ menu }}'"></forms-menu>
+    <forms-menu
+        :all-forms="{{ forms|json_encode }}"
+    ></form-menu>
 {% endblock %}
 
 {% block content %}
     <forms-config
+        :loaded="{{ loaded }}"
         :form-edited="{{ form|json_encode }}"
         :all-notifications="{{ notifications ? notifications|json_encode : '{}' }}"
         :all-captchas="{{ captchas ? captchas|json_encode : '{}' }}"
@@ -19,7 +30,7 @@
     ></forms-config>
     <forms-fields
         :registered-fields="{{ registeredFields|json_encode }}"
-        :all-fields="{{ fields|json_encode }}"
+        :all-fields="{{ fields ? fields|json_encode : '[]' }}"
     >
     </forms-fields>
     <forms-rules
@@ -27,7 +38,5 @@
         :registered-rules="{{ registeredRules ? registeredRules|json_encode : '{}' }}"
         :all-rules="{{ rules ? rules|json_encode : '[]' }}"
     ></forms-rules>
-    <forms-submissions></forms-submissions>
-    <forms-spam></forms-spam>
     <confirm-dialog></confirm-dialog>
 {% endblock %}

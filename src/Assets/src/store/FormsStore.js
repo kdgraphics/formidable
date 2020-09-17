@@ -1,33 +1,32 @@
 import Vuex from 'vuex';
 import Vue from 'vue';
+import { unset, keys } from 'lodash';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
     isAdding: false,
-    isDeleting: false,
-    isSaving: false,
+    isLoading: false,
     form: {},
-    fields: {},
-    rules: {},
+    fields: [],
+    rules: [],
     fieldNames: [],
     configHasChanged: false,
     fieldsHaveChanged: false,
     rulesHaveChanged: false,
     hasUnsavedChanges: false,
-    activeMenu: null,
-    conditionTypes: {},
+    activeTab: null,
+    conditionTypes: [],
     fieldsHaveErrors: false,
     rulesHaveErrors: false,
     configHasErrors: false,
-    hasErrors: false
+    hasErrors: false,
+    allForms: {},
+    loadedTime: 0
   },
   mutations: {
-    setIsSaving(state, value) {
-      if (value) {
-        state.errors = {};
-      }
+    setIsLoading(state, value) {
       state.isSaving = value;
     },
     setHasUnsavedChanges(state, value) {
@@ -35,9 +34,6 @@ export default new Vuex.Store({
     },
     setIsAdding (state, value) {
       state.isAdding = value;
-    },
-    setIsDeleting (state, value) {
-      state.isDeleting = value;
     },
     setConfigHasChanged(state, value) {
       state.configHasChanged = value;
@@ -57,8 +53,8 @@ export default new Vuex.Store({
     setForm(state, value) {
       state.form = value;
     },
-    setActiveMenu(state, value) {
-      state.activeMenu = value;
+    setActiveTab(state, value) {
+      state.activeTab = value;
     },
     setConditionTypes(state, value) {
       state.conditionTypes = value;
@@ -75,9 +71,12 @@ export default new Vuex.Store({
     setHasErrors(state, value) {
       state.hasErrors = value;
     },
-    setFieldNames(state, value) {
-      state.fieldNames = value;
+    setAllForms(state, value) {
+      state.allForms = value;
     },
+    setLoadedTime(state, value) {
+      state.loadedTime = value;
+    }
   },
   actions: {
     configHasErrors({commit, dispatch, state}, value) {
@@ -110,11 +109,112 @@ export default new Vuex.Store({
     checkIfErrors({commit, state}) {
       commit('setHasErrors', state.rulesHaveErrors || state.fieldsHaveErrors || state.configHasErrors);
     },
-    resetChanges({dispatch, state, commit}) {
-      commit('setConfigHasChanged', false);
-      commit('setRulesHaveChanged', false);
-      commit('setFieldsHaveChanged', false);
-      commit('setHasUnsavedChanges', false);
+    loadForm({commit, state, dispatch}, id) {
+      let data = {};
+      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
+      commit('setIsLoading', false);
+      axios.post('/admin/inspireforms/forms/get/'+id, data)
+        .then((response) => {
+          if (response.data.success) {
+            commit('setIsAdding', false);
+            dispatch('setHistory', ['forms', id]);
+            dispatch('resetForm', response.data);
+          } else {
+            Craft.cp.displayError(response.data.message);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          commit('setIsLoading', false);
+        });
+    },
+    saveForm({commit, state, dispatch}) {
+      let data = {form: state.form, fields: state.fields, rules: state.rules, loaded: state.loadedTime};
+      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
+      commit('setIsLoading', true);
+      axios.post('/admin/inspireforms/forms/save', data)
+        .then((response) => {
+          if (response.data.success) {
+            Craft.cp.displayNotice(response.data.message);
+            if (state.isAdding) {
+              commit('setIsAdding', false);
+              dispatch('setHistory', ['forms', response.data.form.id]);
+              let forms = state.allForms;
+              forms[response.data.form.id] = response.data.form.name;
+              commit('setAllForms', forms);
+            }
+            dispatch('resetForm', response.data);
+          } else {
+            Craft.cp.displayError(response.data.message);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          commit('setIsLoading', false);
+        });
+    },
+    newForm({commit, state, dispatch}) {
+      let data = {};
+      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
+      commit('setIsLoading', true);
+      dispatch('setHistory', ['forms', 'add']);
+      axios.post('/admin/inspireforms/forms/new', data)
+        .then((response) => {
+          if (response.data.success) {
+            commit('setIsAdding', true);
+            dispatch('resetForm', {form: response.data.form, fields: [], rules: [], loaded: response.data.loaded});
+          } else {
+            Craft.cp.displayError(response.data.message);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          commit('setIsLoading', false);
+        });
+    },
+    deleteForm({commit, state, dispatch}) {
+      let data = {};
+      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
+      commit('setIsLoading', true);
+      axios.post('/admin/inspireforms/forms/delete/'+state.form.id, data)
+        .then((response) => {
+          if (response.data.success) {
+            let forms = state.allForms;
+            unset(forms, state.form.id);
+            commit('setAllForms', forms);
+            let ids = keys(forms);
+            if (ids.length) {
+              dispatch('loadForm', ids[0]);
+            } else {
+              dispatch('newForm');
+            }
+            Craft.cp.displayNotice(response.data.message);
+
+          } else {
+            Craft.cp.displayError(response.data.message);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    resetForm({commit, state}, data) {
+      commit('setForm', data.form);
+      commit('setFields', data.fields);
+      commit('setRules', data.rules);
+      commit('setLoadedTime', data.loaded);
+    },
+    setHistory({}, parts) {
+      let url = document.location.pathname.split('/');
+      url[3] = parts[0];
+      url[4] = parts[1];
+      window.history.pushState({}, '', url.join('/'));
     }
   }
 });
