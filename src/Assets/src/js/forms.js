@@ -12,7 +12,7 @@ class Forms
 		this.list.find('a.delete').click(function() {
 			let link = $(this);
 			let name = $(this).data('name');
-            if (confirm(Craft.t('inspireforms', 'Are you sure you want to delete the form {name}', {name: name }))) {
+            if (confirm(Craft.t('formidable', 'Are you sure you want to delete the form {name}', {name: name }))) {
                 let data = {};
                 data[Craft.csrfTokenName] = Craft.csrfTokenValue;
                 let url = $(this).data('url');
@@ -20,7 +20,7 @@ class Forms
                 $.post(url, data, null, 'json')
                     .done( function(data) {
                         if (data.success) {
-                            Craft.cp.displayNotice(Craft.t('inspireforms', 'Form successfully deleted.'));
+                            Craft.cp.displayNotice(Craft.t('formidable', 'Form successfully deleted.'));
                             link.parent().parent().remove();
                             
                             var count = _this.list.find('tbody tr').length;

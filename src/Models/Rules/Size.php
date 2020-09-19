@@ -1,8 +1,8 @@
 <?php 
 
-namespace Inspire\Forms\Models\Rules;
+namespace Ryssbowh\Formidable\Models\Rules;
 
-use Inspire\Forms\Models\Rule;
+use Ryssbowh\Formidable\Models\Rule;
 
 class Size extends Rule
 {
@@ -13,7 +13,7 @@ class Size extends Rule
 	 */
 	public function name(): string 
 	{
-		return \Craft::t('inspireforms', 'Size');
+		return \Craft::t('formidable', 'Size');
 	}
 
 	/**
@@ -29,7 +29,7 @@ class Size extends Rule
 	 */
 	public function defaultMessage(): string
 	{
-		return \Craft::t('inspireforms', 'Size of {field.name} must be {rule.value}.');
+		return \Craft::t('formidable', 'Size of {field.name} must be {rule.value}.');
 	}
 
 	/**
@@ -37,6 +37,6 @@ class Size extends Rule
 	 */
 	public function conditionName(): string
 	{
-		return \Craft::t('inspireforms', 'is of size');
+		return \Craft::t('formidable', 'is of size');
 	}
 }

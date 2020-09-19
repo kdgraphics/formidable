@@ -1,8 +1,8 @@
 <?php 
 
-namespace Inspire\Forms\Interfaces;
+namespace Ryssbowh\Formidable\Interfaces;
 
-use Inspire\Forms\Models\Form;
+use Ryssbowh\Formidable\Models\Form;
 
 interface CaptchaInterface
 {

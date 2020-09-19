@@ -1,6 +1,6 @@
 <?php 
 
-namespace Inspire\Forms\Assets;
+namespace Ryssbowh\Formidable\Assets;
 
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
@@ -9,7 +9,7 @@ class HookAsset extends AssetBundle
 {
 	public function init()
     {
-        $this->sourcePath = "@Inspire/Forms/Assets/dist";
+        $this->sourcePath = __DIR__ . '/dist';
 
         $this->depends = [
             CpAsset::class,

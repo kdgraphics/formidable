@@ -7,20 +7,20 @@ class Submission
 		this.elem = elem;
 		this.data = data;
 		this.id = data.id;
-		this.deleteUrl = '/admin/inspireforms/submissions/delete/'+this.id;
+		this.deleteUrl = '/admin/formidable/submissions/delete/'+this.id;
 		this.elem.data('submission', this);
 		if (data.read) {
-			elem.find('.read').html(Craft.t('inspireforms', 'Read'));
+			elem.find('.read').html(Craft.t('formidable', 'Read'));
 		} else {
 			elem.addClass('unread');
-			elem.find('.read').html(Craft.t('inspireforms', 'New'));
+			elem.find('.read').html(Craft.t('formidable', 'New'));
 		}
 		elem.find('.form').html(data.form.name);
 		elem.find('.created').html(data.dateCreated);
-		elem.find('.notified').html(data.notified ? Craft.t('inspireforms', 'Yes') : Craft.t('inspireforms', 'No'));
-		elem.find('.adminNotified').html(data.adminNotified ? Craft.t('inspireforms', 'Yes') : Craft.t('inspireforms', 'No'));
-		this.modal = InspireForms.Modal;
-		this.modal.setUrl('/admin/inspireforms/submissions/view/');
+		elem.find('.notified').html(data.notified ? Craft.t('formidable', 'Yes') : Craft.t('formidable', 'No'));
+		elem.find('.adminNotified').html(data.adminNotified ? Craft.t('formidable', 'Yes') : Craft.t('formidable', 'No'));
+		this.modal = formidable.Modal;
+		this.modal.setUrl('/admin/formidable/submissions/view/');
 		this.initOpen();
 		this.initDelete();
 	}
@@ -44,7 +44,7 @@ class Submission
 	{
 		let _this = this;
 		this.elem.find('.delete').click(function(){
-			if (confirm(Craft.t('inspireforms', 'Are you sure you want to delete this submission ?'))) {
+			if (confirm(Craft.t('formidable', 'Are you sure you want to delete this submission ?'))) {
 				let data = {};
 				data[Craft.csrfTokenName] = Craft.csrfTokenValue;
 				let elem = $(this);
@@ -75,7 +75,7 @@ class Submissions
 	{
 		this.container = $('#submissions-view');
 		this.filters = this.container.find('form');
-		this.exportAllUrl = '/admin/inspireforms/submissions/export-all';
+		this.exportAllUrl = '/admin/formidable/submissions/export-all';
 		this.exportAll = $('#export-all-btn');
 		this.switchView = $('.switch-view');
 		this.tableView = new TableView;
@@ -164,8 +164,8 @@ class ChartView
 	{
 		this.container = $('#chart-view');
 		this.filters = this.container.find('form');
-		this.url = '/admin/inspireforms/submissions/loadAll';
-		this.chart = new Chart('chart-container', Craft.t('inspireforms', 'submissions'));
+		this.url = '/admin/formidable/submissions/loadAll';
+		this.chart = new Chart('chart-container', Craft.t('formidable', 'submissions'));
 		this.bindFilters();
 	}
 
@@ -246,9 +246,9 @@ class TableView
 		this.list = $('#submission-list');
 		this.actions = $('#submission-actions');
 		this.filters = this.container.find('form');
-		this.url = '/admin/inspireforms/submissions/load';
-		this.deleteSelectionUrl = '/admin/inspireforms/submissions/delete-many';
-		this.exportSelectionUrl = '/admin/inspireforms/submissions/export';
+		this.url = '/admin/formidable/submissions/load';
+		this.deleteSelectionUrl = '/admin/formidable/submissions/delete-many';
+		this.exportSelectionUrl = '/admin/formidable/submissions/export';
 		this.selectAllElem = this.container.find('#selectAll');
 		this.pagination = this.container.find('#pagination');
 		this.skeleton = this.list.find('.skeleton');

@@ -1,8 +1,8 @@
 <?php
 
-namespace Inspire\Forms\Events;
+namespace Ryssbowh\Formidable\Events;
 
-use Inspire\Forms\Interfaces\CaptchaInterface;
+use Ryssbowh\Formidable\Interfaces\CaptchaInterface;
 use yii\base\Event;
 
 class RegisterCaptchasEvent extends Event

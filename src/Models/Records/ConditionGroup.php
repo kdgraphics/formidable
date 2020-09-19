@@ -1,15 +1,15 @@
 <?php 
 
-namespace Inspire\Forms\Models\Records;
+namespace Ryssbowh\Formidable\Models\Records;
 
-use Inspire\Forms\Models\ConditionGroup as ConditionGroupModel;
+use Ryssbowh\Formidable\Models\ConditionGroup as ConditionGroupModel;
 use craft\db\ActiveRecord;
 
 class ConditionGroup extends ActiveRecord
 {
 	public static function tableName()
 	{
-		return '{{%inspireforms_conditiongroups}}';
+		return '{{%formidable_conditiongroups}}';
 	}
 
 	/**

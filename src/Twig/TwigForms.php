@@ -1,8 +1,8 @@
 <?php 
 
-namespace Inspire\Forms\Twig;
+namespace Ryssbowh\Formidable\Twig;
 
-use Inspire\Forms\Forms;
+use Ryssbowh\Formidable\Formidable;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 
@@ -11,7 +11,7 @@ class TwigForms extends AbstractExtension implements GlobalsInterface
     public function getGlobals()
     {
         return array(
-            'inspireforms' => Forms::$plugin,
+            'formidable' => Forms::$plugin,
         );
     }
 }

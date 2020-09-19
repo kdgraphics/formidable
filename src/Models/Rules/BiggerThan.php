@@ -1,8 +1,8 @@
 <?php 
 
-namespace Inspire\Forms\Models\Rules;
+namespace Ryssbowh\Formidable\Models\Rules;
 
-use Inspire\Forms\Models\Rule;
+use Ryssbowh\Formidable\Models\Rule;
 
 class BiggerThan extends Rule
 {
@@ -13,7 +13,7 @@ class BiggerThan extends Rule
 	 */
 	public function name(): string 
 	{
-		return \Craft::t('inspireforms', 'Bigger than');
+		return \Craft::t('formidable', 'Bigger than');
 	}
 
 	/**
@@ -29,7 +29,7 @@ class BiggerThan extends Rule
 	 */
 	public function defaultMessage(): string
 	{
-		return \Craft::t('inspireforms', '{field.name} must be bigger than {rule.value}.');
+		return \Craft::t('formidable', '{field.name} must be bigger than {rule.value}.');
 	}
 
 	/**
@@ -37,6 +37,6 @@ class BiggerThan extends Rule
 	 */
 	public function conditionName(): string
 	{
-		return \Craft::t('inspireforms', 'bigger than');
+		return \Craft::t('formidable', 'bigger than');
 	}
 }

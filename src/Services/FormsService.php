@@ -1,15 +1,15 @@
 <?php 
 
-namespace Inspire\Forms\Services;
+namespace Ryssbowh\Formidable\Services;
 
-use Inspire\Forms\Events\FormEvent;
-use Inspire\Forms\Events\HookAssetsEvent;
-use Inspire\Forms\Events\SpamEvent;
-use Inspire\Forms\Events\SubmissionEvent;
-use Inspire\Forms\Forms;
-use Inspire\Forms\Models\Form as FormModel;
-use Inspire\Forms\Models\FormSubmission;
-use Inspire\Forms\Models\Records\Form as FormRecord;
+use Ryssbowh\Formidable\Events\FormEvent;
+use Ryssbowh\Formidable\Events\HookAssetsEvent;
+use Ryssbowh\Formidable\Events\SpamEvent;
+use Ryssbowh\Formidable\Events\SubmissionEvent;
+use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Models\Form as FormModel;
+use Ryssbowh\Formidable\Models\FormSubmission;
+use Ryssbowh\Formidable\Models\Records\Form as FormRecord;
 use craft\base\Component;
 use craft\events\ConfigEvent;
 use craft\events\RebuildConfigEvent;
@@ -28,11 +28,11 @@ class FormsService extends Component
     const EVENT_AFTER_SUBMITTING = 'after_submitting';
     const EVENT_ON_SPAM = 'on_spam';
 
-    const SESSION_ERRORS_KEY = 'inspireforms_errors';
-    const SESSION_SUCCESS_KEY = 'inspireforms_success';
-    const SESSION_OLDINPUT_KEY = 'inspireforms_oldinput';
+    const SESSION_ERRORS_KEY = 'formidable_errors';
+    const SESSION_SUCCESS_KEY = 'formidable_success';
+    const SESSION_OLDINPUT_KEY = 'formidable_oldinput';
 
-    const EVENT_HOOK_ASSETS = 'inspireforms_hook';
+    const EVENT_HOOK_ASSETS = 'formidable_hook';
 
 	const CONFIG_KEY = Forms::CONFIG_KEY . '.forms';
 
@@ -40,7 +40,7 @@ class FormsService extends Component
     const VALID = 2;
     const INVALID = 3;
 
-    const CACHE_ALL = 'inspireforms.forms';
+    const CACHE_ALL = 'formidable.forms';
 
     /**
      * Forms keyed by id

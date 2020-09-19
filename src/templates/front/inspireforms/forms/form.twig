@@ -1,11 +1,11 @@
-{% from 'inspireforms/macros' import errorList %}
+{% from 'formidable/macros' import errorList %}
 
 {% set id = 'inspireform-'~form.handle~form.id %}
 
-<form id="{{ id }}" action="/inspireforms/submit/{{ form.id }}" method="{{ form.method }}" class="{{ form.class }}" enctype="multipart/form-data">
+<form id="{{ id }}" action="/formidable/submit/{{ form.id }}" method="{{ form.method }}" class="{{ form.class }}" enctype="multipart/form-data">
 	{{ csrfInput() }}
 	{% if form.honeypot %}
-		{% include "inspireforms/fields/_honeypot" %}
+		{% include "formidable/fields/_honeypot" %}
 	{% endif %}
 	{% for field in fields %}
 		{% set error = errors[field.name] is defined ? errors[field.name] : false %}

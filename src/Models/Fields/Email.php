@@ -1,8 +1,8 @@
 <?php 
 
-namespace Inspire\Forms\Models\Fields;
+namespace Ryssbowh\Formidable\Models\Fields;
 
-use Inspire\Forms\Models\FormSubmission;
+use Ryssbowh\Formidable\Models\FormSubmission;
 
 class Email extends Text
 {
@@ -27,7 +27,7 @@ class Email extends Text
 	 **/
 	public function backendTemplate(): string
 	{
-		return 'inspireforms/cp/fields/email';
+		return 'formidable/cp/fields/email';
 	}
 
 	/**

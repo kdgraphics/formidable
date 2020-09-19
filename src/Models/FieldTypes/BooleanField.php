@@ -1,8 +1,8 @@
 <?php 
 
-namespace Inspire\Forms\Models\FieldTypes;
+namespace Ryssbowh\Formidable\Models\FieldTypes;
 
-use Inspire\Forms\Models\FieldType;
+use Ryssbowh\Formidable\Models\FieldType;
 
 class BooleanField extends FieldType
 {

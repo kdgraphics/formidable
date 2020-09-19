@@ -18,7 +18,7 @@ var PreviewModal = Garnish.Modal.extend({
 	init: function(settings) {
 		settings = $.extend(this.defaultSettings, settings);
 		let _this = this;
-		this.$container = $('<div class="modal inspireformsmodal hidden">\
+		this.$container = $('<div class="modal formidablemodal hidden">\
 			<a class="icon delete close" title="Close" href="#"></a>\
 			<div class="body"></div>\
 		</div>').appendTo(Garnish.$bod);

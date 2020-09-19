@@ -1,16 +1,16 @@
 <?php 
 
-namespace Inspire\Forms\Models\Records;
+namespace Ryssbowh\Formidable\Models\Records;
 
-use Inspire\Forms\Forms;
-use Inspire\Forms\Interfaces\FieldInterface;
+use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Interfaces\FieldInterface;
 use craft\db\ActiveRecord;
 
 class Field extends ActiveRecord
 {	
 	public static function tableName()
 	{
-		return '{{%inspireforms_fields}}';
+		return '{{%formidable_fields}}';
 	}
 
 	/**

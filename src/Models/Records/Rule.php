@@ -1,16 +1,16 @@
 <?php 
 
-namespace Inspire\Forms\Models\Records;
+namespace Ryssbowh\Formidable\Models\Records;
 
-use Inspire\Forms\Forms;
-use Inspire\Forms\Interfaces\RuleInterface;
+use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Interfaces\RuleInterface;
 use craft\db\ActiveRecord;
 
 class Rule extends ActiveRecord
 {	
 	public static function tableName()
 	{
-		return '{{%inspireforms_rules}}';
+		return '{{%formidable_rules}}';
 	}
 
 	/**

@@ -1,8 +1,8 @@
 <?php 
 
-namespace Inspire\Forms\Models\Rules;
+namespace Ryssbowh\Formidable\Models\Rules;
 
-use Inspire\Forms\Models\Rule;
+use Ryssbowh\Formidable\Models\Rule;
 
 class Contain extends Rule
 {
@@ -13,7 +13,7 @@ class Contain extends Rule
 	 */
 	public function name(): string 
 	{
-		return \Craft::t('inspireforms', 'Contain');
+		return \Craft::t('formidable', 'Contain');
 	}
 
 	/**
@@ -29,7 +29,7 @@ class Contain extends Rule
 	 */
 	public function defaultMessage(): string
 	{
-		return \Craft::t('inspireforms', '{field.name} must contain {rule.value}.');
+		return \Craft::t('formidable', '{field.name} must contain {rule.value}.');
 	}
 
 	/**
@@ -37,6 +37,6 @@ class Contain extends Rule
 	 */
 	public function conditionName(): string
 	{
-		return \Craft::t('inspireforms', 'contains');
+		return \Craft::t('formidable', 'contains');
 	}
 }

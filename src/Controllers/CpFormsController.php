@@ -1,13 +1,13 @@
 <?php 
 
-namespace Inspire\Forms\Controllers;
+namespace Ryssbowh\Formidable\Controllers;
 
-use Inspire\Forms\Assets\FormAsset;
-use Inspire\Forms\Assets\FormsAsset;
-use Inspire\Forms\Assets\HookAsset;
-use Inspire\Forms\Models\Condition;
-use Inspire\Forms\Models\Form;
-use Inspire\Forms\Models\FormSubmission;
+use Ryssbowh\Formidable\Assets\FormAsset;
+use Ryssbowh\Formidable\Assets\FormsAsset;
+use Ryssbowh\Formidable\Assets\HookAsset;
+use Ryssbowh\Formidable\Models\Condition;
+use Ryssbowh\Formidable\Models\Form;
+use Ryssbowh\Formidable\Models\FormSubmission;
 use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
 use yii\web\BadRequestHttpException;
@@ -23,7 +23,7 @@ class CpFormsController extends Controller
             $template = 'edit';
             $form = $this->forms()->getById($id);
             if (!$form) {
-                throw new NotFoundHttpException(\Craft::t('inspireforms', "Form with id {id} doesn't exist", ['id' => $id]));
+                throw new NotFoundHttpException(\Craft::t('formidable', "Form with id {id} doesn't exist", ['id' => $id]));
             }
         } else {
             $form = new Form;
@@ -38,7 +38,7 @@ class CpFormsController extends Controller
         }
         $this->view->registerAssetBundle(FormsAsset::class);
 
-		$this->renderTemplate('inspireforms/cp/forms/'.$template, [
+		$this->renderTemplate('formidable/cp/forms/'.$template, [
             'loaded' => time(),
             'tab' => $tab,
             'form' => $form,
@@ -63,7 +63,7 @@ class CpFormsController extends Controller
         $form = $this->forms()->getById($id);
 
         if (!$form) {
-            throw new NotFoundHttpException(\Craft::t('inspireforms', "Form with id {id} doesn't exist", ['id' => $id]));
+            throw new NotFoundHttpException(\Craft::t('formidable', "Form with id {id} doesn't exist", ['id' => $id]));
         }
 
 		return $this->asJson([
@@ -101,7 +101,7 @@ class CpFormsController extends Controller
 
         if ($form->dateUpdated && $form->dateUpdated->getTimestamp() > $loaded) {
             return $this->asJson([
-                'message' => \Craft::t('inspireforms', 'This form has been updated since you last loaded it, please reload the page')
+                'message' => \Craft::t('formidable', 'This form has been updated since you last loaded it, please reload the page')
             ]);
         }
 
@@ -111,21 +111,21 @@ class CpFormsController extends Controller
         if ($errors = $this->forms()->gatherErrors($form, $fields, $rules)) {
             return $this->asJson([
                 'errors' => $errors,
-                'message' => \Craft::t('inspireforms', 'Please fix the errors before saving.')
+                'message' => \Craft::t('formidable', 'Please fix the errors before saving.')
             ]);
         }
         if ($this->forms()->save($form, $fields, $rules)) {
             return $this->asJson([
                 'loaded' => time(),
                 'success' => true,
-                'message' => \Craft::t('inspireforms', 'Form saved successfully.'),
+                'message' => \Craft::t('formidable', 'Form saved successfully.'),
                 'form' => $form,
                 'fields' => $fields,
                 'rules' => $rules,
             ]);    
         }
         return $this->asJson([
-            'message' => \Craft::t('inspireforms', 'Unexpected error happened.')
+            'message' => \Craft::t('formidable', 'Unexpected error happened.')
         ]);
     }
 
@@ -135,11 +135,11 @@ class CpFormsController extends Controller
         $this->requireAcceptsJson();
         $form = $this->forms()->getById($id);
         if (!$form) {
-            throw new BadRequestHttpException(\Craft::t('inspireforms', "Form with id {id} doesn't exist", ['id' => $id]));
+            throw new BadRequestHttpException(\Craft::t('formidable', "Form with id {id} doesn't exist", ['id' => $id]));
         }
         if (!$this->forms()->delete($form)) {
             return $this->asJson([
-                'message' => \Craft::t('inspireforms', "Form couldn't be deleted")
+                'message' => \Craft::t('formidable', "Form couldn't be deleted")
             ]);
         }
         return $this->asJson([

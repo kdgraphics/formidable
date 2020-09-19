@@ -1,8 +1,8 @@
 <?php 
 
-namespace Inspire\Forms\Models\Rules;
+namespace Ryssbowh\Formidable\Models\Rules;
 
-use Inspire\Forms\Models\Rule;
+use Ryssbowh\Formidable\Models\Rule;
 
 class SameThan extends Rule
 {
@@ -13,7 +13,7 @@ class SameThan extends Rule
 	 */
 	public function name(): string 
 	{
-		return \Craft::t('inspireforms', 'Same than');
+		return \Craft::t('formidable', 'Same than');
 	}
 
 	/**
@@ -29,7 +29,7 @@ class SameThan extends Rule
 	 */
 	public function defaultMessage(): string
 	{
-		return \Craft::t('inspireforms', '{field.name} must be the same than {rule.field}.');
+		return \Craft::t('formidable', '{field.name} must be the same than {rule.field}.');
 	}
 
 	/**
@@ -37,6 +37,6 @@ class SameThan extends Rule
 	 */
 	public function conditionName(): string
 	{
-		return \Craft::t('inspireforms', 'smaller than');
+		return \Craft::t('formidable', 'smaller than');
 	}
 }

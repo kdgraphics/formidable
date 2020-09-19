@@ -1,6 +1,6 @@
 <?php 
 
-namespace Inspire\Forms\Models\Fields;
+namespace Ryssbowh\Formidable\Models\Fields;
 
 class Radio extends Select
 {
@@ -29,7 +29,7 @@ class Radio extends Select
 	 **/
 	public function backendTemplate(): string
 	{
-		return 'inspireforms/cp/fields/radio';
+		return 'formidable/cp/fields/radio';
 	}
 
 	/**

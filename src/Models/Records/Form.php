@@ -1,16 +1,16 @@
 <?php 
 
-namespace Inspire\Forms\Models\Records;
+namespace Ryssbowh\Formidable\Models\Records;
 
-use Inspire\Forms\Forms;
-use Inspire\Forms\Models\Form as FormModel;
+use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Models\Form as FormModel;
 use craft\db\ActiveRecord;
 
 class Form extends ActiveRecord
 {
 	public static function tableName()
 	{
-		return '{{%inspireforms_forms}}';
+		return '{{%formidable_forms}}';
 	}
 
 	public function toModel()

@@ -1,8 +1,8 @@
 <?php 
 
-namespace Inspire\Forms\Controllers;
+namespace Ryssbowh\Formidable\Controllers;
 
-use Inspire\Forms\Assets\SpamAsset;
+use Ryssbowh\Formidable\Assets\SpamAsset;
 use yii\web\BadRequestHttpException;
 use yii\widgets\LinkPager;
 
@@ -12,7 +12,7 @@ class CpSpamController extends Controller
 	{
         $this->view->registerAssetBundle(SpamAsset::class);
 
-        return $this->renderTemplate('inspireforms/cp/spam/index', [
+        return $this->renderTemplate('formidable/cp/spam/index', [
             'forms' => $this->forms()->getAllAsArray()
         ]);
 	}
@@ -60,12 +60,12 @@ class CpSpamController extends Controller
         
         $spam = $this->spam()->getById($id);
         if (!$spam) {
-            throw new BadRequestHttpException(\Craft::t('inspireforms', "Spam with id {id} doesn't exist", ['id' => $id]));
+            throw new BadRequestHttpException(\Craft::t('formidable', "Spam with id {id} doesn't exist", ['id' => $id]));
         }
 
         $response = [
             'spam' => $spam,
-            'html' => $this->renderTemplate('inspireforms/cp/spam/view', ['spam' => $spam, 'values' => decodeJson($spam->values)])->data
+            'html' => $this->renderTemplate('formidable/cp/spam/view', ['spam' => $spam, 'values' => decodeJson($spam->values)])->data
         ];
         return $this->asJson($response);
     }

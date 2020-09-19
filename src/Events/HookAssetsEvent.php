@@ -1,8 +1,8 @@
 <?php
 
-namespace Inspire\Forms\Events;
+namespace Ryssbowh\Formidable\Events;
 
-use Inspire\Forms\Interfaces\FieldInterface;
+use Ryssbowh\Formidable\Interfaces\FieldInterface;
 use yii\base\Event;
 
 class HookAssetsEvent extends Event

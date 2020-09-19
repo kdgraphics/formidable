@@ -1,15 +1,15 @@
 <?php 
 
-namespace Inspire\Forms\Models\Records;
+namespace Ryssbowh\Formidable\Models\Records;
 
-use Inspire\Forms\Models\Spam as SpamModel;
+use Ryssbowh\Formidable\Models\Spam as SpamModel;
 use craft\db\ActiveRecord;
 
 class Spam extends ActiveRecord
 {
 	public static function tableName()
 	{
-		return '{{%inspireforms_spams}}';
+		return '{{%formidable_spams}}';
 	}
 
 	public function toModel()

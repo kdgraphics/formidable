@@ -1,8 +1,8 @@
 <?php 
 
-namespace Inspire\Forms\Interfaces;
+namespace Ryssbowh\Formidable\Interfaces;
 
-use Inspire\Forms\Models\FormSubmission;
+use Ryssbowh\Formidable\Models\FormSubmission;
 
 interface FieldInterface
 {

@@ -5,13 +5,13 @@ class Spam
 		this.elem = elem;
 		this.data = data;
 		this.id = data.id;
-		this.deleteUrl = '/admin/inspireforms/spam/delete/'+this.id;
+		this.deleteUrl = '/admin/formidable/spam/delete/'+this.id;
 		this.elem.data('spam', this);
 		elem.find('.form').html(data.form.name);
 		elem.find('.created').html(data.dateCreated);
 		elem.find('.ip').html(data.ip);
-		this.modal = InspireForms.Modal;
-		this.modal.setUrl('/admin/inspireforms/spam/view/');
+		this.modal = formidable.Modal;
+		this.modal.setUrl('/admin/formidable/spam/view/');
 		this.initOpen();
 		this.initDelete();
 	}
@@ -35,7 +35,7 @@ class Spam
 	{
 		let _this = this;
 		this.elem.find('.delete').click(function(){
-			if (confirm(Craft.t('inspireforms', 'Are you sure you want to delete this spam ?'))) {
+			if (confirm(Craft.t('formidable', 'Are you sure you want to delete this spam ?'))) {
 				let data = {};
 				data[Craft.csrfTokenName] = Craft.csrfTokenValue;
 				let elem = $(this);
@@ -111,11 +111,11 @@ class TableView
 		this.actions = $('#spam-actions');
 		this.deleteAll = $('#delete-all-btn');
 		this.filters = this.container.find('form');
-		this.deleteSelectionUrl = '/admin/inspireforms/spam/delete-many';
+		this.deleteSelectionUrl = '/admin/formidable/spam/delete-many';
 		this.selectAllElem = this.container.find('#selectAll');
 		this.pagination = this.container.find('#pagination');
 		this.skeleton = this.list.find('.skeleton');
-		this.loadUrl = '/admin/inspireforms/spam/load';
+		this.loadUrl = '/admin/formidable/spam/load';
 		this.selected = {};
 		this.load();
 		this.bindFilters();
@@ -298,8 +298,8 @@ class ChartView
 	{
 		this.container = $('#chart-view');
 		this.filters = this.container.find('form');
-		this.url = '/admin/inspireforms/spam/loadAll';
-		this.chart = new Chart('chart-container', Craft.t('inspireforms', 'spams'));
+		this.url = '/admin/formidable/spam/loadAll';
+		this.chart = new Chart('chart-container', Craft.t('formidable', 'spams'));
 		this.bindFilters();
 	}
 

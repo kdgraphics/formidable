@@ -1,5 +1,5 @@
 {
-    "name": "inspire/forms",
+    "name": "ryssbowh/formidable",
     "description": "Craft CMS 3 Form builder with Database/Config integration",
     "type": "craft-plugin",
     "keywords": [
@@ -23,12 +23,12 @@
     },
     "autoload": {
         "psr-4": {
-          "Inspire\\Forms\\": "src/"
+          "Rysbowh\\Formidable\\": "src/"
         }
     },
     "extra": {
-        "name": "Inspire Forms",
-        "handle": "inspireforms",
-        "class": "Inspire\\Forms\\Forms"
+        "name": "Formidable Forms",
+        "handle": "formidable",
+        "class": "Ryssbowh\\Formidable\\Formidable"
     }
 }

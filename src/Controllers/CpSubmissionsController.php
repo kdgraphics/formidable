@@ -1,9 +1,9 @@
 <?php 
 
-namespace Inspire\Forms\Controllers;
+namespace Ryssbowh\Formidable\Controllers;
 
-use Inspire\Forms\Assets\SubmissionAsset;
-use Inspire\Forms\Models\Records\Submission;
+use Ryssbowh\Formidable\Assets\SubmissionAsset;
+use Ryssbowh\Formidable\Models\Records\Submission;
 use yii\web\BadRequestHttpException;
 use yii\widgets\LinkPager;
 
@@ -13,7 +13,7 @@ class CpSubmissionsController extends Controller
 	{
         $this->view->registerAssetBundle(SubmissionAsset::class);
 
-        return $this->renderTemplate('inspireforms/cp/submissions/index', [
+        return $this->renderTemplate('formidable/cp/submissions/index', [
             'forms' => $this->forms()->getAllAsArray()
         ]);
 	}
@@ -61,12 +61,12 @@ class CpSubmissionsController extends Controller
         
         $submission = $this->submissions()->view($id);
         if (!$submission) {
-            throw new BadRequestHttpException(\Craft::t('inspireforms', "Submission with id {id} doesn't exist", ['id' => $id]));
+            throw new BadRequestHttpException(\Craft::t('formidable', "Submission with id {id} doesn't exist", ['id' => $id]));
         }
 
         $response = [
             'submission' => $submission,
-            'html' => $this->renderTemplate('inspireforms/cp/submissions/view', ['submission' => $submission])->data
+            'html' => $this->renderTemplate('formidable/cp/submissions/view', ['submission' => $submission])->data
         ];
         return $this->asJson($response);
     }
@@ -78,12 +78,12 @@ class CpSubmissionsController extends Controller
         
         $success = $this->submissions()->delete($id);
         if (!$success) {
-            throw new BadRequestHttpException(\Craft::t('inspireforms', "Error while deleting submission {id}", ['id' => $id]));
+            throw new BadRequestHttpException(\Craft::t('formidable', "Error while deleting submission {id}", ['id' => $id]));
         }
 
         $response = [
             'success' => true,
-            'message' => \Craft::t('inspireforms', 'Submission deleted')
+            'message' => \Craft::t('formidable', 'Submission deleted')
         ];
         return $this->asJson($response);
     }
@@ -97,7 +97,7 @@ class CpSubmissionsController extends Controller
         $this->submissions()->deleteMany($ids);
         $response = [
             'success' => true,
-            'message' => \Craft::t('inspireforms', 'Submissions deleted')
+            'message' => \Craft::t('formidable', 'Submissions deleted')
         ];
         return $this->asJson($response);
     }

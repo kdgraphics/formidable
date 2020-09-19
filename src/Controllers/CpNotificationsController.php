@@ -1,9 +1,9 @@
 <?php 
 
-namespace Inspire\Forms\Controllers;
+namespace Ryssbowh\Formidable\Controllers;
 
-use Inspire\Forms\Assets\NotificationAsset;
-use Inspire\Forms\Models\Notification;
+use Ryssbowh\Formidable\Assets\NotificationAsset;
+use Ryssbowh\Formidable\Models\Notification;
 use yii\web\BadRequestHttpException;
 
 class CpNotificationsController extends Controller
@@ -11,7 +11,7 @@ class CpNotificationsController extends Controller
 	public function actionIndex(?int $id = null)
 	{
         $this->view->registerAssetBundle(NotificationAsset::class);
-		$this->renderTemplate('inspireforms/cp/notifications/index', [
+		$this->renderTemplate('formidable/cp/notifications/index', [
             'notifications' => $this->notifications()->getAll(),
             'notificationId' => $id,
             'loaded' => time()
@@ -26,17 +26,17 @@ class CpNotificationsController extends Controller
         $notification = $this->notifications()->getById($id);
 
         if (!$notification) {
-            throw new BadRequestHttpException(\Craft::t('inspireforms', 'No notification model found.'));
+            throw new BadRequestHttpException(\Craft::t('formidable', 'No notification model found.'));
         }
         if (!$this->notifications()->delete($notification)) {
-            throw new BadRequestHttpException(\Craft::t('inspireforms', 'Notification could not be deleted.'));
+            throw new BadRequestHttpException(\Craft::t('formidable', 'Notification could not be deleted.'));
         }
 
         $notifications = $this->notifications()->getAll();
 
         return $this->asJson([
             'success' => true,
-            'message' => \Craft::t('inspireforms', 'Notification has been deleted.'),
+            'message' => \Craft::t('formidable', 'Notification has been deleted.'),
             'id' => $id,
             'loaded' => time(),
             'notifications' => $notifications,
@@ -59,7 +59,7 @@ class CpNotificationsController extends Controller
 
         if ($model->dateUpdated && $model->dateUpdated->getTimestamp() > $loaded) {
             return $this->asJson([
-                'message' => \Craft::t('inspireforms', 'This notification has been updated since you last loaded it, please reload the page')
+                'message' => \Craft::t('formidable', 'This notification has been updated since you last loaded it, please reload the page')
             ]);
         }
         $model->setAttributes($data);
@@ -71,7 +71,7 @@ class CpNotificationsController extends Controller
         }
         
         return $this->asJson([
-            'message' => \Craft::t('inspireforms', 'Notification saved successfully.'),
+            'message' => \Craft::t('formidable', 'Notification saved successfully.'),
             'success' => true,
             'id' => $model->id,
             'loaded' => time(),

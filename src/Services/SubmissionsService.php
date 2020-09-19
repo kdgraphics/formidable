@@ -1,14 +1,14 @@
 <?php 
 
-namespace Inspire\Forms\Services;
+namespace Ryssbowh\Formidable\Services;
 
-use Inspire\Forms\Forms;
-use Inspire\Forms\Models\Form;
-use Inspire\Forms\Models\FormSubmission;
-use Inspire\Forms\Models\Records\Submission;
-use Inspire\Forms\Models\Records\SubmissionValue;
-use Inspire\Forms\Models\Submission as SubmissionModel;
-use Inspire\Forms\Providers\SubmissionProvider;
+use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Models\Form;
+use Ryssbowh\Formidable\Models\FormSubmission;
+use Ryssbowh\Formidable\Models\Records\Submission;
+use Ryssbowh\Formidable\Models\Records\SubmissionValue;
+use Ryssbowh\Formidable\Models\Submission as SubmissionModel;
+use Ryssbowh\Formidable\Providers\SubmissionProvider;
 use craft\base\Component;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;

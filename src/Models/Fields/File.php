@@ -1,10 +1,10 @@
 <?php 
 
-namespace Inspire\Forms\Models\Fields;
+namespace Ryssbowh\Formidable\Models\Fields;
 
-use Inspire\Forms\Models\Field;
-use Inspire\Forms\Models\FieldTypes\FileField;
-use Inspire\Forms\Models\FormSubmission;
+use Ryssbowh\Formidable\Models\Field;
+use Ryssbowh\Formidable\Models\FieldTypes\FileField;
+use Ryssbowh\Formidable\Models\FormSubmission;
 use craft\elements\Asset;
 use craft\web\UploadedFile;
 use yii\web\BadRequestHttpException;
@@ -41,7 +41,7 @@ class File extends Field
 	 **/
 	public function backendTemplate(): string
 	{
-		return 'inspireforms/cp/fields/file';
+		return 'formidable/cp/fields/file';
 	}
 
 	/**
@@ -70,7 +70,7 @@ class File extends Field
 		$extensions = explode(',', $this->extensions);
 		foreach ($extensions as $ext) {
 			if (!ctype_alnum($ext)) {
-				$this->addError('extensions', \Craft::t('inspireforms', 'Invalid extension {ext}', ['ext' => $ext]));
+				$this->addError('extensions', \Craft::t('formidable', 'Invalid extension {ext}', ['ext' => $ext]));
 			}
 		}
 	}
@@ -117,7 +117,7 @@ class File extends Field
         $folder = $assets->getRootFolderByVolumeId($this->volume);
         $file = $submission->{$this->name};
         if (!$folder) {
-            throw new BadRequestHttpException(\Craft::t('inspireforms', 'The target folder provided for uploading is not valid'));
+            throw new BadRequestHttpException(\Craft::t('formidable', 'The target folder provided for uploading is not valid'));
         }
         $asset = new Asset();
         $asset->setScenario(Asset::SCENARIO_CREATE);
@@ -130,7 +130,7 @@ class File extends Field
         if ($result) {
         	$submission->{$this->name} = $asset->id;
         } else {
-        	throw new BadRequestHttpException(\Craft::t('inspireforms', 'Couldn\'t create asset'));
+        	throw new BadRequestHttpException(\Craft::t('formidable', 'Couldn\'t create asset'));
         }
 	}
 

@@ -1,8 +1,8 @@
 <?php 
 
-namespace Inspire\Forms\Models\Rules;
+namespace Ryssbowh\Formidable\Models\Rules;
 
-use Inspire\Forms\Models\Rule;
+use Ryssbowh\Formidable\Models\Rule;
 
 class EqualTo extends Rule
 {
@@ -13,7 +13,7 @@ class EqualTo extends Rule
 	 */
 	public function name(): string 
 	{
-		return \Craft::t('inspireforms', 'Equal to');
+		return \Craft::t('formidable', 'Equal to');
 	}
 
 	/**
@@ -29,7 +29,7 @@ class EqualTo extends Rule
 	 */
 	public function defaultMessage(): string
 	{
-		return \Craft::t('inspireforms', '{field.name} must equal to {rule.value}.');
+		return \Craft::t('formidable', '{field.name} must equal to {rule.value}.');
 	}
 
 	/**
@@ -37,6 +37,6 @@ class EqualTo extends Rule
 	 */
 	public function conditionName(): string
 	{
-		return \Craft::t('inspireforms', 'equal to');
+		return \Craft::t('formidable', 'equal to');
 	}
 }

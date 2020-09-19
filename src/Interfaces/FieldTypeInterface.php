@@ -1,6 +1,6 @@
 <?php 
 
-namespace Inspire\Forms\Interfaces;
+namespace Ryssbowh\Formidable\Interfaces;
 
 interface FieldTypeInterface
 {

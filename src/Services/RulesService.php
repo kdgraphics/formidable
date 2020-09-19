@@ -1,19 +1,19 @@
 <?php 
 
-namespace Inspire\Forms\Services;
+namespace Ryssbowh\Formidable\Services;
 
-use Inspire\Forms\Events\RegisterRulesEvent;
-use Inspire\Forms\Events\RuleEvent;
-use Inspire\Forms\Forms;
-use Inspire\Forms\Interfaces\RuleInterface;
-use Inspire\Forms\Models\Condition;
-use Inspire\Forms\Models\ConditionGroup;
-use Inspire\Forms\Models\Form;
-use Inspire\Forms\Models\Records\Condition as ConditionRecord;
-use Inspire\Forms\Models\Records\ConditionGroup as ConditionGroupRecord;
-use Inspire\Forms\Models\Records\Form as FormRecord;
-use Inspire\Forms\Models\Records\Rule as RuleRecord;
-use Inspire\Forms\Models\Rule;
+use Ryssbowh\Formidable\Events\RegisterRulesEvent;
+use Ryssbowh\Formidable\Events\RuleEvent;
+use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Interfaces\RuleInterface;
+use Ryssbowh\Formidable\Models\Condition;
+use Ryssbowh\Formidable\Models\ConditionGroup;
+use Ryssbowh\Formidable\Models\Form;
+use Ryssbowh\Formidable\Models\Records\Condition as ConditionRecord;
+use Ryssbowh\Formidable\Models\Records\ConditionGroup as ConditionGroupRecord;
+use Ryssbowh\Formidable\Models\Records\Form as FormRecord;
+use Ryssbowh\Formidable\Models\Records\Rule as RuleRecord;
+use Ryssbowh\Formidable\Models\Rule;
 use craft\base\Component;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;

@@ -1,16 +1,16 @@
 <?php 
 
-namespace Inspire\Forms\Captchas;
+namespace Ryssbowh\Formidable\Captchas;
 
-use Inspire\Forms\Forms;
-use Inspire\Forms\Interfaces\CaptchaInterface;
-use Inspire\Forms\Models\Form;
+use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Interfaces\CaptchaInterface;
+use Ryssbowh\Formidable\Models\Form;
 use craft\helpers\StringHelper;
 
 class GoogleV3 implements CaptchaInterface
 {
-	const SESSION_KEY_VALUE = 'inspireforms.captcha-uid.value';
-	const SESSION_KEY_NAME = 'inspireforms.captcha-uid.name';
+	const SESSION_KEY_VALUE = 'formidable.captcha-uid.value';
+	const SESSION_KEY_NAME = 'formidable.captcha-uid.name';
 	/**
 	 * @inheritDoc
 	 */
@@ -32,7 +32,7 @@ class GoogleV3 implements CaptchaInterface
 	 */
 	public function render(): string
 	{
-		return \Craft::$app->view->renderTemplate('inspireforms/captchas/googleV3', ['captcha' => $this]);
+		return \Craft::$app->view->renderTemplate('formidable/captchas/googleV3', ['captcha' => $this]);
 	}
 
 	/**

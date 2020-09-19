@@ -1,10 +1,10 @@
 <?php 
 
-namespace Inspire\Forms\Models;
+namespace Ryssbowh\Formidable\Models;
 
-use Inspire\Forms\Forms;
-use Inspire\Forms\Interfaces\RuleInterface;
-use Inspire\Forms\Models\Form;
+use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Interfaces\RuleInterface;
+use Ryssbowh\Formidable\Models\Form;
 use craft\base\Model;
 use craft\helpers\ArrayHelper;
 
@@ -45,7 +45,7 @@ abstract class Rule extends Model implements RuleInterface
 			[['value'], 'number'],
 			['type', function () {
 				if (!Forms::$plugin->rules->getRegistered($this->type)) {
-					$this->addError('type', \Craft::t('inspireforms', '{type} is not a valid rule type', ['type' => $this->type]));
+					$this->addError('type', \Craft::t('formidable', '{type} is not a valid rule type', ['type' => $this->type]));
 				}
 			}],
 			['fields', 'each', 'rule' => ['string']]

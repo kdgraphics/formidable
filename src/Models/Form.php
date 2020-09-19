@@ -1,12 +1,12 @@
 <?php 
 
-namespace Inspire\Forms\Models;
+namespace Ryssbowh\Formidable\Models;
 
-use Inspire\Forms\Events\FormEvent;
-use Inspire\Forms\Forms;
-use Inspire\Forms\Interfaces\CaptchaInterface;
-use Inspire\Forms\Models\Notification;
-use Inspire\Forms\Services\FormsService;
+use Ryssbowh\Formidable\Events\FormEvent;
+use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Interfaces\CaptchaInterface;
+use Ryssbowh\Formidable\Models\Notification;
+use Ryssbowh\Formidable\Services\FormsService;
 use craft\base\Model;
 use craft\helpers\ArrayHelper;
 
@@ -51,7 +51,7 @@ class Form extends Model
 			}],
 			['captcha', function($attribute){
 				if (!in_array($this->$attribute, array_keys($this->getCaptchas()))) {
-					$this->addError($attribute, \Craft::t('inspireforms', 'Captcha is not valid'));
+					$this->addError($attribute, \Craft::t('formidable', 'Captcha is not valid'));
 				}
 			}],
 			['notifyField', 'required', 'when' => function($model){
@@ -69,7 +69,7 @@ class Form extends Model
 
 	public function init()
 	{
-		$this->submitLabel = \Craft::t('inspireforms', 'Submit');
+		$this->submitLabel = \Craft::t('formidable', 'Submit');
 		parent::init();
 	}
 
@@ -181,7 +181,7 @@ class Form extends Model
 	public function render(?string $template = null)
 	{
 		if (!$template) {
-			$template = 'inspireforms/forms/form';
+			$template = 'formidable/forms/form';
 		}
 		$event = new FormEvent([
             'form' => $this,

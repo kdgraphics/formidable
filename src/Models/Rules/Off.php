@@ -1,8 +1,8 @@
 <?php 
 
-namespace Inspire\Forms\Models\Rules;
+namespace Ryssbowh\Formidable\Models\Rules;
 
-use Inspire\Forms\Models\Rule;
+use Ryssbowh\Formidable\Models\Rule;
 
 class Off extends Rule
 {
@@ -11,7 +11,7 @@ class Off extends Rule
 	 */
 	public function name(): string 
 	{
-		return \Craft::t('inspireforms', 'Off');
+		return \Craft::t('formidable', 'Off');
 	}
 
 	/**
@@ -27,7 +27,7 @@ class Off extends Rule
 	 */
 	public function defaultMessage(): string
 	{
-		return \Craft::t('inspireforms', '{field.name} must be off.');
+		return \Craft::t('formidable', '{field.name} must be off.');
 	}
 
 	/**
@@ -35,6 +35,6 @@ class Off extends Rule
 	 */
 	public function conditionName(): string
 	{
-		return \Craft::t('inspireforms', 'is off');
+		return \Craft::t('formidable', 'is off');
 	}
 }

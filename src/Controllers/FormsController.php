@@ -1,12 +1,12 @@
 <?php 
 
-namespace Inspire\Forms\Controllers;
+namespace Ryssbowh\Formidable\Controllers;
 
-use Inspire\Forms\Assets\FormsAsset;
-use Inspire\Forms\Forms;
-use Inspire\Forms\Models\Form;
-use Inspire\Forms\Models\FormSubmission;
-use Inspire\Forms\Services\FormsService;
+use Ryssbowh\Formidable\Assets\FormsAsset;
+use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Models\Form;
+use Ryssbowh\Formidable\Models\FormSubmission;
+use Ryssbowh\Formidable\Services\FormsService;
 use craft\helpers\ArrayHelper;
 use yii\helpers\Url;
 use yii\web\BadRequestHttpException;

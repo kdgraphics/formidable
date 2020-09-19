@@ -1,8 +1,8 @@
 <?php 
 
-namespace Inspire\Forms\Models\Fields;
+namespace Ryssbowh\Formidable\Models\Fields;
 
-use Inspire\Forms\Models\FormSubmission;
+use Ryssbowh\Formidable\Models\FormSubmission;
 
 class Textarea extends Text
 {
@@ -27,6 +27,6 @@ class Textarea extends Text
 	 **/
 	public function backendTemplate(): string
 	{
-		return 'inspireforms/cp/fields/textarea';
+		return 'formidable/cp/fields/textarea';
 	}
 }

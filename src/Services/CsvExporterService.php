@@ -1,9 +1,9 @@
 <?php 
 
-namespace Inspire\Forms\Services;
+namespace Ryssbowh\Formidable\Services;
 
-use Inspire\Forms\Forms;
-use Inspire\Forms\Models\Records\SubmissionValue;
+use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Models\Records\SubmissionValue;
 use craft\base\Component;
 use craft\helpers\ArrayHelper;
 
@@ -22,7 +22,7 @@ class CsvExporterService extends Component
 		}
 
 		$fields = $this->resolveHeaders($query);
-		$headers = [\Craft::t('inspireforms','Form'), \Craft::t('inspireforms','Status'), \Craft::t('inspireforms','Date created'), \Craft::t('inspireforms','User notified'), \Craft::t('inspireforms','Admin notified')];
+		$headers = [\Craft::t('formidable','Form'), \Craft::t('formidable','Status'), \Craft::t('formidable','Date created'), \Craft::t('formidable','User notified'), \Craft::t('formidable','Admin notified')];
 		$fp = fopen("php://temp", 'w');
 		fputcsv($fp, array_merge($headers, $fields), ',');
 

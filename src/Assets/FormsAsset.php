@@ -1,6 +1,6 @@
 <?php 
 
-namespace Inspire\Forms\Assets;
+namespace Ryssbowh\Formidable\Assets;
 
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;

@@ -1,4 +1,4 @@
-# Inspire Forms
+# Formidable Forms
 
 Build forms in the backend, notify user and admins and view submissions and spams.
 Display them easily in the front end with templates.

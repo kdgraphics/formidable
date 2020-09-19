@@ -1,10 +1,10 @@
 <?php 
 
-namespace Inspire\Forms\Models\Fields;
+namespace Ryssbowh\Formidable\Models\Fields;
 
-use Inspire\Forms\Models\Field;
-use Inspire\Forms\Models\FieldTypes\ArrayField;
-use Inspire\Forms\Models\FormSubmission;
+use Ryssbowh\Formidable\Models\Field;
+use Ryssbowh\Formidable\Models\FieldTypes\ArrayField;
+use Ryssbowh\Formidable\Models\FormSubmission;
 
 class Select extends Field
 {
@@ -37,7 +37,7 @@ class Select extends Field
 	 **/
 	public function backendTemplate(): string
 	{
-		return 'inspireforms/cp/fields/select';
+		return 'formidable/cp/fields/select';
 	}
 
 	/**
@@ -67,14 +67,14 @@ class Select extends Field
 		$values = [];
 		foreach ($choices as $index => $choice) {
 			if ($index != 0 and !$choice['value']) {
-				$this->addError(\Craft::t($attribute, 'inspireforms', 'Value is missing'));
+				$this->addError(\Craft::t($attribute, 'formidable', 'Value is missing'));
 			}
 			if (!$choice['label']) {
-				$this->addError($attribute, \Craft::t('inspireforms', 'Label is missing'));
+				$this->addError($attribute, \Craft::t('formidable', 'Label is missing'));
 			}
 			if (in_array($choice['value'], $values)) {
 				$value = $choice['value'] ?? '{empty}';
-				$this->addError($attribute, \Craft::t('inspireforms', 'Value {value} is used twice', ['value' => $value]));
+				$this->addError($attribute, \Craft::t('formidable', 'Value {value} is used twice', ['value' => $value]));
 			}
 			$values[] = $choice['value'];
 		}

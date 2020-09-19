@@ -1,11 +1,11 @@
 <?php 
 
-namespace Inspire\Forms\Models;
+namespace Ryssbowh\Formidable\Models;
 
-use Inspire\Forms\Events\RegisterConditionTypes;
-use Inspire\Forms\Events\RegisterRuleTypes;
-use Inspire\Forms\Forms;
-use Inspire\Forms\Interfaces\FieldTypeInterface;
+use Ryssbowh\Formidable\Events\RegisterConditionTypes;
+use Ryssbowh\Formidable\Events\RegisterRuleTypes;
+use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Interfaces\FieldTypeInterface;
 use craft\base\Model;
 
 abstract class FieldType extends Model implements FieldTypeInterface

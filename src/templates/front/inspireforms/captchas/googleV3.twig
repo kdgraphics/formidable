@@ -1,12 +1,12 @@
-{% set siteKey = plugin('inspireforms').settings.siteKey %}
+{% set siteKey = plugin('formidable').settings.siteKey %}
 
 <div id="captcha-field">
 	<input type="text" required="required" name="_recaptcha_response">
 </div>
 
 {% if siteKey is empty %}
-	{{ 'The site key was not set for the Craft Recaptcha 3 plugin.'|t('inspireforms') }}
-	<a href="/admin/settings/plugins/inspireforms" target="_blank">{{ 'Please visit the settings page to add this key.'|t('inspireforms') }}</a>
+	{{ 'The site key was not set for the Craft Recaptcha 3 plugin.'|t('formidable') }}
+	<a href="/admin/settings/plugins/formidable" target="_blank">{{ 'Please visit the settings page to add this key.'|t('formidable') }}</a>
 {% else %}
   	{% set action = action|default('contact') %}
   	

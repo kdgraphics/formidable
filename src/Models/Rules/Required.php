@@ -1,8 +1,8 @@
 <?php 
 
-namespace Inspire\Forms\Models\Rules;
+namespace Ryssbowh\Formidable\Models\Rules;
 
-use Inspire\Forms\Models\Rule;
+use Ryssbowh\Formidable\Models\Rule;
 
 class Required extends Rule
 {
@@ -11,7 +11,7 @@ class Required extends Rule
 	 */
 	public function name(): string 
 	{
-		return \Craft::t('inspireforms', 'Required');
+		return \Craft::t('formidable', 'Required');
 	}
 
 	/**
@@ -27,7 +27,7 @@ class Required extends Rule
 	 */
 	public function defaultMessage(): string
 	{
-		return \Craft::t('inspireforms', '{field.name} is required.');
+		return \Craft::t('formidable', '{field.name} is required.');
 	}
 
 	/**
@@ -35,6 +35,6 @@ class Required extends Rule
 	 */
 	public function conditionName(): string
 	{
-		return \Craft::t('inspireforms', 'present');
+		return \Craft::t('formidable', 'present');
 	}
 }

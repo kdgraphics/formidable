@@ -1,15 +1,15 @@
 <?php 
 
-namespace Inspire\Forms\Models\Records;
+namespace Ryssbowh\Formidable\Models\Records;
 
-use Inspire\Forms\Models\Condition as ConditionModel;
+use Ryssbowh\Formidable\Models\Condition as ConditionModel;
 use craft\db\ActiveRecord;
 
 class Condition extends ActiveRecord
 {
 	public static function tableName()
 	{
-		return '{{%inspireforms_conditions}}';
+		return '{{%formidable_conditions}}';
 	}
 
 	public function toModel()

@@ -1,15 +1,15 @@
 <?php 
 
-namespace Inspire\Forms\Controllers;
+namespace Ryssbowh\Formidable\Controllers;
 
-use Inspire\Forms\Forms;
-use Inspire\Forms\Services\CaptchasService;
-use Inspire\Forms\Services\FieldsService;
-use Inspire\Forms\Services\FormsService;
-use Inspire\Forms\Services\NotificationsService;
-use Inspire\Forms\Services\RulesService;
-use Inspire\Forms\Services\SpamService;
-use Inspire\Forms\Services\SubmissionsService;
+use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Services\CaptchasService;
+use Ryssbowh\Formidable\Services\FieldsService;
+use Ryssbowh\Formidable\Services\FormsService;
+use Ryssbowh\Formidable\Services\NotificationsService;
+use Ryssbowh\Formidable\Services\RulesService;
+use Ryssbowh\Formidable\Services\SpamService;
+use Ryssbowh\Formidable\Services\SubmissionsService;
 use craft\web\Controller as CraftController;
 use craft\web\Request;
 use craft\web\Session;

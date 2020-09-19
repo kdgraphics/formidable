@@ -1,10 +1,10 @@
 <?php 
 
-namespace Inspire\Forms\Providers;
+namespace Ryssbowh\Formidable\Providers;
 
-use Inspire\Forms\Models\Form;
-use Inspire\Forms\Models\Records\Submission;
-use Inspire\Forms\Models\Submission as SubmissionModel;
+use Ryssbowh\Formidable\Models\Form;
+use Ryssbowh\Formidable\Models\Records\Submission;
+use Ryssbowh\Formidable\Models\Submission as SubmissionModel;
 use yii\data\ActiveDataProvider;
 
 class SubmissionProvider extends ActiveDataProvider

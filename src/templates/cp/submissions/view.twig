@@ -1,26 +1,26 @@
 
 
 <div class="submission">
-	<div class="header header-details">{{ 'Details'|t('inspireforms') }}</div>
+	<div class="header header-details">{{ 'Details'|t('formidable') }}</div>
 	<div class="content content-details">
 		<div class="group">
-			<label>{{ 'Posted the :'|t('inspireforms') }}</label>
+			<label>{{ 'Posted the :'|t('formidable') }}</label>
 			<div class="value">{{ submission.dateCreated|date('d/m/Y H:i') }}</div>
 		</div>
 		<div class="group">
-			<label>{{ 'Form : '|t('inspireforms') }}</label>
-			<div class="value"><a href="/admin/inspireforms/forms/edit/{{ submission.form.id }}" target="_blank">{{ submission.form.name }}</a></div>
+			<label>{{ 'Form : '|t('formidable') }}</label>
+			<div class="value"><a href="/admin/formidable/forms/edit/{{ submission.form.id }}" target="_blank">{{ submission.form.name }}</a></div>
 		</div>
 		<div class="group">
-			<label>{{ 'User was notified :'|t('inspireforms') }}</label>
+			<label>{{ 'User was notified :'|t('formidable') }}</label>
 			<div class="value">{{ submission.notified ? 'Yes' : 'No'}}</div>
 		</div>
 		<div class="group">
-			<label>{{ 'Admins were notified :'|t('inspireforms') }}</label>
+			<label>{{ 'Admins were notified :'|t('formidable') }}</label>
 			<div class="value">{{ submission.adminNotified ? 'Yes' : 'No'}}</div>
 		</div>
 	</div>
-	<div class="header header-values">{{ 'Submission'|t('inspireforms') }}</div>
+	<div class="header header-values">{{ 'Submission'|t('formidable') }}</div>
 	<div class="content content-values">
 		{% for value in submission.values %}
 			<div class="group">

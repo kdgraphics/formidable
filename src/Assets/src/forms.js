@@ -21,7 +21,7 @@ import { capitalize, isEqual } from 'lodash';
 Vue.mixin({
   methods: {
     t: (str, params) => {
-      return Craft.t('inspireforms', str, params);
+      return Craft.t('formidable', str, params);
     },
     capitalize: (str) => {
       return capitalize(str);

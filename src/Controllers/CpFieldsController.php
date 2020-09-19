@@ -1,6 +1,6 @@
 <?php 
 
-namespace Inspire\Forms\Controllers;
+namespace Ryssbowh\Formidable\Controllers;
 
 use yii\web\BadRequestHttpException;
 

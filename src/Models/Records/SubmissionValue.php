@@ -1,15 +1,15 @@
 <?php 
 
-namespace Inspire\Forms\Models\Records;
+namespace Ryssbowh\Formidable\Models\Records;
 
-use Inspire\Forms\Models\SubmissionValue as SubmissionValueModel;
+use Ryssbowh\Formidable\Models\SubmissionValue as SubmissionValueModel;
 use craft\db\ActiveRecord;
 
 class SubmissionValue extends ActiveRecord
 {
 	public static function tableName()
 	{
-		return '{{%inspireforms_submissions_values}}';
+		return '{{%formidable_submissions_values}}';
 	}
 
 	public function toModel()

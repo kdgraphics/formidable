@@ -1,14 +1,14 @@
 <?php 
 
-namespace Inspire\Forms\Services;
+namespace Ryssbowh\Formidable\Services;
 
-use Inspire\Forms\Events\NotificationEmailEvent;
-use Inspire\Forms\Events\NotificationEvent;
-use Inspire\Forms\Forms;
-use Inspire\Forms\Models\FormSubmission;
-use Inspire\Forms\Models\Notification as NotificationModel;
-use Inspire\Forms\Models\Records\Form as FormRecord;
-use Inspire\Forms\Models\Records\Notification as NotificationRecord;
+use Ryssbowh\Formidable\Events\NotificationEmailEvent;
+use Ryssbowh\Formidable\Events\NotificationEvent;
+use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Models\FormSubmission;
+use Ryssbowh\Formidable\Models\Notification as NotificationModel;
+use Ryssbowh\Formidable\Models\Records\Form as FormRecord;
+use Ryssbowh\Formidable\Models\Records\Notification as NotificationRecord;
 use Psr\Log\LogLevel;
 use craft\base\Component;
 use craft\events\ConfigEvent;

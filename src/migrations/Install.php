@@ -1,6 +1,6 @@
 <?php
 
-namespace Inspire\Forms\migrations;
+namespace Ryssbowh\Formidable\migrations;
 
 use Craft; 
 use craft\db\Migration;
@@ -15,7 +15,7 @@ class Install extends Migration
      */
     public function safeUp()
     {
-        $this->createTable('{{%inspireforms_forms}}', [
+        $this->createTable('{{%formidable_forms}}', [
             'id' => $this->primaryKey(),
             'name' => $this->string(255)->notNull(),
             'handle' => $this->string(255)->notNull(),
@@ -38,7 +38,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable('{{%inspireforms_notifications}}', [
+        $this->createTable('{{%formidable_notifications}}', [
             'id' => $this->primaryKey(),
             'name' => $this->string(255),
             'method' => $this->string(255)->notNull(),
@@ -51,7 +51,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable('{{%inspireforms_fields}}', [
+        $this->createTable('{{%formidable_fields}}', [
             'id' => $this->primaryKey(),
             'form_id' => $this->integer(11)->notNull(),
             'name' => $this->string(255)->notNull(),
@@ -66,7 +66,7 @@ class Install extends Migration
             'uid' => $this->uid()
         ]);
 
-        $this->createTable('{{%inspireforms_submissions}}', [
+        $this->createTable('{{%formidable_submissions}}', [
             'id' => $this->primaryKey(),
             'form_id' => $this->integer(11)->notNull(),
             'read' => $this->boolean()->defaultValue(false),
@@ -76,7 +76,7 @@ class Install extends Migration
             'uid' => $this->uid()
         ]);
 
-        $this->createTable('{{%inspireforms_spams}}', [
+        $this->createTable('{{%formidable_spams}}', [
             'id' => $this->primaryKey(),
             'form_id' => $this->integer(11)->notNull(),
             'ip' => $this->string(255),
@@ -86,7 +86,7 @@ class Install extends Migration
             'uid' => $this->uid()
         ]);
 
-        $this->createTable('{{%inspireforms_submissions_values}}', [
+        $this->createTable('{{%formidable_submissions_values}}', [
             'id' => $this->primaryKey(),
             'type' => $this->string(255)->notNull(),
             'field' => $this->string(255)->notNull(),
@@ -97,7 +97,7 @@ class Install extends Migration
             'uid' => $this->uid()
         ]);
 
-        $this->createTable('{{%inspireforms_rules}}', [
+        $this->createTable('{{%formidable_rules}}', [
             'id' => $this->primaryKey(),
             'form_id' => $this->integer(11)->notNull(),
             'type' => $this->string(255)->notNull(),
@@ -109,7 +109,7 @@ class Install extends Migration
             'uid' => $this->uid()
         ]);
 
-        $this->createTable('{{%inspireforms_conditiongroups}}', [
+        $this->createTable('{{%formidable_conditiongroups}}', [
             'id' => $this->primaryKey(),
             'rule_id' => $this->integer(11)->notNull(),
             'operator' => $this->string(5),
@@ -119,7 +119,7 @@ class Install extends Migration
             'uid' => $this->uid()
         ]);
 
-        $this->createTable('{{%inspireforms_conditions}}', [
+        $this->createTable('{{%formidable_conditions}}', [
             'id' => $this->primaryKey(),
             'rule_id' => $this->integer(11),
             'conditiongroup_id' => $this->integer(11),
@@ -133,16 +133,16 @@ class Install extends Migration
             'uid' => $this->uid()
         ]);
 
-        $this->addForeignKey(null, '{{%inspireforms_forms}}', ['notify_id'], '{{%inspireforms_notifications}}', ['id'], 'SET NULL', null);
-        $this->addForeignKey(null, '{{%inspireforms_forms}}', ['notifyAdmin_id'], '{{%inspireforms_notifications}}', ['id'], 'SET NULL', null);
-        $this->addForeignKey(null, '{{%inspireforms_fields}}', ['form_id'], '{{%inspireforms_forms}}', ['id'], 'CASCADE', null);
-        $this->addForeignKey(null, '{{%inspireforms_submissions}}', ['form_id'], '{{%inspireforms_forms}}', ['id'], 'CASCADE', null);
-        $this->addForeignKey(null, '{{%inspireforms_spams}}', ['form_id'], '{{%inspireforms_forms}}', ['id'], 'CASCADE', null);
-        $this->addForeignKey(null, '{{%inspireforms_submissions_values}}', ['submission_id'], '{{%inspireforms_submissions}}', ['id'], 'CASCADE', null);
-        $this->addForeignKey(null, '{{%inspireforms_rules}}', ['form_id'], '{{%inspireforms_forms}}', ['id'], 'CASCADE', null);
-        $this->addForeignKey(null, '{{%inspireforms_conditiongroups}}', ['rule_id'], '{{%inspireforms_rules}}', ['id'], 'CASCADE', null);
-        $this->addForeignKey(null, '{{%inspireforms_conditions}}', ['rule_id'], '{{%inspireforms_conditions}}', ['id'], 'CASCADE', null);
-        $this->addForeignKey(null, '{{%inspireforms_conditions}}', ['conditiongroup_id'], '{{%inspireforms_conditiongroups}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey(null, '{{%formidable_forms}}', ['notify_id'], '{{%formidable_notifications}}', ['id'], 'SET NULL', null);
+        $this->addForeignKey(null, '{{%formidable_forms}}', ['notifyAdmin_id'], '{{%formidable_notifications}}', ['id'], 'SET NULL', null);
+        $this->addForeignKey(null, '{{%formidable_fields}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey(null, '{{%formidable_submissions}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey(null, '{{%formidable_spams}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey(null, '{{%formidable_submissions_values}}', ['submission_id'], '{{%formidable_submissions}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey(null, '{{%formidable_rules}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey(null, '{{%formidable_conditiongroups}}', ['rule_id'], '{{%formidable_rules}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey(null, '{{%formidable_conditions}}', ['rule_id'], '{{%formidable_conditions}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey(null, '{{%formidable_conditions}}', ['conditiongroup_id'], '{{%formidable_conditiongroups}}', ['id'], 'CASCADE', null);
     }
 
     /**
@@ -150,17 +150,17 @@ class Install extends Migration
      */
     public function safeDown()
     {
-        $this->dropTableIfExists('{{%inspireforms_rule_field}}');
-        $this->dropTableIfExists('{{%inspireforms_conditiongroups}}');
-        $this->dropTableIfExists('{{%inspireforms_conditions}}');
-        $this->dropTableIfExists('{{%inspireforms_conditionnable_rule}}');
-        $this->dropTableIfExists('{{%inspireforms_rules}}');
-        $this->dropTableIfExists('{{%inspireforms_submissions_values}}');
-        $this->dropTableIfExists('{{%inspireforms_spams}}');
-        $this->dropTableIfExists('{{%inspireforms_submissions}}');
-        $this->dropTableIfExists('{{%inspireforms_fields}}');
-        $this->dropTableIfExists('{{%inspireforms_forms}}');
-        $this->dropTableIfExists('{{%inspireforms_notifications}}');
-        Craft::$app->projectConfig->remove('inspireforms');
+        $this->dropTableIfExists('{{%formidable_rule_field}}');
+        $this->dropTableIfExists('{{%formidable_conditiongroups}}');
+        $this->dropTableIfExists('{{%formidable_conditions}}');
+        $this->dropTableIfExists('{{%formidable_conditionnable_rule}}');
+        $this->dropTableIfExists('{{%formidable_rules}}');
+        $this->dropTableIfExists('{{%formidable_submissions_values}}');
+        $this->dropTableIfExists('{{%formidable_spams}}');
+        $this->dropTableIfExists('{{%formidable_submissions}}');
+        $this->dropTableIfExists('{{%formidable_fields}}');
+        $this->dropTableIfExists('{{%formidable_forms}}');
+        $this->dropTableIfExists('{{%formidable_notifications}}');
+        Craft::$app->projectConfig->remove('formidable');
     }
 }

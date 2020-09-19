@@ -34,7 +34,7 @@ export default {
     this.changeTab(this.tab, false);
     window.addEventListener('popstate', () => {
       const pathSplit = document.location.pathname.split('/');
-      if (pathSplit.length >= 5 && pathSplit[2] === 'inspireforms') {
+      if (pathSplit.length >= 5 && pathSplit[2] === 'formidable') {
         this.changeTab(pathSplit.length >= 5 ? pathSplit[5] : 'config', false);
       }
     });
@@ -65,21 +65,21 @@ export default {
     font-size: 14px;
 }
 
-.inspireforms #sidebar-container, .inspireforms #sidebar {
+.formidable #sidebar-container, .formidable #sidebar {
   width: 150px;
   flex: 0 0 150px;
 }
 
-.inspireforms .red-span {
+.formidable .red-span {
   color: $red400;
   padding-left:5px;
 }
 
-.inspireforms #sidebar-container {
+.formidable #sidebar-container {
   flex: 0 0 150px;
 }
 
-.inspireforms #main-content.has-sidebar #content-container {
+.formidable #main-content.has-sidebar #content-container {
   width: calc(100% - 126px);
   max-width: calc(100% - 126px);
 }

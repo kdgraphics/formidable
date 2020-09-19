@@ -1,15 +1,15 @@
 <?php 
 
-namespace Inspire\Forms\Services;
+namespace Ryssbowh\Formidable\Services;
 
-use Inspire\Forms\Events\FieldEvent;
-use Inspire\Forms\Events\FormEvent;
-use Inspire\Forms\Events\RegisterFieldsEvent;
-use Inspire\Forms\Forms;
-use Inspire\Forms\Interfaces\FieldInterface;
-use Inspire\Forms\Models\Form;
-use Inspire\Forms\Models\Records\Field as FieldRecord;
-use Inspire\Forms\Models\Records\Form as FormRecord;
+use Ryssbowh\Formidable\Events\FieldEvent;
+use Ryssbowh\Formidable\Events\FormEvent;
+use Ryssbowh\Formidable\Events\RegisterFieldsEvent;
+use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Interfaces\FieldInterface;
+use Ryssbowh\Formidable\Models\Form;
+use Ryssbowh\Formidable\Models\Records\Field as FieldRecord;
+use Ryssbowh\Formidable\Models\Records\Form as FormRecord;
 use craft\base\Component;
 use craft\events\ConfigEvent;
 use craft\helpers\ArrayHelper;

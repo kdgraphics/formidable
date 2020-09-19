@@ -12,7 +12,7 @@ Vue.use(VueConfirmDialog);
 Vue.mixin({
   methods: {
     t: (str, params) => {
-      return Craft.t('inspireforms', str, params);
+      return Craft.t('formidable', str, params);
     },
     changePageTitle: (str) => {
       $('#page-title h1').html(str);

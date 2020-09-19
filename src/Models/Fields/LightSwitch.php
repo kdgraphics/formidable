@@ -1,10 +1,10 @@
 <?php 
 
-namespace Inspire\Forms\Models\Fields;
+namespace Ryssbowh\Formidable\Models\Fields;
 
-use Inspire\Forms\Models\Field;
-use Inspire\Forms\Models\FieldTypes\BooleanField;
-use Inspire\Forms\Models\FormSubmission;
+use Ryssbowh\Formidable\Models\Field;
+use Ryssbowh\Formidable\Models\FieldTypes\BooleanField;
+use Ryssbowh\Formidable\Models\FormSubmission;
 
 class LightSwitch extends Field
 {
@@ -36,7 +36,7 @@ class LightSwitch extends Field
 	 **/
 	public function backendTemplate(): string
 	{
-		return 'inspireforms/cp/fields/switch';
+		return 'formidable/cp/fields/switch';
 	}
 
 	/**
@@ -58,7 +58,7 @@ class LightSwitch extends Field
 	{
 		$rules = [[$this->name, 'boolean']];
 		if ($this->required) {
-			$rules[] = [$this->name, 'compare', ['compareValue' => 1, 'operator' => '==', 'message' => \Craft::t('inspireforms', '{name} must be checked', ['name' => ucfirst($this->name)])]];
+			$rules[] = [$this->name, 'compare', ['compareValue' => 1, 'operator' => '==', 'message' => \Craft::t('formidable', '{name} must be checked', ['name' => ucfirst($this->name)])]];
 		}
 		return $rules;
 	}
@@ -68,6 +68,6 @@ class LightSwitch extends Field
 	 */
 	public function afterSubmissionValidated(FormSubmission $submission)
 	{
-		$submission->{$this->name} = $submission->{$this->name} ? \Craft::t('inspireforms', 'Yes') : \Craft::t('inspireforms', 'No');
+		$submission->{$this->name} = $submission->{$this->name} ? \Craft::t('formidable', 'Yes') : \Craft::t('formidable', 'No');
 	}
 }

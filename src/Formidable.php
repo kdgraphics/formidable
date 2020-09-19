@@ -1,49 +1,18 @@
 <?php
-namespace Inspire\Forms;
+namespace Ryssbowh\Formidable;
 
 use Craft;
-use Inspire\Forms\Assets\TestAsset;
-use Inspire\Forms\Captchas\GoogleV3;
-use Inspire\Forms\Events\RegisterCaptchasEvent;
-use Inspire\Forms\Events\RegisterFieldsEvent;
-use Inspire\Forms\Events\RegisterRulesEvent;
-use Inspire\Forms\Models\Fields\CaptchaV3;
-use Inspire\Forms\Models\Fields\Checkboxes;
-use Inspire\Forms\Models\Fields\Email;
-use Inspire\Forms\Models\Fields\File;
-use Inspire\Forms\Models\Fields\LightSwitch;
-use Inspire\Forms\Models\Fields\Number;
-use Inspire\Forms\Models\Fields\Radio;
-use Inspire\Forms\Models\Fields\Select;
-use Inspire\Forms\Models\Fields\Text;
-use Inspire\Forms\Models\Fields\Textarea;
-use Inspire\Forms\Models\FormSubmission;
-use Inspire\Forms\Models\Rules\BiggerThan;
-use Inspire\Forms\Models\Rules\Contain;
-use Inspire\Forms\Models\Rules\EqualTo;
-use Inspire\Forms\Models\Rules\Off;
-use Inspire\Forms\Models\Rules\On;
-use Inspire\Forms\Models\Rules\Required;
-use Inspire\Forms\Models\Rules\SameThan;
-use Inspire\Forms\Models\Rules\Size;
-use Inspire\Forms\Models\Rules\SmallerThan;
-use Inspire\Forms\Models\Settings;
-use Inspire\Forms\Services\CaptchasService;
-use Inspire\Forms\Services\ConditionGroupsService;
-use Inspire\Forms\Services\ConditionsService;
-use Inspire\Forms\Services\CsvExporterService;
-use Inspire\Forms\Services\FieldsService;
-use Inspire\Forms\Services\FormsService;
-use Inspire\Forms\Services\NotificationsService;
-use Inspire\Forms\Services\RulesService;
-use Inspire\Forms\Services\SpamService;
-use Inspire\Forms\Services\SubmissionsService;
-use Inspire\Forms\Twig\TwigForms;
+use Ryssbowh\Formidable\Assets\TestAsset;
+use Ryssbowh\Formidable\Captchas\GoogleV3;
+use Ryssbowh\Formidable\Events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent};
+use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, LightSwitch, Number, Radio, Select, Text, Textarea};
+use Ryssbowh\Formidable\Models\FormSubmission;
+use Ryssbowh\Formidable\Models\Rules\{BiggerThan, Contain, EqualTo, Off, On, Required, SameThan, Size, SmallerThan};
+use Ryssbowh\Formidable\Models\Settings;
+use Ryssbowh\Formidable\Services\{CaptchasService, ConditionsService, ConditionGroupsService, CsvExporterService, FieldsService, FormsService, NotificationsService, RulesService, SpamService, SubmissionsService};
+use Ryssbowh\Formidable\Twig\TwigForms;
 use craft\base\Plugin;
-use craft\events\RebuildConfigEvent;
-use craft\events\RegisterCpNavItemsEvent;
-use craft\events\RegisterTemplateRootsEvent;
-use craft\events\RegisterUrlRulesEvent;
+use craft\events\{RebuildConfigEvent, RegisterCpNavItemsEvent, RegisterTemplateRootsEvent, RegisterUrlRulesEvent};
 use craft\log\FileTarget;
 use craft\services\ProjectConfig;
 use craft\web\UrlManager;
@@ -53,9 +22,9 @@ use yii\base\Event;
 use yii\base\Model;
 use yii\log\Logger;
 
-class Forms extends Plugin
+class Formidable extends Plugin
 {
-    public $controllerNamespace = "Inspire\\Forms\\Controllers";
+    public $controllerNamespace = "Ryssbowh\\Formidable\\Controllers";
 
     public $schemaVersion = '1.0.5';
 
@@ -63,7 +32,7 @@ class Forms extends Plugin
 
     public static $plugin;
 
-    const CONFIG_KEY = 'inspireforms';
+    const CONFIG_KEY = 'formidable';
 
     protected $availableFields = [
         Text::class,
@@ -98,8 +67,8 @@ class Forms extends Plugin
         parent::init();
         $this::$plugin = $this;
         $fileTarget = new FileTarget([
-            'logFile' => \Yii::$app->getRuntimePath() . '/logs/inspireforms.log',
-            'categories' => ['inspireforms']
+            'logFile' => \Yii::$app->getRuntimePath() . '/logs/formidable.log',
+            'categories' => ['formidable']
         ]);
         \Craft::getLogger()->dispatcher->targets[] = $fileTarget;
         $this->registerComponents();
@@ -133,7 +102,7 @@ class Forms extends Plugin
     protected function settingsHtml(): string
     {
         return Craft::$app->view->renderTemplate(
-            'inspireforms/cp/settings',
+            'formidable/cp/settings',
             [
                 'settings' => $this->getSettings()
             ]
@@ -148,7 +117,7 @@ class Forms extends Plugin
      */
     public static function log($message, $level = Logger::LEVEL_INFO)
     {
-        \Craft::getLogger()->log($message, $level, 'inspireforms');
+        \Craft::getLogger()->log($message, $level, 'formidable');
     }
 
     /**
@@ -159,25 +128,25 @@ class Forms extends Plugin
         $_this = $this;
         Event::on(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS,
             function(RegisterCpNavItemsEvent $event) use ($_this){
-                $event->navItems['inspireforms'] = [
-                    'url' => 'inspireforms',
-                    'label' => \Craft::t('inspireforms', 'Forms'),
+                $event->navItems['formidable'] = [
+                    'url' => 'formidable',
+                    'label' => \Craft::t('formidable', 'Forms'),
                     'subnav' => [
-                        'inspireforms-forms' => [
-                            'url' => 'inspireforms/forms',
-                            'label' => \Craft::t('inspireforms', 'Forms')
+                        'formidable-forms' => [
+                            'url' => 'formidable/forms',
+                            'label' => \Craft::t('formidable', 'Forms')
                         ],
-                        'inspireforms-notifications' => [
-                            'url' => 'inspireforms/notifications',
-                            'label' => \Craft::t('inspireforms', 'Notifications'),
+                        'formidable-notifications' => [
+                            'url' => 'formidable/notifications',
+                            'label' => \Craft::t('formidable', 'Notifications'),
                         ],
-                        'inspireforms-submissions' => [
-                            'url' => 'inspireforms/submissions',
-                            'label' => \Craft::t('inspireforms', 'Submissions'),
+                        'formidable-submissions' => [
+                            'url' => 'formidable/submissions',
+                            'label' => \Craft::t('formidable', 'Submissions'),
                         ],
-                        'inspireforms-spam' => [
-                            'url' => 'inspireforms/spam',
-                            'label' => \Craft::t('inspireforms', 'Spam'),
+                        'formidable-spam' => [
+                            'url' => 'formidable/spam',
+                            'label' => \Craft::t('formidable', 'Spam'),
                         ]
                     ]
                 ];
@@ -267,41 +236,41 @@ class Forms extends Plugin
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, [
-                'inspireforms' => 'inspireforms/cp-forms/form',
-                'inspireforms/forms' => 'inspireforms/cp-forms/form',
-                'inspireforms/forms/get/<id:\d+>' => 'inspireforms/cp-forms/get',
-                'inspireforms/forms/new' => 'inspireforms/cp-forms/new',
-                'inspireforms/forms/add' => 'inspireforms/cp-forms/form',
-                'inspireforms/forms/add/<tab:config>' => 'inspireforms/cp-forms/form',
-                'inspireforms/forms/add/<tab:fields>' => 'inspireforms/cp-forms/form',
-                'inspireforms/forms/add/<tab:rules>' => 'inspireforms/cp-forms/form',
-                'inspireforms/forms/save' => 'inspireforms/cp-forms/save',
-                'inspireforms/forms/<id:\d+>' => 'inspireforms/cp-forms/form',
-                'inspireforms/forms/<id:\d+>/<tab:config>' => 'inspireforms/cp-forms/form',
-                'inspireforms/forms/<id:\d+>/<tab:fields>' => 'inspireforms/cp-forms/form',
-                'inspireforms/forms/<id:\d+>/<tab:rules>' => 'inspireforms/cp-forms/form',
-                'inspireforms/forms/delete/<id:\d+>' => 'inspireforms/cp-forms/delete',
-                'inspireforms/notifications' => 'inspireforms/cp-notifications',
-                'inspireforms/notifications/get/<id:\d+>' => 'inspireforms/cp-notifications/get',
-                'inspireforms/notifications/add' => 'inspireforms/cp-notifications',
-                'inspireforms/notifications/save' => 'inspireforms/cp-notifications/save',
-                'inspireforms/notifications/edit/<id:\d+>' => 'inspireforms/cp-notifications',
-                'inspireforms/notifications/delete/<id:\d+>' => 'inspireforms/cp-notifications/delete',
-                'inspireforms/fields/add/<handle:\w+>' => 'inspireforms/cp-fields/create',
-                'inspireforms/submissions' => 'inspireforms/cp-submissions',
-                'inspireforms/submissions/load' => 'inspireforms/cp-submissions/load',
-                'inspireforms/submissions/loadAll' => 'inspireforms/cp-submissions/load-all',
-                'inspireforms/submissions/view/<id:\d+>' => 'inspireforms/cp-submissions/view',
-                'inspireforms/submissions/delete/<id:\d+>' => 'inspireforms/cp-submissions/delete',
-                'inspireforms/submissions/delete-many' => 'inspireforms/cp-submissions/deletemany',
-                'inspireforms/submissions/export' => 'inspireforms/cp-submissions/export',
-                'inspireforms/submissions/export-all' => 'inspireforms/cp-submissions/export-all',
-                'inspireforms/spam' => 'inspireforms/cp-spam',
-                'inspireforms/spam/load' => 'inspireforms/cp-spam/load',
-                'inspireforms/spam/loadAll' => 'inspireforms/cp-spam/load-all',
-                'inspireforms/spam/view/<id:\d+>' => 'inspireforms/cp-spam/view',
-                'inspireforms/spam/delete/<id:\d+>' => 'inspireforms/cp-spam/delete',
-                'inspireforms/spam/delete-many' => 'inspireforms/cp-spam/deletemany'
+                'formidable' => 'formidable/cp-forms/form',
+                'formidable/forms' => 'formidable/cp-forms/form',
+                'formidable/forms/get/<id:\d+>' => 'formidable/cp-forms/get',
+                'formidable/forms/new' => 'formidable/cp-forms/new',
+                'formidable/forms/add' => 'formidable/cp-forms/form',
+                'formidable/forms/add/<tab:config>' => 'formidable/cp-forms/form',
+                'formidable/forms/add/<tab:fields>' => 'formidable/cp-forms/form',
+                'formidable/forms/add/<tab:rules>' => 'formidable/cp-forms/form',
+                'formidable/forms/save' => 'formidable/cp-forms/save',
+                'formidable/forms/<id:\d+>' => 'formidable/cp-forms/form',
+                'formidable/forms/<id:\d+>/<tab:config>' => 'formidable/cp-forms/form',
+                'formidable/forms/<id:\d+>/<tab:fields>' => 'formidable/cp-forms/form',
+                'formidable/forms/<id:\d+>/<tab:rules>' => 'formidable/cp-forms/form',
+                'formidable/forms/delete/<id:\d+>' => 'formidable/cp-forms/delete',
+                'formidable/notifications' => 'formidable/cp-notifications',
+                'formidable/notifications/get/<id:\d+>' => 'formidable/cp-notifications/get',
+                'formidable/notifications/add' => 'formidable/cp-notifications',
+                'formidable/notifications/save' => 'formidable/cp-notifications/save',
+                'formidable/notifications/edit/<id:\d+>' => 'formidable/cp-notifications',
+                'formidable/notifications/delete/<id:\d+>' => 'formidable/cp-notifications/delete',
+                'formidable/fields/add/<handle:\w+>' => 'formidable/cp-fields/create',
+                'formidable/submissions' => 'formidable/cp-submissions',
+                'formidable/submissions/load' => 'formidable/cp-submissions/load',
+                'formidable/submissions/loadAll' => 'formidable/cp-submissions/load-all',
+                'formidable/submissions/view/<id:\d+>' => 'formidable/cp-submissions/view',
+                'formidable/submissions/delete/<id:\d+>' => 'formidable/cp-submissions/delete',
+                'formidable/submissions/delete-many' => 'formidable/cp-submissions/deletemany',
+                'formidable/submissions/export' => 'formidable/cp-submissions/export',
+                'formidable/submissions/export-all' => 'formidable/cp-submissions/export-all',
+                'formidable/spam' => 'formidable/cp-spam',
+                'formidable/spam/load' => 'formidable/cp-spam/load',
+                'formidable/spam/loadAll' => 'formidable/cp-spam/load-all',
+                'formidable/spam/view/<id:\d+>' => 'formidable/cp-spam/view',
+                'formidable/spam/delete/<id:\d+>' => 'formidable/cp-spam/delete',
+                'formidable/spam/delete-many' => 'formidable/cp-spam/deletemany'
             ]);
         });
     }
@@ -313,7 +282,7 @@ class Forms extends Plugin
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules = array_merge($event->rules, [
-                'inspireforms/submit/<id:\d+>' => 'inspireforms/forms/submit',
+                'formidable/submit/<id:\d+>' => 'formidable/forms/submit',
             ]);
         });
     }

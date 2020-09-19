@@ -1,8 +1,8 @@
 <?php 
 
-namespace Inspire\Forms\Models\Fields;
+namespace Ryssbowh\Formidable\Models\Fields;
 
-use Inspire\Forms\Models\FormSubmission;
+use Ryssbowh\Formidable\Models\FormSubmission;
 
 class Checkboxes extends Radio
 {
@@ -27,7 +27,7 @@ class Checkboxes extends Radio
 	 **/
 	public function backendTemplate(): string
 	{
-		return 'inspireforms/cp/fields/checkboxes';
+		return 'formidable/cp/fields/checkboxes';
 	}
 
 	/**
@@ -38,7 +38,7 @@ class Checkboxes extends Radio
 		$rules = [
 			[$this->name, function ($attribute, $params, $validator) {
 				if (!is_array($this->$attribute)) {
-					$this->addError($attribute, \Craft::t('inspireforms', 'Value is invalid'));
+					$this->addError($attribute, \Craft::t('formidable', 'Value is invalid'));
 				}
 			}]
 		];

@@ -1,4 +1,4 @@
-{% extends "inspireforms/cp/_base" %}
+{% extends "formidable/cp/_base" %}
 
 {% import "_includes/forms" as formsBase %}
 
@@ -7,13 +7,13 @@
 {% set selectedTab = 'spam' %}
 
 {% block actionButton %}
-	<div style="display:none" class="btn menubtn" id="spam-actions">{{ "Selection"|t('inspireforms') }}</div>
+	<div style="display:none" class="btn menubtn" id="spam-actions">{{ "Selection"|t('formidable') }}</div>
 	<div class="menu">
 		<ul>
-			<li><a class="delete">{{ "Delete"|t('inspireforms') }}</a></li>
+			<li><a class="delete">{{ "Delete"|t('formidable') }}</a></li>
 		</ul>
 	</div>
-	<a href="" class="btn" id="delete-all-btn">{{ "Delete all"|t('inspireforms') }}</a>
+	<a href="" class="btn" id="delete-all-btn">{{ "Delete all"|t('formidable') }}</a>
 {% endblock %}
 
 {% block content %}
@@ -47,13 +47,13 @@
 		        		<th class="submitted">
 		        			{{
 		        				formsBase.dateField({
-		        					title: "From"|t('inspireforms'),
+		        					title: "From"|t('formidable'),
 		        					name: "filters[submittedFrom]"
 		        				})
 		        			}}
 		        			{{
 		        				formsBase.dateField({
-		        					title: "To"|t('inspireforms'),
+		        					title: "To"|t('formidable'),
 		        					name: "filters[submittedTo]"
 		        				})
 		        			}}
@@ -71,28 +71,28 @@
 			        <tbody>
 			        	<tr><td colspan="8" id="no-spam"><h3>No spam found</h3></td></tr>
 			        	<tr class="skeleton" style="display:none">
-			            	<td scope="row" data-title="{{ 'Select'|t('inspireforms') }}" class="thin">
+			            	<td scope="row" data-title="{{ 'Select'|t('formidable') }}" class="thin">
 			            		{{
 									formsBase.checkboxField({
 										id:'select'
 									})
 								}}
 			            	</td>
-			                <td scope="row" data-title="{{ 'Form'|t('inspireforms') }}" class="form"></td>
-			                <td data-title="{{ 'Created'|t('inspireforms') }}" class="created"></td>
-			                <td data-title="{{ 'IP'|t('inspireforms') }}" class="ip"></td>
+			                <td scope="row" data-title="{{ 'Form'|t('formidable') }}" class="form"></td>
+			                <td data-title="{{ 'Created'|t('formidable') }}" class="created"></td>
+			                <td data-title="{{ 'IP'|t('formidable') }}" class="ip"></td>
 			                <td class="thin">
-			                    <a class="expand icon" title="{{ 'View'|t('inspireforms') }}" href="#" role="button"></a>
+			                    <a class="expand icon" title="{{ 'View'|t('formidable') }}" href="#" role="button"></a>
 			                </td>
 			                <td class="thin">
-			                    <a class="delete icon" title="{{ 'Delete'|t('inspireforms') }}" role="button"></a>
+			                    <a class="delete icon" title="{{ 'Delete'|t('formidable') }}" role="button"></a>
 			                </td>
 			            </tr>
 			        </tbody>
 			    </table>
 			    <div class="bottom">
 					<div id="pagination"></div>
-					<a href="#" class="switch-view chart">{{ 'Chart view'|t('inspireforms') }}</a>
+					<a href="#" class="switch-view chart">{{ 'Chart view'|t('formidable') }}</a>
 					{{
 						formsBase.selectField({
 							label: 'Page size',
@@ -119,13 +119,13 @@
 		        		<th class="submitted">
 		        			{{
 		        				formsBase.dateField({
-		        					title: "From"|t('inspireforms'),
+		        					title: "From"|t('formidable'),
 		        					name: "filters[submittedFrom]"
 		        				})
 		        			}}
 		        			{{
 		        				formsBase.dateField({
-		        					title: "To"|t('inspireforms'),
+		        					title: "To"|t('formidable'),
 		        					name: "filters[submittedTo]"
 		        				})
 		        			}}
@@ -136,7 +136,7 @@
 			</form>
 			<canvas id="chart-container"></canvas>
 			<div class="bottom">
-				<a href="#" class="switch-view table">{{ 'Table view'|t('inspireforms') }}</a>
+				<a href="#" class="switch-view table">{{ 'Table view'|t('formidable') }}</a>
 			</div>
 		</div>
 	</div>

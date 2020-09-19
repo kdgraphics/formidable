@@ -1,10 +1,10 @@
 <?php 
 
-namespace Inspire\Forms\Providers;
+namespace Ryssbowh\Formidable\Providers;
 
-use Inspire\Forms\Models\Form;
-use Inspire\Forms\Models\Records\Spam;
-use Inspire\Forms\Models\Spam as SpamModel;
+use Ryssbowh\Formidable\Models\Form;
+use Ryssbowh\Formidable\Models\Records\Spam;
+use Ryssbowh\Formidable\Models\Spam as SpamModel;
 use yii\data\ActiveDataProvider;
 
 class SpamProvider extends ActiveDataProvider

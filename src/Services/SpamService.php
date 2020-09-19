@@ -1,11 +1,11 @@
 <?php 
 
-namespace Inspire\Forms\Services;
+namespace Ryssbowh\Formidable\Services;
 
-use Inspire\Forms\Models\Form;
-use Inspire\Forms\Models\Records\Spam;
-use Inspire\Forms\Models\Spam as SpamModel;
-use Inspire\Forms\Providers\SpamProvider;
+use Ryssbowh\Formidable\Models\Form;
+use Ryssbowh\Formidable\Models\Records\Spam;
+use Ryssbowh\Formidable\Models\Spam as SpamModel;
+use Ryssbowh\Formidable\Providers\SpamProvider;
 use craft\base\Component;
 use craft\helpers\DateTimeHelper;
 use yii\data\ActiveDataProvider;

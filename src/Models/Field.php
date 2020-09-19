@@ -1,13 +1,13 @@
 <?php 
 
-namespace Inspire\Forms\Models;
+namespace Ryssbowh\Formidable\Models;
 
-use Inspire\Forms\Events\FieldEvent;
-use Inspire\Forms\Forms;
-use Inspire\Forms\Interfaces\FieldInterface;
-use Inspire\Forms\Interfaces\FieldTypeInterface;
-use Inspire\Forms\Models\FieldTypes\TextField;
-use Inspire\Forms\Models\FormSubmission;
+use Ryssbowh\Formidable\Events\FieldEvent;
+use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Interfaces\FieldInterface;
+use Ryssbowh\Formidable\Interfaces\FieldTypeInterface;
+use Ryssbowh\Formidable\Models\FieldTypes\TextField;
+use Ryssbowh\Formidable\Models\FormSubmission;
 use craft\base\Model;
 
 abstract class Field extends Model implements FieldInterface
@@ -62,7 +62,7 @@ abstract class Field extends Model implements FieldInterface
 	 **/
 	public function frontendTemplate(): string
 	{
-		return 'inspireforms/fields/'.$this->handle();
+		return 'formidable/fields/'.$this->handle();
 	}
 
 	/**
