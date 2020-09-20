@@ -156,7 +156,7 @@ class SubmissionsService extends Component
 	public function exportAll(): ?string
 	{
 		$query = Submission::find();
-		return Forms::$plugin->csvExporter->exportFromQuery($query);
+		return Formidable::$plugin->csvExporter->exportFromQuery($query);
 	}
 
 	/**
@@ -167,7 +167,7 @@ class SubmissionsService extends Component
 	public function exportAsCsv(array $ids): ?string
 	{
 		$query = Submission::find()->where(['in', 'id', $ids]);
-		return Forms::$plugin->csvExporter->exportFromQuery($query);
+		return Formidable::$plugin->csvExporter->exportFromQuery($query);
 	}
 
 	/**
@@ -217,7 +217,7 @@ class SubmissionsService extends Component
 			return false;
 		}
 		if (!filter_var($formSubmission->{$form->notifyField}, FILTER_VALIDATE_EMAIL)) {
-			Forms::log("Can't notify user for form {$form->handle} : Value {$formSubmission->{$form->notifyField}} for field {$form->notifyField} is not a valid email");
+			Formidable::log("Can't notify user for form {$form->handle} : Value {$formSubmission->{$form->notifyField}} for field {$form->notifyField} is not a valid email");
  			return false;
 		}
 		return $notification->send($formSubmission, $formSubmission->{$form->notifyField});

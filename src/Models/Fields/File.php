@@ -14,11 +14,8 @@ class File extends Field
 	protected $fieldTypeClass = FileField::class;
 
 	public $label;
-	public $required;
-	public $enforceRequired;
 	public $volume;
 	public $extensions;
-	public $size;
 
 	/**
 	 * inheritDoc
@@ -52,8 +49,6 @@ class File extends Field
 		return [
 			[['label', 'volume'], 'string'],
 			[['label', 'volume'], 'trim'],
-			['size', 'number'],
-			[['required', 'enforceRequired'], 'boolean'],
 			['extensions', 'validateExtensions']
 		];
 	}
@@ -78,21 +73,15 @@ class File extends Field
 	/**
 	 * inheritDoc
 	 */
-	public function getSiteRules(): array
+	public function getFrontEndRules(FormSubmission $submission): array
 	{
 		$file = [];
-		if ($this->size) {
-			$file['maxSize'] = 1024*1024*$this->size;
-		}
 		if ($this->extensions) {
 			$file['extensions'] = explode(',', $this->extensions);
 		}
 		$rules = [
 			[$this->name, 'file', $file], 
 		];
-		if ($this->required) {
-			$rules[] = [$this->name, 'required'];
-		}
 		return $rules;
 	}
 

@@ -9,9 +9,6 @@ class Text extends Field
 {
 	public $placeholder;
 	public $label;
-	public $required;
-	public $enforceRequired;
-	public $maxLength;
 	public $default;
 
 	/**
@@ -46,23 +43,17 @@ class Text extends Field
 		return [
 			[['placeholder','label', 'default'], 'string'],
 			[['placeholder','label', 'default'], 'trim'],
-			['maxLength', 'number'],
-			[['required', 'enforceRequired'], 'boolean']
 		];
 	}
 
 	/**
 	 * inheritDoc
 	 */
-	public function getSiteRules(): array
+	public function getFrontEndRules(FormSubmission $submission): array
 	{
-		$rules = [
-			[$this->name, 'string', ['length' => $this->maxLength ? [0, $this->maxLength] : null]], 
+		return [
+			[$this->name, 'string'], 
 			[$this->name, 'trim']
 		];
-		if ($this->required) {
-			$rules[] = [$this->name, 'required'];
-		}
-		return $rules;
 	}
 }

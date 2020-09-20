@@ -9,6 +9,7 @@ use Ryssbowh\Formidable\Interfaces\RuleInterface;
 use Ryssbowh\Formidable\Models\Condition;
 use Ryssbowh\Formidable\Models\ConditionGroup;
 use Ryssbowh\Formidable\Models\Form;
+use Ryssbowh\Formidable\Models\FormSubmission;
 use Ryssbowh\Formidable\Models\Records\Condition as ConditionRecord;
 use Ryssbowh\Formidable\Models\Records\ConditionGroup as ConditionGroupRecord;
 use Ryssbowh\Formidable\Models\Records\Form as FormRecord;
@@ -27,7 +28,7 @@ class RulesService extends Component
     const EVENT_AFTER_DELETE = 'after_delete';
     const EVENT_BEFORE_DELETE = 'before_delete';
 
-    const CONFIG_KEY = Forms::CONFIG_KEY . '.rules';
+    const CONFIG_KEY = Formidable::CONFIG_KEY . '.rules';
 
     const EVENT_REGISTER_RULES = 'register_rules';
 
@@ -90,8 +91,8 @@ class RulesService extends Component
             $rule->id = Db::idByUid(RuleRecord::tableName(), $rule->uid);
         }
 
-        Forms::$plugin->conditions->saveMany($rule->conditions, $rule);
-        Forms::$plugin->conditionGroups->saveMany($rule->conditionGroups, $rule);
+        Formidable::$plugin->conditions->saveMany($rule->conditions, $rule);
+        Formidable::$plugin->conditionGroups->saveMany($rule->conditionGroups, $rule);
 
         return true;
     }
@@ -121,7 +122,7 @@ class RulesService extends Component
         try {
             $rule = $this->getRecordByUid($uid);
             $isNew = $rule->getIsNewRecord();
-            $rule->form_id = Forms::$plugin->forms->getByUid($data['form_id'])->id;
+            $rule->form_id = Formidable::$plugin->forms->getByUid($data['form_id'])->id;
             $rule->type = $data['type'];
             $rule->message = $data['message'];
             $rule->value = $data['value'];
@@ -271,8 +272,8 @@ class RulesService extends Component
             }
             $rule->setAttributes($data);
             $rule->validate();
-            $rule->conditions = Forms::$plugin->conditions->validateData($data['conditions']);
-            $rule->conditionGroups = Forms::$plugin->conditionGroups->validateData($data['conditionGroups']);
+            $rule->conditions = Formidable::$plugin->conditions->validateData($data['conditions']);
+            $rule->conditionGroups = Formidable::$plugin->conditionGroups->validateData($data['conditionGroups']);
             $rules[$index] = $rule;
         }
         return $rules;

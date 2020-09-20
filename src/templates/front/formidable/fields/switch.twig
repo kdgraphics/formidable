@@ -7,12 +7,11 @@
 	name="{{ field.name }}"
 	class="{{ field.fieldClass }}{% if error %} is-invalid{% endif %}" 
 	value="1"
-	{% if field.required and field.enforceRequired %}required="required"{% endif %}
 	{% if oldValue %}checked="checked"{% endif %}
 	>
 	{% if field.label %}
 		<label for="{{ field.generateId(form) }}" class="{{ field.labelClass }}">
-			{{ field.label }}{% if field.required %} *{% endif %}
+			{{ field.label }}
 		</label>
 	{% endif %}
 	{% block instructions %}

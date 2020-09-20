@@ -10,7 +10,7 @@
         </div>
         <div class="input ltr">
           <multiselect v-model="multiselectedFields"
-            :options="fields"
+            :options="validFields"
             track-by="name"
             label="name"
             :multiple="true" 
@@ -33,7 +33,22 @@
           {{ t('Value to compare against') }}
         </div>
         <div class="input ltr">
-          <input :class="'text fullwidth' + (errors.rule.value ? ' error' : '')" v-model="rule.value" name="value" type="number" step="0.1"/>
+          <input :class="'text fullwidth' + (errors.rule.value ? ' error' : '')" v-model="rule.value"/>
+        </div>
+      </div>
+    </div>
+    <div class="rule-value" v-if="rule.requiresField">
+      <div class="field">
+        <div class="heading">
+          <label>{{ t('Field') }}</label>
+        </div>
+        <div class="instructions">
+          {{ t('Field to compare against') }}
+        </div>
+        <div class="select">
+          <select :class="'text fullwidth' + (errors.rule.value ? ' error' : '')" v-model="fieldSelected">
+            <option v-for="field in fields" :value="field">{{ field.name }}</option>
+          </select>
         </div>
       </div>
     </div>
@@ -91,7 +106,8 @@ export default {
   },
   data() {
     return {
-      selectedFields:{},
+      selectedFields: {},
+      selectedField: null,
       errors: {rule: {}, conditions: {}, groups: {}}
     }
   },
@@ -116,6 +132,18 @@ export default {
         this.selectedFields = value;
         this.rule.fields = value.map((field) => field.name);
       }
+    },
+    fieldSelected: {
+      get: function () {
+        return this.selectedField;
+      },
+      set: function (value) {
+        this.selectedField = value;
+        this.rule.value = value.name;
+      }
+    },
+    validFields: function () {
+      return this.fields.filter((field) => field.validRules.includes(this.rule.type));
     },
     ...mapState(['fields']),
   },
@@ -147,15 +175,24 @@ export default {
   },
   created () {
     this.selectedFields = filter(this.fields, (field) => this.rule.fields.includes(field.name));
+    this.selectedField = filter(this.fields, (field) => field.name == this.rule.value)[0] ?? null;
     this.validate();
   },
   methods: {
     validate() {
       let errors = {
-        value: (this.rule.requiresValue && !this.rule.value),
+        value: this.validateValue(),
         fields: this.rule.fields.length == 0
       };
       this.$set(this.errors, 'rule', errors);
+    },
+    validateValue() {
+      if (this.rule.requiresField) {
+        return this.selectedField == null;
+      }
+      if (this.rule.requiresValue) {
+        return this.rule.value.trim() == '';
+      }
     },
     addCondition() {
       this.rule.conditions.push(this._newCondition());

@@ -29,17 +29,19 @@ abstract class Field extends Model implements FieldInterface
 	public $dateCreated;
 	public $dateUpdated;
 	public $uid;
-	public $validRules;
+	public $validRules = [];
 	private $options;
 
-	protected $rootAttributes = ['id', 'name', 'order', 'form_id', 'options', 'dateCreated', 'dateUpdated', 'uid', 'fieldClass', 'containerClass', 'instructions', 'type', 'friendlyName', 'validRules'];
+	protected $rootAttributes = ['id', 'name', 'order', 'form_id', 'options', 'dateCreated', 'dateUpdated', 'uid', 'fieldClass', 'containerClass', 'labelClass', 'instructions', 'type', 'friendlyName', 'validRules'];
 
 	public function init()
 	{
 		parent::init();
 		$this->type = $this->handle();
 		$this->friendlyName = $this->friendlyName();
-		$this->validRules = $this->fieldType()->getValidRuleTypes();
+		if ($this->name) {
+			$this->validRules = $this->fieldType()->validRuleTypes();
+		}
 	}
 
 	public function fieldType(): FieldTypeInterface
@@ -72,7 +74,7 @@ abstract class Field extends Model implements FieldInterface
 	 */
 	public function getForm(): ?Form
 	{
-		return Forms::$plugin->forms->getById($this->form_id);
+		return Formidable::$plugin->forms->getById($this->form_id);
 	}
 
 	/**
@@ -153,7 +155,7 @@ abstract class Field extends Model implements FieldInterface
 	/**
 	 * @inheritDoc
 	 */
-	public static function getSubmissionValue($value)
+	public function getFriendlyValue($value)
 	{
 		return $value;
 	}
@@ -161,8 +163,16 @@ abstract class Field extends Model implements FieldInterface
 	/**
 	 * @inheritDoc
 	 */
+	public static function getSubmissionValue($value)
+	{
+		return $this->getFriendlyValue();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public static function getCsvValue($value)
 	{
-		return $value;
+		return $this->getFriendlyValue();
 	}
 }

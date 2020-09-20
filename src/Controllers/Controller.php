@@ -28,36 +28,36 @@ class Controller extends CraftController
 
 	protected function forms(): FormsService
 	{
-		return Forms::$plugin->forms;
+		return Formidable::$plugin->forms;
 	}
 
 	protected function fields(): FieldsService
 	{
-		return Forms::$plugin->fields;
+		return Formidable::$plugin->fields;
 	}
 
 	protected function notifications(): NotificationsService
 	{
-		return Forms::$plugin->notifications;
+		return Formidable::$plugin->notifications;
 	}
 
 	protected function submissions(): SubmissionsService
 	{
-		return Forms::$plugin->submissions;
+		return Formidable::$plugin->submissions;
 	}
 
 	protected function spam(): SpamService
 	{
-		return Forms::$plugin->spam;
+		return Formidable::$plugin->spam;
 	}
 
 	protected function captchas(): CaptchasService
 	{
-		return Forms::$plugin->captchas;
+		return Formidable::$plugin->captchas;
 	}
 
 	protected function rules(): RulesService
 	{
-		return Forms::$plugin->rules;
+		return Formidable::$plugin->rules;
 	}
 }

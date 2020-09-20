@@ -8,8 +8,6 @@ class BooleanField extends FieldType
 {
 	private static $instance = null;
 
-	protected $defaultRuleTypes = ['required', 'on', 'off', 'sameThan'];
-
 	public static function getInstance()
 	{
     	if (self::$instance == null) {

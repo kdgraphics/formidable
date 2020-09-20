@@ -2,6 +2,9 @@
 
 namespace Ryssbowh\Formidable\Models\Rules;
 
+use Ryssbowh\Formidable\Exceptions\RuleException;
+use Ryssbowh\Formidable\Interfaces\FieldInterface;
+use Ryssbowh\Formidable\Models\FieldTypes\BooleanField;
 use Ryssbowh\Formidable\Models\Rule;
 
 class Off extends Rule
@@ -36,5 +39,25 @@ class Off extends Rule
 	public function conditionName(): string
 	{
 		return \Craft::t('formidable', 'is off');
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function validFieldTypes(): array
+	{
+		return [BooleanField::class];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function check(FieldInterface $field, $value, $against = null): bool
+	{
+		switch (get_class($field->fieldType())) {
+			case BooleanField::class:
+				return empty($value);
+		}
+		throw RuleException::typeNotValid($rule, get_class($field->fieldType()));
 	}
 }

@@ -21,14 +21,14 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from 'vuex';
+import { mapMutations, mapState, mapActions } from 'vuex';
 
 export default {
   props: {
     tab: String
   },
   computed:{
-    ...mapState(['configHasChanged', 'fieldsHaveChanged', 'rulesHaveChanged', 'rulesHaveErrors', 'fieldsHaveErrors', 'configHasErrors', 'activeTab', 'isAdding'])
+    ...mapState(['configHasChanged', 'fieldsHaveChanged', 'rulesHaveChanged', 'rulesHaveErrors', 'fieldsHaveErrors', 'configHasErrors', 'activeTab', 'isAdding', 'form'])
   },
   created() {
     this.changeTab(this.tab, false);
@@ -43,14 +43,15 @@ export default {
     changeTab (tab, pushState = true) {
       this.setActiveTab(tab);
       if (pushState) {
-        let url = document.location.pathname.split('/')
-        url[5] = tab;
-        window.history.pushState({}, '', url.join('/'));
+        let parts = [
+          this.isAdding ? 'add' : this.form.id,
+          tab
+        ];
+        this.setHistory(parts);
       }
     },
-    ...mapMutations({
-      setActiveTab: 'setActiveTab'
-    })
+    ...mapMutations(['setActiveTab']),
+    ...mapActions(['setHistory'])
   }
 };
 </script>

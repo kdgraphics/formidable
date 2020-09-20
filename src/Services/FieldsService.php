@@ -24,7 +24,7 @@ class FieldsService extends Component
     const EVENT_AFTER_DELETE = 'after_delete';
     const EVENT_BEFORE_DELETE = 'before_delete';
 
-    const CONFIG_KEY = Forms::CONFIG_KEY . '.fields';
+    const CONFIG_KEY = Formidable::CONFIG_KEY . '.fields';
 
     const EVENT_REGISTER_FIELDS = 'register_fields';
 
@@ -200,7 +200,7 @@ class FieldsService extends Component
             $field = $this->getRecordByUid($uid);
             $isNew = $field->getIsNewRecord();
             $field->name = $data['name'];
-            $field->form_id = Forms::$plugin->forms->getByUid($data['form'])->id;
+            $field->form_id = Formidable::$plugin->forms->getByUid($data['form'])->id;
             $field->order = $data['order'];
             $field->type = $data['type'];
             $field->options = $data['options'];

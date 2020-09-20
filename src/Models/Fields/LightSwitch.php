@@ -11,8 +11,6 @@ class LightSwitch extends Field
 	protected $fieldTypeClass = BooleanField::class;
 
 	public $label;
-	public $required;
-	public $enforceRequired;
 	public $default;
 
 	/**
@@ -47,27 +45,23 @@ class LightSwitch extends Field
 		return [
 			['label', 'string'],
 			['label', 'trim'],
-			[['required', 'default'], 'boolean']
+			[['default'], 'boolean']
 		];
 	}
 
 	/**
 	 * inheritDoc
 	 */
-	public function getSiteRules(): array
+	public function getFrontEndRules(FormSubmission $submission): array
 	{
-		$rules = [[$this->name, 'boolean']];
-		if ($this->required) {
-			$rules[] = [$this->name, 'compare', ['compareValue' => 1, 'operator' => '==', 'message' => \Craft::t('formidable', '{name} must be checked', ['name' => ucfirst($this->name)])]];
-		}
-		return $rules;
+		return [[$this->name, 'boolean']];
 	}
 
 	/**
-	 * inheritDoc
+	 * @imheritDoc
 	 */
-	public function afterSubmissionValidated(FormSubmission $submission)
+	public function getFriendlyValue($value)
 	{
-		$submission->{$this->name} = $submission->{$this->name} ? \Craft::t('formidable', 'Yes') : \Craft::t('formidable', 'No');
+		return $value ? \Craft::t('site', 'Yes') : \Craft::t('site', 'No');
 	}
 }

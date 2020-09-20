@@ -1,14 +1,11 @@
 {% extends "formidable/fields/_field" %}
 
 {% block inner %}
-	<input type="number"
+	<input type="email"
 	id="{{ field.generateId(form) }}"
 	name="{{ field.name }}"
 	class="{{ field.fieldClass }}{% if error %} is-invalid{% endif %}" 
 	value="{{ oldValue }}"
-	{% if field.minLength %}min="{{ field.minLength }}"{% endif %}
-	{% if field.maxLength %}max="{{ field.maxLength }}"{% endif %}
-	{% if field.required and field.enforceRequired %}required="required"{% endif %}
 	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
 	>
 {% endblock %}

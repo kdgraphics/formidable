@@ -6,5 +6,5 @@ interface FieldTypeInterface
 {
 	const EVENT_RULE_TYPES = 'register_rules';
 
-	public function getValidRuleTypes(): array;
+	public function validRuleTypes(): array;
 }

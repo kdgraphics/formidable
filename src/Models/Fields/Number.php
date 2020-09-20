@@ -3,11 +3,12 @@
 namespace Ryssbowh\Formidable\Models\Fields;
 
 use Ryssbowh\Formidable\Models\Field;
+use Ryssbowh\Formidable\Models\FieldTypes\NumberField;
 use Ryssbowh\Formidable\Models\FormSubmission;
 
 class Number extends Text
 {
-	public $minLength;
+	protected $fieldTypeClass = NumberField::class;
 
 	/**
 	 * inheritDoc
@@ -35,30 +36,9 @@ class Number extends Text
 
 	/**
 	 * inheritDoc
-	 **/
-	public function getExtraCpRules(): array
-	{
-		$rules = parent::getExtraCpRules();
-		$rules[] = ['minLength', 'number'];
-		return $rules;
-	}
-
-	/**
-	 * inheritDoc
 	 */
-	public function getSiteRules(): array
+	public function getFrontEndRules(FormSubmission $submission): array
 	{
-		$length = null;
-		if ($this->minLength or $this->maxLength) {
-			$length = [$this->minLength ?? 0, $this->maxLength ?? null];
-		}
-		$rules = [
-			[$this->name, 'string', ['length' => $length]], 
-			[$this->name, 'trim']
-		];
-		if ($this->required) {
-			$rules[] = [$this->name, 'required'];
-		}
-		return $rules;
+		return [[$this->name, 'number']];
 	}
 }

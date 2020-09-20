@@ -117,7 +117,7 @@ export default new Vuex.Store({
         .then((response) => {
           if (response.data.success) {
             commit('setIsAdding', false);
-            dispatch('setHistory', ['forms', id]);
+            dispatch('setHistory', [id]);
             dispatch('resetForm', response.data);
           } else {
             Craft.cp.displayError(response.data.message);
@@ -140,7 +140,7 @@ export default new Vuex.Store({
             Craft.cp.displayNotice(response.data.message);
             if (state.isAdding) {
               commit('setIsAdding', false);
-              dispatch('setHistory', ['forms', response.data.form.id]);
+              dispatch('setHistory', [response.data.form.id]);
               let forms = state.allForms;
               forms[response.data.form.id] = response.data.form.name;
               commit('setAllForms', forms);
@@ -161,7 +161,7 @@ export default new Vuex.Store({
       let data = {};
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       commit('setIsLoading', true);
-      dispatch('setHistory', ['forms', 'add']);
+      dispatch('setHistory', ['add']);
       axios.post('/admin/formidable/forms/new', data)
         .then((response) => {
           if (response.data.success) {
@@ -212,8 +212,11 @@ export default new Vuex.Store({
     },
     setHistory({}, parts) {
       let url = document.location.pathname.split('/');
-      url[3] = parts[0];
-      url[4] = parts[1];
+      url[3] = 'forms';
+      url[4] = parts[0];
+      if (parts[1] ?? false) {
+        url[5] = parts[1];
+      }
       window.history.pushState({}, '', url.join('/'));
     }
   }

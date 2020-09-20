@@ -16,7 +16,7 @@
 
 {% block sidebar %}
     <forms-menu
-        :all-forms="{{ forms|json_encode }}"
+        :all-forms="{{ forms ? forms|json_encode : '{}' }}"
     ></form-menu>
 {% endblock %}
 

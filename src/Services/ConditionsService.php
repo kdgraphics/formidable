@@ -27,7 +27,7 @@ class ConditionsService extends Component
     const EVENT_AFTER_DELETE = 'after_delete';
     const EVENT_BEFORE_DELETE = 'before_delete';
 
-    const CONFIG_KEY = Forms::CONFIG_KEY . '.conditions';
+    const CONFIG_KEY = Formidable::CONFIG_KEY . '.conditions';
 
     /**
      * Get condition record by uid
@@ -123,9 +123,9 @@ class ConditionsService extends Component
             $condition = $this->getRecordByUid($uid);
             $isNew = $condition->getIsNewRecord();
             if (isset($data['rule'])) {
-                $condition->rule_id = Forms::$plugin->rules->getByUid($data['rule'])->id;
+                $condition->rule_id = Formidable::$plugin->rules->getByUid($data['rule'])->id;
             } else {
-                $condition->conditiongroup_id = Forms::$plugin->conditionGroups->getByUid($data['conditiongroup'])->id;
+                $condition->conditiongroup_id = Formidable::$plugin->conditionGroups->getByUid($data['conditiongroup'])->id;
             }
             $condition->type = $data['type'];
             $condition->negate = $data['negate'];

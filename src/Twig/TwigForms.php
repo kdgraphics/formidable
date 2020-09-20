@@ -11,7 +11,7 @@ class TwigForms extends AbstractExtension implements GlobalsInterface
     public function getGlobals()
     {
         return array(
-            'formidable' => Forms::$plugin,
+            'formidable' => Formidable::$plugin,
         );
     }
 }

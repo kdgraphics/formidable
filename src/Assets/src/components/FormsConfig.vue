@@ -251,9 +251,11 @@ export default {
     loadedTime: function() {
       this.init();
     },
+    'form.name': function() {
+      this.slugifyHandle();
+    },
     form: {
       handler: function() {
-        this.slugifyHandle();
         this.configHasChanged(!isEqual(this.form, this.original));
         this.validate();
       },
@@ -305,7 +307,7 @@ export default {
     },
     slugifyHandle(){
       if (this.isAdding && this.form.name) {
-        this.form.handle = slugify(this.form.name);
+        this.form.handle = slugify(this.form.name, {lower: true});
       }
     },
     validate() {

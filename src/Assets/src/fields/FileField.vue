@@ -56,7 +56,7 @@
 
 <script>
 import { mapMutations, mapState } from 'vuex';
-import { isEqual } from 'lodash';
+import { isEqual, reduce } from 'lodash';
 
 export default {
   props: {
@@ -80,10 +80,10 @@ export default {
     })
   },
   watch: {
+    hasErrors: function () {
+      this.$emit('error', {index: this.index, error: this.hasErrors});
+    },
     field: {
-      hasErrors: function () {
-        this.$emit('error', {index: this.index, error: this.hasErrors});
-      },
       handler: function () {
         this.validate();
         this.$emit('change', {index: this.index, change: !isEqual(this.field, this.original)});

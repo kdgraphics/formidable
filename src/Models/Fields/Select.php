@@ -3,16 +3,12 @@
 namespace Ryssbowh\Formidable\Models\Fields;
 
 use Ryssbowh\Formidable\Models\Field;
-use Ryssbowh\Formidable\Models\FieldTypes\ArrayField;
+use Ryssbowh\Formidable\Models\FieldTypes\TextField;
 use Ryssbowh\Formidable\Models\FormSubmission;
 
 class Select extends Field
 {
-	protected $fieldTypeClass = ArrayField::class;
-
 	public $label;
-	public $required;
-	public $enforceRequired;
 	public $choices;
 	public $default;
 
@@ -48,7 +44,6 @@ class Select extends Field
 		return [
 			[['label', 'default'], 'string'],
 			[['label', 'default'], 'trim'],
-			[['required', 'enforceRequired'], 'boolean'],
 			['choices', 'required'],
 			['choices', 'validateChoices']
 		];
@@ -110,17 +105,13 @@ class Select extends Field
 	/**
 	 * inheritDoc
 	 */
-	public function getSiteRules(): array
+	public function getFrontEndRules(FormSubmission $submission): array
 	{
-		$rules = [
+		return [
 			[$this->name, 'string'],
-			[$this->name, 'trim']
+			[$this->name, 'trim'],
+			[$this->name, 'in', 'range' => $this->allValues()]
 		];
-		if ($this->required) {
-			$rules[] = [$this->name, 'required'];
-		}
-		$rules[] = [$this->name, 'in', ['range' => $this->allValues()]];
-		return $rules;
 	}
 
 	/**

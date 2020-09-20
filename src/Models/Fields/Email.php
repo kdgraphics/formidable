@@ -33,9 +33,9 @@ class Email extends Text
 	/**
 	 * inheritDoc
 	 */
-	public function getSiteRules(): array
+	public function getFrontEndRules(FormSubmission $submission): array
 	{
-		$rules = parent::getSiteRules();
+		$rules = parent::getFrontEndRules($submission);
 		$rules[] = [$this->name, 'email'];
 		return $rules;
 	}

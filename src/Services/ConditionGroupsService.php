@@ -27,7 +27,7 @@ class ConditionGroupsService extends Component
     const EVENT_AFTER_DELETE = 'after_delete';
     const EVENT_BEFORE_DELETE = 'before_delete';
 
-    const CONFIG_KEY = Forms::CONFIG_KEY . '.conditionGroups';
+    const CONFIG_KEY = Formidable::CONFIG_KEY . '.conditionGroups';
 
     /**
      * Get condition group record by uid
@@ -92,7 +92,7 @@ class ConditionGroupsService extends Component
         }
 
         foreach ($group->conditions as $condition) {
-            Forms::$plugin->conditions->save($condition, $group);
+            Formidable::$plugin->conditions->save($condition, $group);
         }
 
         return true;
@@ -122,7 +122,7 @@ class ConditionGroupsService extends Component
         try {
             $group = $this->getRecordByUid($uid);
             $isNew = $group->getIsNewRecord();
-            $group->rule_id = Forms::$plugin->rules->getByUid($data['rule'])->id;
+            $group->rule_id = Formidable::$plugin->rules->getByUid($data['rule'])->id;
             $group->operator = $data['operator'];
             $group->negate = $data['negate'];
             $group->save(false);
@@ -235,7 +235,7 @@ class ConditionGroupsService extends Component
             }
             $group->setAttributes($data);
             $group->validate();
-            $group->conditions = Forms::$plugin->conditions->validateData($data['conditions']);
+            $group->conditions = Formidable::$plugin->conditions->validateData($data['conditions']);
             $groups[$index] = $group;
         }
         return $groups;

@@ -73,6 +73,7 @@ class Install extends Migration
             'adminNotified' => $this->boolean()->defaultValue(false),
             'notified' => $this->boolean()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
         ]);
 

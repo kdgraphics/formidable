@@ -3,8 +3,10 @@
 namespace Ryssbowh\Formidable\Models;
 
 use Ryssbowh\Formidable\Events\FormEvent;
+use Ryssbowh\Formidable\Exceptions\FormException;
 use Ryssbowh\Formidable\Formidable;
 use Ryssbowh\Formidable\Interfaces\CaptchaInterface;
+use Ryssbowh\Formidable\Interfaces\FieldInterface;
 use Ryssbowh\Formidable\Models\Notification;
 use Ryssbowh\Formidable\Services\FormsService;
 use craft\base\Model;
@@ -81,9 +83,26 @@ class Form extends Model
 	public function getFields(): array
 	{
 		if ($this->fields == null) {
-			$this->fields = Forms::$plugin->fields->getFormFields($this);
+			$this->fields = Formidable::$plugin->fields->getFormFields($this);
 		}
 		return $this->fields;
+	}
+
+	/**
+	 * Get a field by name
+	 * 
+	 * @param  string $name
+	 * @throws FormException
+	 * @return FieldInterface
+	 */
+	public function getField(string $name): FieldInterface
+	{
+		foreach ($this->getFields() as $field) {
+			if ($field->name == $name) {
+				return $field;
+			}
+		}
+		throw FormException::noFieldNamed($this, $name);
 	}
 
 	/**
@@ -94,7 +113,7 @@ class Form extends Model
 	public function getRules(): array
 	{
 		if ($this->rules == null) {
-			$this->rules = Forms::$plugin->rules->getFormRules($this);
+			$this->rules = Formidable::$plugin->rules->getFormRules($this);
 		}
 		return $this->rules;
 	}
@@ -107,7 +126,7 @@ class Form extends Model
 	public function getCaptchas(): array
 	{
 		$captchas = [];
-		foreach (Forms::$plugin->captchas->getAllRegistered() as $captcha) {
+		foreach (Formidable::$plugin->captchas->getAllRegistered() as $captcha) {
 			$captchas[$captcha->handle()] = $captcha->friendlyName();
 		}
 		return $captchas;
@@ -120,7 +139,7 @@ class Form extends Model
 	 */
 	public function getCaptcha(): ?CaptchaInterface
 	{
-		return $this->captcha ? Forms::$plugin->captchas->getRegistered($this->captcha) : null;
+		return $this->captcha ? Formidable::$plugin->captchas->getRegistered($this->captcha) : null;
 	}
 
 	/**
@@ -191,7 +210,7 @@ class Form extends Model
 		$this->trigger(self::EVENT_RENDER, $event);
 		return \Craft::$app->getView()->renderTemplate($template, [
 			'form' => $this,
-			'fields' => $this->fields,
+			'fields' => $this->getFields(),
 			'errors' => $event->errors,
 			'oldInput' => $event->oldInput
 		]);
@@ -206,7 +225,7 @@ class Form extends Model
 	 */
 	public function validateHandle($model, $attribute)
 	{
-		$exists = Forms::$plugin->forms->getByHandle($this->handle);
+		$exists = Formidable::$plugin->forms->getByHandle($this->handle);
 		if ($exists and !$this->id) {
 			return false;
 		}
@@ -223,7 +242,7 @@ class Form extends Model
 		if (!$this->notify_id) {
 			return null;
 		}
-		return Forms::$plugin->notifications->getById($this->notify_id);
+		return Formidable::$plugin->notifications->getById($this->notify_id);
 	}
 
 	/**
@@ -236,6 +255,6 @@ class Form extends Model
 		if (!$this->notifyAdmin_id) {
 			return null;
 		}
-		return Forms::$plugin->notifications->getById($this->notifyAdmin_id);
+		return Formidable::$plugin->notifications->getById($this->notifyAdmin_id);
 	}
 }

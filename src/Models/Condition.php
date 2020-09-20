@@ -2,6 +2,8 @@
 
 namespace Ryssbowh\Formidable\Models;
 
+use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Models\FormSubmission;
 use craft\base\Model;
 
 class Condition extends Model
@@ -21,9 +23,8 @@ class Condition extends Model
 	public function rules()
 	{
 		return [
-			[['type', 'negate', 'operator', 'field'], 'required'],
-			[['type', 'operator', 'field', 'value'], 'string'],
-			['type', 'in', 'range' => array_keys($this::validTypes())],
+			[['type', 'negate', 'operator', 'field', 'type'], 'required'],
+			[['type', 'operator', 'field', 'value', 'type'], 'string'],
 			['negate', 'boolean'],
 			['operator', 'in', 'range' => ['and', 'or']]
 		];
@@ -43,5 +44,25 @@ class Condition extends Model
 			'value' => $this->value,
 			'field' => $this->field
 		];
+	}
+
+	public function appliesTo(FormSubmission $submission, bool $result)
+	{
+		$rule = Formidable::$plugin->rules->getRegistered($this->type);
+		$field = $submission->getForm()->getField($this->field);
+		if ($rule->requiresValue) {
+			$thisResult = $rule->check($field, $submission->{$this->field} ?? null, $this->value);
+		} else if ($rule->requiresField) {
+			$thisResult = $rule->check($field, $submission->{$this->field} ?? null, $submission->{$this->value});
+		} else {
+			$thisResult = $rule->check($field, $submission->{$this->field} ?? null);
+		}
+		if ($this->negate) {
+			$thisResult = !$thisResult;
+		}
+		if ($this->operator == 'and') {
+			return ($thisResult and $result);
+		}
+		return ($thisResult or $result);
 	}
 }

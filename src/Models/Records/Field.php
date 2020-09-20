@@ -19,7 +19,7 @@ class Field extends ActiveRecord
 	 */
 	public function toModel(): FieldInterface
 	{
-		$model = Forms::$plugin->fields->getRegistered($this->type);
+		$model = Formidable::$plugin->fields->getRegistered($this->type);
 		$model = new $model($this->getAttributes());
 		return $model;
 	}

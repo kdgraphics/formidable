@@ -33,20 +33,16 @@ class Checkboxes extends Radio
 	/**
 	 * inheritDoc
 	 */
-	public function getSiteRules(): array
+	public function getFrontEndRules(FormSubmission $submission): array
 	{
-		$rules = [
-			[$this->name, function ($attribute, $params, $validator) {
-				if (!is_array($this->$attribute)) {
+		return [
+			[$this->name, function ($attribute, $params, $validator) use ($submission) {
+				if (!is_array($submission->$attribute)) {
 					$this->addError($attribute, \Craft::t('formidable', 'Value is invalid'));
 				}
-			}]
+			}],
+			[$this->name, 'each', 'rule' => ['in', 'range' => $this->allValues()]]
 		];
-		if ($this->required) {
-			$rules[] = [$this->name, 'required'];
-		}
-		$rules[] = [$this->name, 'each', ['rule' => ['in', 'range' => $this->allValues()]]];
-		return $rules;
 	}
 
 	/**

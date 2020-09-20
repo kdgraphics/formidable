@@ -313,8 +313,8 @@ class Formidable extends Plugin
             ->onRemove(ConditionGroupsService::CONFIG_KEY.'.{uid}', [$this->conditionGroups, 'handleDeleted']);
 
         Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $e) {
-            Forms::$plugin->notifications->rebuildConfig($e);
-            Forms::$plugin->forms->rebuildConfig($e);
+            Formidable::$plugin->notifications->rebuildConfig($e);
+            Formidable::$plugin->forms->rebuildConfig($e);
         });
     }
 }

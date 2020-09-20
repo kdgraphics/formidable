@@ -7,11 +7,11 @@
       <ul>
         <li v-for="(choice, index) in field.choices" :key="index" class="choice">
           <div class="move-choice">
-            <div class="up" @click="moveChoice(index,index-1)" v-if="index!=0"></div>
-            <div class="down" @click="moveChoice(index,index+1)" v-if="index!=(field.choices.length-1)"></div>
+            <div class="up" @click="moveChoice(index,index-1)" v-if="index != 0"></div>
+            <div class="down" @click="moveChoice(index,index+1)" v-if="index != (field.choices.length-1)"></div>
           </div>
-          <input class="value choice-elem" :placeholder="t('Value')" :required="field.choices.length == 1" v-model="choice.value">
-          <input class="label choice-elem" :placeholder="t('Label')" :required="field.choices.length == 1" v-model="choice.label">
+          <input class="value choice-elem" :placeholder="t('Value')" :required="field.choices.length == 1" v-model="field.choices[index].value" @input="validate" :class="count(index) > 1 ? 'error' : ''">
+          <input class="label choice-elem" :placeholder="t('Label')" :required="field.choices.length == 1" v-model="field.choices[index].label">
           <div class="delete-container">
             <a class="delete-choice" @click.prevent="deleteChoice(index)">{{ t('Delete') }}</a>
           </div>
@@ -22,12 +22,12 @@
 </template>
 
 <script>
-import { isEqual } from 'lodash';
+import { isEqual, countBy, reduce } from 'lodash';
 
 export default {
   props: {
     field: Object,
-    default: String
+    default: String,
   },
   created() {
     if (!this.field.choices) {
@@ -36,6 +36,25 @@ export default {
     }
   },
   methods: {
+    count(index) {
+      let count = 0;
+      let source = this.field.choices[index];
+      for (let choice of this.field.choices) {
+        if (choice.value == source.value) {
+          count++;
+        }
+      }
+      return count;
+    },
+    validate() {
+      for (let index in this.field.choices) {
+        if (this.count(index) > 1) {
+          this.$emit('error', true);
+          return;
+        }
+      }
+      this.$emit('error', false);
+    },
     addChoice(value = '', label = '') {
       this.field.choices.push({value:value, label:label});
     },
@@ -52,6 +71,8 @@ export default {
 };
 </script>
 <style lang="scss">
+@import "~craftcms-sass/mixins";
+
 .inspirefield-container {
   .choices {
     width: 100% !important;
@@ -61,6 +82,9 @@ export default {
       border: 1px solid #e4edf6;
       padding:5px;
       width: calc(50% - 45px);
+      &.error {
+        border: 1px solid $red400;
+      }
     }
     .add-choice {
       display: inline-block;

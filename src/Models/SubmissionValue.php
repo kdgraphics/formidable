@@ -18,7 +18,7 @@ class SubmissionValue extends Model
 
 	public function getValue()
 	{
-		$field = Forms::$plugin->fields->getRegistered($this->type);
+		$field = Formidable::$plugin->fields->getRegistered($this->type);
 		if (!$field) {
 			return $this->value;
 		}

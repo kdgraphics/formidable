@@ -2,7 +2,7 @@
 
 {% set id = 'inspireform-'~form.handle~form.id %}
 
-<form id="{{ id }}" action="/formidable/submit/{{ form.id }}" method="{{ form.method }}" class="{{ form.class }}" enctype="multipart/form-data">
+<form id="{{ id }}" action="/formidable/submit/{{ form.id }}" method="{{ form.method }}" class="{{ form.class }}"{#  enctype="multipart/form-data" #}>
 	{{ csrfInput() }}
 	{% if form.honeypot %}
 		{% include "formidable/fields/_honeypot" %}

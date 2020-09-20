@@ -19,7 +19,7 @@ class Rule extends ActiveRecord
 	 */
 	public function toModel(): RuleInterface
 	{
-		$model = Forms::$plugin->rules->getRegistered($this->type);
+		$model = Formidable::$plugin->rules->getRegistered($this->type);
 		$model = new $model($this->getAttributes());
 		$model->conditions = array_map(function ($condition) {
 			return $condition->toModel();

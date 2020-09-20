@@ -2,11 +2,18 @@
 
 namespace Ryssbowh\Formidable\Models\Rules;
 
+use Ryssbowh\Formidable\Exceptions\RuleException;
+use Ryssbowh\Formidable\Interfaces\FieldInterface;
+use Ryssbowh\Formidable\Models\FieldTypes\ArrayField;
+use Ryssbowh\Formidable\Models\FieldTypes\BooleanField;
+use Ryssbowh\Formidable\Models\FieldTypes\NumberField;
+use Ryssbowh\Formidable\Models\FieldTypes\TextField;
 use Ryssbowh\Formidable\Models\Rule;
 
 class SameThan extends Rule
 {
-	public $requiresValue = true;
+	public $requiresValue = false;
+	public $requiresField = true;
 	
 	/**
 	 * @inheritDoc
@@ -37,6 +44,30 @@ class SameThan extends Rule
 	 */
 	public function conditionName(): string
 	{
-		return \Craft::t('formidable', 'smaller than');
+		return \Craft::t('formidable', 'is same than');
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function validFieldTypes(): array
+	{
+		return [ArrayField::class, BooleanField::class, TextField::class, NumberField::class];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function check(FieldInterface $field, $value, $against = null): bool
+	{
+		switch (get_class($field->fieldType())) {
+			case ArrayField::class:
+				return empty(array_diff($value, $against));
+			case BooleanField::class:
+			case TextField::class:
+			case NumberField::class:
+				return $value === $against;
+		}
+		throw RuleException::typeNotValid($rule, get_class($field->fieldType()));
 	}
 }

@@ -2,6 +2,10 @@
 
 namespace Ryssbowh\Formidable\Interfaces;
 
+use Ryssbowh\Formidable\Interfaces\FieldInterface;
+use Ryssbowh\Formidable\Models\Form;
+use Ryssbowh\Formidable\Models\FormSubmission;
+
 interface RuleInterface
 {
 	/**
@@ -31,4 +35,38 @@ interface RuleInterface
 	 * @return string
 	 */
 	public function conditionName(): string;
+
+	/**
+	 * Which field types this rule can handle
+	 * 
+	 * @return array
+	 */
+	public function validFieldTypes(): array;
+
+	/**
+	 * Does this rule apply to a form submission
+	 * 
+	 * @param  FormSubmission $submission
+	 * @return bool
+	 */
+	public function appliesTo(FormSubmission $submission): bool;
+
+	/**
+	 * Check a value against another value
+	 * 
+	 * @param  FieldInterface $field
+	 * @param  mixed      $value
+	 * @param  mixed|null $against
+	 * @throws RuleException
+	 * @return bool
+	 */
+	public function check(FieldInterface $field, $value, $against = null): bool;
+
+	/**
+	 * Validate this rule for a field
+	 * 
+	 * @param  string         $fieldName
+	 * @param  FormSubmission $submission
+	 */
+	public function validateRule(string $fieldName, FormSubmission $submission);
 }

@@ -41,8 +41,8 @@ class GoogleV3 implements CaptchaInterface
 	public function verify(Form $form, array $posted): bool
 	{
         $client = new \GuzzleHttp\Client();
-        $secret = Forms::$plugin->getSettings()->secretKey;
-        $score = Forms::$plugin->getSettings()->acceptableScore / 10;
+        $secret = Formidable::$plugin->getSettings()->secretKey;
+        $score = Formidable::$plugin->getSettings()->acceptableScore / 10;
         if (isset($posted['_recaptcha_response'])) {
             $response = $client->post('https://www.google.com/recaptcha/api/siteverify', [
                 'query' => [

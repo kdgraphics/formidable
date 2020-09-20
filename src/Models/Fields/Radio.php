@@ -38,8 +38,7 @@ class Radio extends Select
 	public function getExtraCpRules(): array
 	{
 		$rules = parent::getExtraCpRules();
-		$rules[] = [['choiceContainerClass', 'choiceLabelClass', 'default'], 'trim'];
-		$rules[] = [['choiceContainerClass', 'choiceLabelClass', 'default'], 'string'];
+		$rules[] = [['choiceLabelClass', 'choiceContainerClass'], 'string'];
 		return $rules;
 	}
 }

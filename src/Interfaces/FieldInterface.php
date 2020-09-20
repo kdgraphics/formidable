@@ -46,7 +46,7 @@ interface FieldInterface
 	 * 
 	 * @return array
 	 */
-	public function getSiteRules(): array;
+	public function getFrontEndRules(FormSubmission $submission): array;
 
 	/**
 	 * Treatment before submission is validated
@@ -76,4 +76,12 @@ interface FieldInterface
 	 * @return mixed
 	 */
 	public static function getCsvValue($value);
+
+	/**
+	 * Get friendly value
+	 * 
+	 * @param  mixed $value
+	 * @return mixed
+	 */
+	public function getFriendlyValue($value);
 }

@@ -39,7 +39,7 @@ class Notification extends Model
 
 	public function send(FormSubmission $submission, $email)
 	{
-		return Forms::$plugin->notifications->send($this, $submission, $email);
+		return Formidable::$plugin->notifications->send($this, $submission, $email);
 	}
 
 	public function getConfig(): array

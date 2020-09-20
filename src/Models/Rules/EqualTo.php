@@ -2,6 +2,10 @@
 
 namespace Ryssbowh\Formidable\Models\Rules;
 
+use Ryssbowh\Formidable\Exceptions\RuleException;
+use Ryssbowh\Formidable\Interfaces\FieldInterface;
+use Ryssbowh\Formidable\Models\FieldTypes\NumberField;
+use Ryssbowh\Formidable\Models\FieldTypes\TextField;
 use Ryssbowh\Formidable\Models\Rule;
 
 class EqualTo extends Rule
@@ -37,6 +41,27 @@ class EqualTo extends Rule
 	 */
 	public function conditionName(): string
 	{
-		return \Craft::t('formidable', 'equal to');
+		return \Craft::t('formidable', 'is equal to');
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function validFieldTypes(): array
+	{
+		return [TextField::class, NumberField::class];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function check(FieldInterface $field, $value, $against = null): bool
+	{
+		switch (get_class($field->fieldType())) {
+			case TextField::class:
+			case NumberField::class:
+				return $value === $against;
+		}
+		throw RuleException::typeNotValid($rule, get_class($field->fieldType()));
 	}
 }

@@ -34,7 +34,7 @@ class FormsService extends Component
 
     const EVENT_HOOK_ASSETS = 'formidable_hook';
 
-	const CONFIG_KEY = Forms::CONFIG_KEY . '.forms';
+	const CONFIG_KEY = Formidable::CONFIG_KEY . '.forms';
 
     const SPAM = 1;
     const VALID = 2;
@@ -180,10 +180,10 @@ class FormsService extends Component
             $form->id = Db::idByUid(FormRecord::tableName(), $form->uid);
         }
 
-        Forms::$plugin->fields->deleteMany($this->gatherFieldsToDelete($form, $fields));
-        Forms::$plugin->fields->saveMany($fields, $form);
-        Forms::$plugin->rules->deleteMany($this->gatherRulesToDelete($form, $rules));
-        Forms::$plugin->rules->saveMany($rules, $form);
+        Formidable::$plugin->fields->deleteMany($this->gatherFieldsToDelete($form, $fields));
+        Formidable::$plugin->fields->saveMany($fields, $form);
+        Formidable::$plugin->rules->deleteMany($this->gatherRulesToDelete($form, $rules));
+        Formidable::$plugin->rules->saveMany($rules, $form);
 
         return true;
 	}
@@ -197,7 +197,7 @@ class FormsService extends Component
     {
         $uid = $event->tokenMatches[0];
         $data = $event->newValue;
-        $notifications = Forms::$plugin->notifications;
+        $notifications = Formidable::$plugin->notifications;
         $transaction = \Craft::$app->getDb()->beginTransaction();
 
         try {
@@ -355,7 +355,7 @@ class FormsService extends Component
     public function rebuildConfig(RebuildConfigEvent $e)
     {
         foreach ($this->getAll() as $form) {
-            $e->config[Forms::CONFIG_KEY][self::CONFIG_KEY][$form->uid] = $form->getConfig();
+            $e->config[Formidable::CONFIG_KEY][self::CONFIG_KEY][$form->uid] = $form->getConfig();
         }
     }
 
@@ -372,7 +372,7 @@ class FormsService extends Component
 
         if ($form->honeypot) {
             if (isset($posted[$form->honeypotField]) and !empty($posted[$form->honeypotField])) {
-                $spam = Forms::$plugin->spam->create($form, $posted);
+                $spam = Formidable::$plugin->spam->create($form, $posted);
                 $this->trigger(self::EVENT_ON_SPAM, new SpamEvent([
                     'spam' => $spam,
                     'form' => $form
@@ -383,7 +383,7 @@ class FormsService extends Component
 
         if ($form->captcha) {
             if (!$form->getCaptcha()->verify($form, $posted)) {
-                $spam = Forms::$plugin->spam->create($form, $posted);
+                $spam = Formidable::$plugin->spam->create($form, $posted);
                 $this->trigger(self::EVENT_ON_SPAM, new SpamEvent([
                     'spam' => $spam,
                     'form' => $form
@@ -393,15 +393,17 @@ class FormsService extends Component
         }
 
         $values = [];
-        foreach ($form->fields as $field) {
+        foreach ($form->getFields() as $field) {
             $values[$field->name] = $posted[$field->name] ?? null;
         }
         $session->setFlash(self::SESSION_OLDINPUT_KEY, $values);
         $formSubmission = new FormSubmission($values);
+
+        $formSubmission->setForm($form);
+        $formSubmission->setRules(Formidable::$plugin->rules->getFormRules($form));
+        
         foreach ($form->fields as $field) {
-            foreach ($field->getSiteRules() as $rule) {
-                $formSubmission->addRule(...$rule);
-            }
+            $field->beforeSubmissionValidated($formSubmission);
         }
 
         $this->trigger(self::EVENT_BEFORE_SUBMITTING, new SubmissionEvent([
@@ -409,15 +411,11 @@ class FormsService extends Component
             'form' => $form
         ]));
 
-        foreach ($form->fields as $field) {
-            $field->beforeSubmissionValidated($formSubmission);
-        }
-
         if ($formSubmission->validate()) {
             foreach ($form->fields as $field) {
                 $field->afterSubmissionValidated($formSubmission);
             }
-            $submission = Forms::$plugin->submissions->create($form, $formSubmission);
+            $submission = Formidable::$plugin->submissions->create($form, $formSubmission);
             $session->setFlash(self::SESSION_SUCCESS_KEY);
             $this->trigger(self::EVENT_AFTER_SUBMITTING, new SubmissionEvent([
                 'submission' => $submission,
@@ -438,7 +436,7 @@ class FormsService extends Component
      */
     protected function gatherFieldsToDelete(FormModel $form, array $fields): array
     {
-        $allFields = Forms::$plugin->fields->getFormFields($form);
+        $allFields = Formidable::$plugin->fields->getFormFields($form);
         $toDelete = [];
         foreach ($allFields as $field) {
             if (!ArrayHelper::contains($fields, 'id', $field->id)) {
@@ -457,7 +455,7 @@ class FormsService extends Component
      */
     protected function gatherRulesToDelete(FormModel $form, array $rules): array
     {
-        $allRules = Forms::$plugin->rules->getFormRules($form);
+        $allRules = Formidable::$plugin->rules->getFormRules($form);
         $toDelete = [];
         foreach ($allRules as $rule) {
             if (!ArrayHelper::contains($rules, 'id', $rule->id)) {

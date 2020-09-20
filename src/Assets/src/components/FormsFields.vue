@@ -232,6 +232,7 @@ export default {
       }
       this.$delete(this.fields, this.selectedField);
       this.$delete(this.errors, this.selectedField);
+      this.$delete(this.nameErrors, this.selectedField);
       this.$delete(this.changes, this.selectedField);
       this.$delete(this.showAdvanced, this.selectedField);
       this.selectedField = (this.fields.length) ? 0 : null;
@@ -306,8 +307,6 @@ export default {
     padding: 0;
     cursor: pointer !important;
   }
-  .field-link {
-  }
 }
 
 .draghelper .field-link, #fields-sidebar .field-link {
@@ -315,6 +314,7 @@ export default {
   font-size: 14px;
   padding: 7px !important;
   display: flex;
+  flex-wrap: wrap;
   .type {
     text-align: right;
     flex-grow: 1;

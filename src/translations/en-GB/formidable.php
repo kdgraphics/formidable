@@ -97,5 +97,7 @@ return [
 	'{form} form' => '{form} form',
 	'Add new notification' => 'Add new notification',
 	'{name} notification' => '{name} notification',
-	'This notification has been updated since you last loaded it, please reload the page' => 'This notification has been updated since you last loaded it, please reload the page'
+	'This notification has been updated since you last loaded it, please reload the page' => 'This notification has been updated since you last loaded it, please reload the page',
+	'Field to compare against' => 'Field to compare against',
+	'Field' => 'Field'
 ];
