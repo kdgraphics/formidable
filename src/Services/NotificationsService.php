@@ -177,6 +177,7 @@ class NotificationsService extends Component
             $record->template = $data['template'];
             $record->html = $data['html'];
             $record->sentFrom = $data['sentFrom'];
+            $record->sentFromName = $data['sentFromName'];
             $record->subject = $data['subject'];
             $record->uid = $notificationUid;
 
@@ -268,6 +269,13 @@ class NotificationsService extends Component
         return $html;
     }
 
+    /**
+     * Replacesvariables in subject
+     * 
+     * @param  NotificationModel $notification
+     * @param  FormSubmission    $submission
+     * @return string
+     */
     public function getSubject(NotificationModel $notification, FormSubmission $submission)
     {
         $variables = [
@@ -281,13 +289,13 @@ class NotificationsService extends Component
      * Sends an email
      * 
      * @param  Submission $submission
-     * @param  string $sentFrom
+     * @param  string|array $sentFrom
      * @param  array  $emails
      * @param  string $subject
      * @param  string $html
      * @return bool
      */
-    public function sendEmail(Submission $submission, string $sentFrom, array $emails, string $subject, string $html, bool $forAdmin): bool
+    public function sendEmail(Submission $submission, $sentFrom, array $emails, string $subject, string $html, bool $forAdmin): bool
     {
         $email = \Craft::$app
             ->getMailer()
@@ -326,10 +334,11 @@ class NotificationsService extends Component
     {
         $html = $this->getHtml($notification, $formSubmission);
         $subject = $this->getSubject($notification, $formSubmission);
+        $from = $notification->normalizeSentFrom();
         if (Formidable::$plugin->settings->sendInSchedule) {
-            return Formidable::$plugin->schedule->create($submission, $notification->sentFrom, $emails, $subject, $html, $forAdmin);
+            return Formidable::$plugin->schedule->create($submission, $from, $emails, $subject, $html, $forAdmin);
         } else {
-            return $this->sendEmail($submission, $notification->sentFrom, $emails, $subject, $html, $forAdmin);
+            return $this->sendEmail($submission, $from, $emails, $subject, $html, $forAdmin);
         }
     }
 

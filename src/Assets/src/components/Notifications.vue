@@ -66,6 +66,17 @@
           <li v-for="error in errors.sentFrom" :key="error">{{ error }}</li>
         </ul>
       </div>
+      <div id="sentFromName-field" class="field">
+        <div class="heading">
+          <label id="sentFromName-field-label" for="sentFromName">{{ t('Name sent from') }}</label>
+        </div>
+        <div class="input ltr">
+          <input type="email" :class="'text fullwidth' + (errors.sentFromName ? ' error' : '')" name="sentFrom" v-model="notification.sentFromName">
+        </div>
+        <ul v-if="errors.sentFrom" class="errors">
+          <li v-for="error in errors.sentFromName" :key="error">{{ error }}</li>
+        </ul>
+      </div>
     </form>
   </div>
 </template>

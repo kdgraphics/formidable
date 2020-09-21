@@ -15,6 +15,7 @@ class Notification extends Model
 	public $template;
 	public $html;
 	public $sentFrom;
+	public $sentFromName;
 	public $subject;
 	public $dateCreated;
 	public $dateUpdated;
@@ -23,8 +24,8 @@ class Notification extends Model
 	public function rules()
 	{
 		return [
-			[['name', 'method', 'template', 'html', 'sentFrom', 'subject'], 'string'],
-			[['name', 'method', 'template', 'html', 'sentFrom', 'subject'], 'trim'],
+			[['name', 'method', 'template', 'html', 'sentFrom', 'subject', 'sentFromName'], 'string'],
+			[['name', 'method', 'template', 'html', 'sentFrom', 'subject', 'sentFromName'], 'trim'],
 			['id', 'integer'],
 			['sentFrom', 'email'],
 			[['name', 'method', 'sentFrom', 'subject'], 'required'],
@@ -52,6 +53,19 @@ class Notification extends Model
 		return Formidable::$plugin->notifications->send($this, $formSubmission, $submission, $emails, $forAdmin);
 	}
 
+	/**
+	 * Normalize sent from, adds the name if defined
+	 * 
+	 * @return string|array
+	 */
+	public function normalizeSentFrom()
+	{
+		if (!$this->sentFromName) {
+			return $this->sentFrom;
+		}
+		return [$this->sentFrom => $this->sentFromName];
+	}
+
 	public function getConfig(): array
 	{
 		return [
@@ -60,6 +74,7 @@ class Notification extends Model
             'template' => $this->template,
             'html' => $this->html,
             'sentFrom' => $this->sentFrom,
+            'sentFromName' => $this->sentFromName,
             'subject' => $this->subject
         ];
 	}

@@ -19,15 +19,15 @@ class ScheduleService extends Component
 	/**
 	 * Create a new email schedule
 	 * 
-	 * @param  Submission $submission
-	 * @param  string     $sentFrom
-	 * @param  array      $emails
-	 * @param  string     $subject
-	 * @param  string     $html
-	 * @param  bool       $forAdmin
+	 * @param  Submission   $submission
+	 * @param  string|array $sentFrom
+	 * @param  array        $emails
+	 * @param  string       $subject
+	 * @param  string       $html
+	 * @param  bool         $forAdmin
 	 * @return bool
 	 */
-	public function create(Submission $submission, string $sentFrom, array $emails, string $subject, string $html, bool $forAdmin): bool
+	public function create(Submission $submission, $sentFrom, array $emails, string $subject, string $html, bool $forAdmin): bool
 	{
 		$email = new Email([
 			'emails' => $emails,

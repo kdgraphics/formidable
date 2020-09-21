@@ -45,6 +45,7 @@ class Install extends Migration
             'template' => $this->string(255),
             'html' => $this->text(),
             'sentFrom' => $this->string(255)->notNull(),
+            'sentFromName' => $this->string(255)->notNull(),
             'subject' => $this->string(255)->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),

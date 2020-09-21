@@ -101,5 +101,7 @@ return [
 	'Field to compare against' => 'Field to compare against',
 	'Field' => 'Field',
 	'Choice container class' => 'Choice container class',
-	'Choice label class' => 'Choice label class'
+	'Choice label class' => 'Choice label class',
+	'Name sent from' => 'Name sent from',
+	
 ];

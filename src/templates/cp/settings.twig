@@ -31,7 +31,7 @@
     label: 'Send emails with a schedule'|t('formidable'),
     id: 'sendInSchedule',
     name: 'sendInSchedule',
-    instructions: 'You must install a cron that calls the command \'formidable/send-emails\' for this to work',
+    instructions: 'You must install a cron that calls the command \'formidable/send-emails\' for this to work. This is recommended as sending emails can be a lengthy process.',
     on: settings['sendInSchedule'],
     warning: errors.sendInSchedule.0 ?? false
     })
