@@ -2,17 +2,44 @@
 
 namespace Ryssbowh\Formidable\Services;
 
+use Ryssbowh\Formidable\Events\EmailEvent;
+use Ryssbowh\Formidable\Events\SpamEvent;
+use Ryssbowh\Formidable\Formidable;
 use Ryssbowh\Formidable\Models\Form;
+use Ryssbowh\Formidable\Models\FormSubmission;
 use Ryssbowh\Formidable\Models\Records\Spam;
 use Ryssbowh\Formidable\Models\Spam as SpamModel;
 use Ryssbowh\Formidable\Providers\SpamProvider;
+use Ryssbowh\Formidable\Services\NotificationsService;
 use craft\base\Component;
 use craft\helpers\DateTimeHelper;
+use yii\base\Event;
 use yii\data\ActiveDataProvider;
 
 class SpamService extends Component
 {
-	public function create(Form $form, array $values): SpamModel
+	const EVENT_ON_SPAM = 'on_spam';
+
+	/**
+	 * Marks spam as notified afte email is sent
+	 * 
+	 * @param  Spam   $spam 
+	 */
+	public function updateSpamAfterEmailSent(Spam $spam)
+	{
+		$spam->notified = 1;
+        $spam->save(false);
+	}
+
+	/**
+	 * Create a spam record
+	 * 
+	 * @param  Form           $form
+	 * @param  FormSubmission $submission
+	 * @param  array          $values
+	 * @return SpamModel
+	 */
+	public function create(Form $form, FormSubmission $submission, array $values): SpamModel
 	{
 		if (isset($values['CRAFT_CSRF_TOKEN'])) {
 			unset($values['CRAFT_CSRF_TOKEN']);
@@ -22,8 +49,29 @@ class SpamService extends Component
 			'ip' => \Craft::$app->request->userIP,
 			'values' => json_encode($values)
 		]);
-		$spam->save();
-		return $spam->toModel();
+		$spam->save(false);
+		$this->trigger(self::EVENT_ON_SPAM, new SpamEvent([
+            'spam' => $spam,
+            'form' => $form
+        ]));
+        $this->sendSpamNotification($form, $spam, $submission);
+        return $spam->toModel();
+	}
+
+	/**
+	 * Send the spam notification
+	 * 
+	 * @param  Form           $form
+	 * @param  Spam           $spam
+	 * @param  FormSubmission $submission
+	 * @return bool
+	 */
+	protected function sendSpamNotification(Form $form, Spam $spam, FormSubmission $submission): bool
+	{
+		if (!$notification = $form->getSpamNotify()) {
+        	return false;
+        }
+        return Formidable::$plugin->notifications->send($notification, $submission, $spam, explode(',', $form->notifyEmails), 'spam');
 	}
 
 	/**

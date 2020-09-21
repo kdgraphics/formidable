@@ -49,7 +49,7 @@ class FormSubmission extends DynamicModel
 			$rules = array_merge($rules, $field->getFrontEndRules($this));
 		}
 		foreach ($this->_rules as $rule) {
-			$rules[] = [$rule->fields, 'validatedfdf', 'params' => ['rule' => $rule], 'skipOnEmpty' => false];
+			$rules[] = [$rule->fields, 'validateRule', 'params' => ['rule' => $rule], 'skipOnEmpty' => false, 'skipOnError' => false];
 		}
 		return $rules;
 	}
@@ -60,7 +60,7 @@ class FormSubmission extends DynamicModel
 	 * @param  string      $attribute
 	 * @param  array|null  $params
 	 */
-	public function validatedfdf(string $attribute, $params)
+	public function validateRule(string $attribute, $params)
 	{
 		$rule = $params['rule'];
 		$rule->validateRule($attribute, $this);

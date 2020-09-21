@@ -58,7 +58,7 @@ class LightSwitch extends Field
 	}
 
 	/**
-	 * @imheritDoc
+	 * @inheritDoc
 	 */
 	public function getFriendlyValue($value)
 	{

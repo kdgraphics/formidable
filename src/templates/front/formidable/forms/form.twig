@@ -2,20 +2,37 @@
 
 {% set id = 'inspireform-'~form.handle~form.id %}
 
+{% set error = errors['*'] is defined ? errors['*'] : false %}
+
 <form id="{{ id }}" action="/formidable/submit/{{ form.id }}" method="{{ form.method }}" class="{{ form.class }}"{#  enctype="multipart/form-data" #}>
-	{{ csrfInput() }}
-	{% if form.honeypot %}
-		{% include "formidable/fields/_honeypot" %}
-	{% endif %}
-	{% for field in fields %}
-		{% set error = errors[field.name] is defined ? errors[field.name] : false %}
-		{% set oldValue = oldInput[field.name] is defined ? oldInput[field.name] : null %}
-		{% include field.frontendTemplate() %}
-	{% endfor %}
-	{% if form.captcha %}
-		{{ form.getCaptcha().render()|raw }}
-	{% endif %}
-	<button type="submit" class="btn btn-primary" id="submit">{{ form.submitLabel }}</button>
+	{% block mainErrors %}
+		{% if error %}
+			{{ errorList(error, 'alert alert-danger') }}
+		{% endif %}
+	{% endblock %}
+	{% block csrfInput %}
+		{{ csrfInput() }}
+	{% endblock %}
+	{% block honeypot %}
+		{% if form.honeypot %}
+			{% include "formidable/fields/_honeypot" %}
+		{% endif %}
+	{% endblock %}
+	{% block fields %}
+		{% for field in fields %}
+			{% set error = errors[field.name] is defined ? errors[field.name] : false %}
+			{% set oldValue = oldInput[field.name] is defined ? oldInput[field.name] : null %}
+			{% include field.frontendTemplate() %}
+		{% endfor %}
+	{% endblock %}
+	{% block captcha %}
+		{% if form.captcha %}
+			{{ form.getCaptcha().render()|raw }}
+		{% endif %}
+	{% endblock %}
+	{% block submit %}
+		<button type="submit" class="btn btn-primary" id="submit">{{ form.submitLabel }}</button>
+	{% endblock %}
 </form>
 
 {% if form.honeypot %}

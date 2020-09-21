@@ -118,6 +118,19 @@
       </div>
       <div class="field">
         <div class="heading">
+          <label for="form-notifySpam_id">{{ t('Spam notification') }}</label>
+        </div>
+        <div class="input ltr">
+          <div class="select">
+            <select v-model="form.notifySpam_id" class="text fullwidth" id="form.notifySpam_id">
+              <option :value="null">{{ t('Don\'t notify') }}</option>
+              <option v-for="notif in notifications" :value="notif.id" :key="notif.id">{{ notif.name }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <div class="heading">
           <label for="form-notifyAdmin_id">{{ t('Admin notification') }}</label>
         </div>
         <div class="input ltr">
@@ -129,9 +142,20 @@
           </div>
         </div>
       </div>
+      <div v-if="form.notifySpam_id" class="field" aria-describedby="spamemails-field-instructions">
+        <div class="heading">
+          <label class="required" for="form-notifySpamEmails">{{ t('Spam notification recipients') }}</label>
+        </div>
+        <div id="spamemails-field-instructions" class="instructions">
+          <p>{{ t('Comma separated emails') }}</p>
+        </div>
+        <div class="input ltr">
+          <textarea id="form-notifySpamEmails" :class="'text fullwidth' + (errors.notifySpamEmails ? ' error' : '')" v-model="form.notifySpamEmails"></textarea>
+        </div>
+      </div>
       <div v-if="form.notifyAdmin_id" class="field" aria-describedby="emails-field-instructions">
         <div class="heading">
-          <label class="required" for="form-notifyEmails">{{ t('Admin emails') }}</label>
+          <label class="required" for="form-notifyEmails">{{ t('Admin notification recipients') }}</label>
         </div>
         <div id="emails-field-instructions" class="instructions">
           <p>{{ t('Comma separated emails') }}</p>
@@ -315,6 +339,7 @@ export default {
         name: trim(this.form.name) == '',
         handle: trim(this.form.handle) == '',
         notifyEmails: (this.form.notifyAdmin_id && trim(this.form.notifyEmails) == ''),
+        notifySpamEmails: (this.form.notifySpam_id && trim(this.form.notifySpamEmails) == ''),
         submitLabel: trim(this.form.submitLabel) == '',
         notifyField: this.validateNotifyField(),
         honeypotField: this.validateHoneypotField()

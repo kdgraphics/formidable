@@ -60,11 +60,11 @@ class Size extends Rule
 	{
 		switch (get_class($field->fieldType())) {
 			case ArrayField::class:
-				return sizeof($value) === sizeof($against);
+				return sizeof($value) === (int)$against;
 			case FileField::class:
 				return true;
 			case TextField::class:
-				return strlen($value) === strlen($against);
+				return strlen($value) === (int)$against;
 		}
 		throw RuleException::typeNotValid($rule, get_class($field->fieldType()));
 	}

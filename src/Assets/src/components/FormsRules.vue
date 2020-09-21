@@ -95,6 +95,7 @@ export default {
   created() {
     this.setRules(this.allRules);
     this.setRegisteredRules(this.registeredRules);
+    this.selectedRule = this.rules.length ? 0 : null;
     this.init();
   },
   watch: {
@@ -118,7 +119,6 @@ export default {
       this.originals = cloneDeep(this.rules);
       this.deletedRules = 0;
       this.addedRules = 0;
-      this.selectedRule = this.rules.length ? 0 : null;
     },
     countConditions(index) {
       let count = this.rules[index].conditions.length;

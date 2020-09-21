@@ -3,6 +3,7 @@
 namespace Ryssbowh\Formidable\Interfaces;
 
 use Ryssbowh\Formidable\Models\Form;
+use Ryssbowh\Formidable\Models\FormSubmission;
 
 interface CaptchaInterface
 {
@@ -28,9 +29,12 @@ interface CaptchaInterface
 	public function render(): string;
 
 	/**
-	 * Verify captcha after posting
+	 * Verify captcha after posting, returns false if should be considered as spam
 	 * 
+	 * @param  Form           $form
+	 * @param  FormSubmission $submission
+	 * @param  array          $posted
 	 * @return bool
 	 */
-	public function verify(Form $form, array $posted): bool;
+	public function verify(Form $form, FormSubmission $submission, array $posted): bool;
 }

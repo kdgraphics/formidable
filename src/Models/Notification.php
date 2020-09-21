@@ -40,20 +40,6 @@ class Notification extends Model
 	}
 
 	/**
-	 * Sends an email for this notification
-	 * 
-	 * @param  FormSubmission $formSubmission
-	 * @param  array          $emails
-	 * @param  Submission     $submission
-	 * @param  bool|boolean   $forAdmin
-	 * @return bool
-	 */
-	public function send(FormSubmission $formSubmission, array $emails, Submission $submission, bool $forAdmin = false): bool
-	{
-		return Formidable::$plugin->notifications->send($this, $formSubmission, $submission, $emails, $forAdmin);
-	}
-
-	/**
 	 * Normalize sent from, adds the name if defined
 	 * 
 	 * @return string|array
@@ -61,7 +47,7 @@ class Notification extends Model
 	public function normalizeSentFrom()
 	{
 		if (!$this->sentFromName) {
-			return $this->sentFrom;
+			return ['sdfg' => $this->sentFrom];
 		}
 		return [$this->sentFrom => $this->sentFromName];
 	}

@@ -9,6 +9,7 @@
 				id="{{ field.generateId(form) }}-{{ key }}"
 				name="{{ field.name }}[]"
 				class="{{ field.fieldClass }}{% if error %} is-invalid{% endif %}"
+				{% if oldValue and (choice.value in oldValue) %}checked="checked"{% endif %}
 			>
 			<label class="{{ field.choiceLabelClass }}" for="{{ field.generateId(form) }}-{{ key }}">{{ choice.label }}</label>
 		</div>

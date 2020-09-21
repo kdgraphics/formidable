@@ -59,12 +59,11 @@ class Required extends Rule
 	{
 		switch (get_class($field->fieldType())) {
 			case ArrayField::class:
-				return sizeof($value) > 0;
+				return (is_array($value) and sizeof($value) > 0);
 			case FileField::class:
 				return true;
 			case TextField::class:
 			case NumberField::class:
-				dd($value);
 				return strlen(trim($value)) > 0;
 		}
 		throw RuleException::typeNotValid($rule, get_class($field->fieldType()));

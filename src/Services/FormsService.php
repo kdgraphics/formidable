@@ -6,6 +6,7 @@ use Ryssbowh\Formidable\Events\FormEvent;
 use Ryssbowh\Formidable\Events\HookAssetsEvent;
 use Ryssbowh\Formidable\Events\SpamEvent;
 use Ryssbowh\Formidable\Events\SubmissionEvent;
+use Ryssbowh\Formidable\Exceptions\FormException;
 use Ryssbowh\Formidable\Formidable;
 use Ryssbowh\Formidable\Models\Form as FormModel;
 use Ryssbowh\Formidable\Models\FormSubmission;
@@ -26,7 +27,6 @@ class FormsService extends Component
     const EVENT_BEFORE_DELETE = 'before_delete';
     const EVENT_BEFORE_SUBMITTING = 'before_submitting';
     const EVENT_AFTER_SUBMITTING = 'after_submitting';
-    const EVENT_ON_SPAM = 'on_spam';
 
     const SESSION_ERRORS_KEY = 'formidable_errors';
     const SESSION_SUCCESS_KEY = 'formidable_success';
@@ -123,11 +123,16 @@ class FormsService extends Component
      * Get form model by id
      * 
      * @param  int $id
+     * @param  bool $throwIfNotFound
      * @return ?FormModel
      */
-	public function getById(int $id): ?FormModel
+	public function getById(int $id, bool $throwIfNotFound = false): ?FormModel
 	{
-		return $this->getAll()[$id] ?? null;
+		$form = $this->getAll()[$id] ?? null;
+        if (!$form and $throwIfNotFound) {
+            throw FormException::idNotFound($id);
+        }
+        return $form;
 	}
 
     /**
@@ -208,8 +213,10 @@ class FormsService extends Component
             $form->handle = $data['handle'];
             $form->notifyAdmin_id = $data['notifyAdmin'] ? $notifications->getRecordByUid($data['notifyAdmin'])->id : null;
             $form->notify_id = $data['notify'] ? $notifications->getRecordByUid($data['notify'])->id : null;
+            $form->notifySpam_id = $data['notifySpam'] ? $notifications->getRecordByUid($data['notifySpam'])->id : null;
             $form->notifyField = $data['notifyField'];
             $form->notifyEmails = $data['notifyEmails'];
+            $form->notifySpamEmails = $data['notifySpamEmails'];
             $form->honeypot = $data['honeypot'];
             $form->honeypotField = $data['honeypotField'];
             $form->saveSubmissions = $data['saveSubmissions'];
@@ -360,6 +367,40 @@ class FormsService extends Component
     }
 
     /**
+     * Get success status for a form from session
+     * 
+     * @param string $formHandle
+     * @return bool
+     */
+    public function getSessionSuccess(string $formHandle): bool
+    {
+        return \Craft::$app->session->getFlash(self::SESSION_SUCCESS_KEY.'.'.$formHandle, false, true);
+    }
+
+    /**
+     * Get errors for a form from session
+     * 
+     * @param string $formHandle
+     * @return array
+     */
+    public function getSessionErrors(string $formHandle): array
+    {
+        return \Craft::$app->session->getFlash(self::SESSION_ERRORS_KEY.'.'.$formHandle, [], true);
+    }
+
+    /**
+     * Get old input for a form from session
+     * 
+     * @param string $formHandle
+     * @return array
+     */
+    public function getSessionOldInput(string $formHandle): array
+    {
+        return \Craft::$app->session->getFlash(self::SESSION_OLDINPUT_KEY.'.'.$formHandle, [], true);
+
+    }
+
+    /**
      * Submit a form (through front end)
      * 
      * @param  FormModel $form
@@ -370,35 +411,12 @@ class FormsService extends Component
         $session = \Craft::$app->session;
         $posted = \Craft::$app->request->getBodyParams();
 
-        if ($form->honeypot) {
-            if (isset($posted[$form->honeypotField]) and !empty($posted[$form->honeypotField])) {
-                $spam = Formidable::$plugin->spam->create($form, $posted);
-                $this->trigger(self::EVENT_ON_SPAM, new SpamEvent([
-                    'spam' => $spam,
-                    'form' => $form
-                ]));
-                return self::SPAM;
-            }
-        }
-
-        if ($form->captcha) {
-            if (!$form->getCaptcha()->verify($form, $posted)) {
-                $spam = Formidable::$plugin->spam->create($form, $posted);
-                $this->trigger(self::EVENT_ON_SPAM, new SpamEvent([
-                    'spam' => $spam,
-                    'form' => $form
-                ]));
-                return self::SPAM;
-            }
-        }
-
         $values = [];
         foreach ($form->getFields() as $field) {
             $values[$field->name] = $posted[$field->name] ?? null;
         }
-        $session->setFlash(self::SESSION_OLDINPUT_KEY, $values);
+        $session->setFlash(self::SESSION_OLDINPUT_KEY.'.'.$form->handle, $values);
         $formSubmission = new FormSubmission($values);
-
         $formSubmission->setForm($form);
         $formSubmission->setRules(Formidable::$plugin->rules->getFormRules($form));
         
@@ -406,24 +424,40 @@ class FormsService extends Component
             $field->beforeSubmissionValidated($formSubmission);
         }
 
+        if ($form->honeypot) {
+            if (isset($posted[$form->honeypotField]) and !empty($posted[$form->honeypotField])) {
+                $spam = Formidable::$plugin->spam->create($form, $formSubmission, $posted);
+                return self::SPAM;
+            }
+        }
+
+        if ($form->captcha) {
+            if (!$form->getCaptcha()->verify($form, $formSubmission, $posted)) {
+                $spam = Formidable::$plugin->spam->create($form, $formSubmission, $posted);
+                return self::SPAM;
+            }
+        }
+
         $this->trigger(self::EVENT_BEFORE_SUBMITTING, new SubmissionEvent([
             'submission' => $formSubmission,
             'form' => $form
         ]));
 
-        if ($formSubmission->validate()) {
+        $formSubmission->validate(null, false);
+
+        if (!$errors = $formSubmission->getErrors()) {
             foreach ($form->fields as $field) {
                 $field->afterSubmissionValidated($formSubmission);
             }
             $submission = Formidable::$plugin->submissions->create($form, $formSubmission);
-            $session->setFlash(self::SESSION_SUCCESS_KEY);
+            $session->setFlash(self::SESSION_SUCCESS_KEY.'.'.$form->handle, true);
             $this->trigger(self::EVENT_AFTER_SUBMITTING, new SubmissionEvent([
                 'submission' => $submission,
                 'form' => $form
             ]));
             return self::VALID;
         }
-        $session->setFlash(self::SESSION_ERRORS_KEY, $formSubmission->getErrors());
+        $session->setFlash(self::SESSION_ERRORS_KEY.'.'.$form->handle, $errors);
         return self::INVALID;
     }
 

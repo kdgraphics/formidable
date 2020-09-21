@@ -145,7 +145,7 @@ export default {
     validFields: function () {
       return this.fields.filter((field) => field.validRules.includes(this.rule.type));
     },
-    ...mapState(['fields']),
+    ...mapState(['fields', 'loadedTime']),
   },
   watch: {
     hasErrors: function () {
@@ -163,6 +163,9 @@ export default {
       },
       deep: true
     },
+    loadedTime: function() {
+      this.init();
+    },
     fields: {
       handler: function () {
         let fields = intersectionBy(this.selectedFields, this.fields, 'order').map((field) => field.name);
@@ -174,15 +177,20 @@ export default {
     }
   },
   created () {
-    this.selectedFields = filter(this.fields, (field) => this.rule.fields.includes(field.name));
-    this.selectedField = filter(this.fields, (field) => field.name == this.rule.value)[0] ?? null;
+    this.init();
     this.validate();
   },
   methods: {
+    init() {
+      this.selectedFields = filter(this.fields, (field) => this.rule.fields.includes(field.name));
+      if (this.rule.requiresField) {
+        this.selectedField = filter(this.fields, (field) => field.name == this.rule.value)[0] ?? null;
+      }
+    },
     validate() {
       let errors = {
         value: this.validateValue(),
-        fields: this.rule.fields.length == 0
+        fields: this.selectedFields.length == 0
       };
       this.$set(this.errors, 'rule', errors);
     },
@@ -191,8 +199,9 @@ export default {
         return this.selectedField == null;
       }
       if (this.rule.requiresValue) {
-        return this.rule.value.trim() == '';
+        return !this.rule.value || String(this.rule.value).trim() == '';
       }
+      return false;
     },
     addCondition() {
       this.rule.conditions.push(this._newCondition());

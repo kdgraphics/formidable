@@ -20,8 +20,10 @@ class Form extends Model
 	public $handle;
 	public $notify_id;
 	public $notifyAdmin_id;
+	public $notifySpam_id;
 	public $notifyField;
 	public $notifyEmails;
+	public $notifySpamEmails;
 	public $honeypot = 1;
 	public $honeypotField;
 	public $saveSubmissions = 1;
@@ -41,14 +43,17 @@ class Form extends Model
 	public function rules()
 	{
 		return [
-			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails','redirect', 'class', 'method', 'submitLabel', 'color'], 'string'],
+			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'notifySpamEmails','redirect', 'class', 'method', 'submitLabel', 'color'], 'string'],
 			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'redirect', 'class', 'submitLabel', 'color'], 'trim'],
-			[['id', 'notifyAdmin_id', 'notify_id'], 'integer'],
+			[['id', 'notifyAdmin_id', 'notify_id', 'notifySpam_id'], 'integer'],
 			[['honeypot', 'saveSubmissions', 'saveSpam'], 'boolean'],
-			['notifyEmails', 'validateEmails'],
+			[['notifyEmails', 'notifySpamEmails'], 'validateEmails'],
 			['handle', 'validateHandle'],
 			['method', 'in', 'range' => ['GET', 'POST']],
 			['notifyEmails', 'required', 'when' => function($model){
+				return $model->notifyAdmin_id != 0;
+			}],
+			['notifySpamEmails', 'required', 'when' => function($model){
 				return $model->notifyAdmin_id != 0;
 			}],
 			['captcha', function($attribute){
@@ -154,8 +159,10 @@ class Form extends Model
             'handle' => $this->handle,
             'notify' => $this->notify_id ? $this->getNotify()->uid : null,
             'notifyAdmin' => $this->notifyAdmin_id ? $this->getAdminNotify()->uid : null,
+            'notifySpam' => $this->notifySpam_id ? $this->getSpamNotify()->uid : null,
             'notifyField' => $this->notifyField,
             'notifyEmails' => $this->notifyEmails,
+            'notifySpamEmails' => $this->notifySpamEmails,
             'honeypot' => $this->honeypot,
             'honeypotField' => $this->honeypotField,
             'saveSubmissions' => $this->saveSubmissions,
@@ -175,16 +182,16 @@ class Form extends Model
 	 * @param object $model
 	 * @param string $attribute
 	 */
-	public function validateEmails($model, $attribute)
+	public function validateEmails($attribute)
 	{
-		if (!$this->notifyEmails) {
+		if (!$this->$attribute) {
 			return true;
 		}
-		$emails = array_map('trim', explode(',', $this->notifyEmails));
+		$emails = array_map('trim', explode(',', $this->$attribute));
 		$pass = true;
 		foreach($emails as $email) {
 			if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-				$this->addError('notifyEmails', \Craft::t('Email {email} is not valid', ['email' => $email]));
+				$this->addError($attribute, \Craft::t('Email {email} is not valid', ['email' => $email]));
 				$pass = false;
 			}
 		}
@@ -204,9 +211,10 @@ class Form extends Model
 		}
 		$event = new FormEvent([
             'form' => $this,
-            'errors' => \Craft::$app->session->getFlash(FormsService::SESSION_ERRORS_KEY),
-            'oldInput' => \Craft::$app->session->getFlash(FormsService::SESSION_OLDINPUT_KEY)
+            'errors' => Formidable::$plugin->forms->getSessionErrors($this->handle),
+            'oldInput' => Formidable::$plugin->forms->getSessionOldInput($this->handle)
         ]);
+        // dd($event);
 		$this->trigger(self::EVENT_RENDER, $event);
 		return \Craft::$app->getView()->renderTemplate($template, [
 			'form' => $this,
@@ -243,6 +251,19 @@ class Form extends Model
 			return null;
 		}
 		return Formidable::$plugin->notifications->getById($this->notify_id);
+	}
+
+	/**
+	 * Get spam notification
+	 * 
+	 * @return ?Notification
+	 */
+	public function getSpamNotify(): ?Notification
+	{
+		if (!$this->notifySpam_id) {
+			return null;
+		}
+		return Formidable::$plugin->notifications->getById($this->notifySpam_id);
 	}
 
 	/**

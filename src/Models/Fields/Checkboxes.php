@@ -43,6 +43,7 @@ class Checkboxes extends Radio
 					$this->addError($attribute, \Craft::t('formidable', 'Value is invalid'));
 				}
 			}],
+			[$this->name, 'default', 'value' => []],
 			[$this->name, 'each', 'rule' => ['in', 'range' => $this->allValues()]]
 		];
 	}
@@ -62,5 +63,13 @@ class Checkboxes extends Radio
 			$selected[] = $choices[$value];
 		}
 		$submission->{$this->name} = implode(', ', $selected);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getFriendlyValue($value)
+	{
+		return $value ? implode(', ', $value) : '';
 	}
 }

@@ -14,6 +14,8 @@ use yii\web\HttpException;
 
 class FormsController extends Controller
 {
+    protected $allowAnonymous = self::ALLOW_ANONYMOUS_LIVE;
+
     public function actionSubmit(int $id)
     {
         $form = $this->forms()->getById($id);
@@ -36,16 +38,16 @@ class FormsController extends Controller
 
     protected function onValidSubmission(Form $form)
     {
-        $this->session()->getFlash(FormsService::SESSION_OLDINPUT_KEY);
+        $this->forms()->getSessionOldInput($form->handle);
         if ($this->request()->isAjax) {
             return $this->asJson([
-                'success' => $this->session()->getFlash(FormsService::SESSION_SUCCESS_KEY)
+                'success' => $this->forms()->getSessionSuccess($form->handle)
             ]);
         }
         if ($form->redirect) {
             return $this->redirect($form->redirect);
         }
-        return $this->redirect($this->request()->getReferrer().'?success=1');
+        return $this->redirect($this->request()->getReferrer());
     }
 
     protected function onSpam(Form $form)
@@ -60,7 +62,7 @@ class FormsController extends Controller
     {
         if ($this->request()->isAjax) {
             $response = [
-                'errors' => $this->session()->getFlash(FormsService::SESSION_ERRORS_KEY)
+                'errors' => $this->forms()->getSessionErrors($form->handle)
             ];
             $this->response->setStatusCode(422, 'Validation errors');
             return $this->asJson($response);

@@ -46,7 +46,7 @@ abstract class Rule extends Model implements RuleInterface
 	{
 		return [
 			[['message'], 'string'],
-			[['value'], 'number'],
+			[['value'], 'string'],
 			['type', function () {
 				if (!Formidable::$plugin->rules->getRegistered($this->type)) {
 					$this->addError('type', \Craft::t('formidable', '{type} is not a valid rule type', ['type' => $this->type]));
@@ -151,6 +151,11 @@ abstract class Rule extends Model implements RuleInterface
 		preg_match_all("/{field\.([\w-]+)}/", $message, $matches);
 		foreach ($matches[1] ?? [] as $match) {
 			$message = str_replace("{field.$match}", $field->$match, $message);
+		}
+		$matches = [];
+		preg_match_all("/{rule\.([\w-]+)}/", $message, $matches);
+		foreach ($matches[1] ?? [] as $match) {
+			$message = str_replace("{rule.$match}", $this->$match, $message);
 		}
 		return ucfirst($message);
 	}

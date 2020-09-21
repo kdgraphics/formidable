@@ -21,8 +21,10 @@ class Install extends Migration
             'handle' => $this->string(255)->notNull(),
             'notify_id' => $this->integer(11),
             'notifyAdmin_id' => $this->integer(11),
+            'notifySpam_id' => $this->integer(11),
             'notifyField' => $this->string(255),
             'notifyEmails' => $this->text(),
+            'notifySpamEmails' => $this->text(),
             'honeypot' => $this->boolean()->defaultValue(true),
             'honeypotField' => $this->string(255),
             'saveSubmissions' => $this->boolean()->defaultValue(true),
@@ -85,6 +87,7 @@ class Install extends Migration
             'form_id' => $this->integer(11)->notNull(),
             'ip' => $this->string(255),
             'values' => $this->text(),
+            'notified' => $this->boolean(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'dateDeleted' => $this->dateTime()->notNull(),
@@ -106,7 +109,7 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'form_id' => $this->integer(11)->notNull(),
             'type' => $this->string(255)->notNull(),
-            'value' => $this->float(),
+            'value' => $this->string(255),
             'message' => $this->text(),
             'fields' => $this->json(),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -141,11 +144,12 @@ class Install extends Migration
         $this->createTable('{{%formidable_emails}}', [
             'id' => $this->primaryKey(),
             'submission_id' => $this->integer(11),
+            'spam_id' => $this->integer(11),
             'emails' => $this->json(),
             'sent' => $this->dateTime(),
-            'forAdmin' => $this->boolean(false),
             'sentFrom' => $this->string(255),
             'subject' => $this->text(),
+            'type' => $this->string(10),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
@@ -153,6 +157,7 @@ class Install extends Migration
 
         $this->addForeignKey(null, '{{%formidable_forms}}', ['notify_id'], '{{%formidable_notifications}}', ['id'], 'SET NULL', null);
         $this->addForeignKey(null, '{{%formidable_forms}}', ['notifyAdmin_id'], '{{%formidable_notifications}}', ['id'], 'SET NULL', null);
+        $this->addForeignKey(null, '{{%formidable_forms}}', ['notifySpam_id'], '{{%formidable_notifications}}', ['id'], 'SET NULL', null);
         $this->addForeignKey(null, '{{%formidable_fields}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
         $this->addForeignKey(null, '{{%formidable_submissions}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
         $this->addForeignKey(null, '{{%formidable_spams}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
@@ -162,6 +167,7 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%formidable_conditions}}', ['rule_id'], '{{%formidable_conditions}}', ['id'], 'CASCADE', null);
         $this->addForeignKey(null, '{{%formidable_conditions}}', ['conditiongroup_id'], '{{%formidable_conditiongroups}}', ['id'], 'CASCADE', null);
         $this->addForeignKey(null, '{{%formidable_emails}}', ['submission_id'], '{{%formidable_submissions}}', ['id'], 'SET NULL', null);
+        $this->addForeignKey(null, '{{%formidable_emails}}', ['spam_id'], '{{%formidable_spams}}', ['id'], 'SET NULL', null);
     }
 
     /**
@@ -180,6 +186,7 @@ class Install extends Migration
         $this->dropTableIfExists('{{%formidable_fields}}');
         $this->dropTableIfExists('{{%formidable_forms}}');
         $this->dropTableIfExists('{{%formidable_notifications}}');
+        $this->dropTableIfExists('{{%formidable_emails}}');
         Craft::$app->projectConfig->remove('formidable');
     }
 }

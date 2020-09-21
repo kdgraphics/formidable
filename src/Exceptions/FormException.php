@@ -6,8 +6,8 @@ use Ryssbowh\Formidable\Models\Form;
 
 class FormException extends \Exception
 {
-	public static function noFieldNamed(Form $form, string $name)
+	public static function idNotFound($id)
 	{
-		return new static("Form {$form->name} has no field named '$name'");
+		return new static("Form $id not found");	
 	}
 }

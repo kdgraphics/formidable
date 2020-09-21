@@ -8,6 +8,8 @@ use Ryssbowh\Formidable\Models\Form;
 use Ryssbowh\Formidable\Models\FormSubmission;
 use Ryssbowh\Formidable\Models\Notification;
 use Ryssbowh\Formidable\Models\Records\Email;
+use Ryssbowh\Formidable\Models\Records\Notification as NotificationRecord;
+use Ryssbowh\Formidable\Models\Records\Spam;
 use Ryssbowh\Formidable\Models\Records\Submission;
 use craft\base\Component;
 use craft\helpers\StringHelper;
@@ -19,22 +21,23 @@ class ScheduleService extends Component
 	/**
 	 * Create a new email schedule
 	 * 
-	 * @param  Submission   $submission
-	 * @param  string|array $sentFrom
-	 * @param  array        $emails
-	 * @param  string       $subject
-	 * @param  string       $html
-	 * @param  bool         $forAdmin
+	 * @param  Spam|Submission|null $submitted
+	 * @param  string|array         $sentFrom
+	 * @param  array                $emails
+	 * @param  string               $subject
+	 * @param  string               $html
+	 * @param  string               $type
 	 * @return bool
 	 */
-	public function create(Submission $submission, $sentFrom, array $emails, string $subject, string $html, bool $forAdmin): bool
+	public function create($submitted, $sentFrom, array $emails, string $subject, string $html, string $type): bool
 	{
 		$email = new Email([
 			'emails' => $emails,
-			'submission_id' => $submission->id,
-			'sentFrom' => $sentFrom,
-			'forAdmin' => $forAdmin,
+			'submission_id' => ($submitted instanceof Submission) ? $submitted->id : null,
+			'spam_id' => ($submitted instanceof Spam) ? $submitted->id : null,
+			'sentFrom' => is_array($sentFrom) ? $sentFrom : [$sentFrom],
 			'subject' => $subject,
+			'type' => $type,
 			'uid' => $this->createStorageFile($html)
 		]);
 		return $email->save(false);
@@ -63,12 +66,14 @@ class ScheduleService extends Component
 		if (!file_exists($contentFile)) {
 			throw ScheduleException::storageNotFound($email, $contentFile);
 		}
-		$submission = Submission::find()->where(['id' => $email->submission_id])->one();
-		if (!$submission) {
-			throw ScheduleException::submissionNotFound($email, $email->submission_id);
+		$submitted = null;
+		if ($email->submission_id) {
+			$submitted = Submission::find()->where(['id' => $email->submission_id])->one();
+		} elseif ($email->spam_id) {
+			$submitted = Spam::find()->where(['id' => $email->spam_id])->one();
 		}
 		$html = file_get_contents($contentFile);
-		if (Formidable::$plugin->notifications->sendEmail($submission, $email->sentFrom, $email->emails, $email->subject, $html, $email->forAdmin)) {
+		if (Formidable::$plugin->notifications->sendEmail($submitted, $email->sentFrom, $email->emails, $email->subject, $html, $email->type)) {
 			$email->sent = new \Datetime;
 			$email->save();
 			@unlink($contentFile);

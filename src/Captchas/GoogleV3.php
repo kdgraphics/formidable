@@ -5,6 +5,7 @@ namespace Ryssbowh\Formidable\Captchas;
 use Ryssbowh\Formidable\Formidable;
 use Ryssbowh\Formidable\Interfaces\CaptchaInterface;
 use Ryssbowh\Formidable\Models\Form;
+use Ryssbowh\Formidable\Models\FormSubmission;
 use craft\helpers\StringHelper;
 
 class GoogleV3 implements CaptchaInterface
@@ -69,11 +70,12 @@ class GoogleV3 implements CaptchaInterface
 	/**
 	 * @inheritDoc
 	 */
-	public function verify(Form $form, array $posted): bool
+	public function verify(Form $form, FormSubmission $submission, array $posted): bool
 	{
         $client = new \GuzzleHttp\Client();
         $secret = $this->getSecretKey();
         $score = $this->getAcceptableScore();
+
         if (isset($posted['_recaptcha_response'])) {
             $response = $client->post('https://www.google.com/recaptcha/api/siteverify', [
                 'query' => [
@@ -82,8 +84,11 @@ class GoogleV3 implements CaptchaInterface
                 ]
             ]);
             $data = json_decode($response->getBody()->getContents(), true);
-            return $data['score'] >= $score;
+            if ($data['success']) {
+            	return $data['score'] >= $score;
+            }
         }
-        return false;
+        $submission->addError('*', \Craft::t('site', 'Unable to verify your captcha, please try again'));
+        return true;
 	}
 }

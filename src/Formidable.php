@@ -4,14 +4,16 @@ namespace Ryssbowh\Formidable;
 use Craft;
 use Ryssbowh\Formidable\Assets\TestAsset;
 use Ryssbowh\Formidable\Captchas\GoogleV3;
-use Ryssbowh\Formidable\Events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent};
+use Ryssbowh\Formidable\Events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent, EmailEvent};
 use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, LightSwitch, Number, Radio, Select, Text, Textarea};
 use Ryssbowh\Formidable\Models\FormSubmission;
+use Ryssbowh\Formidable\Models\Records\Submission;
 use Ryssbowh\Formidable\Models\Rules\{BiggerThan, Contain, EqualTo, Off, On, Required, SameThan, Size, SmallerThan};
 use Ryssbowh\Formidable\Models\Settings;
 use Ryssbowh\Formidable\Services\{CaptchasService, ConditionsService, ConditionGroupsService, CsvExporterService, FieldsService, FormsService, NotificationsService, RulesService, SpamService, SubmissionsService, ScheduleService};
 use Ryssbowh\Formidable\Twig\TwigForms;
 use craft\base\Plugin;
+use craft\console\Application as ConsoleApplication;
 use craft\events\{RebuildConfigEvent, RegisterCpNavItemsEvent, RegisterTemplateRootsEvent, RegisterUrlRulesEvent};
 use craft\log\FileTarget;
 use craft\services\ProjectConfig;
@@ -21,7 +23,6 @@ use craft\web\twig\variables\Cp;
 use yii\base\Event;
 use yii\base\Model;
 use yii\log\Logger;
-use craft\console\Application as ConsoleApplication;
 
 class Formidable extends Plugin
 {
@@ -82,6 +83,7 @@ class Formidable extends Plugin
         $this->registerRules();
         $this->registerTwigExtension();
         $this->registerFrontTemplates();
+        $this->registerEmailWatchers();
 
         if (Craft::$app->getRequest()->getIsConsoleRequest()) {
             $this->controllerNamespace = 'Ryssbowh\\Formidable\\Console';
@@ -156,6 +158,21 @@ class Formidable extends Plugin
                     ]
                 ];
             });
+    }
+
+    /**
+     * Submissions and spams callback when emails are sent
+     */
+    protected function registerEmailWatchers()
+    {
+        $_this = $this;
+        Event::on(NotificationsService::class, NotificationsService::EVENT_AFTER_SENDING_EMAIL, function (EmailEvent $event) use ($_this) {
+            if ($event->type == 'spam') {
+                $_this->spam->updateSpamAfterEmailSent($event->submitted, $event->type);
+            } elseif ($event->submitted instanceof Submission) {
+                $_this->submissions->updateSubmissionAfterEmailSent($event->submitted, $event->type);   
+            }
+        });
     }
 
     /**

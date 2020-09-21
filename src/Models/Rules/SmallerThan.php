@@ -35,7 +35,7 @@ class SmallerThan extends Rule
 	 */
 	public function defaultMessage(): string
 	{
-		return \Craft::t('formidable', '{field.name} must be bigger than {rule.value}.');
+		return \Craft::t('formidable', '{field.name} must be smaller than {rule.value}.');
 	}
 
 	/**
