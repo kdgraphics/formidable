@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="field choices">
     <div class="heading">
       <label>{{ t('Choices') }}<a class="add-choice" href="#" @click.prevent="addChoice('', '')">{{ t('Add') }}</a></label>
     </div>
@@ -22,12 +22,11 @@
 </template>
 
 <script>
-import { isEqual, countBy, reduce } from 'lodash';
-
 export default {
   props: {
     field: Object,
     default: String,
+    errors: Object
   },
   created() {
     if (!this.field.choices) {
@@ -47,16 +46,18 @@ export default {
       return count;
     },
     validate() {
+      let error = false
       for (let index in this.field.choices) {
         if (this.count(index) > 1) {
-          this.$emit('error', true);
-          return;
+          error = true;
+          break;
         }
       }
-      this.$emit('error', false);
+      this.$set(this.errors, 'choices', error);
     },
     addChoice(value = '', label = '') {
       this.field.choices.push({value:value, label:label});
+      this.validate();
     },
     deleteChoice(id) {
       if (this.field.choices.length == 1) {
@@ -73,7 +74,7 @@ export default {
 <style lang="scss">
 @import "~craftcms-sass/mixins";
 
-.inspirefield-container {
+.formidablefield-container {
   .choices {
     width: 100% !important;
     margin-left: 0 !important;

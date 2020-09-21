@@ -4,6 +4,7 @@ namespace Ryssbowh\Formidable\Models;
 
 use Ryssbowh\Formidable\Formidable;
 use Ryssbowh\Formidable\Models\FormSubmission;
+use Ryssbowh\Formidable\Models\Records\Submission;
 use craft\base\Model;
 
 class Notification extends Model
@@ -37,9 +38,18 @@ class Notification extends Model
 		];
 	}
 
-	public function send(FormSubmission $submission, $email)
+	/**
+	 * Sends an email for this notification
+	 * 
+	 * @param  FormSubmission $formSubmission
+	 * @param  array          $emails
+	 * @param  Submission     $submission
+	 * @param  bool|boolean   $forAdmin
+	 * @return bool
+	 */
+	public function send(FormSubmission $formSubmission, array $emails, Submission $submission, bool $forAdmin = false): bool
 	{
-		return Formidable::$plugin->notifications->send($this, $submission, $email);
+		return Formidable::$plugin->notifications->send($this, $formSubmission, $submission, $emails, $forAdmin);
 	}
 
 	public function getConfig(): array

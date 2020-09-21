@@ -39,9 +39,7 @@ abstract class Field extends Model implements FieldInterface
 		parent::init();
 		$this->type = $this->handle();
 		$this->friendlyName = $this->friendlyName();
-		if ($this->name) {
-			$this->validRules = $this->fieldType()->validRuleTypes();
-		}
+		$this->validRules = $this->fieldType()->validRuleTypes();
 	}
 
 	public function fieldType(): FieldTypeInterface
@@ -132,6 +130,7 @@ abstract class Field extends Model implements FieldInterface
             'order' => $this->order,
             'fieldClass' => $this->fieldClass,
             'containerClass' => $this->containerClass,
+            'labelClass' => $this->labelClass,
             'instructions' => $this->instructions,
             'type' => $this->handle(),
             'options' => $this->rebuildOptions(true)

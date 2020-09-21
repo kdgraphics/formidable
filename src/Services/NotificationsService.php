@@ -2,14 +2,15 @@
 
 namespace Ryssbowh\Formidable\Services;
 
-use Ryssbowh\Formidable\Events\NotificationEmailEvent;
+use Psr\Log\LogLevel;
+use Ryssbowh\Formidable\Events\EmailEvent;
 use Ryssbowh\Formidable\Events\NotificationEvent;
 use Ryssbowh\Formidable\Formidable;
 use Ryssbowh\Formidable\Models\FormSubmission;
 use Ryssbowh\Formidable\Models\Notification as NotificationModel;
 use Ryssbowh\Formidable\Models\Records\Form as FormRecord;
 use Ryssbowh\Formidable\Models\Records\Notification as NotificationRecord;
-use Psr\Log\LogLevel;
+use Ryssbowh\Formidable\Models\Records\Submission;
 use craft\base\Component;
 use craft\events\ConfigEvent;
 use craft\events\RebuildConfigEvent;
@@ -245,15 +246,7 @@ class NotificationsService extends Component
         }
     }
 
-    /**
-     * Send the notification to some emails when a form is submitted
-     * 
-     * @param  NotificationModel $notification
-     * @param  FormSubmission    $submission
-     * @param  string|array      $email
-     * @return bool
-     */
-    public function send(NotificationModel $notification, FormSubmission $submission, $email): bool
+    public function getHtml(NotificationModel $notification, FormSubmission $submission)
     {
         $oldMode = $this->view->getTemplateMode();
         $this->view->setTemplateMode(View::TEMPLATE_MODE_SITE);
@@ -271,20 +264,73 @@ class NotificationsService extends Component
             Formidable::log($e->getMessage(), LogLevel::ERROR);
             return false;
         }
-        $subject = $this->view->renderString($notification->subject, $variables);
         $this->view->setTemplateMode($oldMode);
+        return $html;
+    }
+
+    public function getSubject(NotificationModel $notification, FormSubmission $submission)
+    {
+        $variables = [
+            'submission' => $submission,
+            'notification' => $notification
+        ];
+        return $this->view->renderString($notification->subject, $variables);
+    }
+
+    /**
+     * Sends an email
+     * 
+     * @param  Submission $submission
+     * @param  string $sentFrom
+     * @param  array  $emails
+     * @param  string $subject
+     * @param  string $html
+     * @return bool
+     */
+    public function sendEmail(Submission $submission, string $sentFrom, array $emails, string $subject, string $html, bool $forAdmin): bool
+    {
         $email = \Craft::$app
             ->getMailer()
             ->compose()
-            ->setFrom($notification->sentFrom)
-            ->setTo($email)
+            ->setFrom($sentFrom)
+            ->setTo($emails)
             ->setSubject($subject)
             ->setHtmlBody($html);
-        $event = new NotificationEmailEvent([
+        $event = new EmailEvent([
             'email' => $email
         ]);
         $this->trigger(self::EVENT_BEFORE_SENDING_EMAIL, $event);
-        return $email->send();
+        if ($email->send()) {
+            if ($forAdmin) {
+                $submission->adminNotified = 1;
+            } else {
+                $submission->notified = 1;
+            }
+            $submission->save();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Send the notification to some emails when a form is submitted or schedule it
+     * 
+     * @param  NotificationModel $notification
+     * @param  FormSubmission    $formSubmission
+     * @param  Submission        $submission
+     * @param  array             $email
+     * @param  bool              $forAdmin
+     * @return bool
+     */
+    public function send(NotificationModel $notification, FormSubmission $formSubmission, Submission $submission, array $emails, bool $forAdmin = false): bool
+    {
+        $html = $this->getHtml($notification, $formSubmission);
+        $subject = $this->getSubject($notification, $formSubmission);
+        if (Formidable::$plugin->settings->sendInSchedule) {
+            return Formidable::$plugin->schedule->create($submission, $notification->sentFrom, $emails, $subject, $html, $forAdmin);
+        } else {
+            return $this->sendEmail($submission, $notification->sentFrom, $emails, $subject, $html, $forAdmin);
+        }
     }
 
     protected function getView(): View

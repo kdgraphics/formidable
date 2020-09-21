@@ -241,7 +241,6 @@ export default {
       showAdvanced: false,
       captchas: this.allCaptchas,
       notifications: this.allNotifications,
-      volumes: this.allVolumes,
       original: {},
       errors: {},
       notifyFieldObject: null
@@ -272,6 +271,7 @@ export default {
     this.setIsAdding(this.formEdited.id == null);
     this.setForm(this.formEdited);
     this.setLoadedTime(this.loaded);
+    this.setVolumes(this.allVolumes);
     this.init();
   },
   mounted() {
@@ -332,7 +332,7 @@ export default {
       }
       return (this.form.notifyField == null || this.form.notifyField == '');
     },
-    ...mapMutations(['setForm', 'setLoadedTime', 'setIsAdding']),
+    ...mapMutations(['setForm', 'setLoadedTime', 'setIsAdding', 'setVolumes']),
     ...mapActions(['configHasChanged', 'configHasErrors'])
   }
 };

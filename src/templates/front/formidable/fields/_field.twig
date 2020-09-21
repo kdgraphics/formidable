@@ -8,9 +8,9 @@
 			</label>
 		{% endif %}
 	{% endblock %}
-	{% block inner %}{% endblock %}
 	{% block instructions %}
 		<div class="instructions">{{ field.instructions }}</div>
 	{% endblock %}
+	{% block inner %}{% endblock %}
 	{% block errors %}{{ errorList(error) }}{% endblock %}
 </div>

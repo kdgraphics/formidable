@@ -23,7 +23,8 @@ export default new Vuex.Store({
     configHasErrors: false,
     hasErrors: false,
     allForms: {},
-    loadedTime: 0
+    loadedTime: 0,
+    volumes: {}
   },
   mutations: {
     setIsLoading(state, value) {
@@ -76,6 +77,9 @@ export default new Vuex.Store({
     },
     setLoadedTime(state, value) {
       state.loadedTime = value;
+    },
+    setVolumes(state, value) {
+      state.volumes = value;
     }
   },
   actions: {

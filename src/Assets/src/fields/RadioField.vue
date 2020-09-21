@@ -1,27 +1,47 @@
 <template>
-  <div>
-    <slot name="name"></slot>
-    <slot name="instructions"></slot>
-  	<div class="field field-label">
-      <div class="heading">
-        <label>{{ t('Label') }}</label>
+  <forms-field v-on="$listeners"
+    :field="field" 
+    :index="index"
+    :original="original"
+    :errors="errors"
+  >
+    <template v-slot:extraFields>
+    	<div class="field field-label">
+        <div class="heading">
+          <label>{{ t('Label') }}</label>
+        </div>
+        <div class="input ltr">
+          <input type="text" class="text fullwidth" v-model="field.label">
+        </div>
       </div>
-      <div class="input ltr">
-        <input type="text" class="text fullwidth" v-model="field.label">
+      <field-choices
+        :field="field"
+        :default="''"
+        :errors="errors"
+      ></field-choices>
+    </template>
+    <template v-slot:extraAdvanced>
+      <div class="field field-choiceContainerClass">
+        <div class="heading">
+          <label>{{ t('Choice container class') }}</label>
+        </div>
+        <div class="input ltr">
+          <input type="text" :class="'text fullwidth' + (errors.choiceContainerClass ? ' error' : '')" v-model="field.choiceContainerClass" @input="validateAlnum('choiceContainerClass')">
+        </div>
       </div>
-    </div>
-    <field-choices v-on:error="onChoicesError"
-      class="field choices"
-      :field="field"
-      :default="''"
-    ></field-choices>
-    <slot name="advanced"></slot>
-  </div>
+      <div class="field field-choiceLabelClass">
+        <div class="heading">
+          <label>{{ t('Choice label class') }}</label>
+        </div>
+        <div class="input ltr">
+          <input type="text" :class="'text fullwidth' + (errors.choiceLabelClass ? ' error' : '')" v-model="field.choiceLabelClass" @input="validateAlnum('choiceLabelClass')">
+        </div>
+      </div>
+    </template>
+  </forms-field>
 </template>
 
 <script>
-import { isEqual, reduce } from 'lodash';
-
 export default {
   props: {
     index: Number,
@@ -30,38 +50,19 @@ export default {
   },
   data() {
     return {
-      errors: {},
-      hasChoicesError: false
-    }
-  },
-  computed: {
-    hasErrors: function () {
-      return reduce(this.errors, function(result, value, key) {
-        return (result || value);
-      }, false) || this.hasChoicesError;
-    }
-  },
-  watch: {
-    hasErrors: function () {
-      this.$emit('error', {index: this.index, error: this.hasErrors});
-    },
-    field: {
-      handler: function () {
-        this.validate();
-        this.$emit('change', {index: this.index, change: !isEqual(this.field, this.original)});
-      },
-      deep: true
+      errors: {}
     }
   },
   methods: {
-    /**
-     * Sets errors here in the errors object
-     */
-    validate () {
-      // this.$set(this.errors, 'field', value);
+    isAlnum(field) {
+      return this.field[field].match(/^[0-9a-zA-Z-_]*$/);
     },
-    onChoicesError(error) {
-      this.hasChoicesError = error;
+    validateAlnum(field) {
+      if (!this.isAlnum(field)) {
+        this.$set(this.errors, field, true);
+      } else {
+        this.$set(this.errors, field, false);
+      }
     }
   }
 };

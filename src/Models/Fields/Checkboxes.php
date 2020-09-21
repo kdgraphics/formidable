@@ -2,10 +2,12 @@
 
 namespace Ryssbowh\Formidable\Models\Fields;
 
+use Ryssbowh\Formidable\Models\FieldTypes\ArrayField;
 use Ryssbowh\Formidable\Models\FormSubmission;
 
 class Checkboxes extends Radio
 {
+	protected $fieldTypeClass = ArrayField::class;
 	/**
 	 * inheritDoc
 	 **/

@@ -9,7 +9,7 @@ use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, Light
 use Ryssbowh\Formidable\Models\FormSubmission;
 use Ryssbowh\Formidable\Models\Rules\{BiggerThan, Contain, EqualTo, Off, On, Required, SameThan, Size, SmallerThan};
 use Ryssbowh\Formidable\Models\Settings;
-use Ryssbowh\Formidable\Services\{CaptchasService, ConditionsService, ConditionGroupsService, CsvExporterService, FieldsService, FormsService, NotificationsService, RulesService, SpamService, SubmissionsService};
+use Ryssbowh\Formidable\Services\{CaptchasService, ConditionsService, ConditionGroupsService, CsvExporterService, FieldsService, FormsService, NotificationsService, RulesService, SpamService, SubmissionsService, ScheduleService};
 use Ryssbowh\Formidable\Twig\TwigForms;
 use craft\base\Plugin;
 use craft\events\{RebuildConfigEvent, RegisterCpNavItemsEvent, RegisterTemplateRootsEvent, RegisterUrlRulesEvent};
@@ -21,6 +21,7 @@ use craft\web\twig\variables\Cp;
 use yii\base\Event;
 use yii\base\Model;
 use yii\log\Logger;
+use craft\console\Application as ConsoleApplication;
 
 class Formidable extends Plugin
 {
@@ -81,6 +82,10 @@ class Formidable extends Plugin
         $this->registerRules();
         $this->registerTwigExtension();
         $this->registerFrontTemplates();
+
+        if (Craft::$app->getRequest()->getIsConsoleRequest()) {
+            $this->controllerNamespace = 'Ryssbowh\\Formidable\\Console';
+        }
     }
 
     /**
@@ -187,6 +192,7 @@ class Formidable extends Plugin
             'rules' => RulesService::class,
             'conditions' => ConditionsService::class,
             'conditionGroups' => ConditionGroupsService::class,
+            'schedule' => ScheduleService::class,
     	]);
     }
 

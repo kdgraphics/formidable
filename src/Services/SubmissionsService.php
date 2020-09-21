@@ -33,9 +33,8 @@ class SubmissionsService extends Component
 		]);
 
 		if ($submission->save()) {
-			$submission->notified = $this->sendUserEmail($form, $formSubmission);
-			$submission->adminNotified = $this->sendAdminEmail($form, $formSubmission);
-			$submission->save(false);
+			$this->sendUserEmail($form, $formSubmission, $submission);
+			$this->sendAdminEmail($form, $formSubmission, $submission);
 		}
 
 		foreach ($form->fields as $field) {
@@ -210,7 +209,7 @@ class SubmissionsService extends Component
 	 * @param  FormSubmission $formSubmission
 	 * @return bool
 	 */
-	protected function sendUserEmail(Form $form, FormSubmission $formSubmission): bool
+	protected function sendUserEmail(Form $form, FormSubmission $formSubmission, Submission $submission): bool
 	{
 		$notification = $form->getNotify();
 		if (!$notification or !$form->notifyField) {
@@ -220,7 +219,7 @@ class SubmissionsService extends Component
 			Formidable::log("Can't notify user for form {$form->handle} : Value {$formSubmission->{$form->notifyField}} for field {$form->notifyField} is not a valid email");
  			return false;
 		}
-		return $notification->send($formSubmission, $formSubmission->{$form->notifyField});
+		return $notification->send($formSubmission, [$formSubmission->{$form->notifyField}], $submission);
 	}
 
 	/**
@@ -228,15 +227,15 @@ class SubmissionsService extends Component
 	 * 
 	 * @param  Form           $form
 	 * @param  FormSubmission $formSubmission
+	 * @param  Submission     $submission
 	 * @return bool
 	 */
-	protected function sendAdminEmail(Form $form, FormSubmission $formSubmission): bool
+	protected function sendAdminEmail(Form $form, FormSubmission $formSubmission, Submission $submission): bool
 	{
-		$notification = $form->getAdminNotify();
-		if (!$notification) {
+		if (!$notification = $form->getAdminNotify()) {
 			return false;
 		}
-		return $notification->send($formSubmission, explode(',', $form->notifyEmails));
+		return $notification->send($formSubmission, explode(',', $form->notifyEmails), $submission, true);
 	}
 
 	/**

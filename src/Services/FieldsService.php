@@ -206,6 +206,7 @@ class FieldsService extends Component
             $field->options = $data['options'];
             $field->fieldClass = $data['fieldClass'];
             $field->containerClass = $data['containerClass'];
+            $field->labelClass = $data['labelClass'];
             $field->instructions = $data['instructions'];
             $field->save(false);
             $transaction->commit();

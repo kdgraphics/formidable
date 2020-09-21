@@ -9,6 +9,7 @@ use Ryssbowh\Formidable\Models\FormSubmission;
 class Number extends Text
 {
 	protected $fieldTypeClass = NumberField::class;
+	public $step;
 
 	/**
 	 * inheritDoc
@@ -40,5 +41,13 @@ class Number extends Text
 	public function getFrontEndRules(FormSubmission $submission): array
 	{
 		return [[$this->name, 'number']];
+	}
+
+	/**
+	 * inheritDoc
+	 */
+	public function getExtraCpRules(): array
+	{
+		return array_merge(parent::getExtraCpRules(), [['step', 'number']]);
 	}
 }

@@ -1,6 +1,6 @@
 <template>
-	<div id="inspireform-rules" v-show="activeTab == 'rules'" class="flex">
-    <div class="flex sidebar" id="rules-sidebar">
+	<div id="formidable-rules" v-show="activeTab == 'rules'" class="flex">
+    <div class="flex sidebar" id="formidablerules-sidebar">
       <div id="registered-rules-btn" class="btn menubtn add icon">{{ t('Add rule') }}</div>
       <div class="menu">
         <ul>
@@ -23,7 +23,7 @@
         </ul>
       </nav>
     </div>
-    <div id="rules-container">
+    <div id="formidablerules-container">
       <forms-rule v-for="(rule, index) in rules" v-show="index == selectedRule" v-on:error="onError" v-on:change="onChange"
         :class="rule.type+'-rule form-rule'" 
         :key="'' + form.id + index"
@@ -184,7 +184,7 @@ export default {
 <style lang="scss">
 @import "~craftcms-sass/mixins";
 
-#rules-sidebar {
+#formidablerules-sidebar {
   width: calc(30% - 10px);
   background-color: white;
   padding: 0;
@@ -234,11 +234,11 @@ export default {
   }
 }
 
-#inspireform-rules {
+#formidable-rules {
   align-items: flex-start;
 }
 
-#rules-container {
+#formidablerules-container {
   width: 70%;
   .multiselect {
     height: 37px;

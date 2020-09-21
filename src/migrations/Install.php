@@ -59,6 +59,7 @@ class Install extends Migration
             'type' => $this->string(255)->notNull(),
             'fieldClass' => $this->string(255),
             'containerClass' => $this->string(255),
+            'labelClass' => $this->string(255),
             'instructions' => $this->text(),
             'options' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -74,6 +75,7 @@ class Install extends Migration
             'notified' => $this->boolean()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
+            'dateDeleted' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
         ]);
 
@@ -84,6 +86,7 @@ class Install extends Migration
             'values' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
+            'dateDeleted' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
         ]);
 
@@ -134,6 +137,19 @@ class Install extends Migration
             'uid' => $this->uid()
         ]);
 
+        $this->createTable('{{%formidable_emails}}', [
+            'id' => $this->primaryKey(),
+            'submission_id' => $this->integer(11),
+            'emails' => $this->json(),
+            'sent' => $this->dateTime(),
+            'forAdmin' => $this->boolean(false),
+            'sentFrom' => $this->string(255),
+            'subject' => $this->text(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid()
+        ]);
+
         $this->addForeignKey(null, '{{%formidable_forms}}', ['notify_id'], '{{%formidable_notifications}}', ['id'], 'SET NULL', null);
         $this->addForeignKey(null, '{{%formidable_forms}}', ['notifyAdmin_id'], '{{%formidable_notifications}}', ['id'], 'SET NULL', null);
         $this->addForeignKey(null, '{{%formidable_fields}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
@@ -144,6 +160,7 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%formidable_conditiongroups}}', ['rule_id'], '{{%formidable_rules}}', ['id'], 'CASCADE', null);
         $this->addForeignKey(null, '{{%formidable_conditions}}', ['rule_id'], '{{%formidable_conditions}}', ['id'], 'CASCADE', null);
         $this->addForeignKey(null, '{{%formidable_conditions}}', ['conditiongroup_id'], '{{%formidable_conditiongroups}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey(null, '{{%formidable_emails}}', ['submission_id'], '{{%formidable_submissions}}', ['id'], 'SET NULL', null);
     }
 
     /**

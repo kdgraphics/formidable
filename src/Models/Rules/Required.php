@@ -64,6 +64,7 @@ class Required extends Rule
 				return true;
 			case TextField::class:
 			case NumberField::class:
+				dd($value);
 				return strlen(trim($value)) > 0;
 		}
 		throw RuleException::typeNotValid($rule, get_class($field->fieldType()));

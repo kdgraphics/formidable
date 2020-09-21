@@ -14,11 +14,12 @@ export default {
   	...mapState(['hasUnsavedChanges', 'hasErrors', 'isAdding', 'isLoading']),
   },
   created() {
+    let _this = this;
     window.addEventListener('keydown', (event) => {
       if ((event.ctrlKey || event.metaKey) && event.key === 's') {
         if (this.hasUnsavedChanges && !this.isLoading && !this.hasErrors) {
           event.preventDefault();
-          this.save(event);
+          _this.saveForm(event);
         }
       }
     });

@@ -57,7 +57,7 @@ return [
 	'Default value' => 'Default value',
 	'Step' => 'Step',
 	'Extensions' => 'Extensions',
-	'Extensions allowed (no dots), empty for all' => 'Extensions allowed (no dots), empty for all',
+	'Extensions allowed (no dot), comma separated. leave empty for all' => 'Extensions allowed (no dot), comma separated. leave empty for all',
 	'Volume' => 'Volume',
 	'Max size' => 'Max size',
 	'In Mb, no value means unlimited' => 'In Mb, no value means unlimited',
@@ -99,5 +99,7 @@ return [
 	'{name} notification' => '{name} notification',
 	'This notification has been updated since you last loaded it, please reload the page' => 'This notification has been updated since you last loaded it, please reload the page',
 	'Field to compare against' => 'Field to compare against',
-	'Field' => 'Field'
+	'Field' => 'Field',
+	'Choice container class' => 'Choice container class',
+	'Choice label class' => 'Choice label class'
 ];

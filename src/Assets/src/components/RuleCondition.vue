@@ -92,7 +92,6 @@ export default {
   },
   created() {
     this.selectedField = find(this.fields, (field) => (field.name == this.condition.field));
-    console.log(this.registeredRules);
     this.selectedType = find(this.registeredRules, (rule) => (rule.type == this.condition.type));
     this.validate();
   },
@@ -102,7 +101,7 @@ export default {
     },
     fields: {
       handler: function () {
-        let field = find(this.fields, (field) => field.name == this.selectedField.name);
+        let field = find(this.fields, (field) => this.selectedField ? field.name == this.selectedField.name : null);
         this.selectedField = field;
         this.validate();
       },

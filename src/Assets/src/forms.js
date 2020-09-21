@@ -4,6 +4,7 @@ import FormsTabs from './components/FormsTabs.vue';
 import FormsMenu from './components/FormsMenu.vue';
 import FormsConfig from './components/FormsConfig.vue';
 import FormsFields from './components/FormsFields.vue';
+import FormsField from './components/FormsField.vue';
 import FormsRules from './components/FormsRules.vue';
 import FormsRule from './components/FormsRule.vue';
 import FormsSpam from './components/FormsSpam.vue';
@@ -38,6 +39,7 @@ for (const [type, component] of Object.entries(window.formFields)) {
 
 Vue.use(VueConfirmDialog);
 Vue.component('forms-rule', FormsRule);
+Vue.component('forms-field', FormsField);
 Vue.component('field-choices', Choices);
 Vue.component('multiselect', Multiselect);
 Vue.component('condition', RuleCondition);
