@@ -9,8 +9,6 @@ use craft\helpers\StringHelper;
 
 class GoogleV3 implements CaptchaInterface
 {
-	const SESSION_KEY_VALUE = 'formidable.captcha-uid.value';
-	const SESSION_KEY_NAME = 'formidable.captcha-uid.name';
 	/**
 	 * @inheritDoc
 	 */
@@ -32,7 +30,40 @@ class GoogleV3 implements CaptchaInterface
 	 */
 	public function render(): string
 	{
-		return \Craft::$app->view->renderTemplate('formidable/captchas/googleV3', ['captcha' => $this]);
+		return \Craft::$app->view->renderTemplate('formidable/captchas/googleV3', [
+			'captcha' => $this,
+			'siteKey' => $this->getSiteKey()
+		]);
+	}
+
+	/**
+	 * Get site key
+	 * 
+	 * @return string
+	 */
+	public function getSiteKey(): string
+	{
+		return \Craft::parseEnv(Formidable::$plugin->settings->siteKey);
+	}
+
+	/**
+	 * Get secret key
+	 * 
+	 * @return string
+	 */
+	public function getSecretKey(): string
+	{
+		return \Craft::parseEnv(Formidable::$plugin->settings->secretKey);
+	}
+
+	/**
+	 * Get acceptable score
+	 * 
+	 * @return int
+	 */
+	public function getAcceptableScore(): int
+	{
+		return (int)Formidable::$plugin->getSettings()->acceptableScore / 10;
 	}
 
 	/**
@@ -41,8 +72,8 @@ class GoogleV3 implements CaptchaInterface
 	public function verify(Form $form, array $posted): bool
 	{
         $client = new \GuzzleHttp\Client();
-        $secret = Formidable::$plugin->getSettings()->secretKey;
-        $score = Formidable::$plugin->getSettings()->acceptableScore / 10;
+        $secret = $this->getSecretKey();
+        $score = $this->getAcceptableScore();
         if (isset($posted['_recaptcha_response'])) {
             $response = $client->post('https://www.google.com/recaptcha/api/siteverify', [
                 'query' => [

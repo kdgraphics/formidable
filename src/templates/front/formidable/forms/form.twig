@@ -9,7 +9,6 @@
 	{% endif %}
 	{% for field in fields %}
 		{% set error = errors[field.name] is defined ? errors[field.name] : false %}
-		{{ d(error) }}
 		{% set oldValue = oldInput[field.name] is defined ? oldInput[field.name] : null %}
 		{% include field.frontendTemplate() %}
 	{% endfor %}

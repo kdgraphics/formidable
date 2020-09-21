@@ -2,21 +2,23 @@
 
 {% set errors = settings.getErrors() %}
 
-{{ forms.textField({
+{{ forms.autosuggestField({
     label: 'Google recaptcha site key'|t('formidable'),
     id: 'siteKey',
     name: 'siteKey',
-    value: settings['siteKey'],
-    warning: errors.siteKey.0 ?? false
-    })
+    value: settings.siteKey,
+    errors: settings.getErrors('siteKey'),
+    suggestEnvVars: true
+    }) 
 }}
-{{ forms.textField({
+{{ forms.autosuggestField({
     label: 'Google recaptcha secret key'|t('formidable'),
     id: 'secretKey',
     name: 'secretKey',
-    value: settings['secretKey'],
-    warning: errors.secretKey.0 ?? false
-    })
+    value: settings.secretKey,
+    errors: settings.getErrors('secretKey'),
+    suggestEnvVars: true
+    }) 
 }}
 {{ forms.selectField({
     label: 'Acceptable google captcha score'|t('formidable'),
@@ -24,7 +26,7 @@
     name: 'acceptableScore',
     options: {0:0,1:0.1,2:0.2,3:0.3,4:0.4,5:0.5,6:0.6,7:0.7,8:0.8,9:0.9},
     value: settings['acceptableScore'],
-    warning: errors.acceptableScore.0 ?? false
+    errors: settings.getErrors('acceptableScore'),
     })
 }}
 {{ forms.lightswitchField({
@@ -33,6 +35,6 @@
     name: 'sendInSchedule',
     instructions: 'You must install a cron that calls the command \'formidable/send-emails\' for this to work. This is recommended as sending emails can be a lengthy process.',
     on: settings['sendInSchedule'],
-    warning: errors.sendInSchedule.0 ?? false
+    errors: settings.getErrors('sendInSchedule'),
     })
 }}
