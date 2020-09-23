@@ -42,7 +42,12 @@ class SendEmailsController extends Controller
 	 */
 	protected function lock()
 	{
-		file_put_contents(\Craft::getAlias(self::LOCK_FILE), time());
+		$file = \Craft::getAlias(self::LOCK_FILE);
+		$folder = dirname($file);
+		if (!is_dir($folder)) {
+			mkdir($folder, 0755, true);
+		}
+		file_put_contents($file, time());
 	}
 
 	/**
