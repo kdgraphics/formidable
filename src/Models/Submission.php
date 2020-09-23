@@ -13,6 +13,7 @@ class Submission extends Model
 	public $adminNotified;
 	public $dateCreated;
 	public $dateUpdated;
+	public $dateDeleted;
 	public $form;
 	public $values;
 	public $uid;

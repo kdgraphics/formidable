@@ -78,7 +78,7 @@ class Install extends Migration
             'notified' => $this->boolean()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'dateDeleted' => $this->dateTime()->notNull(),
+            'dateDeleted' => $this->dateTime(),
             'uid' => $this->uid()
         ]);
 
@@ -90,7 +90,7 @@ class Install extends Migration
             'notified' => $this->boolean(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'dateDeleted' => $this->dateTime()->notNull(),
+            'dateDeleted' => $this->dateTime(),
             'uid' => $this->uid()
         ]);
 
