@@ -18,7 +18,7 @@ class SendEmailsController extends Controller
 	{
 		if ($this->isSending()) {
 			$this->stdout("Aborting : lock file exists, is the cron running already ?\n");
-			return ExitCode::OK;
+			return ExitCode::IOERR;
 		}
 		$this->lock();
 		try {
