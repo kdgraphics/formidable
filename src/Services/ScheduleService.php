@@ -73,7 +73,7 @@ class ScheduleService extends Component
 			$submitted = Spam::find()->where(['id' => $email->spam_id])->one();
 		}
 		$html = file_get_contents($contentFile);
-		if (Formidable::$plugin->notifications->sendEmail($submitted, $email->sentFrom, $email->emails, $email->subject, $html, $email->type)) {
+		if (Formidable::$plugin->notifications->sendEmail($submitted, json_decode($email->sentFrom, true), $email->emails, $email->subject, $html, $email->type)) {
 			$email->sent = new \Datetime;
 			$email->save();
 			@unlink($contentFile);
