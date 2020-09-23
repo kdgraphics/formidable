@@ -318,24 +318,20 @@ class NotificationsService extends Component
      * @param  FormSubmission    $submission
      * @return string
      */
-    protected function getHtml(NotificationModel $notification, FormSubmission $submission): string
+    protected function getHtml(NotificationModel $notification, FormSubmission $submission, $submitted): string
     {
         $oldMode = $this->view->getTemplateMode();
         $this->view->setTemplateMode(View::TEMPLATE_MODE_SITE);
         $variables = [
             'submission' => $submission,
+            'submitted' => $submitted,
             'notification' => $notification,
             'form' => $submission->getForm()
         ];
-        try {
-            if ($notification->method == 'template') {
-                $html = $this->view->renderTemplate($notification->template, $variables);
-            } else {
-                $html = $this->view->renderString($notification->html, $variables);
-            }
-        } catch (\Exception $e) {
-            Formidable::log($e->getMessage(), LogLevel::ERROR);
-            return '';
+        if ($notification->method == 'template') {
+            $html = $this->view->renderTemplate($notification->template, $variables);
+        } else {
+            $html = $this->view->renderString($notification->html, $variables);
         }
         $this->view->setTemplateMode($oldMode);
         return $html;

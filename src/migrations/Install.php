@@ -176,8 +176,8 @@ class Install extends Migration
     public function safeDown()
     {
         $this->dropTableIfExists('{{%formidable_rule_field}}');
-        $this->dropTableIfExists('{{%formidable_conditiongroups}}');
         $this->dropTableIfExists('{{%formidable_conditions}}');
+        $this->dropTableIfExists('{{%formidable_conditiongroups}}');
         $this->dropTableIfExists('{{%formidable_conditionnable_rule}}');
         $this->dropTableIfExists('{{%formidable_rules}}');
         $this->dropTableIfExists('{{%formidable_submissions_values}}');
