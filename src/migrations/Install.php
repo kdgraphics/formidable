@@ -111,7 +111,7 @@ class Install extends Migration
             'type' => $this->string(255)->notNull(),
             'value' => $this->string(255),
             'message' => $this->text(),
-            'fields' => $this->varchar(1000),
+            'fields' => $this->string(1000),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
