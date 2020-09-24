@@ -76,7 +76,7 @@ class Form extends Model
 
 	public function init()
 	{
-		$this->submitLabel = \Craft::t('formidable', 'Submit');
+		$this->submitLabel = $this->submitLabel ? $this->submitLabel : \Craft::t('formidable', 'Submit');
 		parent::init();
 	}
 

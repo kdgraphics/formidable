@@ -97,7 +97,7 @@ export default {
       return this.fields.filter((field) => field.order != this.field.order).map((field) => field.name);
     },
     isAlnum(field) {
-      return this.field[field].match(/^[0-9a-zA-Z-_]*$/);
+      return this.field[field].match(/^[0-9a-zA-Z-_\s]*$/);
     },
     validateAlnum(field) {
       if (!this.isAlnum(field)) {
