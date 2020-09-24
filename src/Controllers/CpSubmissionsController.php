@@ -2,7 +2,7 @@
 
 namespace Ryssbowh\Formidable\Controllers;
 
-use Ryssbowh\Formidable\Assets\SubmissionAsset;
+use Ryssbowh\Formidable\Assets\SubmissionsAsset;
 use Ryssbowh\Formidable\Models\Records\Submission;
 use yii\web\BadRequestHttpException;
 use yii\widgets\LinkPager;
@@ -11,7 +11,7 @@ class CpSubmissionsController extends Controller
 {
 	public function actionIndex()
 	{
-        $this->view->registerAssetBundle(SubmissionAsset::class);
+        $this->view->registerAssetBundle(SubmissionsAsset::class);
 
         return $this->renderTemplate('formidable/cp/submissions/index', [
             'forms' => $this->forms()->getAllAsArray()
@@ -24,19 +24,17 @@ class CpSubmissionsController extends Controller
         $this->requirePostRequest();
 
         $filters = $this->request()->getBodyParam('filters', []);
+        $sort = $this->request()->getBodyParam('sort', null);
         $page = $this->request()->getBodyParam('page', 0);
-        $pageSize = $this->request()->getBodyParam('pageSize', 0);
-        $dataProvider = $this->submissions()->get($filters, $page, $pageSize);
+        $pageSize = $this->request()->getBodyParam('pageSize', 20);
+        $dataProvider = $this->submissions()->get($filters, $sort, $page, $pageSize);
 
         return $this->asJson([
             'submissions' => $dataProvider->getModels(),
             'count' => $dataProvider->getCount(),
             'totalCount' => $dataProvider->getTotalCount(),
             'page' => $dataProvider->getPagination()->getPage(),
-            'pageCount' => $dataProvider->getPagination()->getPageCount(),
-            'pagination' => LinkPager::widget([
-                'pagination' => $dataProvider->getPagination(),
-            ])
+            'pageCount' => $dataProvider->getPagination()->getPageCount()
         ]);
     }
 

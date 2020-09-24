@@ -73,7 +73,7 @@ abstract class Rule extends Model implements RuleInterface
 	 */
 	public function getFields(): array
 	{
-		$fields = $this->fields;
+		$fields = json_decode($this->fields, true);
 		return array_filter($this->getForm()->fields, function ($field) use ($fields) {
 			return in_array($field->name, $fields);
 		});

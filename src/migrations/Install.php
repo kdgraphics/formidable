@@ -111,7 +111,7 @@ class Install extends Migration
             'type' => $this->string(255)->notNull(),
             'value' => $this->string(255),
             'message' => $this->text(),
-            'fields' => $this->json(),
+            'fields' => $this->varchar(1000),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
@@ -145,7 +145,7 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'submission_id' => $this->integer(11),
             'spam_id' => $this->integer(11),
-            'emails' => $this->json(),
+            'emails' => $this->string(255),
             'sent' => $this->dateTime(),
             'sentFrom' => $this->string(255),
             'subject' => $this->text(),

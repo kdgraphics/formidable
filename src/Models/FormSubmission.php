@@ -49,7 +49,7 @@ class FormSubmission extends DynamicModel
 			$rules = array_merge($rules, $field->getFrontEndRules($this));
 		}
 		foreach ($this->_rules as $rule) {
-			$rules[] = [$rule->fields, 'validateRule', 'params' => ['rule' => $rule], 'skipOnEmpty' => false, 'skipOnError' => false];
+			$rules[] = [json_decode($rule->fields, true), 'validateRule', 'params' => ['rule' => $rule], 'skipOnEmpty' => false, 'skipOnError' => false];
 		}
 		return $rules;
 	}

@@ -26,7 +26,7 @@ class SendEmailsController extends Controller
 			$emails = $schedule->getUnsent();
 			$sent = 0;
 			foreach ($emails as $email) {
-				$this->stdout("Sending email ".$email->uid." to ".implode(', ', $email->emails)."...\n");
+				$this->stdout("Sending email ".$email->uid." to ".$email->emails."...\n");
 				$sent += $schedule->send($email);
 			}
 		} catch (Exception $e) {

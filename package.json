@@ -16,6 +16,7 @@
     "@vue/cli-plugin-babel": "^4.5.4",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
+    "chart.js": "^2.9.3",
     "craftcms-sass": "^3.4.0",
     "cross-env": "^7.0.2",
     "css-loader": "^3.4.2",

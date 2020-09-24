@@ -32,10 +32,10 @@ class ScheduleService extends Component
 	public function create($submitted, $sentFrom, array $emails, string $subject, string $html, string $type): bool
 	{
 		$email = new Email([
-			'emails' => $emails,
+			'emails' => json_encode($emails),
 			'submission_id' => ($submitted instanceof Submission) ? $submitted->id : null,
 			'spam_id' => ($submitted instanceof Spam) ? $submitted->id : null,
-			'sentFrom' => is_array($sentFrom) ? $sentFrom : [$sentFrom],
+			'sentFrom' => json_encode(is_array($sentFrom) ? $sentFrom : [$sentFrom]),
 			'subject' => $subject,
 			'type' => $type,
 			'uid' => $this->createStorageFile($html)
@@ -72,13 +72,14 @@ class ScheduleService extends Component
 		} elseif ($email->spam_id) {
 			$submitted = Spam::find()->where(['id' => $email->spam_id])->one();
 		}
+		$emails = json_decode($email->emails, true);
 		$html = file_get_contents($contentFile);
-		if (Formidable::$plugin->notifications->sendEmail($submitted, json_decode($email->sentFrom, true), $email->emails, $email->subject, $html, $email->type)) {
+		if (Formidable::$plugin->notifications->sendEmail($submitted, json_decode($email->sentFrom, true), $emails, $email->subject, $html, $email->type)) {
 			$email->sent = new \Datetime;
 			$email->save();
 			@unlink($contentFile);
 		}
-		return sizeof($email->emails);
+		return sizeof($emails);
 	}
 
 	/**

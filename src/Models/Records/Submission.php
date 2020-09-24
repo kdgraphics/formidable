@@ -4,9 +4,12 @@ namespace Ryssbowh\Formidable\Models\Records;
 
 use Ryssbowh\Formidable\Models\Submission as SubmissionModel;
 use craft\db\ActiveRecord;
+use craft\db\SoftDeleteTrait;
 
 class Submission extends ActiveRecord
 {	
+	use SoftDeleteTrait;
+	
 	public static function tableName()
 	{
 		return '{{%formidable_submissions}}';
@@ -15,7 +18,6 @@ class Submission extends ActiveRecord
 	public function toModel()
 	{
 		$model = new SubmissionModel($this->getAttributes());
-		$model->form = $this->form->toModel();
 		$model->values = array_map(function($value){
 			return $value->toModel();
 		}, $this->values);

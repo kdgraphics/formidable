@@ -143,11 +143,12 @@ class SubmissionsService extends Component
 	 * Get some submissions, filtered and pagered
 	 * 
 	 * @param  array   $filters 
+	 * @param  array   $sort
 	 * @param  integer $page
 	 * @param  integer $pageSize
 	 * @return ActiveDataProvider
 	 */
-	public function get(array $filters = [], $page = 0, $pageSize = 10): ActiveDataProvider
+	public function get(array $filters = [], ?array $sort = null, $page = 0, $pageSize = 10): ActiveDataProvider
 	{
 		$provider = new SubmissionProvider;
 		$provider->setPagination([
@@ -155,7 +156,7 @@ class SubmissionsService extends Component
 			'page' => $page
 		]);
 
-		return $this->filterDataProvider($provider, $filters);
+		return $this->filterDataProvider($provider, $filters, $sort);
 	}
 
 	/**
@@ -167,9 +168,8 @@ class SubmissionsService extends Component
 	public function getAll(array $filters = []): ActiveDataProvider
 	{
 		$provider = new SubmissionProvider;
-		$provider->query->orderBy(['dateCreated' => SORT_ASC]);
 
-		return $this->filterDataProvider($provider, $filters);
+		return $this->filterDataProvider($provider, $filters, ['field' => 'dateCreated', 'side' => 'asc']);
 	}
 
 	/**
@@ -200,29 +200,39 @@ class SubmissionsService extends Component
 	 * @param  array              $filters
 	 * @return SubmissionProvider
 	 */
-	protected function filterDataProvider(SubmissionProvider $provider, array $filters): SubmissionProvider
+	protected function filterDataProvider(SubmissionProvider $provider, array $filters, ?array $sort): SubmissionProvider
 	{
-		if (isset($filters['form']) and is_numeric($filters['form'])) {
-			$provider->query->andWhere(['form_id' => $filters['form']]);
+		if (isset($filters['trashed'])) {
+			if ($filters['trashed'] == null) {
+				$provider->withTrashed();
+			} elseif ($filters['trashed'] === true) {
+				$provider->trashed();
+			}
 		}
-		if (isset($filters['read']) and $filters['read'] != '') {
+		if (isset($filters['forms']) and is_array($filters['forms'])) {
+			$provider->query->andWhere(['form_id' => $filters['forms']]);
+		}
+		if (isset($filters['read']) and $filters['read'] !== null) {
 			$provider->query->andWhere(['read' => $filters['read']]);
 		}
-		if (isset($filters['notified'])  and $filters['notified'] != '') {
-			$provider->query->andWhere(['notified' => $filters['notified']]);
-		}
-		if (isset($filters['adminNotified']) and $filters['adminNotified'] != '') {
-			$provider->query->andWhere(['adminNotified' => $filters['adminNotified']]);
-		}
-		if (isset($filters['submittedFrom']['date']) and $filters['submittedFrom']['date'] != '') {
-			$date = $this->parseDateFilter($filters['submittedFrom']);
+		if (isset($filters['dateFrom']['date']) and $filters['dateFrom']['date']) {
+			$date = $this->parseDateFilter($filters['dateFrom']);
 			$provider->query->andWhere(['>=', 'dateCreated', $date]);
 		}
-		if (isset($filters['submittedFrom']['date']) and $filters['submittedTo']['date'] != '') {
-			$date = $this->parseDateFilter($filters['submittedTo'], [23,59,59]);
+		if (isset($filters['dateTo']['date']) and $filters['dateTo']['date']) {
+			$date = $this->parseDateFilter($filters['dateTo'], [23,59,59]);
 			$provider->query->andWhere(['<=', 'dateCreated', $date]);
 		}
-
+		if ($sort && strpos($sort['field'], 'form.') !== false) {
+			$provider->query->with(['form' => function ($query) use ($sort) {
+				$elems = explode('.', $sort['field']);
+				$query->orderBy($elems[1], $sort['side'] == 'asc' ? SORT_ASC : SORT_DESC);
+			}]);
+		} else {
+			$provider->query->with('form');
+			$provider->query->orderBy($sort['field'], $sort['side'] == 'asc' ? SORT_ASC : SORT_DESC);
+		}
+		// dd($provider->query->createCommand()->getRawSql());
         return $provider;
 	}
 

@@ -8,7 +8,6 @@ import FormsField from './components/FormsField.vue';
 import FormsRules from './components/FormsRules.vue';
 import FormsRule from './components/FormsRule.vue';
 import FormsSpam from './components/FormsSpam.vue';
-import FormsSubmissions from './components/FormsSubmissions.vue';
 import FormsToolbar from './components/FormsToolbar.vue';
 import ConfirmDialog from './components/ConfirmDialog.vue';
 import RuleCondition from './components/RuleCondition.vue';
@@ -55,7 +54,6 @@ new Vue({
     FormsFields,
     FormsRules,
     FormsSpam,
-    FormsSubmissions,
     FormsToolbar,
     ConfirmDialog,
   }

@@ -32,7 +32,7 @@ class Submission extends Model
 	public function toArray(array $fields = [], array $expand = [], $recursive = true)
 	{
 		$array = parent::toArray($fields, $expand, $recursive);
-		$array['dateCreated'] = $this->dateCreated->format('d/m/Y');
+		$array['dateCreated'] = $this->dateCreated->format('d/m/Y H:i');
 		return $array;
 	}
 }

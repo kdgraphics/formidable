@@ -21,6 +21,7 @@ class Rule extends ActiveRecord
 	{
 		$model = Formidable::$plugin->rules->getRegistered($this->type);
 		$model = new $model($this->getAttributes());
+		$model->fields = json_decode($this->fields, true);
 		$model->conditions = array_map(function ($condition) {
 			return $condition->toModel();
 		}, $this->conditions);

@@ -258,28 +258,31 @@ class Formidable extends Plugin
     protected function registerCpRoutes()
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
+            if (\Craft::$app->config->getGeneral()->allowAdminChanges) {
+                $event->rules = array_merge($event->rules, [
+                    'formidable' => 'formidable/cp-forms/form',
+                    'formidable/forms' => 'formidable/cp-forms/form',
+                    'formidable/forms/get/<id:\d+>' => 'formidable/cp-forms/get',
+                    'formidable/forms/new' => 'formidable/cp-forms/new',
+                    'formidable/forms/add' => 'formidable/cp-forms/form',
+                    'formidable/forms/add/<tab:config>' => 'formidable/cp-forms/form',
+                    'formidable/forms/add/<tab:fields>' => 'formidable/cp-forms/form',
+                    'formidable/forms/add/<tab:rules>' => 'formidable/cp-forms/form',
+                    'formidable/forms/save' => 'formidable/cp-forms/save',
+                    'formidable/forms/<id:\d+>' => 'formidable/cp-forms/form',
+                    'formidable/forms/<id:\d+>/<tab:config>' => 'formidable/cp-forms/form',
+                    'formidable/forms/<id:\d+>/<tab:fields>' => 'formidable/cp-forms/form',
+                    'formidable/forms/<id:\d+>/<tab:rules>' => 'formidable/cp-forms/form',
+                    'formidable/forms/delete/<id:\d+>' => 'formidable/cp-forms/delete',
+                    'formidable/notifications' => 'formidable/cp-notifications',
+                    'formidable/notifications/get/<id:\d+>' => 'formidable/cp-notifications/get',
+                    'formidable/notifications/add' => 'formidable/cp-notifications',
+                    'formidable/notifications/save' => 'formidable/cp-notifications/save',
+                    'formidable/notifications/edit/<id:\d+>' => 'formidable/cp-notifications',
+                    'formidable/notifications/delete/<id:\d+>' => 'formidable/cp-notifications/delete'
+                ]);
+            }
             $event->rules = array_merge($event->rules, [
-                'formidable' => 'formidable/cp-forms/form',
-                'formidable/forms' => 'formidable/cp-forms/form',
-                'formidable/forms/get/<id:\d+>' => 'formidable/cp-forms/get',
-                'formidable/forms/new' => 'formidable/cp-forms/new',
-                'formidable/forms/add' => 'formidable/cp-forms/form',
-                'formidable/forms/add/<tab:config>' => 'formidable/cp-forms/form',
-                'formidable/forms/add/<tab:fields>' => 'formidable/cp-forms/form',
-                'formidable/forms/add/<tab:rules>' => 'formidable/cp-forms/form',
-                'formidable/forms/save' => 'formidable/cp-forms/save',
-                'formidable/forms/<id:\d+>' => 'formidable/cp-forms/form',
-                'formidable/forms/<id:\d+>/<tab:config>' => 'formidable/cp-forms/form',
-                'formidable/forms/<id:\d+>/<tab:fields>' => 'formidable/cp-forms/form',
-                'formidable/forms/<id:\d+>/<tab:rules>' => 'formidable/cp-forms/form',
-                'formidable/forms/delete/<id:\d+>' => 'formidable/cp-forms/delete',
-                'formidable/notifications' => 'formidable/cp-notifications',
-                'formidable/notifications/get/<id:\d+>' => 'formidable/cp-notifications/get',
-                'formidable/notifications/add' => 'formidable/cp-notifications',
-                'formidable/notifications/save' => 'formidable/cp-notifications/save',
-                'formidable/notifications/edit/<id:\d+>' => 'formidable/cp-notifications',
-                'formidable/notifications/delete/<id:\d+>' => 'formidable/cp-notifications/delete',
-                'formidable/fields/add/<handle:\w+>' => 'formidable/cp-fields/create',
                 'formidable/submissions' => 'formidable/cp-submissions',
                 'formidable/submissions/load' => 'formidable/cp-submissions/load',
                 'formidable/submissions/loadAll' => 'formidable/cp-submissions/load-all',
