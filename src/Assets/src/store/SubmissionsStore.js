@@ -61,24 +61,68 @@ export default new Vuex.Store({
     setSubmissions(state, value) {
       state.submissions = value;
     },
-    markSelectedAsRead(state, ids) {
+    markAsRead(state, ids) {
       let sub;
       for (let index in state.submissions) {
         sub = state.submissions[index];
-        if (state.selected.includes(sub.id)) {
+        if (ids.includes(sub.id)) {
           Vue.set(state.submissions[index], 'read', 1);
         }
       }
     },
-    deleteSelected(state, ids) {
+    deleteMany(state, ids) {
       let sub;
       for (let index in state.submissions) {
         sub = state.submissions[index];
-        if (state.selected.includes(sub.id)) {
+        if (ids.includes(sub.id)) {
           Vue.delete(state.submissions, index);
         }
       }
       state.selected = [];
     }
+  },
+  actions: {
+    deleteMany({commit, state}, ids) {
+      let data = {};
+      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
+      data.ids = ids;
+      return new Promise((resolve, reject) => {
+        axios.post('/admin/formidable/submissions/delete-many', data)
+          .then((response) => {
+            commit('deleteMany', ids);
+            Craft.cp.displayNotice(response.data.message);
+            resolve(response);
+          })
+          .catch((error) => {
+            console.log(error);
+            reject(error);
+          })
+      });
+    },
+    deleteSelection({commit, state, dispatch}) {
+      dispatch('deleteMany', state.selected);
+    },
+    markAsRead({commit, state}, ids) {
+      let data = {};
+      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
+      data.ids = ids;
+      return new Promise((resolve, reject) => {
+        axios.post('/admin/formidable/submissions/set-as-read', data)
+          .then((response) => {
+            commit('markAsRead', ids);
+            resolve(response);
+          })
+          .catch((error) => {
+            console.log(error);
+            reject(error);
+          })
+      });
+    },
+    markSelectedAsRead ({commit, state, dispatch}) {
+      dispatch('markAsRead', state.selected)
+        .then((response) => {
+          Craft.cp.displayNotice(response.data.message);
+        })
+    },
   }
 });

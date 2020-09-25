@@ -8,7 +8,7 @@
       </button>
       <div class="menu">
         <ul class="padded">
-          <li><a href="#" :class="filters.trashed === null ? 'sel' : ''" v-on:click="setTrashed(null)"><span class="status"></span>{{ t('All') }}</a></li>
+          <li><a href="#" :class="filters.trashed === -1 ? 'sel' : ''" v-on:click="setTrashed(-1)"><span class="status"></span>{{ t('All') }}</a></li>
           <li><a href="#" :class="filters.trashed === false ? 'sel' : ''" v-on:click="setTrashed(false)">{{ t('Not trashed') }}</a></li>
           <li><a href="#" :class="filters.trashed === true ? 'sel' : ''" v-on:click="setTrashed(true)"><span class="icon" data-icon="trash"></span>{{ t('Trashed') }}</a></li>
         </ul>
@@ -22,7 +22,7 @@
       </button>
       <div class="menu">
         <ul class="padded">
-          <li><a href="#" :class="filters.read === null ? 'sel' : ''" v-on:click="setRead(null)">{{ t('All') }}</a></li>
+          <li><a href="#" :class="filters.read === -1 ? 'sel' : ''" v-on:click="setRead(-1)">{{ t('All') }}</a></li>
           <li><a href="#" :class="filters.read === true ? 'sel' : ''" v-on:click="setRead(true)">{{ t('Read') }}</a></li>
           <li><a href="#" :class="filters.read === false ? 'sel' : ''" v-on:click="setRead(false)">{{ t('Not read') }}</a></li>
         </ul>
@@ -60,7 +60,7 @@
       </button>
       <div class="menu">
         <ul class="padded">
-          <li><a href="#" v-on:click="markAsRead">{{ t('Mark as read') }}</a></li>
+          <li><a href="#" v-on:click="markSelectedAsRead">{{ t('Mark as read') }}</a></li>
           <li><a href="#" v-on:click="deleteSelection">{{ t('Delete') }}</a></li>
         </ul>
       </div>
@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from 'vuex';
+import { mapMutations, mapState, mapActions } from 'vuex';
 import axios from 'axios';
 import { keys, remove } from 'lodash';
 
@@ -109,33 +109,8 @@ export default {
         this.addForm(id);
       }
     },
-    markAsRead () {
-      let data = {};
-      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
-      data.ids = this.selected;
-      axios.post('/admin/formidable/submissions/set-as-read', data)
-        .then((response) => {
-          Craft.cp.displayNotice(response.data.message);
-          this.markSelectedAsRead();
-        })
-        .catch((error) => {
-          console.log(error);
-        })
-    },
-    deleteSelection () {
-      let data = {};
-      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
-      data.ids = this.selected;
-      axios.post('/admin/formidable/submissions/delete-many', data)
-        .then((response) => {
-          Craft.cp.displayNotice(response.data.message);
-          this.deleteSelected();
-        })
-        .catch((error) => {
-          console.log(error);
-        })
-    },
-    ...mapMutations(['setTimezone', 'setForms', 'setPager', 'setTrashed', 'setRead', 'setDateTo', 'setDateFrom', 'addForm', 'removeForm', 'setIsChartView', 'markSelectedAsRead', 'deleteSelected'])
+    ...mapMutations(['setTimezone', 'setForms', 'setPager', 'setTrashed', 'setRead', 'setDateTo', 'setDateFrom', 'addForm', 'removeForm', 'setIsChartView', 'deleteSelected']),
+    ...mapActions(['markSelectedAsRead', 'deleteSelection'])
   }
 };
 

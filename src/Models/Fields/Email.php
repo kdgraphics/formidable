@@ -39,4 +39,12 @@ class Email extends Text
 		$rules[] = [$this->name, 'email'];
 		return $rules;
 	}
+
+	/**
+	 * inheritDoc
+	 */
+	public static function getSubmissionValue($value)
+	{
+		return '<a href="mailto:'.$value.'">'.$value.'</a>';
+	}
 }

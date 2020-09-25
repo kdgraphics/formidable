@@ -120,8 +120,11 @@ class SubmissionsService extends Component
 	 */
 	public function delete(int $id): bool
 	{
-		if ($submission = Submission::findOne(['id' => $id]) and $submission->delete()) {
-			return true;
+		if ($submission = Submission::findOne(['id' => $id])) {
+			if ($submission->dateDeleted) {
+				return $submission->delete();
+			}
+			return $submission->softDelete();
 		}
 		return false;
 	}
@@ -187,13 +190,13 @@ class SubmissionsService extends Component
 	 */
 	public function get(array $filters = [], ?array $sort = null, $page = 0, $pageSize = 10): ActiveDataProvider
 	{
-		$provider = new SubmissionProvider;
+		$provider = $this->filteredDataProvider($filters, $sort);
 		$provider->setPagination([
 			'defaultPageSize' => $pageSize,
 			'page' => $page
 		]);
 
-		return $this->filterDataProvider($provider, $filters, $sort);
+		return $provider;
 	}
 
 	/**
@@ -204,10 +207,10 @@ class SubmissionsService extends Component
 	 */
 	public function getAll(array $filters = []): ActiveDataProvider
 	{
-		$provider = new SubmissionProvider;
+		$provider = $this->filteredDataProvider($filters, ['field' => 'dateCreated', 'side' => 'asc']);
 		$provider->setPagination(false);
 
-		return $this->filterDataProvider($provider, $filters, ['field' => 'dateCreated', 'side' => 'asc']);
+		return $provider;
 	}
 
 	/**
@@ -256,19 +259,14 @@ class SubmissionsService extends Component
 	 * @param  array              $filters
 	 * @return SubmissionProvider
 	 */
-	protected function filterDataProvider(SubmissionProvider $provider, array $filters, ?array $sort): SubmissionProvider
+	protected function filteredDataProvider(array $filters, ?array $sort): SubmissionProvider
 	{
-		if (isset($filters['trashed'])) {
-			if ($filters['trashed'] == null) {
-				$provider->withTrashed();
-			} elseif ($filters['trashed'] === true) {
-				$provider->trashed();
-			}
-		}
+		$provider = new SubmissionProvider(['trashed' => $filters['trashed'] ?? false]);
+		
 		if (isset($filters['forms']) and is_array($filters['forms'])) {
 			$provider->query->andWhere(['form_id' => $filters['forms']]);
 		}
-		if (isset($filters['read']) and $filters['read'] !== null) {
+		if (isset($filters['read']) and $filters['read'] !== -1) {
 			$provider->query->andWhere(['read' => $filters['read']]);
 		}
 		if (isset($filters['dateFrom']['date']) and $filters['dateFrom']['date']) {

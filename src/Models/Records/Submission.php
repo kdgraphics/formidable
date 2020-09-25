@@ -21,6 +21,7 @@ class Submission extends ActiveRecord
 		$model->values = array_map(function($value){
 			return $value->toModel();
 		}, $this->values);
+		$model->form  = $this->form;
 		$model->_record = $this;
 		return $model;
 	}

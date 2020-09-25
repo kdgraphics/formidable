@@ -154,7 +154,7 @@ abstract class Field extends Model implements FieldInterface
 	/**
 	 * @inheritDoc
 	 */
-	public function getFriendlyValue($value)
+	public static function getFriendlyValue($value)
 	{
 		return $value;
 	}
@@ -164,7 +164,7 @@ abstract class Field extends Model implements FieldInterface
 	 */
 	public static function getSubmissionValue($value)
 	{
-		return $this->getFriendlyValue();
+		return static::getFriendlyValue($value);
 	}
 
 	/**
@@ -172,6 +172,6 @@ abstract class Field extends Model implements FieldInterface
 	 */
 	public static function getCsvValue($value)
 	{
-		return $this->getFriendlyValue();
+		return static::getFriendlyValue($value);
 	}
 }

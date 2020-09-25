@@ -4,7 +4,7 @@
       <table class="data fullwidth">
         <thead>
           <tr>
-            <th class="checkbox-cell selectallcontainer orderable" role="checkbox" tabindex="0" aria-checked="false"><div class="checkbox"></div></th>
+            <th class="checkbox-cell selectallcontainer orderable" role="checkbox" tabindex="0" aria-checked="false"><div class="checkbox" @click="toggleSelectAll"></div></th>
             <th scope="col" data-attribute="form" :class="sort.field == 'form.name' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('form.name')">{{ t('Form') }}</th>
             <th scope="col" data-attribute="submitted" :class="sort.field == 'dateCreated' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('dateCreated')">{{ t('Submitted') }}</th>
             <th scope="col" data-attribute="read" :class="sort.field == 'read' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('read')">{{ t('Read') }}</th>
@@ -13,13 +13,16 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="submission in submissions" :class="{'sel': selected.includes(submission.id), 'unread': !submission.read }">
+          <tr v-for="submission,index in submissions" :class="{'sel': selected.includes(submission.id), 'unread': !submission.read }">
             <td class="checkbox-cell"><div class="checkbox" title="Select" v-on:click="toggleSelect(submission.id)"></div></td>
             <td data-title="Form" data-attr="form"><a target="_blank" :href="'/admin/formidable/forms/'+submission.form.id">{{ submission.form.name }}</a></td>
             <td data-title="Submitted" data-attr="submitted">{{ submission.dateCreated }}</td>
             <td data-title="Read" class="read" data-attr="read">{{ submission.read ? t('Yes') : t('No') }}</td>
             <td data-title="Notified" data-attr="notified">{{ submission.notified ? t('Yes') : t('No') }}</td>
-            <td data-title="Open" data-attr="open" v-on:click="open(submission.id)"><span class="icon icon-mask categories"><span data-icon="categories"></span></span></td>
+            <td data-title="Open" data-attr="open" v-on:click="open(index)"><span class="icon icon-mask categories"><span data-icon="categories"></span></span></td>
+          </tr>
+          <tr v-if="submissions.length == 0">
+            <td colspan="6">{{ t('No submissions found') }}</td>
           </tr>
         </tbody>
       </table>
@@ -43,17 +46,24 @@
           <div class="sidebar">
             <div class="heading"><span>{{ t('Details') }}</span></div>
             <ul class="sidebar-content">
-              <li>{{ t('Created') }}: {{ viewed.dateCreated }}</li>
+              <li>{{ t('Created') }}: {{ viewed ? viewed.dateCreated : '' }}</li>
+              <li>{{ t('Notified') }}: {{ viewed ? (viewed.notified ? t('Yes') : t('No')) : '' }}</li>
+              <li>{{ t('Admin Notified') }}: {{ viewed ? (viewed.adminNotified ? t('Yes') : t('No')) : '' }}</li>
+              <li>{{ t('Form') }}: <a :href="'/admin/formidable/forms/'+viewed.form.id" target="_blank">{{ viewed ? viewed.form.name : ''}}</a></li>
             </ul>
           </div>
           <div class="main">
-            <p>hello</p>
+            <div class="heading"><span>{{ t('Submission') }}</span></div>
+            <ul class="submission">
+              <li class="field" v-if="viewed" v-for="value in viewed.values">{{ value.field }}: <span v-html="value.friendly"></span></li>
+            </ul>
           </div>
         </div>
       </div>
       <div class="footer">
-        <div class="buttons right">
-          <button type="button" class="btn" @click="closeModal">{{ t('Close') }}</button>
+        <div class="buttons">
+          <button type="button" class="btn submit" @click="deleteMany([viewed.id]);popup.hide()">{{ t('Delete') }}</button>
+          <button type="button" class="btn" @click="popup.hide()">{{ t('Close') }}</button>
         </div>
       </div>
     </div>
@@ -61,18 +71,17 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from 'vuex';
+import { mapMutations, mapState, mapActions } from 'vuex';
 import axios from 'axios';
 import { pull, range } from 'lodash';
 import Chart from 'chart.js/dist/Chart';
 
 export default {
   computed: {
-    ...mapState(['filters', 'isChartView', 'submissions'])
+    ...mapState(['filters', 'isChartView', 'submissions', 'selected'])
   },
   data: function () {
     return {
-      selected: [],
       chartData: {},
       chart: null,
       chartData: false,
@@ -82,7 +91,11 @@ export default {
         side: 'desc'
       },
       pager: {},
-      viewed: {}
+      viewed: {
+        form: {},
+        values: {}
+      },
+      popup: null
     }
   },
   watch: {
@@ -104,7 +117,6 @@ export default {
     filters: {
       handler: function() {
         this.chartData = false;
-        this.setSubmissions = [];
         if (this.isChartView) {
           this.fetchAll();
         } else {
@@ -134,9 +146,23 @@ export default {
     });
   },
   methods: {
+    toggleSelectAll() {
+      if (this.selected.length) {
+        this.setSelected([]);
+      } else {
+        this.setSelected(this.submissions.map((sub) => sub.id));
+      }
+    },
     open: function (id) {
       this.viewed = this.submissions[id];
-      new Garnish.Modal(this.$refs.modal);
+      if (this.popup) {
+        this.popup.show();
+      } else {
+        this.popup = new Garnish.Modal(this.$refs.modal);
+      }
+      if (!this.viewed.read) {
+        this.markAsRead([this.viewed.id]);
+      }
     },
     changePage(page) {
       this.$set(this.pager, 'page', page);
@@ -204,7 +230,8 @@ export default {
           this.isFetching = false;
         });
     },
-    ...mapMutations(['setSelected', 'setSort', 'setSubmissions'])
+    ...mapMutations(['setSelected', 'setSort', 'setSubmissions']),
+    ...mapActions(['markAsRead', 'deleteMany'])
   }
 };
 
@@ -228,6 +255,31 @@ export default {
   }
 }
 #submission-modal {
-
+  .heading span {
+    font-size: 13px !important;
+  }
+  li {
+    margin: 5px 0;
+  }
+  .sidebar-content {
+    padding: 20px;
+    padding-top: 10px;
+  }
+  .submission {
+    margin-top: 20px;
+  }
+  .main {
+    .heading {
+      display: inline-block;
+      padding: 0 5px;
+      margin: 0 -5px;
+      text-transform: uppercase;
+      color: #9aa5b1;
+      font-weight: bold;
+    }
+  }
+  .buttons{
+    justify-content: space-between;
+  }
 }
 </style>

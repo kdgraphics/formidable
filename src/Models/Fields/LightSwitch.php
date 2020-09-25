@@ -60,7 +60,7 @@ class LightSwitch extends Field
 	/**
 	 * @inheritDoc
 	 */
-	public function getFriendlyValue($value)
+	public static function getFriendlyValue($value)
 	{
 		return $value ? \Craft::t('site', 'Yes') : \Craft::t('site', 'No');
 	}

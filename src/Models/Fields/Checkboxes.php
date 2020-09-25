@@ -68,7 +68,7 @@ class Checkboxes extends Radio
 	/**
 	 * @inheritDoc
 	 */
-	public function getFriendlyValue($value)
+	public static function getFriendlyValue($value)
 	{
 		return is_array($value) ? implode(', ', $value) : $value;
 	}

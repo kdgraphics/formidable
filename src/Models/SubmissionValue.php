@@ -12,16 +12,8 @@ class SubmissionValue extends Model
 	public $submission_id;
 	public $value;
 	public $type;
+	public $friendly;
 	public $dateCreated;
 	public $dateUpdated;
 	public $uid;
-
-	public function getValue()
-	{
-		$field = Formidable::$plugin->fields->getRegistered($this->type);
-		if (!$field) {
-			return $this->value;
-		}
-		return $field::getSubmissionValue($this->value);
-	}
 }

@@ -83,5 +83,5 @@ interface FieldInterface
 	 * @param  mixed $value
 	 * @return mixed
 	 */
-	public function getFriendlyValue($value);
+	public static function getFriendlyValue($value);
 }

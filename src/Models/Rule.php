@@ -146,7 +146,7 @@ abstract class Rule extends Model implements RuleInterface
 	public function i18Message(FieldInterface $field, $value): string
 	{
 		$message = \Craft::t('site', $this->message);
-		$message = str_replace('{value}', $field->getFriendlyValue($value), $message);
+		$message = str_replace('{value}', $field::getFriendlyValue($value), $message);
 		$matches = [];
 		preg_match_all("/{field\.([\w-]+)}/", $message, $matches);
 		foreach ($matches[1] ?? [] as $match) {

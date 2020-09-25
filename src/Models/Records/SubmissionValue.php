@@ -2,6 +2,7 @@
 
 namespace Ryssbowh\Formidable\Models\Records;
 
+use Ryssbowh\Formidable\Formidable;
 use Ryssbowh\Formidable\Models\SubmissionValue as SubmissionValueModel;
 use craft\db\ActiveRecord;
 
@@ -14,6 +15,9 @@ class SubmissionValue extends ActiveRecord
 
 	public function toModel()
 	{
-		return new SubmissionValueModel($this->getAttributes());
+		$model = new SubmissionValueModel($this->getAttributes());
+		$field = Formidable::$plugin->fields->getRegistered($this->type);
+		$model->friendly = $field::getSubmissionValue($this->value);
+		return $model;
 	}
 }
