@@ -6,6 +6,8 @@ use Ryssbowh\Formidable\Models\FormSubmission;
 
 class Textarea extends Text
 {
+	public $rows;
+
 	/**
 	 * inheritDoc
 	 **/
@@ -28,5 +30,15 @@ class Textarea extends Text
 	public function backendTemplate(): string
 	{
 		return 'formidable/cp/fields/textarea';
+	}
+
+	/**
+	 * inheritDoc
+	 **/
+	public function getExtraCpRules(): array
+	{
+		$rules = parent::getExtraCpRules();
+		$rules[] = ['rows', 'number'];
+		return $rules;
 	}
 }

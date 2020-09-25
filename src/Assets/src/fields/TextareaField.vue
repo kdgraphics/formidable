@@ -31,6 +31,16 @@
         </div>
       </div>
     </template>
+    <template v-slot:extraAdvanced>
+      <div class="field field-rows">
+        <div class="heading">
+          <label>{{ t('Rows') }}</label>
+        </div>
+        <div class="input ltr">
+          <input type="number" class="text fullwidth" v-model="field.rows">
+        </div>
+      </div>
+    </template>
   </forms-field>
 </template>
 

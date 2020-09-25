@@ -6,5 +6,6 @@
 	name="{{ field.name }}"
 	class="{{ field.fieldClass }}{% if error %} is-invalid{% endif %}"
 	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
+	{% if field.rows %}rows="{{ field.rows }}"{% endif %}
 	>{{ oldValue }}</textarea>
 {% endblock %}
