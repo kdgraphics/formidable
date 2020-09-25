@@ -31,7 +31,9 @@
 		{% endif %}
 	{% endblock %}
 	{% block submit %}
-		<button type="submit" class="btn btn-primary" id="submit">{{ form.submitLabel }}</button>
+		<div class="submit-wrapper">
+			<button type="submit" class="btn btn-primary" id="submit">{{ form.submitLabel }}</button>
+		</div>
 	{% endblock %}
 </form>
 

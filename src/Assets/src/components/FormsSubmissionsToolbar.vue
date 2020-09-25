@@ -54,6 +54,7 @@
         </div>
       </div>
     </div>
+    <button class="btn" @click="setIsChartView(!isChartView)">{{ isChartView ? t('Table view') : t('Chart view')}}</button>
     <div v-show="selected.length">
       <button type="button" class="btn menubtn" data-icon="settings">
       </button>
@@ -85,7 +86,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['sort', 'filters', 'selected'])
+    ...mapState(['sort', 'filters', 'selected', 'isChartView', 'submissions'])
   },
   mounted () {
     Craft.initUiElements(this.$refs.container);
@@ -108,13 +109,33 @@ export default {
         this.addForm(id);
       }
     },
-    deleteSelection () {
-
-    },
     markAsRead () {
-
+      let data = {};
+      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
+      data.ids = this.selected;
+      axios.post('/admin/formidable/submissions/set-as-read', data)
+        .then((response) => {
+          Craft.cp.displayNotice(response.data.message);
+          this.markSelectedAsRead();
+        })
+        .catch((error) => {
+          console.log(error);
+        })
     },
-    ...mapMutations(['setTimezone', 'setForms', 'setPager', 'setTrashed', 'setRead', 'setDateTo', 'setDateFrom', 'addForm', 'removeForm'])
+    deleteSelection () {
+      let data = {};
+      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
+      data.ids = this.selected;
+      axios.post('/admin/formidable/submissions/delete-many', data)
+        .then((response) => {
+          Craft.cp.displayNotice(response.data.message);
+          this.deleteSelected();
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+    },
+    ...mapMutations(['setTimezone', 'setForms', 'setPager', 'setTrashed', 'setRead', 'setDateTo', 'setDateFrom', 'addForm', 'removeForm', 'setIsChartView', 'markSelectedAsRead', 'deleteSelected'])
   }
 };
 

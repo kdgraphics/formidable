@@ -140,6 +140,43 @@ class SubmissionsService extends Component
 	}
 
 	/**
+	 * Set many submissions as read
+	 * 
+	 * @param array $ids
+	 * @return bool
+	 */
+	public function setManyAsRead(array $ids): bool
+	{	
+		$submissions = Submission::find()->where(['id' => $ids])->all();
+		foreach ($submissions as $sub) {
+			$sub->read = 1;
+			$sub->save(false);
+		}
+		return true;
+	}
+
+	/**
+	 * Export all submissions as csv
+	 * @return ?string
+	 */
+	public function exportAll(): ?string
+	{
+		$query = Submission::find();
+		return Formidable::$plugin->csvExporter->exportFromQuery($query);
+	}
+
+	/**
+	 * Export submissions as csv
+	 * @param  array  $ids
+	 * @return ?string
+	 */
+	public function exportAsCsv(array $ids): ?string
+	{
+		$query = Submission::find()->where(['in', 'id', $ids]);
+		return Formidable::$plugin->csvExporter->exportFromQuery($query);
+	}
+
+	/**
 	 * Get some submissions, filtered and pagered
 	 * 
 	 * @param  array   $filters 
@@ -168,29 +205,48 @@ class SubmissionsService extends Component
 	public function getAll(array $filters = []): ActiveDataProvider
 	{
 		$provider = new SubmissionProvider;
+		$provider->setPagination(false);
 
 		return $this->filterDataProvider($provider, $filters, ['field' => 'dateCreated', 'side' => 'asc']);
 	}
 
 	/**
-	 * Export all submissions as csv
-	 * @return ?string
+	 * Build data for a chart js instance
+	 * 
+	 * @param  array  $models
+	 * @return array
 	 */
-	public function exportAll(): ?string
+	public function normalizeDataForChart(array $models): array
 	{
-		$query = Submission::find();
-		return Formidable::$plugin->csvExporter->exportFromQuery($query);
-	}
-
-	/**
-	 * Export submissions as csv
-	 * @param  array  $ids
-	 * @return ?string
-	 */
-	public function exportAsCsv(array $ids): ?string
-	{
-		$query = Submission::find()->where(['in', 'id', $ids]);
-		return Formidable::$plugin->csvExporter->exportFromQuery($query);
+		$forms = [];
+      	$labels = [];
+      	foreach ($models as $model) {
+      		$label = $model->dateCreated->format('d/m/Y');
+      		if (!in_array($label, $labels)) {
+      			$labels[] = $label;
+      		}
+      		if (!in_array($model->form_id, $forms)) {
+      			$forms[$model->form_id] = [
+      				'label' => $model->form->name,
+      				'fill' => false,
+      				'borderColor' => $model->form->color
+      			];
+      		}
+      	}
+      	foreach ($forms as $id => $form) {
+      		$forms[$id]['data'] = array_map(function () {
+      			return 0;
+      		}, $labels);
+      	}
+      	foreach ($models as $model) {
+      		$label = $model->dateCreated->format('d/m/Y');
+      		$index = array_search($label, $labels);
+      		$forms[$model->form_id]['data'][$index] ++;
+      	}
+      	return [
+      		'labels' => $labels,
+      		'data' => array_values($forms)
+      	];
 	}
 
 	/**

@@ -45,11 +45,26 @@ class CpSubmissionsController extends Controller
 
         $filters = $this->request()->getBodyParam('filters', []);
         $dataProvider = $this->submissions()->getAll($filters);
+        $data = $this->submissions()->normalizeDataForChart($dataProvider->getModels());
 
         return $this->asJson([
-            'submissions' => $dataProvider->getModels(),
+            'data' => $data,
             'totalCount' => $dataProvider->getTotalCount()
         ]);
+    }
+
+    public function actionSetAsRead()
+    {
+        $this->requireAcceptsJson();
+        $this->requirePostRequest();
+        
+        $ids = $this->request()->getRequiredParam('ids');
+        $this->submissions()->setManyAsRead($ids);
+        $response = [
+            'success' => true,
+            'message' => \Craft::t('formidable', 'Submissions marked as read')
+        ];
+        return $this->asJson($response);
     }
 
     public function actionView(int $id)
@@ -65,23 +80,6 @@ class CpSubmissionsController extends Controller
         $response = [
             'submission' => $submission,
             'html' => $this->renderTemplate('formidable/cp/submissions/view', ['submission' => $submission])->data
-        ];
-        return $this->asJson($response);
-    }
-
-    public function actionDelete(int $id)
-    {
-        $this->requireAcceptsJson();
-        $this->requirePostRequest();
-        
-        $success = $this->submissions()->delete($id);
-        if (!$success) {
-            throw new BadRequestHttpException(\Craft::t('formidable', "Error while deleting submission {id}", ['id' => $id]));
-        }
-
-        $response = [
-            'success' => true,
-            'message' => \Craft::t('formidable', 'Submission deleted')
         ];
         return $this->asJson($response);
     }

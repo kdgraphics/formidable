@@ -1,6 +1,6 @@
 <template>
   <div class="formidable-submissions">
-    <div class="tableview tablepane" v-show="!chartView">
+    <div class="tableview tablepane" v-show="!isChartView">
       <table class="data fullwidth">
         <thead>
           <tr>
@@ -13,22 +13,49 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="submission in submissions" :class="selected.includes(submission.id) ? 'sel' : ''">
+          <tr v-for="submission in submissions" :class="{'sel': selected.includes(submission.id), 'unread': !submission.read }">
             <td class="checkbox-cell"><div class="checkbox" title="Select" v-on:click="toggleSelect(submission.id)"></div></td>
             <td data-title="Form" data-attr="form"><a target="_blank" :href="'/admin/formidable/forms/'+submission.form.id">{{ submission.form.name }}</a></td>
             <td data-title="Submitted" data-attr="submitted">{{ submission.dateCreated }}</td>
-            <td data-title="Read" data-attr="read">{{ submission.read ? t('Yes') : t('No') }}</td>
+            <td data-title="Read" class="read" data-attr="read">{{ submission.read ? t('Yes') : t('No') }}</td>
             <td data-title="Notified" data-attr="notified">{{ submission.notified ? t('Yes') : t('No') }}</td>
             <td data-title="Open" data-attr="open" v-on:click="open(submission.id)"><span class="icon icon-mask categories"><span data-icon="categories"></span></span></td>
           </tr>
         </tbody>
       </table>
     </div>
-    <div class="chart-view" v-show="chartView">
+    <div class="chart-view" v-show="isChartView">
       <canvas id="formidable-chart-container"></canvas>
     </div>
     <div id="footer" class="flex">
-      <button class="btn" @click="chartView = !chartView">{{ chartView ? t('Table view') : t('Chart view')}}</button>
+        <div class="pagination flex" v-if="!isChartView">
+          <div :title="t('First Page')" :class="'page-link page-first ' + (pager.pageCount > 0 && pager.page > 0 ? '' : 'disabled')" @click="pager.pageCount > 0 && pager.page > 0 ? changePage(0) : null">«</div>
+          <div data-icon="leftangle" :title="t('Previous Page')" :class="'page-link ' + (pager.pageCount > 0 && pager.page > 0 ? '' : 'disabled')" @click="pager.pageCount > 0 && pager.page > 0 ? changePage(pager.page - 1) : null"></div>
+          <div v-for="i in pagerRange()" :class="'page-link page-number ' + (pager.page == i ? 'active' : '')" @click="pager.page != i ? changePage(i) : null">{{ i+1 }}</div>
+          <div data-icon="rightangle" :title="t('Next Page')" :class="'page-link ' + (pager.pageCount > 0 && pager.page < pager.pageCount -1 ? '' : 'disabled')" @click="pager.pageCount > 0 && pager.page < pager.pageCount -1 ? changePage(pager.page+1) : null"></div>
+          <div :title="t('Last Page')" :class="'page-link page-last ' + (pager.pageCount > 0 && pager.page < pager.pageCount -1 ? '' : 'disabled')" @click="pager.pageCount > 0 && pager.page < pager.pageCount -1 ? changePage(pager.pageCount-1) : null">»</div>
+        </div>
+        <div class="totals">{{ pager.totalCount + ' ' + t('submissions') }}</div>
+    </div>
+    <div class="modal elementselectormodal" id="submission-modal" style="display:none" ref="modal">
+      <div class="body has-sidebar">
+        <div class="content has-sidebar">
+          <div class="sidebar">
+            <div class="heading"><span>{{ t('Details') }}</span></div>
+            <ul class="sidebar-content">
+              <li>{{ t('Created') }}: {{ viewed.dateCreated }}</li>
+            </ul>
+          </div>
+          <div class="main">
+            <p>hello</p>
+          </div>
+        </div>
+      </div>
+      <div class="footer">
+        <div class="buttons right">
+          <button type="button" class="btn" @click="closeModal">{{ t('Close') }}</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -36,43 +63,39 @@
 <script>
 import { mapMutations, mapState } from 'vuex';
 import axios from 'axios';
-import { pull } from 'lodash';
+import { pull, range } from 'lodash';
 import Chart from 'chart.js/dist/Chart';
 
 export default {
   computed: {
-    ...mapState(['filters'])
+    ...mapState(['filters', 'isChartView', 'submissions'])
   },
   data: function () {
     return {
       selected: [],
-      chartView: false,
       chartData: {},
       chart: null,
-      chartSubmissions: [],
-      submissions: [],
+      chartData: false,
+      pager: {},
       sort: {
         field: 'dateCreated',
         side: 'desc'
-      }
+      },
+      pager: {},
+      viewed: {}
     }
   },
   watch: {
-    chartSubmissions: function() {
-      this.normalizeChartData();
-      if (this.chartView) {
-        this.updateChart();
-      }
-    },
-    chartView: function () {
-      this.setIsChartView(this.chartView);
-      if (this.chartView) {
+    isChartView: function () {
+      if (this.isChartView && !this.chartData) {
         this.fetchAll();
+      } else if (!this.isChartView && !this.submissions.length) {
+        this.fetch();
       }
     },
     sort: {
       handler: function() {
-        if (!this.chartView) {
+        if (!this.isChartView) {
           this.fetch();
         }
       },
@@ -80,7 +103,9 @@ export default {
     },
     filters: {
       handler: function() {
-        if (this.chartView) {
+        this.chartData = false;
+        this.setSubmissions = [];
+        if (this.isChartView) {
           this.fetchAll();
         } else {
           this.fetch();
@@ -96,15 +121,33 @@ export default {
     let context = document.getElementById('formidable-chart-container').getContext('2d');
     this.chart = new Chart(context, {
       type: 'line',
+      options: {
+        responsive: true,
+        scales: {
+          yAxes: [{
+            ticks: {
+              stepSize: 1
+            }
+          }]
+        }
+      }
     });
   },
   methods: {
     open: function (id) {
-
+      this.viewed = this.submissions[id];
+      new Garnish.Modal(this.$refs.modal);
     },
-    updateChart: function() {
-      this.chart.data.labels = this.chartData.labels;
-      this.chart.data.datasets = this.chartData.data;
+    changePage(page) {
+      this.$set(this.pager, 'page', page);
+      this.fetch();
+    },
+    pagerRange() {
+      return range(this.pager.pageCount);
+    },
+    updateChart: function(data) {
+      this.chart.data.labels = data.labels;
+      this.chart.data.datasets = data.data;
       this.chart.update();
     },
     toggleSelect: function (id) {
@@ -125,11 +168,11 @@ export default {
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       data.filters = this.filters;
       data.sort = this.sort;
-      data.paginate = !this.isChartView;
+      data.page = this.pager.page;
       this.isFetching = true;
       axios.post('/admin/formidable/submissions/load', data)
         .then((response) => {
-          this.submissions = response.data.submissions;
+          this.setSubmissions(response.data.submissions);
           this.pager = {
             count: response.data.count,
             totalCount: response.data.totalCount,
@@ -151,7 +194,8 @@ export default {
       this.isFetching = true;
       axios.post('/admin/formidable/submissions/loadAll', data)
         .then((response) => {
-          this.chartSubmissions = response.data.submissions;
+          this.chartData = true;
+          this.updateChart(response.data.data);
         })
         .catch((error) => {
           console.log(error);
@@ -160,35 +204,7 @@ export default {
           this.isFetching = false;
         });
     },
-    normalizeChartData()
-    {
-      let forms = {};
-      let labels = [];
-      this.chartSubmissions.forEach(sub => {
-        if (!labels.includes(sub.dateCreated)) {
-          labels.push(sub.dateCreated);
-        }
-        if (!(sub.form_id in forms)) {
-          forms[sub.form_id] = {
-            label: sub.form.name,
-            fill: false,
-            borderColor: sub.form.color
-          };
-        }
-      });
-      Object.keys(forms).forEach(form_id => {
-        forms[form_id].data = labels.map(x => 0);
-      });
-      this.chartSubmissions.forEach(sub => {
-        forms[sub.form_id].data[labels.indexOf(sub.dateCreated)] ++;
-      });
-
-      this.chartData = {
-        labels: labels,
-        data: Object.values(forms)
-      };
-    },
-    ...mapMutations(['setSelected', 'setSort', 'setIsChartView'])
+    ...mapMutations(['setSelected', 'setSort', 'setSubmissions'])
   }
 };
 
@@ -201,5 +217,17 @@ export default {
   .icon.icon-mask {
     cursor: pointer;
   }
+  tr.unread td.read {
+    font-weight: bold;
+  }
+  #footer {
+    justify-content: space-between;
+    .pagination .page-number.active{
+      background: $grey200;
+    }
+  }
+}
+#submission-modal {
+
 }
 </style>

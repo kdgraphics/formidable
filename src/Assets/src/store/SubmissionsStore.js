@@ -8,6 +8,7 @@ export default new Vuex.Store({
     selected: [],
     isChartView: false,
     forms: {},
+    submissions: [],
     filters: {
       forms: [],
       trashed: false,
@@ -56,6 +57,28 @@ export default new Vuex.Store({
     removeForm(state, value) {
       let index = state.filters.forms.indexOf(value);
       Vue.delete(state.filters.forms, index);
+    },
+    setSubmissions(state, value) {
+      state.submissions = value;
+    },
+    markSelectedAsRead(state, ids) {
+      let sub;
+      for (let index in state.submissions) {
+        sub = state.submissions[index];
+        if (state.selected.includes(sub.id)) {
+          Vue.set(state.submissions[index], 'read', 1);
+        }
+      }
+    },
+    deleteSelected(state, ids) {
+      let sub;
+      for (let index in state.submissions) {
+        sub = state.submissions[index];
+        if (state.selected.includes(sub.id)) {
+          Vue.delete(state.submissions, index);
+        }
+      }
+      state.selected = [];
     }
   }
 });
