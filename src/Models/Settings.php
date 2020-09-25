@@ -11,6 +11,7 @@ class Settings extends Model
     public $secretKey = '';
     public $acceptableScore = 5;
     public $sendInSchedule = false;
+    public $forceUnlock = 20;
 
     /**
      * @return array
@@ -21,8 +22,8 @@ class Settings extends Model
             ['siteKey', 'string'],
             ['secretKey', 'string'],
             ['sendInSchedule', 'boolean'],
-            ['acceptableScore', 'number'],
-            [['acceptableScore'], 'required']
+            [['acceptableScore', 'forceUnlock'], 'number'],
+            [['acceptableScore', 'forceUnlock'], 'required']
         ];
     }
 }

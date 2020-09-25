@@ -19,7 +19,7 @@
             <td data-title="Submitted" data-attr="submitted">{{ submission.dateCreated }}</td>
             <td data-title="Read" class="read" data-attr="read">{{ submission.read ? t('Yes') : t('No') }}</td>
             <td data-title="Notified" data-attr="notified">{{ submission.notified ? t('Yes') : t('No') }}</td>
-            <td data-title="Open" data-attr="open" v-on:click="open(index)"><span class="icon icon-mask categories"><span data-icon="categories"></span></span></td>
+            <td data-title="Open" data-attr="open"><span v-on:click="open(index)" class="icon icon-mask categories"><span data-icon="categories"></span></span></td>
           </tr>
           <tr v-if="submissions.length == 0">
             <td colspan="6">{{ t('No submissions found') }}</td>

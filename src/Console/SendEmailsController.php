@@ -16,8 +16,8 @@ class SendEmailsController extends Controller
 	 */
 	public function actionIndex()
 	{
-		if ($this->isSending()) {
-			$this->stdout("Aborting : lock file exists, is the cron running already ?\n");
+		if (!$this->canRun()) {
+			$this->stdout("Aborting.\n");
 			return ExitCode::IOERR;
 		}
 		$this->lock();
@@ -35,6 +35,26 @@ class SendEmailsController extends Controller
 		$this->unlock();
 		$this->stdout("Finished : $sent emails sent\n");
 		return ExitCode::OK;
+	}
+
+	/**
+	 * Can the schedule be run
+	 * 
+	 * @return bool
+	 */
+	protected function canRun(): bool
+	{
+		if (!$this->lockExists()) {
+			return true;
+		}
+		$wait = Formidable::$plugin->getSettings()->forceUnlock;
+		$content = file_get_contents(\Craft::getAlias(self::LOCK_FILE));
+		if (($content + 60 * $wait) < time()) {
+			$this->stdout("Lock is older than ".$wait." min, breaking it.\n");
+			return true;
+		}
+		$this->stdout("Lock file exists.\n");
+		return false;
 	}
 
 	/**
@@ -63,7 +83,7 @@ class SendEmailsController extends Controller
 	 * 
 	 * @return boolean
 	 */
-	protected function isSending()
+	protected function lockExists()
 	{
 		return file_exists(\Craft::getAlias(self::LOCK_FILE));
 	}
