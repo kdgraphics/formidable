@@ -214,7 +214,6 @@ class Form extends Model
             'errors' => Formidable::$plugin->forms->getSessionErrors($this->handle),
             'oldInput' => Formidable::$plugin->forms->getSessionOldInput($this->handle)
         ]);
-        // dd($event);
 		$this->trigger(self::EVENT_RENDER, $event);
 		return \Craft::$app->getView()->renderTemplate($template, [
 			'form' => $this,

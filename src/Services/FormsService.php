@@ -291,29 +291,29 @@ class FormsService extends Component
     public function gatherErrors(FormModel $form, array $fields, array $rules): array
     {
         $errors = [];
-        if ($errors = $form->getErrors()) {
-            $errors['form']['errors'] = $errors;
+        if ($errors2 = $form->getErrors()) {
+            $errors['form'] = $errors2;
         }
         foreach ($fields as $index => $field) {
-            if ($errors = $field->getErrors()) {
-                $errors['fields'][$index] = $errors;
+            if ($errors2 = $field->getErrors()) {
+                $errors['fields'][$index] = $errors2;
             } 
         }
         foreach ($rules as $index => $rule) {
-            if ($errors = $rule->getErrors()) {
-                $errors['rules'][$index]['errors'] = $errors;
+            if ($errors2 = $rule->getErrors()) {
+                $errors['rules'][$index]['errors'] = $errors2;
             }
             foreach ($rule->conditions as $index2 => $condition) {
-                if ($errors = $condition->getErrors()) {
-                    $errors['rules'][$index]['conditions'][$index2] = $errors;
+                if ($errors2 = $condition->getErrors()) {
+                    $errors['rules'][$index]['conditions'][$index2] = $errors2;
                 }
             }
             foreach ($rule->conditionGroups as $index2 => $group) {
-                if ($errors = $group->getErrors()) {
-                    $errors['rules'][$index]['conditionsGroups'][$index2]['errors'] = $errors;
+                if ($errors2 = $group->getErrors()) {
+                    $errors['rules'][$index]['conditionsGroups'][$index2]['errors'] = $errors2;
                     foreach ($group->condition as $index3 => $condition) {
-                        if ($errors = $condition->getErrors()) {
-                            $errors['rules'][$index]['conditionsGroups'][$index2]['conditions'][$index3] = $errors;
+                        if ($errors2 = $condition->getErrors()) {
+                            $errors['rules'][$index]['conditionsGroups'][$index2]['conditions'][$index3] = $errors2;
                         }
                     }
                 }
