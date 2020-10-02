@@ -132,32 +132,43 @@ class Formidable extends Plugin
      */
     protected function registerNavItem()
     {
-        $_this = $this;
-        Event::on(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS,
-            function(RegisterCpNavItemsEvent $event) use ($_this){
-                $event->navItems['formidable'] = [
-                    'url' => 'formidable',
-                    'label' => \Craft::t('formidable', 'Forms'),
-                    'subnav' => [
-                        'formidable-forms' => [
-                            'url' => 'formidable/forms',
-                            'label' => \Craft::t('formidable', 'Forms')
-                        ],
-                        'formidable-notifications' => [
-                            'url' => 'formidable/notifications',
-                            'label' => \Craft::t('formidable', 'Notifications'),
-                        ],
-                        'formidable-submissions' => [
-                            'url' => 'formidable/submissions',
-                            'label' => \Craft::t('formidable', 'Submissions'),
-                        ],
-                        'formidable-spam' => [
-                            'url' => 'formidable/spam',
-                            'label' => \Craft::t('formidable', 'Spam'),
+        $request = Craft::$app->getRequest();
+        if ($request->isCpRequest) {
+            $_this = $this;
+            Event::on(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS,
+                function(RegisterCpNavItemsEvent $event) use ($_this){
+                    $event->navItems[] = [
+                        'url' => 'formidable/submissions',
+                        'label' => \Craft::t('formidable', 'Form Submissions'),
+                        'subnav' => [
+                            'formidable-submissions' => [
+                                'url' => 'formidable/submissions',
+                                'label' => \Craft::t('formidable', 'Submissions'),
+                            ],
+                            'formidable-spam' => [
+                                'url' => 'formidable/spam',
+                                'label' => \Craft::t('formidable', 'Spam'),
+                            ]
                         ]
-                    ]
-                ];
-            });
+                    ];
+                    if (\Craft::$app->config->getGeneral()->allowAdminChanges) {
+                        $event->navItems[] = [
+                            'url' => 'formidable',
+                            'label' => \Craft::t('formidable', 'Forms'),
+                            'subnav' => [
+                                'formidable-forms' => [
+                                    'url' => 'formidable/forms',
+                                    'label' => \Craft::t('formidable', 'Forms')
+                                ],
+                                'formidable-notifications' => [
+                                    'url' => 'formidable/notifications',
+                                    'label' => \Craft::t('formidable', 'Notifications'),
+                                ]
+                            ]
+                        ];
+                    }
+                });
+        }
     }
 
     /**
