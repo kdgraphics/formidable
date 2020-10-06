@@ -15,4 +15,9 @@ class TextField extends FieldType
     	}
     	return self::$instance;
   	}
+
+  	public function jsType()
+  	{
+  		return 'text';
+  	}
 }

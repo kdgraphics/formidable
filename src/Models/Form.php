@@ -2,6 +2,7 @@
 
 namespace Ryssbowh\Formidable\Models;
 
+use Ryssbowh\Formidable\Assets\ValidationAsset;
 use Ryssbowh\Formidable\Events\FormEvent;
 use Ryssbowh\Formidable\Exceptions\FormException;
 use Ryssbowh\Formidable\Formidable;
@@ -276,5 +277,55 @@ class Form extends Model
 			return null;
 		}
 		return Formidable::$plugin->notifications->getById($this->notifyAdmin_id);
+	}
+
+	/**
+	 * Generate a html id
+	 * 
+	 * @return string
+	 */
+	public function generateId(): string
+	{
+		return 'inspireform-'.$this->handle.$this->id;
+	}
+
+	/**
+	 * Front javascript
+	 * 
+	 * @return string
+	 */
+	public function getFrontJs(): string
+	{
+		if (true) {
+			Formidable::$plugin->forms->enableFrontJs();
+			$js = "
+document.addEventListener('DOMContentLoaded', (event) => {
+	formidable.forms['{$this->generateId()}'] = {...formidable.form, ...{
+			rules: [";
+			foreach ($this->getRules() as $rule) {
+				$js .= "
+				".$rule->frontJs();
+			}
+			$js .= "],
+			fields: {
+				";
+			foreach ($this->getFields() as $field) {
+				$js .= "'".$field->name . '\': {...window.formidable.field, ...' . $field->frontJs($this) . '},
+				';
+			}
+			$js .= "}
+		}
+	}
+});
+";
+		}
+		if ($this->honeypot) {
+			$js .= <<<JS
+document.addEventListener('DOMContentLoaded', (event) => {
+	document.getElementById('{$this->generateId()}').querySelector('[id={$this->handle}-field-{$this->honeypotField}]').parentElement.style.display = 'none';
+});
+JS;
+		}
+		return $js;
 	}
 }

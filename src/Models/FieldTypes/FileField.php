@@ -15,4 +15,9 @@ class FileField extends FieldType
     	}
     	return self::$instance;
   	}
+
+  	public function jsType()
+  	{
+  		return 'file';
+  	}
 }

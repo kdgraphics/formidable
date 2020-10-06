@@ -174,4 +174,27 @@ abstract class Field extends Model implements FieldInterface
 	{
 		return static::getFriendlyValue($value);
 	}
+
+	/**
+	 * Javascript to define this field
+	 * 
+	 * @return string
+	 */
+	public function frontJs(Form $form): string
+	{
+		$js = "{
+			name: '{$this->name}',
+			type: '{$this->fieldType()->jsType()}',
+			id: '{$this->generateId($form)}',
+			formId: '{$form->generateId()}',
+			";
+		foreach ($this->options as $key => $value) {
+			if (is_array($value)) {
+				$value = json_encode($value);
+			}
+			$js .= $key.": '$value',
+			";
+		}
+		return $js . "}";
+	}
 }

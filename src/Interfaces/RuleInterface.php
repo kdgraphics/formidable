@@ -63,6 +63,13 @@ interface RuleInterface
 	public function check(FieldInterface $field, $value, $against = null): bool;
 
 	/**
+	 * Javascript code to check this rule. must return a function(field, value, against){}
+	 * 
+	 * @return string
+	 */
+	public function checkJs(): string;
+
+	/**
 	 * Validate this rule for a field
 	 * 
 	 * @param  string         $fieldName

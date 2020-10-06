@@ -1,6 +1,6 @@
 {% from 'formidable/macros' import errorList %}
 
-<div class="{{ field.containerClass }}">
+<div class="{{ field.containerClass }} field">
 	{% block label %}
 		{% if field.label %}
 			<label for="{{ field.generateId(form) }}" class="{{ field.labelClass }}">
@@ -12,5 +12,9 @@
 		<div class="instructions">{{ field.instructions }}</div>
 	{% endblock %}
 	{% block inner %}{% endblock %}
-	{% block errors %}{{ errorList(error) }}{% endblock %}
+	{% block errors %}
+		<div class="errors">
+			{{ errorList(error) }}
+		</div>
+	{% endblock %}
 </div>

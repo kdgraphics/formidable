@@ -1,10 +1,8 @@
 {% from 'formidable/macros' import errorList %}
 
-{% set id = 'inspireform-'~form.handle~form.id %}
-
 {% set error = errors['*'] is defined ? errors['*'] : false %}
 
-<form id="{{ id }}" action="/formidable/submit/{{ form.id }}" method="{{ form.method }}" class="{{ form.class }}"{#  enctype="multipart/form-data" #}>
+<form id="{{ form.generateId() }}" action="/formidable/submit/{{ form.id }}" method="{{ form.method }}" class="{{ form.class }} formidable" enctype="multipart/form-data">
 	{% block mainErrors %}
 		{% if error %}
 			{{ errorList(error, 'alert alert-danger') }}
@@ -37,10 +35,6 @@
 	{% endblock %}
 </form>
 
-{% if form.honeypot %}
-	{% js %}
-		document.addEventListener('DOMContentLoaded', (event) => {
-			document.getElementById('{{ id }}').querySelector("[id=field-{{ form.honeypotField }}]").style.display = "none";
-		});
-	{% endjs %}
-{% endif %}
+{% js %}
+	{{ form.getFrontJs()|raw }}
+{% endjs %}

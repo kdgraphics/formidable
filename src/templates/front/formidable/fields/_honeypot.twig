@@ -1,5 +1,6 @@
-
-<div class="field" id="field-{{ form.honeypotField }}">
-	<input name="{{ form.honeypotField }}" type="text">
+<div class="field">
+	<label>{{ form.honeypotField }}</label>
 	<div class="instructions"></div>
+	<input name="{{ form.honeypotField }}" type="text" id="{{ form.handle }}-field-{{ form.honeypotField }}">
+	<div class="errors"></div>
 </div>

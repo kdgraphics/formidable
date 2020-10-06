@@ -148,7 +148,7 @@ abstract class Rule extends Model implements RuleInterface
 		$message = \Craft::t('site', $this->message);
 		$message = str_replace('{value}', $field::getFriendlyValue($value), $message);
 		$matches = [];
-		preg_match_all("/{field\.([\w-]+)}/", $message, $matches);
+		preg_match_all("/{field\.([\w-_]+)}/", $message, $matches);
 		foreach ($matches[1] ?? [] as $match) {
 			$message = str_replace("{field.$match}", $field->$match, $message);
 		}
@@ -158,5 +158,21 @@ abstract class Rule extends Model implements RuleInterface
 			$message = str_replace("{rule.$match}", $this->$match, $message);
 		}
 		return ucfirst($message);
+	}
+
+	/**
+	 * Javascript to define this rule
+	 * 
+	 * @return string
+	 */
+	public function frontJs(): string
+	{
+		return "{...formidable.rules.{$this->type}, ...{
+			value: '{$this->value}',
+			message: '".\Craft::t('site', $this->message)."',
+			fields: [".implode(',',array_map(function($field){return "'".$field."'";}, $this->fields))."],
+			conditions: [" . implode(',', array_map(function($condition) {return $condition->frontJs();}, $this->conditions)) . "],
+			conditionGroups: [" . implode(',', array_map(function($group) {return $group->frontJs();}, $this->conditionGroups)) . "],
+		}}";
 	}
 }

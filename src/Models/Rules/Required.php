@@ -68,4 +68,21 @@ class Required extends Rule
 		}
 		throw RuleException::typeNotValid($rule, get_class($field->fieldType()));
 	}
+
+	/**
+	 * inheritDoc
+	 */
+	public function checkJs(): string
+	{
+		return "function (field, value, against) {
+			switch (field.type) {
+				case 'text':
+				case 'number':
+					return (value.trim().length > 0);
+				case 'array':
+					return (value.length > 0);
+			}
+			throw 'Field type '+field.type+' can\'t be checked for a required rule';
+		}";
+	}
 }

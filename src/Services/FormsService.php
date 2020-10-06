@@ -2,6 +2,7 @@
 
 namespace Ryssbowh\Formidable\Services;
 
+use Ryssbowh\Formidable\Assets\ValidationAsset;
 use Ryssbowh\Formidable\Events\FormEvent;
 use Ryssbowh\Formidable\Events\HookAssetsEvent;
 use Ryssbowh\Formidable\Events\SpamEvent;
@@ -36,6 +37,10 @@ class FormsService extends Component
 
 	const CONFIG_KEY = Formidable::CONFIG_KEY . '.forms';
 
+    const FRONT_JS_CACHE_KEY = 'formidable_front_js';
+    const FRONT_JS_FILE = __DIR__ . '/../Assets/dist/validation.js';
+    const FRONT_JS_SRC_FILE = __DIR__ . '/../Assets/src/validation.js';
+
     const SPAM = 1;
     const VALID = 2;
     const INVALID = 3;
@@ -55,6 +60,12 @@ class FormsService extends Component
      * @var array
      */
     protected $fieldsAssets;
+
+    /**
+     * Has the front Js asset been registered
+     * @var boolean
+     */
+    protected $frontJsRegistered = false;
 
     /**
      * Get all the registered assets. triggers the event for other plugins to register assets
@@ -459,6 +470,37 @@ class FormsService extends Component
         }
         $session->setFlash(self::SESSION_ERRORS_KEY.'.'.$form->handle, $errors);
         return self::INVALID;
+    }
+
+    public function enableFrontJs()
+    {
+        if ($this->frontJsRegistered) {
+            return;
+        }
+        $this->publishFrontJs();
+        \Craft::$app->view->registerAssetBundle(ValidationAsset::class);
+        $this->frontJsRegistered = true;
+    }
+
+    protected function publishFrontJs()
+    {
+        $cached = \Craft::$app->cache->get(self::FRONT_JS_CACHE_KEY, null);
+        if ($cached) {
+            // return;
+        }
+        $js = file_get_contents(self::FRONT_JS_SRC_FILE);
+        $rules = "";
+        foreach (Formidable::$plugin->rules->getAllRegistered() as $rule) {
+            $rules .= $rule->handle() . ": {
+                requiresValue: ".($rule->requiresValue ? 'true' : 'false').",
+                requiresField: ".($rule->requiresField ? 'true' : 'false').",
+                check: {$rule->checkJs()}
+            },
+            ";
+        }
+        $js = str_replace('$RULES$', $rules, $js);
+        \Craft::$app->cache->set(self::FRONT_JS_CACHE_KEY, $js);
+        file_put_contents(self::FRONT_JS_FILE, $js);
     }
 
     /**

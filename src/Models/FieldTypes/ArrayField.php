@@ -15,4 +15,9 @@ class ArrayField extends FieldType
     	}
     	return self::$instance;
   	}
+
+  	public function jsType()
+  	{
+  		return 'array';
+  	}
 }

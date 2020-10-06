@@ -75,13 +75,12 @@ class File extends Field
 	 */
 	public function getFrontEndRules(FormSubmission $submission): array
 	{
-		$file = [];
-		if ($this->extensions) {
-			$file['extensions'] = explode(',', $this->extensions);
-		}
 		$rules = [
-			[$this->name, 'file', $file], 
+			[$this->name, 'file'], 
 		];
+		if ($this->extensions) {
+			$rules[0][] = ['extensions' => explode(',', $this->extensions)];
+		}
 		return $rules;
 	}
 

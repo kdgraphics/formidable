@@ -65,4 +65,15 @@ class Condition extends Model
 		}
 		return ($thisResult or $result);
 	}
+
+	public function frontJs(): string
+	{
+		return "{...formidable.condition, ...{
+			type: '{$this->type}',
+			field: '{$this->field}',
+			operator: '{$this->operator}',
+			negate: '{$this->negate}',
+			value: '{$this->value}'
+		}}";
+	}
 }

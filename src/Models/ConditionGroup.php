@@ -53,4 +53,13 @@ class ConditionGroup extends Model
 		}
 		return ($thisResult or $result);
 	}
+
+	public function frontJs(): string
+	{
+		return "{...formidable.conditionGroup, ...{
+			conditions: [" . implode(',', array_map(function($condition) {return $condition->frontJs();}, $this->conditions)) . "],
+			operator: '{$this->operator}',
+			negate: '{$this->negate}',
+		}}";
+	}
 }
