@@ -300,9 +300,10 @@ class Form extends Model
 	 */
 	public function getFrontJs(): string
 	{
+		$js = '';
 		if ($this->frontEndValidation) {
 			Formidable::$plugin->forms->enableFrontJs();
-			$js = "
+			$js .= "
 document.addEventListener('DOMContentLoaded', (event) => {
 	formidable.forms['{$this->generateId()}'] = new formidable.form ({
 		id: '{$this->generateId()}',
