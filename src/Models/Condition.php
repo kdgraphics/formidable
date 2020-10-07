@@ -68,12 +68,12 @@ class Condition extends Model
 
 	public function frontJs(): string
 	{
-		return "{...formidable.condition, ...{
+		return "new formidable.condition({
 			type: '{$this->type}',
 			field: '{$this->field}',
 			operator: '{$this->operator}',
 			negate: '{$this->negate}',
 			value: '{$this->value}'
-		}}";
+		})";
 	}
 }

@@ -1,6 +1,6 @@
 {% from 'formidable/macros' import errorList %}
 
-<div class="{{ field.containerClass }}">
+<div class="{{ field.containerClass }} field">
 	<input type="hidden" name="{{ field.name }}" value="0">
 	<input type="checkbox"
 	id="{{ field.generateId(form) }}"
@@ -17,5 +17,9 @@
 	{% block instructions %}
 		<div class="instructions">{{ field.instructions }}</div>
 	{% endblock %}
-	{% block errors %}{{ errorList(error) }}{% endblock %}
+	{% block errors %}
+		<div class="errors">
+			{{ errorList(error) }}
+		</div>
+	{% endblock %}
 </div>

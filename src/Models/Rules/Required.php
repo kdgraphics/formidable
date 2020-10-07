@@ -75,6 +75,7 @@ class Required extends Rule
 	public function checkJs(): string
 	{
 		return "function (field, value, against) {
+			console.log(value);
 			switch (field.type) {
 				case 'text':
 				case 'number':

@@ -167,12 +167,15 @@ abstract class Rule extends Model implements RuleInterface
 	 */
 	public function frontJs(): string
 	{
-		return "{...formidable.rules.{$this->type}, ...{
+		return "new formidable.rule({
 			value: '{$this->value}',
 			message: '".\Craft::t('site', $this->message)."',
 			fields: [".implode(',',array_map(function($field){return "'".$field."'";}, $this->fields))."],
 			conditions: [" . implode(',', array_map(function($condition) {return $condition->frontJs();}, $this->conditions)) . "],
 			conditionGroups: [" . implode(',', array_map(function($group) {return $group->frontJs();}, $this->conditionGroups)) . "],
-		}}";
+			requiresField: ".($this->requiresField ? 'true' : 'false').",
+			requiresValue: ".($this->requiresValue ? 'true' : 'false').",
+			check: {$this->checkJs()}
+		})";
 	}
 }

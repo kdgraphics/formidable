@@ -477,31 +477,31 @@ class FormsService extends Component
         if ($this->frontJsRegistered) {
             return;
         }
-        $this->publishFrontJs();
+        // $this->publishFrontJs();
         \Craft::$app->view->registerAssetBundle(ValidationAsset::class);
         $this->frontJsRegistered = true;
     }
 
-    protected function publishFrontJs()
-    {
-        $cached = \Craft::$app->cache->get(self::FRONT_JS_CACHE_KEY, null);
-        if ($cached) {
-            // return;
-        }
-        $js = file_get_contents(self::FRONT_JS_SRC_FILE);
-        $rules = "";
-        foreach (Formidable::$plugin->rules->getAllRegistered() as $rule) {
-            $rules .= $rule->handle() . ": {
-                requiresValue: ".($rule->requiresValue ? 'true' : 'false').",
-                requiresField: ".($rule->requiresField ? 'true' : 'false').",
-                check: {$rule->checkJs()}
-            },
-            ";
-        }
-        $js = str_replace('$RULES$', $rules, $js);
-        \Craft::$app->cache->set(self::FRONT_JS_CACHE_KEY, $js);
-        file_put_contents(self::FRONT_JS_FILE, $js);
-    }
+    // protected function publishFrontJs()
+    // {
+    //     $cached = \Craft::$app->cache->get(self::FRONT_JS_CACHE_KEY, null);
+    //     if ($cached) {
+    //         // return;
+    //     }
+    //     $js = file_get_contents(self::FRONT_JS_SRC_FILE);
+    //     $rules = "";
+    //     foreach (Formidable::$plugin->rules->getAllRegistered() as $rule) {
+    //         $rules .= $rule->handle() . ": {
+    //             requiresValue: ".($rule->requiresValue ? 'true' : 'false').",
+    //             requiresField: ".($rule->requiresField ? 'true' : 'false').",
+    //             check: {$rule->checkJs()}
+    //         },
+    //         ";
+    //     }
+    //     $js = str_replace('$RULES$', $rules, $js);
+    //     \Craft::$app->cache->set(self::FRONT_JS_CACHE_KEY, $js);
+    //     file_put_contents(self::FRONT_JS_FILE, $js);
+    // }
 
     /**
      * Sort out fields to delete

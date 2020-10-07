@@ -1,10 +1,14 @@
 window.formidable = {
-	rule : {
-        conditions: [],
-        conditionGroups: [],
-        requiresField: false,
-        requiresValue: false,
-        appliesTo: function (fieldName, field, form) {
+	rule : function (value, message, fields, conditions, groups, requiresField, requiresValue, checkFunction) {
+        this.value = value;
+        this.message = message;
+        this.fields = fields;
+        this.conditions = conditions;
+        this.conditionGroups = groups;
+        this.requiresField = requiresField;
+        this.requiresValue = requiresValue;
+        this.check = checkFunction;
+        function appliesTo (fieldName, field, form) {
             if (!this.conditions.length && !this.conditionGroups.length) {
                 return true;
             }
@@ -14,8 +18,8 @@ window.formidable = {
                 res = conditionnables[i].appliesTo(field, res, form);
             }
             return res;
-        },
-		validate: function(fieldName, field, form) {
+        }
+		function validate (fieldName, field, form) {
             if (!this.appliesTo(fieldName, field, form)) {
                 return true;
             }
@@ -28,8 +32,8 @@ window.formidable = {
                 result = this.check(field, field.getValue());
             }
             return result;
-        },
-        getMessage: function (field) {
+        }
+        function getMessage (field) {
             let message = this.message.replace('{value}', field.getValue());
             let found = this.message.matchAll(/{field\.([\w-_]+)}/g);
             let result = found.next();
@@ -45,39 +49,53 @@ window.formidable = {
             }
             return message;
         }
+        return {
+            check: check,
+            appliesTo: appliesTo,
+            validate: validate,
+            getMessage: getMessage
+        }
 	},
-    field: {
-        type: null,
-        id: null,
-        formId: null,
-        getElem: function () {
+    field: function (name, type, id, formId, options) {
+        this.name = name;
+        this.type = type;
+        this.id = id;
+        this.formId = formId;
+        this.options = options;
+        function getElem () {
             return document.querySelector('form[id='+this.formId+']').querySelector('[id='+this.id+']');
-        },
-        getWrapper: function () {
+        }
+        function getWrapper () {
             return this.getElem().closest('.field');
-        },
-        getValue: function () {
+        }
+        function getValue () {
             return this.getElem().value;
-        },
-        setError: function (message) {
+        }
+        function setError (message) {
             this.getElem().classList.add('is-invalid');
             let error = document.createElement("div");
             let text = document.createTextNode(message);
             error.appendChild(text);
             this.getWrapper().querySelector('.errors').appendChild(error);
-        },
-        clearErrors: function () {
+        }
+        function clearErrors () {
             this.getElem().classList.remove('is-invalid');
             this.getWrapper().querySelector('.errors').innerHtml = '';
         }
+        return {
+            getElem: getElem,
+            getWrapper: getWrapper,
+            setError: setError,
+            clearErrors: clearErrors
+        }
     },
-    condition: {
-        type: null,
-        field: null,
-        operator: 'and',
-        negate: false,
-        value: null,
-        appliesTo: function (result, form) {
+    condition: function (type, field, operator, negate, value) {
+        this.type = type;
+        this.field = field;
+        this.operator = operator;
+        this.negate = negate;
+        this.value = value;
+        function appliesTo (result, form) {
             let rule = formidable.rules[this.type];
             let field = form.getField(this.field);
             if (rule.requiresValue) {
@@ -95,12 +113,15 @@ window.formidable = {
             }
             return (thisResult || result);
         }
+        return {
+            appliesTo: appliesTo
+        }
     },
-    conditionGroup: {
-        conditions: [],
-        operator: 'and',
-        negate: false,
-        appliesTo: function (field, result, form) {
+    conditionGroup: function (conditions, operator, negate) {
+        this.conditions = conditions;
+        this.operator = operator;
+        this.negate = negate;
+        function appliesTo (field, result, form) {
             let thisResult = true;
             for (const i in this.conditions) {
                 thisResult = this.conditions[i].appliesTo(field, result, form);
@@ -113,29 +134,29 @@ window.formidable = {
             }
             return (thisResult || result);
         }
+        return {
+            appliesTo: appliesTo
+        }
     },
-    rules: {
-        $RULES$
-    },
-    form: {
-        rules: [],
-        fields: {},
-        id: null,
-        getElem: function () {
+    form: function (id, rules, fields) {
+        this.rules = rules;
+        this.fields = fields;
+        this.id = id;
+        function getElem () {
             return document.querySelector('form[id='+this.id+']');
-        },
-        getField: function (name) {
+        }
+        function getField (name) {
             return this.fields[name];
-        },
-        clearErrors: function () {
+        }
+        function clearErrors () {
             for (i in this.fields) {
                 this.fields[i].clearErrors();
             }
-        },
-        validate: function () {
+        }
+        function validate () {
             let res = true;
             for (i in this.rules) {
-                let rule = {...formidable.rule, ...this.rules[i]};
+                let rule = this.rules[i];
                 for (j in rule.fields) {
                     let fieldName = rule.fields[j];
                     let field = this.getField(fieldName);
@@ -147,6 +168,15 @@ window.formidable = {
             }
             return res;
         }
+        return {
+            getElem: getElem,
+            getField: getField,
+            clearErrors: clearErrors,
+            validate: validate,
+        }
+    },
+    rules: {
+        $RULES$
     },
     forms: {},
     validateForm: function(form, event) {
@@ -158,6 +188,7 @@ window.formidable = {
         }
     }
 };
+
 document.addEventListener('DOMContentLoaded', (event) => {
     document.querySelector('form.formidable').addEventListener('submit', function(e){
         formidable.validateForm(this, e);

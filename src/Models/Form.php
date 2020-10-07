@@ -300,22 +300,23 @@ class Form extends Model
 			Formidable::$plugin->forms->enableFrontJs();
 			$js = "
 document.addEventListener('DOMContentLoaded', (event) => {
-	formidable.forms['{$this->generateId()}'] = {...formidable.form, ...{
-			rules: [";
+	formidable.forms['{$this->generateId()}'] = new formidable.form ({
+		id: '{$this->generateId()}',
+		rules: [";
 			foreach ($this->getRules() as $rule) {
-				$js .= "
-				".$rule->frontJs();
-			}
-			$js .= "],
-			fields: {
+				$js .= $rule->frontJs().",
 				";
+			}
+		$js .= "],
+		fields: {
+			";
 			foreach ($this->getFields() as $field) {
-				$js .= "'".$field->name . '\': {...window.formidable.field, ...' . $field->frontJs($this) . '},
+				$js .= "'".$field->name . '\': ' . $field->frontJs($this) . ',
 				';
 			}
-			$js .= "}
+			$js .= "
 		}
-	}
+	});
 });
 ";
 		}
