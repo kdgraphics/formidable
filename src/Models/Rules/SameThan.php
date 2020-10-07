@@ -36,7 +36,7 @@ class SameThan extends Rule
 	 */
 	public function defaultMessage(): string
 	{
-		return \Craft::t('formidable', '{field.name} must be the same than {rule.field}.');
+		return \Craft::t('formidable', '{field.name} must be the same than {rule.value}.');
 	}
 
 	/**
@@ -78,10 +78,14 @@ class SameThan extends Rule
 	{
 		return "function (field, value, against) {
 			switch (field.type) {
-				case 'string':
-					return value.length > against;
+				case 'text':
+				case 'boolean':
+				case 'number':
+					return value === against;
+				case 'array':
+					return formidable.arrayEquals(value, against);
 			}
-			throw 'Field type '+field.type+' can\'t be checked for a bigger than rule';
+			throw 'Field type '+field.type+' can\'t be checked for a same than rule';
 		}";
 	}
 }

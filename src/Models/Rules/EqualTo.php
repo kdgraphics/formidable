@@ -72,10 +72,11 @@ class EqualTo extends Rule
 	{
 		return "function (field, value, against) {
 			switch (field.type) {
-				case 'string':
-					return value.length > against;
+				case 'text':
+				case 'number':
+					return value === against;
 			}
-			throw 'Field type '+field.type+' can\'t be checked for a bigger than rule';
+			throw 'Field type '+field.type+' can\'t be checked for a equal rule';
 		}";
 	}
 }

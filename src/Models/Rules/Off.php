@@ -68,10 +68,10 @@ class Off extends Rule
 	{
 		return "function (field, value, against) {
 			switch (field.type) {
-				case 'string':
-					return value.length > against;
+				case 'boolean':
+					return value === false;
 			}
-			throw 'Field type '+field.type+' can\'t be checked for a bigger than rule';
+			throw 'Field type '+field.type+' can\'t be checked for a off rule';
 		}";
 	}
 }

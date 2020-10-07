@@ -117,7 +117,7 @@ export default new Vuex.Store({
       let data = {};
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       commit('setIsLoading', false);
-      axios.post('/admin/formidable/forms/get/'+id, data)
+      axios.post(Craft.getCpUrl('formidable/forms/get/'+id), data)
         .then((response) => {
           if (response.data.success) {
             commit('setIsAdding', false);
@@ -138,7 +138,7 @@ export default new Vuex.Store({
       let data = {form: state.form, fields: state.fields, rules: state.rules, loaded: state.loadedTime};
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       commit('setIsLoading', true);
-      axios.post('/admin/formidable/forms/save', data)
+      axios.post(Craft.getCpUrl('formidable/forms/save'), data)
         .then((response) => {
           if (response.data.success) {
             Craft.cp.displayNotice(response.data.message);
@@ -166,7 +166,7 @@ export default new Vuex.Store({
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       commit('setIsLoading', true);
       dispatch('setHistory', ['add']);
-      axios.post('/admin/formidable/forms/new', data)
+      axios.post(Craft.getCpUrl('formidable/forms/new'), data)
         .then((response) => {
           if (response.data.success) {
             commit('setIsAdding', true);
@@ -186,7 +186,7 @@ export default new Vuex.Store({
       let data = {};
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       commit('setIsLoading', true);
-      axios.post('/admin/formidable/forms/delete/'+state.form.id, data)
+      axios.post(Craft.getCpUrl('formidable/forms/delete/'+state.form.id), data)
         .then((response) => {
           if (response.data.success) {
             let forms = state.allForms;

@@ -1,170 +1,187 @@
 <template>
 	<div id="forms-config" v-show="activeTab == 'config'">
     <form method="post" accept-charset="UTF-8" ref="form" id="forms-form">
-      <div class="field first">
-        <div class="heading">
-          <label class="required" for="form-name">{{ t('Name') }}</label>
-        </div>
-        <div class="input ltr">
-          <input id="form-name" v-model="form.name" :class="'text fullwidth' + (errors.name ? ' error' : '')">
-        </div>
-      </div>
-      <div class="field">
-        <div class="heading">
-          <label class="required" for="form-handle">{{ t('Handle') }}</label>
-        </div>
-        <div class="input ltr">
-          <input id="form-handle" v-model="form.handle" :disabled="!isAdding" :class="'text fullwidth' + (errors.handle ? ' error' : '')">
-        </div>
-      </div>
-      <div class="field">
-        <div class="heading">
-          <label for="form-captcha">{{ t('Captcha') }}</label>
-        </div>
-        <div class="input ltr">
-          <div class="select">
-            <select v-model="form.captcha" class="text fullwidth" id="form-captcha">
-              <option :value="null">{{ t('No captcha') }}</option>
-              <option v-for="captcha in captchas" :value="captcha.handle" :key="captcha.handle">{{ captcha.name }}</option>
-            </select>
+      <div class="half">
+        <div class="field first">
+          <div class="heading">
+            <label class="required" for="form-name">{{ t('Name') }}</label>
+          </div>
+          <div class="input ltr">
+            <input id="form-name" v-model="form.name" :class="'text fullwidth' + (errors.name ? ' error' : '')">
           </div>
         </div>
-      </div>
-      <div class="field" aria-describedby="redirect-field-instructions">
-        <div class="heading">
-          <label for="form-redirect">{{ t('Redirect') }}</label>                                    
-        </div>
-        <div id="redirect-field-instructions" class="instructions">
-          <p>{{ t('Url to redirect users after submission') }}</p>
-        </div>
-        <div class="input ltr">
-          <input type="text" id="form-redirect" class="text fullwidth" v-model="form.redirect">
-        </div>
-      </div>
-      <div class="lightswitch-field field">
-        <div class="heading">
-          <label for="form-saveSubmissions">{{ t('Save submissions') }}</label>
-        </div>
-        <div class="input ltr">
-          <div id="form-saveSubmissions" class="lightswitch on" tabindex="0" role="switch" :aria-checked="form.saveSubmissions">
-            <div class="lightswitch-container">
-              <div class="handle"></div>
+        <div class="field">
+          <div class="heading">
+            <label for="form-captcha">{{ t('Captcha') }}</label>
+          </div>
+          <div class="input ltr">
+            <div class="select">
+              <select v-model="form.captcha" class="text fullwidth" id="form-captcha">
+                <option :value="null">{{ t('No captcha') }}</option>
+                <option v-for="captcha in captchas" :value="captcha.handle" :key="captcha.handle">{{ captcha.name }}</option>
+              </select>
             </div>
-            <input type="hidden" name="saveSubmissions" v-model="form.saveSubmissions">
           </div>
         </div>
-      </div>
-      <div class="lightswitch-field field">
-        <div class="heading">
-          <label for="form-saveSpam">{{ t('Save spam') }}</label>
-        </div>
-        <div class="input ltr">
-          <div id="form-saveSpam" ref="lightswitch" :class="{'lightswitch': true, 'on':form.saveSpam == 1}" tabindex="0" role="switch" :aria-checked="form.saveSpam">
-            <div class="lightswitch-container">
-              <div class="handle"></div>
+        <div class="lightswitch-field field">
+          <div class="heading">
+            <label for="form-frontEndValidation">{{ t('Enable front-end validation') }}</label>
+          </div>
+          <div class="input ltr">
+            <div id="form-frontEndValidation" :class="{lightswitch:true, on:form.frontEndValidation}" tabindex="0" role="switch" :aria-checked="form.frontEndValidation">
+              <div class="lightswitch-container">
+                <div class="handle"></div>
+              </div>
+              <input type="hidden" name="frontEndValidation" v-model="form.frontEndValidation">
             </div>
-            <input type="hidden" name="saveSpam" v-model="form.saveSpam">
           </div>
         </div>
-      </div>
-      <div class="lightswitch-field field">
-        <div class="heading">
-          <label for="form-honeypot">{{ t('Honeypot') }}</label>
-        </div>
-        <div class="input ltr">
-          <div id="form-honeypot" class="lightswitch on" tabindex="0" role="switch" :aria-checked="form.honeypot">
-            <div class="lightswitch-container">
-              <div class="handle"></div>
+        <div class="lightswitch-field field">
+          <div class="heading">
+            <label for="form-saveSubmissions">{{ t('Save submissions') }}</label>
+          </div>
+          <div class="input ltr">
+            <div id="form-saveSubmissions" :class="{lightswitch:true, on:form.saveSubmissions}" tabindex="0" role="switch" :aria-checked="form.saveSubmissions">
+              <div class="lightswitch-container">
+                <div class="handle"></div>
+              </div>
+              <input type="hidden" name="saveSubmissions" v-model="form.saveSubmissions">
             </div>
-            <input type="hidden" name="honeypot" v-model="form.honeypot">
           </div>
         </div>
-      </div>
-      <div v-if="form.honeypot" class="field" aria-describedby="honeypotField-field-instructions">
-        <div class="heading">
-          <label class="required" for="form-honeypotField">{{ t('Honeypot field name') }}</label>
-        </div>
-        <div id="honeypotField-field-instructions" class="instructions">
-          <p>{{ t('A name that is not an existing field, and has a quite sensitive name') }}</p>
-        </div>
-        <div class="input ltr">
-          <input type="text" id="form-honeypotField" :class="'text fullwidth' + (errors.honeypotField ? ' error' : '')" v-model="form.honeypotField">
-        </div>
-      </div>
-      <div class="field">
-        <div class="heading">
-          <label for="form-notify_id">{{ t('User notification') }}</label>
-        </div>
-        <div class="input ltr">
-          <div class="select">
-            <select v-model="form.notify_id" class="text fullwidth" id="form.notify_id">
-              <option :value="null">{{ t('Don\'t notify') }}</option>
-              <option v-for="notif in notifications" :value="notif.id" :key="notif.id">{{ notif.name }}</option>
-            </select>
+        <div class="lightswitch-field field">
+          <div class="heading">
+            <label for="form-saveSpam">{{ t('Save spam') }}</label>
+          </div>
+          <div class="input ltr">
+            <div id="form-saveSpam" ref="lightswitch" :class="{'lightswitch': true, 'on':form.saveSpam == 1}" tabindex="0" role="switch" :aria-checked="form.saveSpam">
+              <div class="lightswitch-container">
+                <div class="handle"></div>
+              </div>
+              <input type="hidden" name="saveSpam" v-model="form.saveSpam">
+            </div>
           </div>
         </div>
-      </div>
-      <div v-if="form.notify_id" class="field">
-        <div class="heading">
-          <label class="required" for="form.notifyField">{{ t('User email field') }}</label>
-        </div>
-        <div class="input ltr">
-          <div class="select" :class="{'error' : errors.notifyField}">
-            <select v-model="notifyField" id="form.notifyField">
-              <option v-for="field in emailFields" :key="field.name" :value="field">{{ field.name }}</option>
-            </select>
+        <div class="lightswitch-field field">
+          <div class="heading">
+            <label for="form-honeypot">{{ t('Honeypot') }}</label>
+          </div>
+          <div class="input ltr">
+            <div id="form-honeypot" :class="{lightswitch:true, on:form.honeypot}" tabindex="0" role="switch" :aria-checked="form.honeypot">
+              <div class="lightswitch-container">
+                <div class="handle"></div>
+              </div>
+              <input type="hidden" name="honeypot" v-model="form.honeypot">
+            </div>
           </div>
         </div>
-      </div>
-      <div class="field">
-        <div class="heading">
-          <label for="form-notifySpam_id">{{ t('Spam notification') }}</label>
-        </div>
-        <div class="input ltr">
-          <div class="select">
-            <select v-model="form.notifySpam_id" class="text fullwidth" id="form.notifySpam_id">
-              <option :value="null">{{ t('Don\'t notify') }}</option>
-              <option v-for="notif in notifications" :value="notif.id" :key="notif.id">{{ notif.name }}</option>
-            </select>
+        <div v-if="form.honeypot" class="field" aria-describedby="honeypotField-field-instructions">
+          <div class="heading">
+            <label class="required" for="form-honeypotField">{{ t('Honeypot field name') }}</label>
+          </div>
+          <div id="honeypotField-field-instructions" class="instructions">
+            <p>{{ t('A name that is not an existing field, and has a quite sensitive name') }}</p>
+          </div>
+          <div class="input ltr">
+            <input type="text" id="form-honeypotField" :class="'text fullwidth' + (errors.honeypotField ? ' error' : '')" v-model="form.honeypotField">
           </div>
         </div>
-      </div>
-      <div class="field">
-        <div class="heading">
-          <label for="form-notifyAdmin_id">{{ t('Admin notification') }}</label>
-        </div>
-        <div class="input ltr">
-          <div class="select">
-            <select v-model="form.notifyAdmin_id" id="form-notifyAdmin_id" class="text fullwidth">
-              <option :value="null">{{ t('Don\'t notify') }}</option>
-              <option v-for="notif in notifications" :value="notif.id" :key="notif.id">{{ notif.name }}</option>
-            </select>
+        <div class="field">
+          <div class="heading">
+            <label for="form-notify_id">{{ t('User notification') }}</label>
+          </div>
+          <div class="input ltr">
+            <div class="select">
+              <select v-model="form.notify_id" class="text fullwidth" id="form.notify_id">
+                <option :value="null">{{ t('Don\'t notify') }}</option>
+                <option v-for="notif in notifications" :value="notif.id" :key="notif.id">{{ notif.name }}</option>
+              </select>
+            </div>
           </div>
         </div>
-      </div>
-      <div v-if="form.notifySpam_id" class="field" aria-describedby="spamemails-field-instructions">
-        <div class="heading">
-          <label class="required" for="form-notifySpamEmails">{{ t('Spam notification recipients') }}</label>
-        </div>
-        <div id="spamemails-field-instructions" class="instructions">
-          <p>{{ t('Comma separated emails') }}</p>
-        </div>
-        <div class="input ltr">
-          <textarea id="form-notifySpamEmails" :class="'text fullwidth' + (errors.notifySpamEmails ? ' error' : '')" v-model="form.notifySpamEmails"></textarea>
-        </div>
-      </div>
-      <div v-if="form.notifyAdmin_id" class="field" aria-describedby="emails-field-instructions">
-        <div class="heading">
-          <label class="required" for="form-notifyEmails">{{ t('Admin notification recipients') }}</label>
-        </div>
-        <div id="emails-field-instructions" class="instructions">
-          <p>{{ t('Comma separated emails') }}</p>
-        </div>
-        <div class="input ltr">
-          <textarea id="form-notifyEmails" :class="'text fullwidth' + (errors.notifyEmails ? ' error' : '')" v-model="form.notifyEmails"></textarea>
+        <div v-if="form.notify_id" class="field">
+          <div class="heading">
+            <label class="required" for="form.notifyField">{{ t('User email field') }}</label>
+          </div>
+          <div class="input ltr">
+            <div class="select" :class="{'error' : errors.notifyField}">
+              <select v-model="notifyField" id="form.notifyField">
+                <option v-for="field in emailFields" :key="field.name" :value="field">{{ field.name }}</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 
+      <div class="half">
+        <div class="field">
+          <div class="heading">
+            <label class="required" for="form-handle">{{ t('Handle') }}</label>
+          </div>
+          <div class="input ltr">
+            <input id="form-handle" v-model="form.handle" :disabled="!isAdding" :class="'text fullwidth' + (errors.handle ? ' error' : '')">
+          </div>
+        </div>
+        <div class="field" aria-describedby="redirect-field-instructions">
+          <div class="heading">
+            <label for="form-redirect">{{ t('Redirect') }}</label>                                    
+          </div>
+          <div id="redirect-field-instructions" class="instructions">
+            <p>{{ t('Url to redirect users after submission') }}</p>
+          </div>
+          <div class="input ltr">
+            <input type="text" id="form-redirect" class="text fullwidth" v-model="form.redirect">
+          </div>
+        </div>
+        <div class="field">
+          <div class="heading">
+            <label for="form-notifySpam_id">{{ t('Spam notification') }}</label>
+          </div>
+          <div class="input ltr">
+            <div class="select">
+              <select v-model="form.notifySpam_id" class="text fullwidth" id="form.notifySpam_id">
+                <option :value="null">{{ t('Don\'t notify') }}</option>
+                <option v-for="notif in notifications" :value="notif.id" :key="notif.id">{{ notif.name }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div v-if="form.notifySpam_id" class="field" aria-describedby="spamemails-field-instructions">
+          <div class="heading">
+            <label class="required" for="form-notifySpamEmails">{{ t('Spam notification recipients') }}</label>
+          </div>
+          <div id="spamemails-field-instructions" class="instructions">
+            <p>{{ t('Comma separated emails') }}</p>
+          </div>
+          <div class="input ltr">
+            <textarea id="form-notifySpamEmails" :class="'text fullwidth' + (errors.notifySpamEmails ? ' error' : '')" v-model="form.notifySpamEmails"></textarea>
+          </div>
+        </div>
+        <div class="field">
+          <div class="heading">
+            <label for="form-notifyAdmin_id">{{ t('Admin notification') }}</label>
+          </div>
+          <div class="input ltr">
+            <div class="select">
+              <select v-model="form.notifyAdmin_id" id="form-notifyAdmin_id" class="text fullwidth">
+                <option :value="null">{{ t('Don\'t notify') }}</option>
+                <option v-for="notif in notifications" :value="notif.id" :key="notif.id">{{ notif.name }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div v-if="form.notifyAdmin_id" class="field" aria-describedby="emails-field-instructions">
+          <div class="heading">
+            <label class="required" for="form-notifyEmails">{{ t('Admin notification recipients') }}</label>
+          </div>
+          <div id="emails-field-instructions" class="instructions">
+            <p>{{ t('Comma separated emails') }}</p>
+          </div>
+          <div class="input ltr">
+            <textarea id="form-notifyEmails" :class="'text fullwidth' + (errors.notifyEmails ? ' error' : '')" v-model="form.notifyEmails"></textarea>
+          </div>
+        </div>
+      </div>
       <div class="advanced">
         <div class="header" @click="showAdvanced = !showAdvanced" :class="{'closed': !showAdvanced}">{{ t('Advanced') }}</div>
         <div class="content" v-show="showAdvanced">
@@ -196,6 +213,14 @@
             </div>
             <div class="input ltr">
               <input type="text" id="form-submitLabel" :class="'text fullwidth' + (errors.submitLabel ? ' error' : '')" v-model="form.submitLabel">
+            </div>
+          </div>
+          <div class="field">
+            <div class="heading">
+              <label for="form-submitClass">{{ t('Submit class') }}</label>
+            </div>
+            <div class="input ltr">
+              <input type="text" id="form-submitClass" :class="'text fullwidth' + (errors.submitClass ? ' error' : '')" v-model="form.submitClass">
             </div>
           </div>
           <div id="color-field" class="field">
@@ -297,7 +322,6 @@ export default {
     this.setLoadedTime(this.loaded);
     this.setVolumes(this.allVolumes);
     this.init();
-    console.log(this.formEdited);
   },
   mounted() {
     this.$nextTick(() => {
@@ -370,6 +394,9 @@ export default {
 #forms-form {
   display:flex;
   flex-wrap: wrap;
+  .half {
+    width: 100%;
+  }
   .field {
     width: 100%;
     margin-top: 0;
@@ -381,6 +408,7 @@ export default {
   }
   .advanced {
     width: 100%;
+    margin-top: 20px;
     .header{
       box-shadow: none;
       border-radius: 0;
@@ -409,16 +437,22 @@ export default {
 
 @media only screen and (min-width: 768px){
   #forms-form {
-    .field {
+    .half {
       width: calc(50% - 10px);
-      &:nth-child(2n) {
-        padding-left: 10px;
-      }
-      &:nth-child(2n+1) {
+      &:first-child {
         padding-right: 10px;
       }
-      &:nth-child(3) {
-        margin-top: 0
+      &:nth-child(2) {
+        padding-left: 10px;
+      }
+    }
+    .advanced .field {
+      width: calc(50% - 10px);
+      &:nth-child(2n) {
+        padding-right: 10px;
+      }
+      &:nth-child(2n+1) {
+        padding-left: 10px;
       }
     }
   }

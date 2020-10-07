@@ -30,7 +30,7 @@
 	{% endblock %}
 	{% block submit %}
 		<div class="submit-wrapper">
-			<button type="submit" class="btn btn-primary" id="submit">{{ form.submitLabel }}</button>
+			<button type="submit" class="{{ form.submitClass }}" id="submit">{{ form.submitLabel }}</button>
 		</div>
 	{% endblock %}
 </form>

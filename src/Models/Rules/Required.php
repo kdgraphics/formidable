@@ -75,10 +75,10 @@ class Required extends Rule
 	public function checkJs(): string
 	{
 		return "function (field, value, against) {
-			console.log(value);
 			switch (field.type) {
 				case 'text':
 				case 'number':
+				case 'file':
 					return (value.trim().length > 0);
 				case 'array':
 					return (value.length > 0);

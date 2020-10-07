@@ -79,8 +79,11 @@ class BiggerThan extends Rule
 	{
 		return "function (field, value, against) {
 			switch (field.type) {
-				case 'string':
+				case 'text':
+				case 'array':
 					return value.length > against;
+				case 'number':
+					return parseFloat(value) > parseFloat(against);
 			}
 			throw 'Field type '+field.type+' can\'t be checked for a bigger than rule';
 		}";

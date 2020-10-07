@@ -73,10 +73,12 @@ class Contain extends Rule
 	{
 		return "function (field, value, against) {
 			switch (field.type) {
-				case 'string':
-					return value.length > against;
+				case 'array':
+					return value.indexOf(against) != -1;
+				case 'text':
+					return value.search(against) != -1;
 			}
-			throw 'Field type '+field.type+' can\'t be checked for a bigger than rule';
+			throw 'Field type '+field.type+' can\'t be checked for a contain rule';
 		}";
 	}
 }

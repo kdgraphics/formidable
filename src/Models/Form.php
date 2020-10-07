@@ -28,6 +28,7 @@ class Form extends Model
 	public $honeypot = 1;
 	public $honeypotField;
 	public $saveSubmissions = 1;
+	public $frontEndValidation = 0;
 	public $saveSpam = 1;
 	public $redirect;
 	public $class;
@@ -35,6 +36,7 @@ class Form extends Model
 	public $color = '#000000';
 	public $captcha;
 	public $submitLabel;
+	public $submitClass;
 	public $dateCreated;
 	public $dateUpdated;
 	public $uid;
@@ -44,10 +46,10 @@ class Form extends Model
 	public function rules()
 	{
 		return [
-			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'notifySpamEmails','redirect', 'class', 'method', 'submitLabel', 'color'], 'string'],
-			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'redirect', 'class', 'submitLabel', 'color'], 'trim'],
+			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'notifySpamEmails','redirect', 'class', 'method', 'submitLabel', 'color', 'submitClass'], 'string'],
+			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'redirect', 'class', 'submitLabel', 'color', 'submitClass'], 'trim'],
 			[['id', 'notifyAdmin_id', 'notify_id', 'notifySpam_id'], 'integer'],
-			[['honeypot', 'saveSubmissions', 'saveSpam'], 'boolean'],
+			[['honeypot', 'saveSubmissions', 'saveSpam', 'frontEndValidation'], 'boolean'],
 			[['notifyEmails', 'notifySpamEmails'], 'validateEmails'],
 			['handle', 'validateHandle'],
 			['method', 'in', 'range' => ['GET', 'POST']],
@@ -168,9 +170,11 @@ class Form extends Model
             'honeypotField' => $this->honeypotField,
             'saveSubmissions' => $this->saveSubmissions,
             'saveSpam' => $this->saveSpam,
+            'frontEndValidation' => $this->frontEndValidation,
             'redirect' => $this->redirect,
             'class' => $this->class,
             'submitLabel' => $this->submitLabel,
+            'submitClass' => $this->submitClass,
             'method' => $this->method,
             'color' => $this->color,
             'captcha' => $this->captcha
@@ -296,7 +300,7 @@ class Form extends Model
 	 */
 	public function getFrontJs(): string
 	{
-		if (true) {
+		if ($this->frontEndValidation) {
 			Formidable::$plugin->forms->enableFrontJs();
 			$js = "
 document.addEventListener('DOMContentLoaded', (event) => {

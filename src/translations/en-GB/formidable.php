@@ -104,5 +104,6 @@ return [
 	'Choice container class' => 'Choice container class',
 	'Choice label class' => 'Choice label class',
 	'Name sent from' => 'Name sent from',
-	
+	'Enable front-end validation' => 'Enable front-end validation',
+	'Submit class' => 'Submit class'
 ];

@@ -76,10 +76,11 @@ class Size extends Rule
 	{
 		return "function (field, value, against) {
 			switch (field.type) {
-				case 'string':
-					return value.length > against;
+				case 'text':
+				case 'array':
+					return value.length === against;
 			}
-			throw 'Field type '+field.type+' can\'t be checked for a bigger than rule';
+			throw 'Field type '+field.type+' can\'t be checked for a size rule';
 		}";
 	}
 }
