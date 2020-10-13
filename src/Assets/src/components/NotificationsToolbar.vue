@@ -60,7 +60,7 @@ export default {
       let data = {};
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       this.setIsLoading(true);
-      axios.post('/admin/formidable/notifications/delete/'+this.notification.id, data)
+      axios.post(Craft.getCpUrl('formidable/notifications/delete/'+this.notification.id), data)
         .then((response) => {
           if (response.data.success) {
             this.setNotifications(response.data.notifications);
@@ -80,7 +80,7 @@ export default {
       let data = {data: this.notification, loaded: this.loadedTime};
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       this.setIsLoading(true);
-      axios.post('/admin/formidable/notifications/save', data)
+      axios.post(Craft.getCpUrl('formidable/notifications/save'), data)
         .then((response) => {
           if (response.data.success) {
             this.setNotifications(response.data.notifications);
