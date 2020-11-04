@@ -2,7 +2,7 @@
 
 {% set error = errors['*'] is defined ? errors['*'] : false %}
 
-<form id="{{ form.generateId() }}" action="/formidable/submit/{{ form.id }}" method="{{ form.method }}" class="{{ form.class }} formidable" enctype="multipart/form-data">
+<form id="{{ form.generateId() }}" action="{{ currentSite.getBaseUrl() }}formidable/submit/{{ form.id }}" method="{{ form.method }}" class="{{ form.class }} formidable" enctype="multipart/form-data">
 	{% block mainErrors %}
 		{% if error %}
 			{{ errorList(error, 'alert alert-danger') }}
