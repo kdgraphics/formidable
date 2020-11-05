@@ -10,7 +10,7 @@ abstract class FieldType extends Model implements FieldTypeInterface
 {
 	protected $ruleTypes;
 
-	protected function __construct(){}
+	public function __construct(){}
 
 	public function validRuleTypes(): array
 	{
