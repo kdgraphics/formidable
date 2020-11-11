@@ -87,7 +87,7 @@ export default new Vuex.Store({
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       data.ids = ids;
       return new Promise((resolve, reject) => {
-        axios.post('/admin/formidable/submissions/delete-many', data)
+        axios.post(Craft.getCpUrl('formidable/submissions/delete-many'), data)
           .then((response) => {
             commit('deleteMany', ids);
             Craft.cp.displayNotice(response.data.message);
@@ -107,7 +107,7 @@ export default new Vuex.Store({
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       data.ids = ids;
       return new Promise((resolve, reject) => {
-        axios.post('/admin/formidable/submissions/set-as-read', data)
+        axios.post(Craft.getCpUrl('formidable/submissions/set-as-read'), data)
           .then((response) => {
             commit('markAsRead', ids);
             resolve(response);
