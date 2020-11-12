@@ -438,7 +438,8 @@ class FormsService extends Component
         }
 
         if ($form->honeypot) {
-            if (isset($posted[$form->honeypotField]) and !empty($posted[$form->honeypotField])) {
+            if (isset($posted[$form->honeypotField]) and !empty(trim($posted[$form->honeypotField]))) {
+                $formSubmission->_spam_reason = 'Honeypot was filled';
                 $spam = Formidable::$plugin->spam->create($form, $formSubmission, $posted);
                 return self::SPAM;
             }

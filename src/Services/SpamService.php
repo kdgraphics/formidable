@@ -47,7 +47,8 @@ class SpamService extends Component
 		$spam = new Spam([
 			'form_id' => $form->id,
 			'ip' => \Craft::$app->request->userIP,
-			'values' => json_encode($values)
+			'values' => json_encode($values),
+			'reason' => $submission->_spam_reason ?? ''
 		]);
 		$spam->save(false);
 		$this->trigger(self::EVENT_ON_SPAM, new SpamEvent([
@@ -78,33 +79,34 @@ class SpamService extends Component
 	 * Get some spam, filtered and pagered
 	 * 
 	 * @param  array   $filters 
+	 * @param  array   $sort
 	 * @param  integer $page
 	 * @param  integer $pageSize
 	 * @return ActiveDataProvider
 	 */
-	public function get(array $filters = [], $page = 0, $pageSize = 10): ActiveDataProvider
+	public function get(array $filters = [], ?array $sort = null, $page = 0, $pageSize = 10): ActiveDataProvider
 	{
-		$provider = new SpamProvider;
+		$provider = $this->filteredDataProvider($filters, $sort);
 		$provider->setPagination([
 			'defaultPageSize' => $pageSize,
 			'page' => $page
 		]);
 
-		return $this->filterDataProvider($provider, $filters);
+		return $provider;
 	}
 
 	/**
-	 * Get some spams, filtered
+	 * Get all spams, filtered
 	 * 
 	 * @param  array   $filters 
 	 * @return ActiveDataProvider
 	 */
 	public function getAll(array $filters = []): ActiveDataProvider
 	{
-		$provider = new SpamProvider;
-		$provider->query->orderBy(['dateCreated' => SORT_ASC]);
+		$provider = $this->filteredDataProvider($filters, ['field' => 'dateCreated', 'side' => 'asc']);
+		$provider->setPagination(false);
 
-		return $this->filterDataProvider($provider, $filters);
+		return $provider;
 	}
 
 	/**
@@ -147,29 +149,79 @@ class SpamService extends Component
 	}
 
 	/**
+	 * Build data for a chart js instance
+	 * 
+	 * @param  array  $models
+	 * @return array
+	 */
+	public function normalizeDataForChart(array $models): array
+	{
+		$forms = [];
+      	$labels = [];
+      	foreach ($models as $model) {
+      		$label = $model->dateCreated->format('d/m/Y');
+      		if (!in_array($label, $labels)) {
+      			$labels[] = $label;
+      		}
+      		if (!in_array($model->form_id, $forms)) {
+      			$forms[$model->form_id] = [
+      				'label' => $model->form->name,
+      				'fill' => false,
+      				'borderColor' => $model->form->color
+      			];
+      		}
+      	}
+      	foreach ($forms as $id => $form) {
+      		$forms[$id]['data'] = array_map(function () {
+      			return 0;
+      		}, $labels);
+      	}
+      	foreach ($models as $model) {
+      		$label = $model->dateCreated->format('d/m/Y');
+      		$index = array_search($label, $labels);
+      		$forms[$model->form_id]['data'][$index] ++;
+      	}
+      	return [
+      		'labels' => $labels,
+      		'data' => array_values($forms)
+      	];
+	}
+
+	/**
 	 * Filters the spam data provider
 	 * 
-	 * @param  SpamProvider $provider
-	 * @param  array              $filters
+	 * @param  array        $filters
+	 * @param  ?array       $sort
 	 * @return SpamProvider
 	 */
-	protected function filterDataProvider(SpamProvider $provider, array $filters): SpamProvider
+	protected function filteredDataProvider(array $filters, ?array $sort): SpamProvider
 	{
-		if (isset($filters['form']) and is_numeric($filters['form'])) {
-			$provider->query->andWhere(['form_id' => $filters['form']]);
+		$provider = new SpamProvider(['trashed' => $filters['trashed'] ?? false]);
+		
+		if (isset($filters['forms']) and is_array($filters['forms'])) {
+			$provider->query->andWhere(['form_id' => $filters['forms']]);
 		}
-		if (isset($filters['ip']) and $filters['ip'] != '') {
-			$provider->query->andWhere(['like', 'ip', '%'.$filters['ip'].'%']);
-		}
-		if (isset($filters['submittedFrom']['date']) and $filters['submittedFrom']['date'] != '') {
-			$date = $this->parseDateFilter($filters['submittedFrom']);
+		if (isset($filters['dateFrom']['date']) and $filters['dateFrom']['date']) {
+			$date = $this->parseDateFilter($filters['dateFrom']);
 			$provider->query->andWhere(['>=', 'dateCreated', $date]);
 		}
-		if (isset($filters['submittedFrom']['date']) and $filters['submittedTo']['date'] != '') {
-			$date = $this->parseDateFilter($filters['submittedTo'], [23,59,59]);
+		if (isset($filters['dateTo']['date']) and $filters['dateTo']['date']) {
+			$date = $this->parseDateFilter($filters['dateTo'], [23,59,59]);
 			$provider->query->andWhere(['<=', 'dateCreated', $date]);
 		}
-
+		if (isset($filters['ip']) and $filters['ip'] != '') {
+			$provider->query->andWhere(['like', 'ip', $filters['ip']]);
+		}
+		if ($sort && strpos($sort['field'], 'form.') !== false) {
+			$provider->query->with(['form' => function ($query) use ($sort) {
+				$elems = explode('.', $sort['field']);
+				$query->orderBy($elems[1], $sort['side'] == 'asc' ? SORT_ASC : SORT_DESC);
+			}]);
+		} else {
+			$provider->query->with('form');
+			$provider->query->orderBy($sort['field'], $sort['side'] == 'asc' ? SORT_ASC : SORT_DESC);
+		}
+		// dd($provider->query->createCommand()->getRawSql());
         return $provider;
 	}
 

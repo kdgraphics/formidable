@@ -98,21 +98,6 @@ class SubmissionsService extends Component
 	}
 
 	/**
-	 * View a submission, sets it as read
-	 * 
-	 * @param  int    $id
-	 * @return ?SubmissionModel
-	 */
-	public function view(int $id): ?SubmissionModel
-	{
-		if ($submission = $this->getById($id)) {
-			$submission->setAsRead();
-			return $submission;
-		}
-		return null;
-	}
-
-	/**
 	 * Delete a submission by id
 	 * 
 	 * @param  int    $id

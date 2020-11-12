@@ -10,4 +10,9 @@ class FormException extends \Exception
 	{
 		return new static("Form $id not found");	
 	}
+
+	public static function noFieldNamed(Form $form, string $name)
+	{
+		return new static("Field $name doesn't exist in {$form->name}");	
+	}
 }

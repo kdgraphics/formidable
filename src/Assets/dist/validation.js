@@ -190,10 +190,10 @@ window.formidable = {
         a.every((val, index) => val === b[index]);
     },
     validateForm: function(form, event) {
-        event.preventDefault();
         form = this.forms[form.id];
         form.clearErrors();
         if (!form.validate()) {
+            console.log('no');
             event.preventDefault();
         }
     }
