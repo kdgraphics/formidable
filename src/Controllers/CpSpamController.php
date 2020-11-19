@@ -24,18 +24,16 @@ class CpSpamController extends Controller
 
         $filters = $this->request()->getBodyParam('filters', []);
         $page = $this->request()->getBodyParam('page', 0);
-        $pageSize = $this->request()->getBodyParam('pageSize', 0);
-        $dataProvider = $this->spam()->get($filters, $page, $pageSize);
+        $sort = $this->request()->getBodyParam('sort', null);
+        $pageSize = $this->request()->getBodyParam('pageSize', 20);
+        $dataProvider = $this->spam()->get($filters, $sort, $page, $pageSize);
 
         return $this->asJson([
             'spams' => $dataProvider->getModels(),
             'count' => $dataProvider->getCount(),
             'totalCount' => $dataProvider->getTotalCount(),
             'page' => $dataProvider->getPagination()->getPage(),
-            'pageCount' => $dataProvider->getPagination()->getPageCount(),
-            'pagination' => LinkPager::widget([
-                'pagination' => $dataProvider->getPagination(),
-            ])
+            'pageCount' => $dataProvider->getPagination()->getPageCount()
         ]);
     }
 
@@ -46,26 +44,28 @@ class CpSpamController extends Controller
 
         $filters = $this->request()->getBodyParam('filters', []);
         $dataProvider = $this->spam()->getAll($filters);
+        $data = $this->spam()->normalizeDataForChart($dataProvider->getModels());
 
         return $this->asJson([
-            'spams' => $dataProvider->getModels(),
+            'data' => $data,
             'totalCount' => $dataProvider->getTotalCount()
         ]);
     }
 
-    public function actionView(int $id)
+    public function actionDeletemany()
     {
         $this->requireAcceptsJson();
         $this->requirePostRequest();
-        
-        $spam = $this->spam()->getById($id);
-        if (!$spam) {
-            throw new BadRequestHttpException(\Craft::t('formidable', "Spam with id {id} doesn't exist", ['id' => $id]));
-        }
 
+        $ids = $this->request()->getRequiredParam('ids');
+        $this->spam()->deleteMany($ids);
+        $message = \Craft::t('formidable', 'Spams deleted');
+        if (sizeof($ids) == 1) {
+            $message = \Craft::t('formidable', 'Spam deleted');
+        }
         $response = [
-            'spam' => $spam,
-            'html' => $this->renderTemplate('formidable/cp/spam/view', ['spam' => $spam, 'values' => decodeJson($spam->values)])->data
+            'success' => true,
+            'message' => $message
         ];
         return $this->asJson($response);
     }

@@ -9,18 +9,24 @@ use yii\data\ActiveDataProvider;
 
 class SpamProvider extends ActiveDataProvider
 {
+    public $trashed;
+
 	public function init()
     {
         parent::init();
-        $this->query = Spam::find()->with('form');
+        if ($this->trashed === -1) {
+            $this->query = Spam::findWithTrashed();
+        } elseif ($this->trashed === true) {
+            $this->query = Spam::findTrashed();
+        } else {
+            $this->query = Spam::find();
+        }
     }
 
     public function prepareModels()
     {
         return array_map(function ($record) {
-        	$model = new SpamModel($record->getAttributes());
-        	$model->form = $record->form->toModel();
-        	return $model;
+        	return $record->toModel();
         }, parent::prepareModels());
     }
 }

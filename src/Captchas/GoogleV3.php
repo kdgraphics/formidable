@@ -85,7 +85,11 @@ class GoogleV3 implements CaptchaInterface
             ]);
             $data = json_decode($response->getBody()->getContents(), true);
             if ($data['success']) {
-            	return $data['score'] >= $score;
+            	$success = ($data['score'] >= $score);
+            	if (!$success) {
+            		$formSubmission->_spam_reason = 'Google captcha score ('.$data['score'].')';
+            	}
+            	return $success;
             }
         }
         $submission->addError('*', \Craft::t('site', 'Unable to verify your captcha, please try again'));

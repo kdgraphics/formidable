@@ -105,5 +105,8 @@ return [
 	'Choice label class' => 'Choice label class',
 	'Name sent from' => 'Name sent from',
 	'Enable front-end validation' => 'Enable front-end validation',
-	'Submit class' => 'Submit class'
+	'Submit class' => 'Submit class',
+	'Reason' => 'Reason',
+	'No spam found' => 'No spam found',
+	'IP' => 'IP'
 ];

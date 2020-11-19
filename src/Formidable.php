@@ -28,7 +28,7 @@ class Formidable extends Plugin
 {
     public $controllerNamespace = "Ryssbowh\\Formidable\\Controllers";
 
-    public $schemaVersion = '1.0.1';
+    public $schemaVersion = '1.0.3';
 
     public $hasCpSettings = true;
 
@@ -146,7 +146,7 @@ class Formidable extends Plugin
                                 'label' => \Craft::t('formidable', 'Submissions'),
                             ],
                             'formidable-spam' => [
-                                'url' => 'formidable/spam',
+                                'url' => 'formidable/submissions/spam',
                                 'label' => \Craft::t('formidable', 'Spam'),
                             ]
                         ]
@@ -298,16 +298,13 @@ class Formidable extends Plugin
                 'formidable/submissions/load' => 'formidable/cp-submissions/load',
                 'formidable/submissions/loadAll' => 'formidable/cp-submissions/load-all',
                 'formidable/submissions/set-as-read' => 'formidable/cp-submissions/set-as-read',
-                'formidable/submissions/view/<id:\d+>' => 'formidable/cp-submissions/view',
                 'formidable/submissions/delete-many' => 'formidable/cp-submissions/deletemany',
                 'formidable/submissions/export' => 'formidable/cp-submissions/export',
                 'formidable/submissions/export-all' => 'formidable/cp-submissions/export-all',
-                'formidable/spam' => 'formidable/cp-spam',
-                'formidable/spam/load' => 'formidable/cp-spam/load',
-                'formidable/spam/loadAll' => 'formidable/cp-spam/load-all',
-                'formidable/spam/view/<id:\d+>' => 'formidable/cp-spam/view',
-                'formidable/spam/delete/<id:\d+>' => 'formidable/cp-spam/delete',
-                'formidable/spam/delete-many' => 'formidable/cp-spam/deletemany'
+                'formidable/submissions/spam' => 'formidable/cp-spam',
+                'formidable/submissions/spam/load' => 'formidable/cp-spam/load',
+                'formidable/submissions/spam/loadAll' => 'formidable/cp-spam/load-all',
+                'formidable/submissions/spam/delete-many' => 'formidable/cp-spam/deletemany'
             ]);
         });
     }

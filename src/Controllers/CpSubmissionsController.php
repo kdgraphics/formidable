@@ -67,23 +67,6 @@ class CpSubmissionsController extends Controller
         return $this->asJson($response);
     }
 
-    public function actionView(int $id)
-    {
-        $this->requireAcceptsJson();
-        $this->requirePostRequest();
-        
-        $submission = $this->submissions()->view($id);
-        if (!$submission) {
-            throw new BadRequestHttpException(\Craft::t('formidable', "Submission with id {id} doesn't exist", ['id' => $id]));
-        }
-
-        $response = [
-            'submission' => $submission,
-            'html' => $this->renderTemplate('formidable/cp/submissions/view', ['submission' => $submission])->data
-        ];
-        return $this->asJson($response);
-    }
-
     public function actionDeletemany()
     {
         $this->requireAcceptsJson();
@@ -92,7 +75,7 @@ class CpSubmissionsController extends Controller
         $ids = $this->request()->getRequiredParam('ids');
         $this->submissions()->deleteMany($ids);
         $message = \Craft::t('formidable', 'Submissions deleted');
-        if (sizeof($ids)) {
+        if (sizeof($ids) == 1) {
             $message = \Craft::t('formidable', 'Submission deleted');
         }
         $response = [

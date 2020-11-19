@@ -4,7 +4,7 @@
       <button type="button" class="btn menubtn statusmenubtn">
         <span v-if="!filters.trashed" class="status"></span>
         <span v-if="filters.trashed" class="icon" data-icon="trash"></span>
-        {{ t(filters.trashed === null ? t("All") : (filters.trashed === false ? t("Not trashed") : t('Trashed'))) }}
+        {{ t(filters.trashed === -1 ? t("All") : (filters.trashed === false ? t("Not trashed") : t('Trashed'))) }}
       </button>
       <div class="menu">
         <ul class="padded">

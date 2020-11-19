@@ -101,9 +101,12 @@ class File extends Field
 	 */
 	public function afterSubmissionValidated(FormSubmission $submission)
 	{
+		$file = $submission->{$this->name};
+		if (!$file) {
+        	return;
+        }
 		$assets = \Craft::$app->getAssets();
         $folder = $assets->getRootFolderByVolumeId($this->volume);
-        $file = $submission->{$this->name};
         if (!$folder) {
             throw new BadRequestHttpException(\Craft::t('formidable', 'The target folder provided for uploading is not valid'));
         }

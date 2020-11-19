@@ -15,7 +15,7 @@
         <tbody>
           <tr v-for="submission,index in submissions" :class="{'sel': selected.includes(submission.id), 'unread': !submission.read }">
             <td class="checkbox-cell"><div class="checkbox" title="Select" v-on:click="toggleSelect(submission.id)"></div></td>
-            <td data-title="Form" data-attr="form"><a target="_blank" :href="'/admin/formidable/forms/'+submission.form.id">{{ submission.form.name }}</a></td>
+            <td data-title="Form" data-attr="form">{{ submission.form.name }}</td>
             <td data-title="Submitted" data-attr="submitted">{{ submission.dateCreated }}</td>
             <td data-title="Read" class="read" data-attr="read">{{ submission.read ? t('Yes') : t('No') }}</td>
             <td data-title="Notified" data-attr="notified">{{ submission.notified ? t('Yes') : t('No') }}</td>
@@ -49,7 +49,7 @@
               <li>{{ t('Created') }}: {{ viewed ? viewed.dateCreated : '' }}</li>
               <li>{{ t('Notified') }}: {{ viewed ? (viewed.notified ? t('Yes') : t('No')) : '' }}</li>
               <li>{{ t('Admin Notified') }}: {{ viewed ? (viewed.adminNotified ? t('Yes') : t('No')) : '' }}</li>
-              <li>{{ t('Form') }}: <a :href="'/admin/formidable/forms/'+viewed.form.id" target="_blank">{{ viewed ? viewed.form.name : ''}}</a></li>
+              <li>{{ t('Form') }}: {{ viewed ? viewed.form.name : ''}}</li>
             </ul>
           </div>
           <div class="main">
@@ -196,7 +196,7 @@ export default {
       data.sort = this.sort;
       data.page = this.pager.page;
       this.isFetching = true;
-      axios.post('/admin/formidable/submissions/load', data)
+      axios.post(Craft.getCpUrl('formidable/submissions/load'), data)
         .then((response) => {
           this.setSubmissions(response.data.submissions);
           this.pager = {
@@ -218,7 +218,7 @@ export default {
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       data.filters = this.filters;
       this.isFetching = true;
-      axios.post('/admin/formidable/submissions/loadAll', data)
+      axios.post(Craft.getCpUrl('formidable/submissions/loadAll'), data)
         .then((response) => {
           this.chartData = true;
           this.updateChart(response.data.data);

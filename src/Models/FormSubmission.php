@@ -8,6 +8,7 @@ class FormSubmission extends DynamicModel
 {
 	protected $_form;
 	protected $_rules;
+	public $_spam_reason;
 
 	/**
 	 * Form setter
