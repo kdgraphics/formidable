@@ -54,12 +54,11 @@ window.formidable = {
             return message.capitalize();
         };
     },
-    field: function ({name, type, id, formId, options}) {
+    field: function ({name, type, id, formId}) {
         this.name = name;
         this.type = type;
         this.id = id;
         this.formId = formId;
-        this.options = options;
         this.getElems = function () {
             return document.querySelector('form[id='+this.formId+']').querySelectorAll('[id^='+this.id+']');
         };

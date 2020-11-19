@@ -186,8 +186,7 @@ abstract class Field extends Model implements FieldInterface
 			name: '{$this->name}',
 			type: '{$this->fieldType()->jsType()}',
 			id: '{$this->generateId($form)}',
-			formId: '{$form->generateId()}',
-			options: '".json_encode($this->options)."'
+			formId: '{$form->generateId()}'
 		})";
 	}
 }
