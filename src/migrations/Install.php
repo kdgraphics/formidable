@@ -184,12 +184,12 @@ class Install extends Migration
         $this->dropTableIfExists('{{%formidable_conditionnable_rule}}');
         $this->dropTableIfExists('{{%formidable_rules}}');
         $this->dropTableIfExists('{{%formidable_submissions_values}}');
-        $this->dropTableIfExists('{{%formidable_spams}}');
         $this->dropTableIfExists('{{%formidable_submissions}}');
         $this->dropTableIfExists('{{%formidable_fields}}');
         $this->dropTableIfExists('{{%formidable_forms}}');
         $this->dropTableIfExists('{{%formidable_notifications}}');
         $this->dropTableIfExists('{{%formidable_emails}}');
+        $this->dropTableIfExists('{{%formidable_spams}}');
         Craft::$app->projectConfig->remove('formidable');
     }
 }
