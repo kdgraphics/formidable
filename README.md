@@ -61,7 +61,7 @@ If the field name is the same than an existing one it will replace it !
 
 # Templating
 
-Load a form with its handle : `{% set form = inspireforms.forms.getByHandle('contactUs') %}`
+Load a form with its handle : `{% set form = formidable.forms.getByHandle('contactUs') %}`
 
 Render it with : `{{ form.render()|raw }}`
 
@@ -69,7 +69,7 @@ This will use the default template for forms, you can render it with your own te
 
 Each field has a default template too, if you want to override it :
 
-- Create the template in your theme, in the folder `themeName/inspireforms/`. Example if you want to override the text field template you'd write the template `themeName/inspireforms/fields/text.twig`
+- Create the template in your theme, in the folder `themeName/formidable/`. Example if you want to override the text field template you'd write the template `themeName/formidable/fields/text.twig`
 - Or if you are writing a custom form template you would include it by doing so :
 ```
 {% for field in fields %}

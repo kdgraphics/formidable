@@ -290,7 +290,7 @@ class Form extends Model
 	 */
 	public function generateId(): string
 	{
-		return 'inspireform-'.$this->handle.$this->id;
+		return 'formidable-'.$this->handle.$this->id;
 	}
 
 	/**
@@ -300,30 +300,38 @@ class Form extends Model
 	 */
 	public function getFrontJs(): string
 	{
-		$js = '';
-		if ($this->frontEndValidation) {
-			Formidable::$plugin->forms->enableFrontJs();
-			$js .= "
+		Formidable::$plugin->forms->enableFrontJs();
+		$js = "
 document.addEventListener('DOMContentLoaded', (event) => {
 	formidable.forms['{$this->generateId()}'] = new formidable.form ({
 		id: '{$this->generateId()}',
 		rules: [";
-			foreach ($this->getRules() as $rule) {
-				$js .= $rule->frontJs().",
-				";
-			}
+		foreach ($this->getRules() as $rule) {
+			$js .= $rule->frontJs().",
+			";
+		}
 		$js .= "],
 		fields: {
-			";
-			foreach ($this->getFields() as $field) {
-				$js .= "'".$field->name . '\': ' . $field->frontJs($this) . ',
-				';
-			}
-			$js .= "
+		";
+		foreach ($this->getFields() as $field) {
+			$js .= "'".$field->name . '\': ' . $field->frontJs($this) . ',
+			';
+		}
+		$js .= "
 		}
 	});
 });
 ";
+		if ($this->frontEndValidation) {
+			$js .= <<<JS
+document.addEventListener('DOMContentLoaded', (event) => {
+    document.getElementById('{$this->generateId()}').addEventListener('submit', function(e){
+        if (!formidable.validateForm(this, e)) {
+        	e.preventDefault();
+        }
+    });
+});
+JS;
 		}
 		if ($this->honeypot) {
 			$js .= <<<JS

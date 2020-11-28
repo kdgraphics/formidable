@@ -188,18 +188,16 @@ window.formidable = {
         a.length === b.length &&
         a.every((val, index) => val === b[index]);
     },
-    validateForm: function(form, event) {
-        form = this.forms[form.id];
-        form.clearErrors();
-        if (!form.validate()) {
-            console.log('no');
-            event.preventDefault();
+    validateForm: function(form, submitEvent) {
+        formObject = this.forms[form.id];
+        formObject.clearErrors();
+        if (!formObject.validate()) {
+            const event = new Event('validation.failure', {submitEvent: submitEvent});
+            form.dispatchEvent(event);
+            return false;
         }
+        const event = new Event('validation.success', {submitEvent: submitEvent});
+        form.dispatchEvent(event);
+        return true;
     }
 };
-
-document.addEventListener('DOMContentLoaded', (event) => {
-    document.querySelector('form.formidable').addEventListener('submit', function(e){
-        formidable.validateForm(this, e);
-    });
-});
