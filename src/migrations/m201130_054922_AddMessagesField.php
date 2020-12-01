@@ -15,7 +15,7 @@ class m201130_054922_AddMessagesField extends Migration
      */
     public function safeUp()
     {
-        $this->addColumn('{{%formidable_rules}}', 'messages', $this->text()->after('message')->notNull()->defaultValue('[]'));
+        $this->addColumn('{{%formidable_rules}}', 'messages', $this->text()->after('message'));
     }
 
     /**

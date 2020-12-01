@@ -115,7 +115,7 @@ class Install extends Migration
             'type' => $this->string(255)->notNull(),
             'value' => $this->string(255),
             'message' => $this->text(),
-            'messages' => $this->text( ->notNull()->defaultValue(''),
+            'messages' => $this->text(),
             'fields' => $this->string(1000),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
