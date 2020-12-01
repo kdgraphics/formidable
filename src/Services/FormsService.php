@@ -439,7 +439,7 @@ class FormsService extends Component
 
         if ($form->honeypot) {
             if (isset($posted[$form->honeypotField]) and !empty(trim($posted[$form->honeypotField]))) {
-                $formSubmission->_spam_reason = Craft::t('formidable', 'Honeypot was filled');
+                $formSubmission->_spam_reason = \Craft::t('formidable', 'Honeypot was filled');
                 $spam = Formidable::$plugin->spam->create($form, $formSubmission, $posted);
                 return self::SPAM;
             }

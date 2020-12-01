@@ -61,8 +61,8 @@ class SubmissionsService extends Component
 			foreach ($form->fields as $field) {
 				(new SubmissionValue([
 					'submission_id' => $submission->id,
-					'field' => $field->name,
-					'value' => $formSubmission->{$field->name},
+					'field' => $field->handle,
+					'value' => $formSubmission->{$field->handle},
 					'type' => $field->handle()
 				]))->save(false);
 			}
