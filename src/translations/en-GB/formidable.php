@@ -34,6 +34,7 @@ return [
 	'Spam notification recipients' => 'Spam notification recipients',
 	'Captcha' => 'Captcha',
 	'Honeypot field name' => 'Honeypot field name',
+	'Honeypot was filled' => 'Honeypot was filled',
 	'A name that is not an existing field, and has a quite sensitive name' => 'A name that is not an existing field, and has a quite sensitive name',
 	'Redirect' => 'Redirect',
 	'Url to redirect users after submission' => 'Url to redirect users after submission',
@@ -108,5 +109,8 @@ return [
 	'Submit class' => 'Submit class',
 	'Reason' => 'Reason',
 	'No spam found' => 'No spam found',
-	'IP' => 'IP'
+	'IP' => 'IP',
+	'Handle' => 'Handle',
+	'Default message' => 'Default message',
+	'Message for {field}' => 'Message for {field}'
 ];

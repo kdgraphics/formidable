@@ -39,7 +39,6 @@ class FormsService extends Component
 
     const FRONT_JS_CACHE_KEY = 'formidable_front_js';
     const FRONT_JS_FILE = __DIR__ . '/../Assets/dist/validation.js';
-    const FRONT_JS_SRC_FILE = __DIR__ . '/../Assets/src/validation.js';
 
     const SPAM = 1;
     const VALID = 2;
@@ -426,8 +425,9 @@ class FormsService extends Component
 
         $values = [];
         foreach ($form->getFields() as $field) {
-            $values[$field->name] = $posted[$field->name] ?? null;
+            $values[$field->handle] = $posted[$field->handle] ?? null;
         }
+        
         $session->setFlash(self::SESSION_OLDINPUT_KEY.'.'.$form->handle, $values);
         $formSubmission = new FormSubmission($values);
         $formSubmission->setForm($form);
@@ -439,7 +439,7 @@ class FormsService extends Component
 
         if ($form->honeypot) {
             if (isset($posted[$form->honeypotField]) and !empty(trim($posted[$form->honeypotField]))) {
-                $formSubmission->_spam_reason = 'Honeypot was filled';
+                $formSubmission->_spam_reason = Craft::t('formidable', 'Honeypot was filled');
                 $spam = Formidable::$plugin->spam->create($form, $formSubmission, $posted);
                 return self::SPAM;
             }
@@ -459,7 +459,7 @@ class FormsService extends Component
 
         $formSubmission->validate(null, false);
 
-        if (!$errors = $formSubmission->getErrors()) {
+        if (!($errors = $formSubmission->getErrors())) {
             foreach ($form->fields as $field) {
                 $field->afterSubmissionValidated($formSubmission);
             }
@@ -480,31 +480,24 @@ class FormsService extends Component
         if ($this->frontJsRegistered) {
             return;
         }
-        // $this->publishFrontJs();
-        \Craft::$app->view->registerAssetBundle(ValidationAsset::class);
+        $js = \Craft::$app->cache->get(self::FRONT_JS_CACHE_KEY, null);
+        if (!$js) {
+            $js = file_get_contents(self::FRONT_JS_FILE);
+            $rules = "";
+            foreach (Formidable::$plugin->rules->getAllRegistered() as $rule) {
+                $rules .= $rule->handle() . ": {
+                    requiresValue: ".($rule->requiresValue ? 'true' : 'false').",
+                    requiresField: ".($rule->requiresField ? 'true' : 'false').",
+                    check: {$rule->checkJs()}
+                },
+                ";
+            }
+            $js = str_replace('$RULES$', $rules, $js);
+            \Craft::$app->cache->set(self::FRONT_JS_CACHE_KEY, $js);
+        }
+        \Craft::$app->view->registerJs($js);
         $this->frontJsRegistered = true;
     }
-
-    // protected function publishFrontJs()
-    // {
-    //     $cached = \Craft::$app->cache->get(self::FRONT_JS_CACHE_KEY, null);
-    //     if ($cached) {
-    //         // return;
-    //     }
-    //     $js = file_get_contents(self::FRONT_JS_SRC_FILE);
-    //     $rules = "";
-    //     foreach (Formidable::$plugin->rules->getAllRegistered() as $rule) {
-    //         $rules .= $rule->handle() . ": {
-    //             requiresValue: ".($rule->requiresValue ? 'true' : 'false').",
-    //             requiresField: ".($rule->requiresField ? 'true' : 'false').",
-    //             check: {$rule->checkJs()}
-    //         },
-    //         ";
-    //     }
-    //     $js = str_replace('$RULES$', $rules, $js);
-    //     \Craft::$app->cache->set(self::FRONT_JS_CACHE_KEY, $js);
-    //     file_put_contents(self::FRONT_JS_FILE, $js);
-    // }
 
     /**
      * Sort out fields to delete

@@ -106,7 +106,7 @@
           <div class="input ltr">
             <div class="select" :class="{'error' : errors.notifyField}">
               <select v-model="notifyField" id="form.notifyField">
-                <option v-for="field in emailFields" :key="field.name" :value="field">{{ field.name }}</option>
+                <option v-for="field in emailFields" :key="field.handle" :value="field">{{ field.name }}</option>
               </select>
             </div>
           </div>
@@ -281,7 +281,7 @@ export default {
       },
       set: function(field) {
         this.notifyFieldObject = field;
-        this.$set(this.form, 'notifyField', field.name);
+        this.$set(this.form, 'notifyField', field.handle);
       }
     }
   },
@@ -347,7 +347,7 @@ export default {
     init() {
       this.errors = {};
       this.original = cloneDeep(this.form);
-      this.notifyFieldObject = this.fields.filter((field) => field.name == this.form.notifyField)[0];
+      this.notifyFieldObject = this.fields.filter((field) => field.handle == this.form.notifyField)[0];
       if (this.isAdding) {
         this.changePageTitle(this.t('Add new form'));
       } else {

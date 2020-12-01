@@ -36,7 +36,7 @@ class Email extends Text
 	public function getFrontEndRules(FormSubmission $submission): array
 	{
 		$rules = parent::getFrontEndRules($submission);
-		$rules[] = [$this->name, 'email'];
+		$rules[] = [$this->handle, 'email'];
 		return $rules;
 	}
 

@@ -97,20 +97,20 @@ class Form extends Model
 	}
 
 	/**
-	 * Get a field by name
+	 * Get a field by handle
 	 * 
-	 * @param  string $name
+	 * @param  string $handle
 	 * @throws FormException
 	 * @return FieldInterface
 	 */
-	public function getField(string $name): FieldInterface
+	public function getField(string $handle): FieldInterface
 	{
 		foreach ($this->getFields() as $field) {
-			if ($field->name == $name) {
+			if ($field->handle == $handle) {
 				return $field;
 			}
 		}
-		throw FormException::noFieldNamed($this, $name);
+		throw FormException::noFieldNamed($this, $handle);
 	}
 
 	/**
@@ -302,7 +302,7 @@ class Form extends Model
 	{
 		Formidable::$plugin->forms->enableFrontJs();
 		$js = "
-document.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener('formidable.init', (event) => {
 	formidable.forms['{$this->generateId()}'] = new formidable.form ({
 		id: '{$this->generateId()}',
 		rules: [";
@@ -314,7 +314,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 		fields: {
 		";
 		foreach ($this->getFields() as $field) {
-			$js .= "'".$field->name . '\': ' . $field->frontJs($this) . ',
+			$js .= "'".$field->handle . '\': ' . $field->frontJs($this) . ',
 			';
 		}
 		$js .= "

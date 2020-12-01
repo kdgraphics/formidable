@@ -20,6 +20,7 @@ abstract class Rule extends Model implements RuleInterface
 	public $name;
 	public $conditionName;
 	public $message;
+	public $messages = [];
 	public $value;
 	public $form_id;
 	public $fields = [];
@@ -45,14 +46,14 @@ abstract class Rule extends Model implements RuleInterface
 	public function rules()
 	{
 		return [
-			[['message'], 'string'],
-			[['value'], 'string'],
+			[['message', 'value'], 'string'],
 			['type', function () {
 				if (!Formidable::$plugin->rules->getRegistered($this->type)) {
 					$this->addError('type', \Craft::t('formidable', '{type} is not a valid rule type', ['type' => $this->type]));
 				}
 			}],
-			['fields', 'each', 'rule' => ['string']]
+			['fields', 'each', 'rule' => ['string']],
+			['messages', 'each', 'rule' => ['string']]
 		];
 	}
 
@@ -89,6 +90,7 @@ abstract class Rule extends Model implements RuleInterface
 		return [
 			'type' => $this->type,
             'message' => $this->message,
+            'messages' => $this->messages,
             'value' => $this->value,
             'fields' => $this->fields
 		];
@@ -145,10 +147,14 @@ abstract class Rule extends Model implements RuleInterface
 	 */
 	public function i18Message(FieldInterface $field, $value): string
 	{
-		$message = \Craft::t('site', $this->message);
+		if (isset($this->messages->{$field->handle})) {
+			$message = \Craft::t('site', $this->messages->{$field->handle});
+		} else {
+			$message = \Craft::t('site', $this->message);
+		}
 		$message = str_replace('{value}', $field::getFriendlyValue($value), $message);
 		$matches = [];
-		preg_match_all("/{field\.([\w-_]+)}/", $message, $matches);
+		preg_match_all("/{field\.([\w\-_]+)}/", $message, $matches);
 		foreach ($matches[1] ?? [] as $match) {
 			$message = str_replace("{field.$match}", $field->$match, $message);
 		}
@@ -161,21 +167,18 @@ abstract class Rule extends Model implements RuleInterface
 	}
 
 	/**
-	 * Javascript to define this rule
-	 * 
-	 * @return string
+	 * @inheritDoc
 	 */
 	public function frontJs(): string
 	{
-		return "new formidable.rule({
+		return "new formidable.formRule({
+			type: '{$this->handle()}',
 			value: '{$this->value}',
-			message: '".\Craft::t('site', $this->message)."',
+			message: '".addslashes(\Craft::t('site', $this->message))."',
+			messages: JSON.parse('".addslashes(json_encode(array_map(function($message){return \Craft::t('site', $message);}, (array)$this->messages)))."'),
 			fields: [".implode(',',array_map(function($field){return "'".$field."'";}, $this->fields))."],
 			conditions: [" . implode(',', array_map(function($condition) {return $condition->frontJs();}, $this->conditions)) . "],
-			conditionGroups: [" . implode(',', array_map(function($group) {return $group->frontJs();}, $this->conditionGroups)) . "],
-			requiresField: ".($this->requiresField ? 'true' : 'false').",
-			requiresValue: ".($this->requiresValue ? 'true' : 'false').",
-			check: {$this->checkJs()}
+			conditionGroups: [" . implode(',', array_map(function($group) {return $group->frontJs();}, $this->conditionGroups)) . "]
 		})";
 	}
 }

@@ -11,7 +11,7 @@
         <div class="input ltr">
           <multiselect v-model="multiselectedFields"
             :options="validFields"
-            track-by="name"
+            track-by="handle"
             label="name"
             :multiple="true" 
             :searchable="false" 
@@ -84,9 +84,15 @@
       <div class="heading">
         <label>{{ t('Error message')}}</label>
       </div>
-      <div class="instructions">{{ t('Message to display when this rule doesn\'t pass. Every field parameters are accessible with the shortcut {field.parameter}. Use {value} for the posted value.') }}</div>
+      <div class="instructions">{{ t('Messages to display when this rule doesn\'t pass. Every field parameters are accessible with the shortcut {field.parameter}. Use {value} for the posted value.') }}<br/>{{ t('Default message') }}</div>
       <div class="input ltr">
         <input class="text fullwidth" v-model="rule.message" :placeholder="rule.defaultMessage">
+      </div>
+    </div>
+    <div class="rule-messages field" v-for="field in selectedFields" :key="field.handle">
+      <div class="instructions">{{ t('Message for {field}', {field: field.name}) }}</div>
+      <div class="input ltr">
+        <input class="text fullwidth" v-model="rule.messages[field.handle]" :placeholder="rule.message">
       </div>
     </div>
   </div>
@@ -130,7 +136,7 @@ export default {
       },
       set: function (value) {
         this.selectedFields = value;
-        this.rule.fields = value.map((field) => field.name);
+        this.rule.fields = value.map((field) => field.handle);
       }
     },
     fieldSelected: {
@@ -139,7 +145,7 @@ export default {
       },
       set: function (value) {
         this.selectedField = value;
-        this.rule.value = value.name;
+        this.rule.value = value.handle;
       }
     },
     validFields: function () {
@@ -168,7 +174,7 @@ export default {
     },
     fields: {
       handler: function () {
-        let fields = intersectionBy(this.selectedFields, this.fields, 'order').map((field) => field.name);
+        let fields = intersectionBy(this.selectedFields, this.fields, 'order').map((field) => field.handle);
         if (!isEqual(fields.sort(), this.rule.fields.sort())) {
           this.rule.fields = fields;
         }
@@ -182,9 +188,9 @@ export default {
   },
   methods: {
     init() {
-      this.selectedFields = filter(this.fields, (field) => this.rule.fields.includes(field.name));
+      this.selectedFields = filter(this.fields, (field) => this.rule.fields.includes(field.handle));
       if (this.rule.requiresField) {
-        this.selectedField = filter(this.fields, (field) => field.name == this.rule.value)[0] ?? null;
+        this.selectedField = filter(this.fields, (field) => field.handle == this.rule.value)[0] ?? null;
       }
     },
     validate() {
@@ -261,6 +267,10 @@ export default {
       padding: 10px;
       border-radius: 3px;
   }
+}
+
+.rule-messages {
+  margin: 5px 0;
 }
 
 .rule-fields.error {

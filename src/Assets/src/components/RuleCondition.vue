@@ -85,13 +85,13 @@ export default {
           this.$set(this.condition, 'field', null);
           return;
         }
-        this.$set(this.condition, 'field', field.name);
+        this.$set(this.condition, 'field', field.handle);
       }
     },
     ...mapState(['fields', 'registeredRules'])
   },
   created() {
-    this.selectedField = find(this.fields, (field) => (field.name == this.condition.field));
+    this.selectedField = find(this.fields, (field) => (field.handle == this.condition.field));
     this.selectedType = find(this.registeredRules, (rule) => (rule.type == this.condition.type));
     this.validate();
   },
@@ -101,7 +101,7 @@ export default {
     },
     fields: {
       handler: function () {
-        let field = find(this.fields, (field) => this.selectedField ? field.name == this.selectedField.name : null);
+        let field = find(this.fields, (field) => this.selectedField ? field.handle == this.selectedField.handle : null);
         this.selectedField = field;
         this.validate();
       },

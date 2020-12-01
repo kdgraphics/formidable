@@ -18,6 +18,7 @@ abstract class Field extends Model implements FieldInterface
 
 	public $id;
 	public $name;
+	public $handle;
 	public $friendlyName;
 	public $order;
 	public $fieldClass;
@@ -32,7 +33,7 @@ abstract class Field extends Model implements FieldInterface
 	public $validRules = [];
 	private $options;
 
-	protected $rootAttributes = ['id', 'name', 'order', 'form_id', 'options', 'dateCreated', 'dateUpdated', 'uid', 'fieldClass', 'containerClass', 'labelClass', 'instructions', 'type', 'friendlyName', 'validRules'];
+	protected $rootAttributes = ['id', 'name', 'handle', 'order', 'form_id', 'options', 'dateCreated', 'dateUpdated', 'uid', 'fieldClass', 'containerClass', 'labelClass', 'instructions', 'type', 'friendlyName', 'validRules'];
 
 	public function init()
 	{
@@ -51,9 +52,9 @@ abstract class Field extends Model implements FieldInterface
 	{
 		return array_merge($this->getExtraCpRules(), [
 			[['id', 'order'], 'integer'],
-			['name', 'required'],
-			[['name', 'fieldClass', 'containerClass', 'instructions', 'labelClass'], 'string'],
-			[['name', 'fieldClass', 'containerClass', 'instructions', 'labelClass'], 'trim']
+			[['name', 'handle'], 'required'],
+			[['name', 'fieldClass', 'containerClass', 'instructions', 'labelClass', 'handle'], 'string'],
+			[['name', 'fieldClass', 'containerClass', 'instructions', 'labelClass', 'handle'], 'trim']
 		]);
 	}
 
@@ -96,7 +97,7 @@ abstract class Field extends Model implements FieldInterface
 	 */
 	public function generateId(Form $form): string
 	{
-		return $form->handle.'-field-'.$this->name;
+		return $form->handle.'-field-'.$this->handle;
 	}
 
 	/**
@@ -127,6 +128,7 @@ abstract class Field extends Model implements FieldInterface
 	{
 		return [
 			'name' => $this->name,
+			'handle' => $this->handle,
             'order' => $this->order,
             'fieldClass' => $this->fieldClass,
             'containerClass' => $this->containerClass,
@@ -183,7 +185,8 @@ abstract class Field extends Model implements FieldInterface
 	public function frontJs(Form $form): string
 	{
 		return "new formidable.field({
-			name: '{$this->name}',
+			name: '".addslashes($this->name)."',
+			handle: '{$this->handle}',
 			type: '{$this->fieldType()->jsType()}',
 			id: '{$this->generateId($form)}',
 			formId: '{$form->generateId()}'

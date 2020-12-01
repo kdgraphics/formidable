@@ -85,7 +85,6 @@ class SmallerThan extends Rule
 				case 'number':
 					return parseFloat(value) < parseFloat(against);
 			}
-			throw 'Field type '+field.type+' can\'t be checked for a bigger than rule';
 			throw 'Field type '+field.type+' can\'t be checked for a smaller than rule';
 		}";
 	}

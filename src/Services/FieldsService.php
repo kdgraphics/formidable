@@ -200,6 +200,7 @@ class FieldsService extends Component
             $field = $this->getRecordByUid($uid);
             $isNew = $field->getIsNewRecord();
             $field->name = $data['name'];
+            $field->handle = $data['handle'];
             $field->form_id = Formidable::$plugin->forms->getByUid($data['form'])->id;
             $field->order = $data['order'];
             $field->type = $data['type'];

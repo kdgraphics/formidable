@@ -76,7 +76,7 @@ class File extends Field
 	public function getFrontEndRules(FormSubmission $submission): array
 	{
 		$rules = [
-			[$this->name, 'file'], 
+			[$this->handle, 'file'], 
 		];
 		if ($this->extensions) {
 			$rules[0][] = ['extensions' => explode(',', $this->extensions)];
@@ -91,7 +91,7 @@ class File extends Field
 	 */
 	public function beforeSubmissionValidated(FormSubmission $submission)
 	{
-		$submission->{$this->name} = UploadedFile::getInstanceByName($this->name);
+		$submission->{$this->handle} = UploadedFile::getInstanceByName($this->handle);
 	}
 
 	/**
@@ -101,7 +101,7 @@ class File extends Field
 	 */
 	public function afterSubmissionValidated(FormSubmission $submission)
 	{
-		$file = $submission->{$this->name};
+		$file = $submission->{$this->handle};
 		if (!$file) {
         	return;
         }
@@ -119,7 +119,7 @@ class File extends Field
         $asset->avoidFilenameConflicts = true;
         $result = \Craft::$app->getElements()->saveElement($asset);
         if ($result) {
-        	$submission->{$this->name} = $asset->id;
+        	$submission->{$this->handle} = $asset->id;
         } else {
         	throw new BadRequestHttpException(\Craft::t('formidable', 'Couldn\'t create asset'));
         }

@@ -76,4 +76,11 @@ interface RuleInterface
 	 * @param  FormSubmission $submission
 	 */
 	public function validateRule(string $fieldName, FormSubmission $submission);
+
+	/**
+	 * Javascript to define this rule in a form
+	 * 
+	 * @return string
+	 */
+	public function frontJs(): string;
 }

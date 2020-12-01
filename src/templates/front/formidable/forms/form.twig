@@ -18,8 +18,8 @@
 	{% endblock %}
 	{% block fields %}
 		{% for field in fields %}
-			{% set error = errors[field.name] is defined ? errors[field.name] : false %}
-			{% set oldValue = oldInput[field.name] is defined ? oldInput[field.name] : null %}
+			{% set error = errors[field.handle] is defined ? errors[field.handle] : false %}
+			{% set oldValue = oldInput[field.handle] is defined ? oldInput[field.handle] : null %}
 			{% include field.frontendTemplate() %}
 		{% endfor %}
 	{% endblock %}

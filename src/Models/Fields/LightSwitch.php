@@ -54,7 +54,7 @@ class LightSwitch extends Field
 	 */
 	public function getFrontEndRules(FormSubmission $submission): array
 	{
-		return [[$this->name, 'boolean']];
+		return [[$this->handle, 'boolean']];
 	}
 
 	/**

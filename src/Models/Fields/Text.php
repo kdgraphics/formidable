@@ -52,8 +52,8 @@ class Text extends Field
 	public function getFrontEndRules(FormSubmission $submission): array
 	{
 		return [
-			[$this->name, 'string'], 
-			[$this->name, 'trim']
+			[$this->handle, 'string'], 
+			[$this->handle, 'trim']
 		];
 	}
 }

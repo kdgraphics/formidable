@@ -3,7 +3,7 @@
 {% block inner %}
 	<input type="number"
 	id="{{ field.generateId(form) }}"
-	name="{{ field.name }}"
+	name="{{ field.handle }}"
 	class="{{ field.fieldClass }}{% if error %} is-invalid{% endif %}" 
 	value="{{ oldValue }}"
 	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}

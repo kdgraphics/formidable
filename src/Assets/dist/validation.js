@@ -1,17 +1,12 @@
-String.prototype.capitalize = function() {
-  return this.charAt(0).toUpperCase() + this.slice(1)
-}
-
 window.formidable = {
-    rule : function ({value, message, fields, conditions, conditionGroups, requiresField, requiresValue, check}) {
+    formRule : function ({type, value, message, messages, fields, conditions, conditionGroups}) {
+        this.type = type;
         this.value = value;
         this.message = message;
+        this.messages = messages;
         this.fields = fields;
         this.conditions = conditions;
         this.conditionGroups = conditionGroups;
-        this.requiresField = requiresField;
-        this.requiresValue = requiresValue;
-        this.check = check;
         this.appliesTo = function (fieldName, field, form) {
             if (!this.conditions.length && !this.conditionGroups.length) {
                 return true;
@@ -28,34 +23,42 @@ window.formidable = {
                 return true;
             }
             let result;
-            if (this.requiresValue) {
-                result = this.check(field, field.getValue(), this.value);
-            } else if (this.requiresField) {
-                result = this.check(field, field.getValue(), form.getField(this.value).getValue());
+            let rule = formidable.rules[this.type];
+            if (rule.requiresValue) {
+                result = rule.check(field, field.getValue(), this.value);
+            } else if (rule.requiresField) {
+                result = rule.check(field, field.getValue(), form.getField(this.value).getValue());
             } else {
-                result = this.check(field, field.getValue());
+                result = rule.check(field, field.getValue());
             }
             return result;
         };
         this.getMessage = function (field) {
-            let message = this.message.replace('{value}', field.getValue());
-            let found = this.message.matchAll(/{field\.([\w-_]+)}/g);
+            let message;
+            if (field.handle in this.messages && this.messages[field.handle] != '') {
+                message = this.messages[field.handle];
+            } else {
+                message = this.message;
+            }
+            message = message.replace('{value}', field.getValue());
+            let found = message.matchAll(/{field\.([\w-_]+)}/g);
             let result = found.next();
             while (!result.done){
                 message = message.replace(result.value[0], field[result.value[1]])
                 result = found.next();
             }
-            found = this.message.matchAll(/{rule\.([\w-_]+)}/g);
+            found = message.matchAll(/{rule\.([\w-_]+)}/g);
             result = found.next();
             while (!result.done){
                 message = message.replace(result.value[0], this[result.value[1]])
                 result = found.next();
             }
-            return message.capitalize();
+            return message;
         };
     },
-    field: function ({name, type, id, formId}) {
+    field: function ({name, handle, type, id, formId}) {
         this.name = name;
+        this.handle = handle;
         this.type = type;
         this.id = id;
         this.formId = formId;
@@ -96,6 +99,7 @@ window.formidable = {
                 this.getElems()[i].classList.add('is-invalid');
             }
             let error = document.createElement("div");
+            error.classList.add('invalid-feedback');
             let text = document.createTextNode(message);
             error.appendChild(text);
             this.getWrapper().querySelector('.errors').appendChild(error);
@@ -113,15 +117,15 @@ window.formidable = {
         this.operator = operator;
         this.negate = negate;
         this.value = value;
-        this.appliesTo = function (result, form) {
+        this.appliesTo = function (field, result, form) {
             let rule = formidable.rules[this.type];
-            let field = form.getField(this.field);
+            let thisResult = true;
             if (rule.requiresValue) {
-                let thisResult = rule.check(field, field.getValue(), this.value);
+                thisResult = rule.check(field, field.getValue(), this.value);
             } else if (rule.requiresField) {
-                let thisResult = rule.check(field, field.getValue(), form.getField(this.value).getValue());
+                thisResult = rule.check(field, field.getValue(), form.getField(this.value).getValue());
             } else {
-                let thisResult = rule.check(field, field.getValue());
+                thisResult = rule.check(field, field.getValue());
             }
             if (this.negate) {
                 thisResult = !thisResult;
@@ -157,8 +161,8 @@ window.formidable = {
         this.getElem = function () {
             return document.querySelector('form[id='+this.id+']');
         };
-        this.getField = function (name) {
-            return this.fields[name];
+        this.getField = function (handle) {
+            return this.fields[handle];
         };
         this.clearErrors = function () {
             for (i in this.fields) {
@@ -182,6 +186,7 @@ window.formidable = {
         };
     },
     forms: {},
+    rules: {$RULES$},
     arrayEquals: function (a ,b) {
       return Array.isArray(a) &&
         Array.isArray(b) &&
@@ -189,15 +194,18 @@ window.formidable = {
         a.every((val, index) => val === b[index]);
     },
     validateForm: function(form, submitEvent) {
-        formObject = this.forms[form.id];
+        let formObject = this.forms[form.id];
         formObject.clearErrors();
         if (!formObject.validate()) {
-            const event = new Event('validation.failure', {submitEvent: submitEvent});
+            const event = new Event('formidable.validation.failure', {submitEvent: submitEvent});
             form.dispatchEvent(event);
             return false;
         }
-        const event = new Event('validation.success', {submitEvent: submitEvent});
+        const event = new Event('formidable.validation.success', {submitEvent: submitEvent});
         form.dispatchEvent(event);
         return true;
     }
 };
+
+const event = new Event('formidable.init');
+document.dispatchEvent(event);

@@ -40,7 +40,7 @@ class Number extends Text
 	 */
 	public function getFrontEndRules(FormSubmission $submission): array
 	{
-		return [[$this->name, 'number']];
+		return [[$this->handle, 'number']];
 	}
 
 	/**

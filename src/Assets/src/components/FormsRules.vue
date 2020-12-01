@@ -16,7 +16,7 @@
                 <div v-show="changes[index] && !errors[index]" class="red-span">*</div>
                 <div v-show="errors[index]" class="red-span">!</div>
               </div>
-              <div class="fields">{{ rule.fields.join(', ') }}</div>
+              <div class="fields">{{ getRuleSelectedFields(rule.fields) }}</div>
               <div class="conditions" v-if="countConditions(index) > 0">{{ countConditions(index) }}{{ ' '+t('condition' + (countConditions(index) > 1 ? 's' : '')) }}</div>
             </a>
           </li>
@@ -68,7 +68,7 @@ export default {
         return (result || value);
       }, false);
     },
-    ...mapState(['activeTab', 'rules', 'form', 'loadedTime'])
+    ...mapState(['activeTab', 'rules', 'form', 'loadedTime', 'fields'])
   },
   data: function () {
     return {
@@ -120,6 +120,9 @@ export default {
       this.deletedRules = 0;
       this.addedRules = 0;
     },
+    getRuleSelectedFields(fields) {
+      return this.fields.filter((field) => fields.includes(field.handle)).map((field) => field.name).join(', ');
+    },
     countConditions(index) {
       let count = this.rules[index].conditions.length;
       for (let key in this.rules[index].conditionGroups) {
@@ -152,9 +155,6 @@ export default {
       this.$delete(this.changes, this.selectedRule);
       this.selectedRule = this.rules.length ? 0 : null;
   	},
-    setSelectedFields(data) {
-      this.selectedFields[data.index] = data.fields.map((field) => field.map).join(', ');
-    },
     setSelectedRule(index) {
       this.selectedRule = index;
     },

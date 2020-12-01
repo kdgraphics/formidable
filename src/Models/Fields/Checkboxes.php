@@ -38,13 +38,13 @@ class Checkboxes extends Radio
 	public function getFrontEndRules(FormSubmission $submission): array
 	{
 		return [
-			[$this->name, function ($attribute, $params, $validator) use ($submission) {
+			[$this->handle, function ($attribute, $params, $validator) use ($submission) {
 				if (!is_array($submission->$attribute)) {
 					$this->addError($attribute, \Craft::t('formidable', 'Value is invalid'));
 				}
 			}],
-			[$this->name, 'default', 'value' => []],
-			[$this->name, 'each', 'rule' => ['in', 'range' => $this->allValues()]]
+			[$this->handle, 'default', 'value' => []],
+			[$this->handle, 'each', 'rule' => ['in', 'range' => $this->allValues()]]
 		];
 	}
 
@@ -53,7 +53,7 @@ class Checkboxes extends Radio
 	 */
 	public function afterSubmissionValidated(FormSubmission $submission)
 	{
-		$rawValue = $submission->{$this->name};
+		$rawValue = $submission->{$this->handle};
 		if (!$rawValue) {
 			return;
 		}
@@ -62,7 +62,7 @@ class Checkboxes extends Radio
 		foreach ($rawValue as $value) {
 			$selected[] = $choices[$value];
 		}
-		$submission->{$this->name} = implode(', ', $selected);
+		$submission->{$this->handle} = implode(', ', $selected);
 	}
 
 	/**

@@ -108,9 +108,9 @@ class Select extends Field
 	public function getFrontEndRules(FormSubmission $submission): array
 	{
 		return [
-			[$this->name, 'string'],
-			[$this->name, 'trim'],
-			[$this->name, 'in', 'range' => $this->allValues()]
+			[$this->handle, 'string'],
+			[$this->handle, 'trim'],
+			[$this->handle, 'in', 'range' => $this->allValues()]
 		];
 	}
 
@@ -119,6 +119,6 @@ class Select extends Field
 	 */
 	public function afterSubmissionValidated(FormSubmission $submission)
 	{
-		$submission->{$this->name} = $submission->{$this->name} ? $this->buildChoices()[$submission->{$this->name}] : '';
+		$submission->{$this->handle} = $submission->{$this->handle} ? $this->buildChoices()[$submission->{$this->handle}] : '';
 	}
 }
