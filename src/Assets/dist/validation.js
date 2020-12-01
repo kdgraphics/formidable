@@ -197,15 +197,15 @@ window.formidable = {
         let formObject = this.forms[form.id];
         formObject.clearErrors();
         if (!formObject.validate()) {
-            const event = new Event('formidable.validation.failure', {submitEvent: submitEvent});
+            const event = new CustomEvent('formidable.validation.failure', {detail: {submitEvent: submitEvent}});
             form.dispatchEvent(event);
             return false;
         }
-        const event = new Event('formidable.validation.success', {submitEvent: submitEvent});
+        const event = new CustomEvent('formidable.validation.success', {detail: {submitEvent: submitEvent}});
         form.dispatchEvent(event);
         return true;
     }
 };
 
-const event = new Event('formidable.init');
+const event = new CustomEvent('formidable.init');
 document.dispatchEvent(event);
