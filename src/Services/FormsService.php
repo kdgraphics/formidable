@@ -2,6 +2,7 @@
 
 namespace Ryssbowh\Formidable\Services;
 
+use JSMin\JSMin;
 use Ryssbowh\Formidable\Assets\ValidationAsset;
 use Ryssbowh\Formidable\Events\FormEvent;
 use Ryssbowh\Formidable\Events\HookAssetsEvent;
@@ -18,6 +19,7 @@ use craft\events\RebuildConfigEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
+use yii\web\View;
 
 class FormsService extends Component
 {
@@ -495,7 +497,7 @@ class FormsService extends Component
             $js = str_replace('$RULES$', $rules, $js);
             \Craft::$app->cache->set(self::FRONT_JS_CACHE_KEY, $js);
         }
-        \Craft::$app->view->registerJs($js);
+        \Craft::$app->view->registerJs(getenv('ENVIRONMENT') == 'production' ? JSMin::minify($js) : $js, View::POS_END);
         $this->frontJsRegistered = true;
     }
 
