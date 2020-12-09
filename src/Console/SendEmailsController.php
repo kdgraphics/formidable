@@ -29,7 +29,7 @@ class SendEmailsController extends Controller
 				$this->stdout("Sending email ".$email->uid." to ".$email->emails."...\n");
 				$sent += $schedule->send($email);
 			}
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			$this->stderr('Error : '.$e->getMessage()."\n");
 		}
 		$this->unlock();

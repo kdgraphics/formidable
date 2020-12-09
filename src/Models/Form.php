@@ -3,7 +3,6 @@
 namespace Ryssbowh\Formidable\Models;
 
 use JSMin\JSMin;
-use Ryssbowh\Formidable\Assets\ValidationAsset;
 use Ryssbowh\Formidable\Events\FormEvent;
 use Ryssbowh\Formidable\Exceptions\FormException;
 use Ryssbowh\Formidable\Formidable;

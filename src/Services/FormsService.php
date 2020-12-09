@@ -3,7 +3,6 @@
 namespace Ryssbowh\Formidable\Services;
 
 use JSMin\JSMin;
-use Ryssbowh\Formidable\Assets\ValidationAsset;
 use Ryssbowh\Formidable\Events\FormEvent;
 use Ryssbowh\Formidable\Events\HookAssetsEvent;
 use Ryssbowh\Formidable\Events\SpamEvent;
