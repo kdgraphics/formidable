@@ -206,6 +206,3 @@ window.formidable = {
         return true;
     }
 };
-
-const event = new CustomEvent('formidable.init');
-document.dispatchEvent(event);

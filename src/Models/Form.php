@@ -302,7 +302,7 @@ class Form extends Model
 	{
 		Formidable::$plugin->forms->enableFrontJs();
 		$js = "
-document.addEventListener('formidable.init', (event) => {
+document.addEventListener('DOMContentLoaded', (event) => {
 	formidable.forms['{$this->generateId()}'] = new formidable.form ({
 		id: '{$this->generateId()}',
 		rules: [";
