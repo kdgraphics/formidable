@@ -37,7 +37,6 @@ class FormsService extends Component
 
 	const CONFIG_KEY = Formidable::CONFIG_KEY . '.forms';
 
-    const FRONT_JS_CACHE_KEY = 'formidable_front_js';
     const FRONT_JS_FILE = __DIR__ . '/../Assets/dist/validation.js';
 
     const SPAM = 1;
@@ -480,21 +479,17 @@ class FormsService extends Component
         if ($this->frontJsRegistered) {
             return;
         }
-        $js = \Craft::$app->cache->get(self::FRONT_JS_CACHE_KEY, null);
-        if (!$js) {
-            $js = file_get_contents(self::FRONT_JS_FILE);
-            $rules = "";
-            foreach (Formidable::$plugin->rules->getAllRegistered() as $rule) {
-                $rules .= $rule->handle() . ": {
-                    requiresValue: ".($rule->requiresValue ? 'true' : 'false').",
-                    requiresField: ".($rule->requiresField ? 'true' : 'false').",
-                    check: {$rule->checkJs()}
-                },
-                ";
-            }
-            $js = str_replace('$RULES$', $rules, $js);
-            \Craft::$app->cache->set(self::FRONT_JS_CACHE_KEY, $js);
+        $js = file_get_contents(self::FRONT_JS_FILE);
+        $rules = "";
+        foreach (Formidable::$plugin->rules->getAllRegistered() as $rule) {
+            $rules .= $rule->handle() . ": {
+                requiresValue: ".($rule->requiresValue ? 'true' : 'false').",
+                requiresField: ".($rule->requiresField ? 'true' : 'false').",
+                check: {$rule->checkJs()}
+            },
+            ";
         }
+        $js = str_replace('$RULES$', $rules, $js);
         \Craft::$app->view->registerJs($js, View::POS_END);
         $this->frontJsRegistered = true;
     }
