@@ -57,7 +57,7 @@ class Form extends Model
 				return $model->notifyAdmin_id != 0;
 			}],
 			['notifySpamEmails', 'required', 'when' => function($model){
-				return $model->notifyAdmin_id != 0;
+				return $model->notifySpam_id != 0;
 			}],
 			['captcha', function($attribute){
 				if (!in_array($this->$attribute, array_keys($this->getCaptchas()))) {
