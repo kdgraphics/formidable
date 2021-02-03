@@ -2,7 +2,6 @@
 
 namespace Ryssbowh\Formidable\Models;
 
-use JSMin\JSMin;
 use Ryssbowh\Formidable\Events\FormEvent;
 use Ryssbowh\Formidable\Exceptions\FormException;
 use Ryssbowh\Formidable\Formidable;
@@ -341,6 +340,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
 JS;
 		}
 		
-		return getenv('ENVIRONMENT') == 'production' ? JSMin::minify($js) : $js;
+		return $js;
 	}
 }

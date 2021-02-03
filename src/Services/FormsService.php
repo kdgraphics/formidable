@@ -2,7 +2,6 @@
 
 namespace Ryssbowh\Formidable\Services;
 
-use JSMin\JSMin;
 use Ryssbowh\Formidable\Events\FormEvent;
 use Ryssbowh\Formidable\Events\HookAssetsEvent;
 use Ryssbowh\Formidable\Events\SpamEvent;
@@ -496,7 +495,7 @@ class FormsService extends Component
             $js = str_replace('$RULES$', $rules, $js);
             \Craft::$app->cache->set(self::FRONT_JS_CACHE_KEY, $js);
         }
-        \Craft::$app->view->registerJs(getenv('ENVIRONMENT') == 'production' ? JSMin::minify($js) : $js, View::POS_END);
+        \Craft::$app->view->registerJs($js, View::POS_END);
         $this->frontJsRegistered = true;
     }
 
