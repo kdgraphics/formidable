@@ -48,7 +48,7 @@ class SendEmailsController extends Controller
 			return true;
 		}
 		$wait = Formidable::$plugin->getSettings()->forceUnlock;
-		$content = file_get_contents(\Craft::getAlias(self::LOCK_FILE));
+		$content = (int)file_get_contents(\Craft::getAlias(self::LOCK_FILE));
 		if (($content + 60 * $wait) < time()) {
 			$this->stdout("Lock is older than ".$wait." min, breaking it.\n");
 			return true;
