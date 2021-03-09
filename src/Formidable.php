@@ -5,7 +5,7 @@ use Craft;
 use Ryssbowh\Formidable\Assets\TestAsset;
 use Ryssbowh\Formidable\Captchas\GoogleV3;
 use Ryssbowh\Formidable\Events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent, EmailEvent};
-use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, LightSwitch, Number, Radio, Select, Text, Textarea};
+use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, LightSwitch, Number, Radio, Select, Text, Textarea, SelectCategory};
 use Ryssbowh\Formidable\Models\FormSubmission;
 use Ryssbowh\Formidable\Models\Records\Submission;
 use Ryssbowh\Formidable\Models\Rules\{BiggerThan, Contain, EqualTo, Off, On, Required, SameThan, Size, SmallerThan};
@@ -45,7 +45,8 @@ class Formidable extends Plugin
         Select::class,
         Radio::class,
         Checkboxes::class,
-        File::class
+        File::class,
+        SelectCategory::class
     ];
 
     protected $availableCaptchas = [
@@ -290,7 +291,8 @@ class Formidable extends Plugin
                     'formidable/notifications/add' => 'formidable/cp-notifications',
                     'formidable/notifications/save' => 'formidable/cp-notifications/save',
                     'formidable/notifications/edit/<id:\d+>' => 'formidable/cp-notifications',
-                    'formidable/notifications/delete/<id:\d+>' => 'formidable/cp-notifications/delete'
+                    'formidable/notifications/delete/<id:\d+>' => 'formidable/cp-notifications/delete',
+                    'formidable/categories-groups' => 'formidable/cp-categories'
                 ]);
             }
             $event->rules = array_merge($event->rules, [

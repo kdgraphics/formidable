@@ -1,0 +1,16 @@
+{% extends "formidable/fields/_field" %}
+
+{% block inner %}
+	<select
+	id="{{ field.generateId(form) }}"
+	name="{{ field.handle }}"
+	class="{{ field.fieldClass }}{% if error %} is-invalid{% endif %}"
+	>
+        {% if field.includeSelect %}
+            <option value="">{{ field.selectLabel }}</option>
+        {% endif %}
+		{% for id, name in field.getCategories() %}
+			<option value="{{ id }}" {% if oldValue and (id == oldValue) %}selected="selected"{% endif %}>{{ name }}</option>
+		{% endfor %}
+	</select>
+{% endblock %}
