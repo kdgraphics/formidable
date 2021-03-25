@@ -56,9 +56,9 @@ class ConditionsService extends Component
      * Get condition model by uid
      * 
      * @param  string $uid
-     * @return ?FieldInterface
+     * @return ?Condition
      */
-    public function getByUid(string $uid): ?RuleInterface
+    public function getByUid(string $uid): ?Condition
     {
         $condition = ConditionRecord::find()->where(['uid' => $uid])->one();
         return $condition ? $condition->toModel() : null;

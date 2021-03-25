@@ -329,12 +329,12 @@ class Formidable extends Plugin
     protected function registerProjectConfig()
     {
         Craft::$app->projectConfig
-            ->onAdd(NotificationsService::CONFIG_KEY.'.{uid}',      [$this->notifications,   'handleChanged'])
-            ->onUpdate(NotificationsService::CONFIG_KEY.'.{uid}',   [$this->notifications,   'handleChanged'])
-            ->onRemove(NotificationsService::CONFIG_KEY.'.{uid}',   [$this->notifications,   'handleDeleted'])
             ->onAdd(FormsService::CONFIG_KEY.'.{uid}',              [$this->forms,           'handleChanged'])
             ->onUpdate(FormsService::CONFIG_KEY.'.{uid}',           [$this->forms,           'handleChanged'])
             ->onRemove(FormsService::CONFIG_KEY.'.{uid}',           [$this->forms,           'handleDeleted'])
+            ->onAdd(NotificationsService::CONFIG_KEY.'.{uid}',      [$this->notifications,   'handleChanged'])
+            ->onUpdate(NotificationsService::CONFIG_KEY.'.{uid}',   [$this->notifications,   'handleChanged'])
+            ->onRemove(NotificationsService::CONFIG_KEY.'.{uid}',   [$this->notifications,   'handleDeleted'])
             ->onAdd(FieldsService::CONFIG_KEY.'.{uid}',             [$this->fields,          'handleChanged'])
             ->onUpdate(FieldsService::CONFIG_KEY.'.{uid}',          [$this->fields,          'handleChanged'])
             ->onRemove(FieldsService::CONFIG_KEY.'.{uid}',          [$this->fields,          'handleDeleted'])
