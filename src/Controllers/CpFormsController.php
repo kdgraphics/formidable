@@ -105,23 +105,21 @@ class CpFormsController extends Controller
             ]);
         }
 
-        $fields = $this->fields()->validateData($fieldsData);
-        $rules = $this->rules()->validateData($rulesData);
+        $form->fields = $this->fields()->validateData($fieldsData);
+        $form->rules = $this->rules()->validateData($rulesData);
 
-        if ($errors = $this->forms()->gatherErrors($form, $fields, $rules)) {
+        if ($errors = $this->forms()->gatherErrors($form)) {
             return $this->asJson([
                 'errors' => $errors,
                 'message' => \Craft::t('formidable', 'Please fix the errors before saving.')
             ]);
         }
-        if ($this->forms()->save($form, $fields, $rules)) {
+        if ($this->forms()->save($form)) {
             return $this->asJson([
                 'loaded' => time(),
                 'success' => true,
                 'message' => \Craft::t('formidable', 'Form saved successfully.'),
-                'form' => $form,
-                'fields' => $fields,
-                'rules' => $rules,
+                'form' => $form
             ]);    
         }
         return $this->asJson([
@@ -144,6 +142,7 @@ class CpFormsController extends Controller
         }
         return $this->asJson([
             'success' => true,
+            'message' => \Craft::t('formidable', "Form deleted successfully")
         ]);
     }
 }

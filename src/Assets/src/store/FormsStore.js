@@ -210,8 +210,8 @@ export default new Vuex.Store({
     },
     resetForm({commit, state}, data) {
       commit('setForm', data.form);
-      commit('setFields', data.fields);
-      commit('setRules', data.rules);
+      commit('setFields', data.form.fields);
+      commit('setRules', data.form.rules);
       commit('setLoadedTime', data.loaded);
     },
     setHistory({}, parts) {

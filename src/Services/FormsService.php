@@ -35,7 +35,7 @@ class FormsService extends Component
 
     const EVENT_HOOK_ASSETS = 'formidable_hook';
 
-	const CONFIG_KEY = Formidable::CONFIG_KEY . '.forms';
+	const CONFIG_KEY = 'formidable.forms';
 
     const FRONT_JS_FILE = __DIR__ . '/../Assets/dist/validation.js';
 
@@ -173,14 +173,12 @@ class FormsService extends Component
      * @param  array     $fields
      * @param  array     $rules
      * @return bool
-     */
-	public function save(FormModel $form, array $fields, array $rules): bool
+     */ 
+	public function save(FormModel $form): bool
 	{
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE)) {
             $this->trigger(self::EVENT_BEFORE_SAVE, new FormEvent([
                 'form' => $form,
-                'fields' => $fields,
-                'rules' => $rules,
                 'isNew' => empty($form->id),
             ]));
         }
@@ -194,10 +192,9 @@ class FormsService extends Component
             $form->id = Db::idByUid(FormRecord::tableName(), $form->uid);
         }
 
-        Formidable::$plugin->fields->deleteMany($this->gatherFieldsToDelete($form, $fields));
-        Formidable::$plugin->fields->saveMany($fields, $form);
-        Formidable::$plugin->rules->deleteMany($this->gatherRulesToDelete($form, $rules));
-        Formidable::$plugin->rules->saveMany($rules, $form);
+        //Empty caches
+        $form->fields = null;
+        $form->rules = null;
 
         return true;
 	}
@@ -239,6 +236,69 @@ class FormsService extends Component
             $form->color = $data['color'];
             $form->captcha = $data['captcha'];
             $form->save(false);
+
+            $fieldIds = $ruleIds = [];
+
+            foreach ($data['fields'] ?? [] as $fieldData) {
+                $field = Formidable::$plugin->fields->getRecordByUid($fieldData['uid']);
+                $field->name = $fieldData['name'];
+                $field->handle = $fieldData['handle'];
+                $field->form_id = $form->id;
+                $field->order = $fieldData['order'];
+                $field->type = $fieldData['type'];
+                $field->options = $fieldData['options'];
+                $field->fieldClass = $fieldData['fieldClass'];
+                $field->containerClass = $fieldData['containerClass'];
+                $field->labelClass = $fieldData['labelClass'];
+                $field->instructions = $fieldData['instructions'];
+                $field->save(false);
+                $fieldIds[] = $field->id;
+            }
+
+            foreach ($data['rules'] ?? [] as $ruleData) {
+                $rule = Formidable::$plugin->rules->getRecordByUid($ruleData['uid']);
+                $rule->form_id = $form->id;
+                $rule->type = $ruleData['type'];
+                $rule->message = $ruleData['message'];
+                $rule->messages = $ruleData['messages'] ?? '{}';
+                $rule->value = $ruleData['value'];
+                $rule->fields = $ruleData['fields'];
+                $rule->save(false);
+                $ruleIds[] = $rule->id;
+
+                foreach ($ruleData['conditionGroups'] ?? [] as $groupData) {
+                    $group = Formidable::$plugin->conditionGroups->getRecordByUid($groupData['uid']);
+                    $group->rule_id = $rule->id;
+                    $group->operator = $groupData['operator'];
+                    $group->negate = $groupData['negate'];
+                    $group->save(false);
+                    foreach ($groupData['conditions'] ?? [] as $conditionData) {
+                        $condition = Formidable::$plugin->conditions->getRecordByUid($conditionData['uid']);
+                        $condition->conditiongroup_id = $group->id;
+                        $condition->type = $conditionData['type'];
+                        $condition->negate = $conditionData['negate'];
+                        $condition->operator = $conditionData['operator'];
+                        $condition->value = $conditionData['value'];
+                        $condition->field = $conditionData['field'];
+                        $condition->save(false);
+                    }
+                }
+
+                foreach ($ruleData['conditions'] ?? [] as $conditionData) {
+                    $condition = Formidable::$plugin->conditions->getRecordByUid($conditionData['uid']);
+                    $condition->rule_id = $rule->id;
+                    $condition->type = $conditionData['type'];
+                    $condition->negate = $conditionData['negate'];
+                    $condition->operator = $conditionData['operator'];
+                    $condition->value = $conditionData['value'];
+                    $condition->field = $conditionData['field'];
+                    $condition->save(false);
+                }
+            }
+
+            Formidable::$plugin->fields->deleteForForm($form->id, $fieldIds);
+            Formidable::$plugin->rules->deleteForForm($form->id, $ruleIds);
+
             $transaction->commit();
         } catch (\Throwable $e) {
             $transaction->rollBack();
@@ -299,18 +359,18 @@ class FormsService extends Component
      * @param  Form   $form
      * @return array
      */
-    public function gatherErrors(FormModel $form, array $fields, array $rules): array
+    public function gatherErrors(FormModel $form): array
     {
         $errors = [];
         if ($errors2 = $form->getErrors()) {
             $errors['form'] = $errors2;
         }
-        foreach ($fields as $index => $field) {
+        foreach ($form->fields as $index => $field) {
             if ($errors2 = $field->getErrors()) {
                 $errors['fields'][$index] = $errors2;
             } 
         }
-        foreach ($rules as $index => $rule) {
+        foreach ($form->rules as $index => $rule) {
             if ($errors2 = $rule->getErrors()) {
                 $errors['rules'][$index]['errors'] = $errors2;
             }
@@ -373,7 +433,7 @@ class FormsService extends Component
     public function rebuildConfig(RebuildConfigEvent $e)
     {
         foreach ($this->getAll() as $form) {
-            $e->config[Formidable::CONFIG_KEY][self::CONFIG_KEY][$form->uid] = $form->getConfig();
+            $e->config[self::CONFIG_KEY.'.'.$form->uid] = $form->getConfig();
         }
     }
 

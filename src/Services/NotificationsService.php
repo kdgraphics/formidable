@@ -33,7 +33,7 @@ class NotificationsService extends Component
     const EVENT_BEFORE_SENDING_EMAIL = 'before_email';
     const EVENT_AFTER_SENDING_EMAIL = 'after_email';
 
-	const CONFIG_KEY = Formidable::CONFIG_KEY . '.notifications';
+	const CONFIG_KEY = 'formidable.notifications';
 
 	protected $notifications;
 
@@ -252,7 +252,7 @@ class NotificationsService extends Component
     public function rebuildConfig(RebuildConfigEvent $e)
     {
         foreach ($this->getAll() as $notification) {
-            $e->config[Formidable::CONFIG_KEY][self::CONFIG_KEY][$notification->uid] = $notification->getConfig();
+            $e->config[self::CONFIG_KEY.'.'.$notification->uid] = $notification->getConfig();
         }
     }
 

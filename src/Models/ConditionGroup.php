@@ -6,6 +6,7 @@ use Ryssbowh\Formidable\Formidable;
 use Ryssbowh\Formidable\Models\FormSubmission;
 use craft\base\Model;
 use craft\helpers\ArrayHelper;
+use craft\helpers\StringHelper;
 
 class ConditionGroup extends Model
 {
@@ -35,7 +36,11 @@ class ConditionGroup extends Model
 	{
 		return [
 			'negate' => $this->negate,
-			'operator' => $this->operator
+			'operator' => $this->operator,
+			'uid' => $this->uid ?? StringHelper::UUID(),
+			'conditions' => array_map(function ($condition) {
+            	return $condition->getConfig();
+            }, $this->conditions),
 		];
 	}
 

@@ -39,8 +39,9 @@ class Form extends Model
 	public $dateCreated;
 	public $dateUpdated;
 	public $uid;
-	public $fields;
-	public $rules;
+
+	protected $_fields;
+	protected $_rules;
 
 	public function rules()
 	{
@@ -82,6 +83,11 @@ class Form extends Model
 		parent::init();
 	}
 
+	public function fields()
+	{
+		return array_merge(parent::fields(), ['fields', 'rules']);
+	}
+
 	/**
 	 * Get form fields
 	 * 
@@ -89,10 +95,18 @@ class Form extends Model
 	 */
 	public function getFields(): array
 	{
-		if ($this->fields == null) {
-			$this->fields = Formidable::$plugin->fields->getFormFields($this);
+		if ($this->_fields === null) {
+			$this->_fields = Formidable::$plugin->fields->getFormFields($this);
 		}
-		return $this->fields;
+		return $this->_fields;
+	}
+
+	/**
+	 * Set form fields
+	 */
+	public function setFields(?array $fields)
+	{
+		$this->_fields = $fields;
 	}
 
 	/**
@@ -119,10 +133,18 @@ class Form extends Model
 	 */
 	public function getRules(): array
 	{
-		if ($this->rules == null) {
-			$this->rules = Formidable::$plugin->rules->getFormRules($this);
+		if ($this->_rules === null) {
+			$this->_rules = Formidable::$plugin->rules->getFormRules($this);
 		}
-		return $this->rules;
+		return $this->_rules;
+	}
+
+	/**
+	 * Set form rules
+	 */
+	public function setRules(?array $rules)
+	{
+		$this->_rules = $rules;
 	}
 
 	/**
@@ -176,7 +198,13 @@ class Form extends Model
             'submitClass' => $this->submitClass,
             'method' => $this->method,
             'color' => $this->color,
-            'captcha' => $this->captcha
+            'captcha' => $this->captcha,
+            'fields' => array_map(function ($field) {
+            	return $field->getConfig();
+            }, $this->fields),
+            'rules' => array_map(function ($rule) {
+            	return $rule->getConfig();
+            }, $this->rules),
 		];
 	}
 

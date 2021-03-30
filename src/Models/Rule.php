@@ -9,6 +9,7 @@ use Ryssbowh\Formidable\Models\Form;
 use Ryssbowh\Formidable\Models\FormSubmission;
 use craft\base\Model;
 use craft\helpers\ArrayHelper;
+use craft\helpers\StringHelper;
 
 abstract class Rule extends Model implements RuleInterface
 {
@@ -92,7 +93,14 @@ abstract class Rule extends Model implements RuleInterface
             'message' => $this->message,
             'messages' => $this->messages,
             'value' => $this->value,
-            'fields' => $this->fields
+            'fields' => $this->fields,
+            'uid' => $this->uid ?? StringHelper::UUID(),
+            'conditionGroups' => array_map(function ($group) {
+            	return $group->getConfig();
+            }, $this->conditionGroups),
+            'conditions' => array_map(function ($condition) {
+            	return $condition->getConfig();
+            }, $this->conditions),
 		];
 	}
 

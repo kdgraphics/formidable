@@ -34,8 +34,6 @@ class Formidable extends Plugin
 
     public static $plugin;
 
-    const CONFIG_KEY = 'formidable';
-
     protected $availableFields = [
         Text::class,
         Email::class,
@@ -334,23 +332,11 @@ class Formidable extends Plugin
             ->onRemove(FormsService::CONFIG_KEY.'.{uid}',           [$this->forms,           'handleDeleted'])
             ->onAdd(NotificationsService::CONFIG_KEY.'.{uid}',      [$this->notifications,   'handleChanged'])
             ->onUpdate(NotificationsService::CONFIG_KEY.'.{uid}',   [$this->notifications,   'handleChanged'])
-            ->onRemove(NotificationsService::CONFIG_KEY.'.{uid}',   [$this->notifications,   'handleDeleted'])
-            ->onAdd(FieldsService::CONFIG_KEY.'.{uid}',             [$this->fields,          'handleChanged'])
-            ->onUpdate(FieldsService::CONFIG_KEY.'.{uid}',          [$this->fields,          'handleChanged'])
-            ->onRemove(FieldsService::CONFIG_KEY.'.{uid}',          [$this->fields,          'handleDeleted'])
-            ->onAdd(RulesService::CONFIG_KEY.'.{uid}',              [$this->rules,           'handleChanged'])
-            ->onUpdate(RulesService::CONFIG_KEY.'.{uid}',           [$this->rules,           'handleChanged'])
-            ->onRemove(RulesService::CONFIG_KEY.'.{uid}',           [$this->rules,           'handleDeleted'])
-            ->onAdd(ConditionsService::CONFIG_KEY.'.{uid}',         [$this->conditions,      'handleChanged'])
-            ->onUpdate(ConditionsService::CONFIG_KEY.'.{uid}',      [$this->conditions,      'handleChanged'])
-            ->onRemove(ConditionsService::CONFIG_KEY.'.{uid}',      [$this->conditions,      'handleDeleted'])
-            ->onAdd(ConditionGroupsService::CONFIG_KEY.'.{uid}',    [$this->conditionGroups, 'handleChanged'])
-            ->onUpdate(ConditionGroupsService::CONFIG_KEY.'.{uid}', [$this->conditionGroups, 'handleChanged'])
-            ->onRemove(ConditionGroupsService::CONFIG_KEY.'.{uid}', [$this->conditionGroups, 'handleDeleted']);
+            ->onRemove(NotificationsService::CONFIG_KEY.'.{uid}',   [$this->notifications,   'handleDeleted']);
 
         Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $e) {
-            Formidable::$plugin->notifications->rebuildConfig($e);
             Formidable::$plugin->forms->rebuildConfig($e);
+            Formidable::$plugin->notifications->rebuildConfig($e);
         });
     }
 }

@@ -21,14 +21,6 @@ use craft\helpers\StringHelper;
 
 class ConditionGroupsService extends Component
 {
-    const EVENT_BEFORE_SAVE = 'before_save';
-    const EVENT_AFTER_SAVE = 'after_save';
-    const EVENT_BEFORE_APPLY_DELETE = 'before_apply_delete';
-    const EVENT_AFTER_DELETE = 'after_delete';
-    const EVENT_BEFORE_DELETE = 'before_delete';
-
-    const CONFIG_KEY = Formidable::CONFIG_KEY . '.conditionGroups';
-
     /**
      * Get condition group record by uid
      * 
@@ -65,82 +57,6 @@ class ConditionGroupsService extends Component
     }
 
     /**
-     * Save a group. Adds/Modifies the project config
-     * 
-     * @param  ConditionGroup $group
-     * @param  Rule           $rule
-     * @return bool
-     */
-    public function save(ConditionGroup $group, Rule $rule): bool
-    {
-        if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE)) {
-            $this->trigger(self::EVENT_BEFORE_SAVE, new ConditionGroupEvent([
-                'group' => $group,
-                'isNew' => empty($group->id),
-            ]));
-        }
-
-        $group->uid = $group->id ? $group->uid : StringHelper::UUID();
-        $projectConfig = \Craft::$app->getProjectConfig();
-        $configData = $group->getConfig();
-        $configData['rule'] = $rule->uid;
-        $configPath = self::CONFIG_KEY . '.' . $group->uid;
-        $projectConfig->set($configPath, $configData);
-
-        if (!$group->id) {
-            $group->id = Db::idByUid(ConditionGroupRecord::tableName(), $group->uid);
-        }
-
-        foreach ($group->conditions as $condition) {
-            Formidable::$plugin->conditions->save($condition, $group);
-        }
-
-        return true;
-    }
-
-    /**
-     * Save many condition groups
-     * 
-     * @param  array  $conditionGroups
-     * @param  Rule   $rule
-     */
-    public function saveMany(array $conditionGroups, Rule $rule)
-    {
-        foreach ($conditionGroups as $group) {
-            $this->save($group, $rule);
-        }
-    }
-
-    /**
-     * Handle project config changes
-     */
-    public function handleChanged(ConfigEvent $event)
-    {
-        $uid = $event->tokenMatches[0];
-        $data = $event->newValue;
-        $transaction = \Craft::$app->getDb()->beginTransaction();
-        try {
-            $group = $this->getRecordByUid($uid);
-            $isNew = $group->getIsNewRecord();
-            $group->rule_id = Formidable::$plugin->rules->getByUid($data['rule'])->id;
-            $group->operator = $data['operator'];
-            $group->negate = $data['negate'];
-            $group->save(false);
-            $transaction->commit();
-        } catch (\Throwable $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
-
-        if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE)) {
-            $this->trigger(self::EVENT_AFTER_SAVE, new ConditionGroupEvent([
-                'group' => $group->toModel(),
-                'isNew' => $isNew,
-            ]));
-        }
-    }
-
-    /**
      * Get all conditions groups for a rule
      * 
      * @param  RuleInterface $rule
@@ -153,69 +69,6 @@ class ConditionGroupsService extends Component
             $groups[$group->id] = $group->toModel();
         }
         return $groups;
-    }
-
-    /**
-     * Delete condition model
-     * 
-     * @param  ConditionGroup $model
-     * @return bool
-     */
-    public function delete(ConditionGroup $model): bool
-    {
-        if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE)) {
-            $this->trigger(self::EVENT_BEFORE_DELETE, new ConditionGroupEvent([
-                'group' => $model,
-            ]));
-        }
-        
-        \Craft::$app->getProjectConfig()->remove(self::CONFIG_KEY . '.' . $model->uid);
-
-        return true;
-    }
-
-    /**
-     * Handle a deleted config
-     * 
-     * @param ConfigEvent $event
-     */
-    public function handleDeleted(ConfigEvent $event)
-    {
-        $uid = $event->tokenMatches[0];
-
-        $group = $this->getByUid($uid);
-
-        if (!$group) {
-            return;
-        }
-
-        if ($this->hasEventHandlers(self::EVENT_BEFORE_APPLY_DELETE)) {
-            $this->trigger(self::EVENT_BEFORE_APPLY_DELETE, new ConditionGroupEvent([
-                'group' => $group,
-            ]));
-        }
-
-        \Craft::$app->getDb()->createCommand()
-            ->delete(ConditionGroupRecord::tableName(), ['uid' => $uid])
-            ->execute();
-
-        if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE)) {
-            $this->trigger(self::EVENT_AFTER_DELETE, new ConditionGroupEvent([
-                'group' => $group,
-            ]));
-        }
-    }
-
-    /**
-     * Delete many conditions
-     * 
-     * @param  array  $conditions
-     */
-    public function deleteMany(array $groups)
-    {
-        foreach ($groups as $group) {
-            $this->delete($group);
-        }
     }
 
     /**

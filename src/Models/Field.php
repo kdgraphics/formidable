@@ -9,6 +9,7 @@ use Ryssbowh\Formidable\Interfaces\FieldTypeInterface;
 use Ryssbowh\Formidable\Models\FieldTypes\TextField;
 use Ryssbowh\Formidable\Models\FormSubmission;
 use craft\base\Model;
+use craft\helpers\StringHelper;
 
 abstract class Field extends Model implements FieldInterface
 {
@@ -135,7 +136,8 @@ abstract class Field extends Model implements FieldInterface
             'labelClass' => $this->labelClass,
             'instructions' => $this->instructions,
             'type' => $this->handle(),
-            'options' => $this->rebuildOptions(true)
+            'options' => $this->rebuildOptions(true),
+            'uid' => $this->uid ?? StringHelper::UUID()
 		];
 	}
 

@@ -5,6 +5,7 @@ namespace Ryssbowh\Formidable\Models;
 use Ryssbowh\Formidable\Formidable;
 use Ryssbowh\Formidable\Models\FormSubmission;
 use craft\base\Model;
+use craft\helpers\StringHelper;
 
 class Condition extends Model
 {
@@ -42,7 +43,8 @@ class Condition extends Model
 			'negate' => $this->negate,
 			'operator' => $this->operator,
 			'value' => $this->value,
-			'field' => $this->field
+			'field' => $this->field,
+			'uid' => $this->uid ?? StringHelper::UUID(),
 		];
 	}
 
