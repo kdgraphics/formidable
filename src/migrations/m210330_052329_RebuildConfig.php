@@ -3,6 +3,7 @@
 namespace Ryssbowh\Formidable\migrations;
 
 use Craft;
+use Ryssbowh\Formidable\Formidable;
 use craft\db\Migration;
 
 /**
