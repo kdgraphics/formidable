@@ -20,6 +20,7 @@ class m210330_052329_RebuildConfig extends Migration
         foreach ($forms as $form) {
             Formidable::$plugin->forms->save($form);
         }
+        \Craft::$app->projectConfig->readOnly = false;
         \Craft::$app->projectConfig->remove('formidable.fields');
         \Craft::$app->projectConfig->remove('formidable.rules');
         \Craft::$app->projectConfig->remove('formidable.conditions');
