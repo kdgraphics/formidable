@@ -64,7 +64,7 @@ class ScheduleService extends Component
 	{
 		$contentFile = \Craft::getAlias(self::STORAGE_PATH.'/'.$email->uid);
 		if (!file_exists($contentFile)) {
-			throw ScheduleException::storageNotFound($email, $contentFile);
+			return 0;
 		}
 		$submitted = null;
 		if ($email->submission_id) {
