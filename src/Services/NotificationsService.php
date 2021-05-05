@@ -252,7 +252,8 @@ class NotificationsService extends Component
     public function rebuildConfig(RebuildConfigEvent $e)
     {
         foreach ($this->getAll() as $notification) {
-            $e->config[self::CONFIG_KEY.'.'.$notification->uid] = $notification->getConfig();
+            $parts = explode('.', self::CONFIG_KEY);
+            $e->config[$parts[0]][$parts[1]][$notification->uid] = $notification->getConfig();
         }
     }
 
