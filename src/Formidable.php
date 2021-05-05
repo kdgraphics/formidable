@@ -339,4 +339,9 @@ class Formidable extends Plugin
             Formidable::$plugin->notifications->rebuildConfig($e);
         });
     }
+
+    protected function afterUninstall()
+    {
+        \Craft::$app->getProjectConfig()->remove('formidable');
+    }
 }
