@@ -54,7 +54,7 @@
         </div>
       </div>
     </div>
-    <button class="btn" @click="">{{ isChartView ? t('Table view') : t('Chart view')}}</button>
+    <button class="btn" @click="setIsChartView(!isChartView)">{{ isChartView ? t('Table view') : t('Chart view')}}</button>
     <div v-show="selected.length">
       <button type="button" class="btn menubtn" data-icon="settings">
       </button>
