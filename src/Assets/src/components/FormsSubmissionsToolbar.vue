@@ -54,7 +54,7 @@
         </div>
       </div>
     </div>
-    <button class="btn" @click="setIsChartView(!isChartView)">{{ isChartView ? t('Table view') : t('Chart view')}}</button>
+    <button class="btn" @click="">{{ isChartView ? t('Table view') : t('Chart view')}}</button>
     <div v-show="selected.length">
       <button type="button" class="btn menubtn" data-icon="settings">
       </button>
@@ -62,6 +62,7 @@
         <ul class="padded">
           <li><a href="#" v-on:click="markSelectedAsRead">{{ t('Mark as read') }}</a></li>
           <li><a href="#" v-on:click="deleteSelection">{{ t('Delete') }}</a></li>
+          <li><a href="#" v-if="filters.forms.length == 1" v-on:click="exportToCSV">{{ t('Export') }}</a></li>
         </ul>
       </div>
     </div>
@@ -108,6 +109,20 @@ export default {
       } else {
         this.addForm(id);
       }
+    },
+    formatFilter: function (filters) {
+      let out = {};
+      for (let i in filters) {
+        if (typeof filters[i] == 'object') {
+          out[i] = this.formatFilter(filters[i]);
+        } else {
+          out[i] = filters[i];
+        }
+      }
+      return out; 
+    },
+    exportToCSV: function () {
+      window.open(Craft.getCpUrl('formidable/submissions/export?ids='+this.selected.join(',')));
     },
     ...mapMutations(['setTimezone', 'setForms', 'setPager', 'setTrashed', 'setRead', 'setDateTo', 'setDateFrom', 'addForm', 'removeForm', 'setIsChartView', 'deleteSelected']),
     ...mapActions(['markSelectedAsRead', 'deleteSelection'])

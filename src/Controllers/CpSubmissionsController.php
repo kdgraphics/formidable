@@ -87,26 +87,10 @@ class CpSubmissionsController extends Controller
 
     public function actionExport()
     {
-        $this->requireAcceptsJson();
-        $this->requirePostRequest();
-
-        $ids = $this->request()->getRequiredParam('ids');
-        $response = [
-            'success' => true,
-            'data' => $this->submissions()->exportAsCsv($ids)
-        ];
-        return $this->asJson($response);
-    }
-
-    public function actionExportAll()
-    {
-        $this->requireAcceptsJson();
-        $this->requirePostRequest();
-
-        $response = [
-            'success' => true,
-            'data' => $this->submissions()->exportAll()
-        ];
-        return $this->asJson($response);
+        $ids = explode(',', $this->request()->getRequiredParam('ids'));
+        $data = $this->submissions()->exportAsCsv($ids);
+        return \Craft::$app->getResponse()->sendContentAsFile($data, 'submissions.csv', [
+            'mimeType' => 'text/csv'
+        ]);
     }
 }
