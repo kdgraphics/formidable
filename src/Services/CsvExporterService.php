@@ -60,7 +60,7 @@ class CsvExporterService extends Component
 			];
 			foreach ($fields as $field) {
 				if ($value = ArrayHelper::firstWhere($submission->values, 'field', $field)) {
-					if ($fieldInstance = Formidable::$plugin->fields->getRegistered($field)) {
+					if ($fieldInstance = Formidable::$plugin->fields->getRegistered($value['type'])) {
 						$line[] = $fieldInstance->getCsvValue($value->value);
 					} else {
 						$line[] = '';
