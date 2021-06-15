@@ -169,7 +169,7 @@ class Install extends Migration
         $this->addForeignKey(null, '{{%formidable_submissions_values}}', ['submission_id'], '{{%formidable_submissions}}', ['id'], 'CASCADE', null);
         $this->addForeignKey(null, '{{%formidable_rules}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
         $this->addForeignKey(null, '{{%formidable_conditiongroups}}', ['rule_id'], '{{%formidable_rules}}', ['id'], 'CASCADE', null);
-        $this->addForeignKey(null, '{{%formidable_conditions}}', ['rule_id'], '{{%formidable_conditions}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey(null, '{{%formidable_conditions}}', ['rule_id'], '{{%formidable_rules}}', ['id'], 'CASCADE', null);
         $this->addForeignKey(null, '{{%formidable_conditions}}', ['conditiongroup_id'], '{{%formidable_conditiongroups}}', ['id'], 'CASCADE', null);
         $this->addForeignKey(null, '{{%formidable_emails}}', ['submission_id'], '{{%formidable_submissions}}', ['id'], 'SET NULL', null);
         $this->addForeignKey(null, '{{%formidable_emails}}', ['spam_id'], '{{%formidable_spams}}', ['id'], 'SET NULL', null);
