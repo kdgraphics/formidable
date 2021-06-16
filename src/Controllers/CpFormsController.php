@@ -2,6 +2,7 @@
 
 namespace Ryssbowh\Formidable\Controllers;
 
+use Inspire\Emails\Emails;
 use Ryssbowh\Formidable\Assets\FormAsset;
 use Ryssbowh\Formidable\Assets\FormsAsset;
 use Ryssbowh\Formidable\Assets\HookAsset;
@@ -43,7 +44,9 @@ class CpFormsController extends Controller
             'tab' => $tab,
             'form' => $form,
             'forms' => $this->forms()->getAllAsArray(),
-            'notifications' => $this->notifications()->getAll(),
+            'emails' => array_map(function ($email) {
+                return $email->toArray();
+            }, Emails::$plugin->emails->all()),
             'captchas' => $this->captchas()->getAllAsArray(),
             'fields' => $fields,
             'rules' => $rules,

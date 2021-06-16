@@ -79,11 +79,10 @@ Each field has a default template too, if you want to override it :
 {% endfor %}
 ```
 
-# Notifications
+# Emails
 
-They define an email to be sent and can be attached to forms.
-
-The email will be built either through direct html or through a custom template, the 2 variables `submission` and `notification` are available. When building through html, you can use twig.
+Since v2 this plugin uses the [Emails plugin](https://gitlab.inspireservera.com/craft/emails) to send emails.  
+So you will need a cron every minute to be able to send emails, calling `queue/run`.
 
 # Captchas
 

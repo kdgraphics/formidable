@@ -6,7 +6,6 @@ const env = process.env.NODE_ENV;
 
 const config = {
   entry: {
-    notifications: path.join(__dirname, 'src/Assets/src', 'notifications.js'),
     forms: path.join(__dirname, 'src/Assets/src', 'forms.js'),
     submissions: path.join(__dirname, 'src/Assets/src', 'submissions.js'),
     spam: path.join(__dirname, 'src/Assets/src', 'spam.js'),

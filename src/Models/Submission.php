@@ -35,4 +35,12 @@ class Submission extends Model
 		$array['dateCreated'] = $this->dateCreated->format('d/m/Y H:i');
 		return $array;
 	}
+
+	public function __sleep()
+	{
+		$fields = $this->fields();
+		unset($fields['_record']);
+		unset($fields['form']);
+		return array_keys($fields);
+    }
 }

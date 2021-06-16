@@ -6,7 +6,6 @@ use Ryssbowh\Formidable\Formidable;
 use Ryssbowh\Formidable\Services\CaptchasService;
 use Ryssbowh\Formidable\Services\FieldsService;
 use Ryssbowh\Formidable\Services\FormsService;
-use Ryssbowh\Formidable\Services\NotificationsService;
 use Ryssbowh\Formidable\Services\RulesService;
 use Ryssbowh\Formidable\Services\SpamService;
 use Ryssbowh\Formidable\Services\SubmissionsService;
@@ -34,11 +33,6 @@ class Controller extends CraftController
 	protected function fields(): FieldsService
 	{
 		return Formidable::$plugin->fields;
-	}
-
-	protected function notifications(): NotificationsService
-	{
-		return Formidable::$plugin->notifications;
 	}
 
 	protected function submissions(): SubmissionsService

@@ -88,13 +88,6 @@ class FormsService extends Component
 	public function getAll(): array
 	{
         if (is_null($this->forms)) {
-            // $this->forms = \Craft::$app->cache->getOrSet(self::CACHE_ALL, function () {
-            //     $forms = [];
-            //     foreach (FormRecord::find()->with('fields')->all() as $record) {
-            //         $forms[$record->id] = $record->toModel();
-            //     }
-            //     return $forms;
-            // });
             $this->forms = [];
             foreach (FormRecord::find()->all() as $record) {
                 $this->forms[$record->id] = $record->toModel();
@@ -208,7 +201,6 @@ class FormsService extends Component
     {
         $uid = $event->tokenMatches[0];
         $data = $event->newValue;
-        $notifications = Formidable::$plugin->notifications;
         $transaction = \Craft::$app->getDb()->beginTransaction();
 
         try {
@@ -217,9 +209,9 @@ class FormsService extends Component
 
             $form->name = $data['name'];
             $form->handle = $data['handle'];
-            $form->notifyAdmin_id = $data['notifyAdmin'] ? $notifications->getRecordByUid($data['notifyAdmin'])->id : null;
-            $form->notify_id = $data['notify'] ? $notifications->getRecordByUid($data['notify'])->id : null;
-            $form->notifySpam_id = $data['notifySpam'] ? $notifications->getRecordByUid($data['notifySpam'])->id : null;
+            $form->notifyAdmin_key = $data['notifyAdmin_key'];
+            $form->notify_key = $data['notify_key'];
+            $form->notifySpam_key = $data['notifySpam_key'];
             $form->notifyField = $data['notifyField'];
             $form->notifyEmails = $data['notifyEmails'];
             $form->notifySpamEmails = $data['notifySpamEmails'];

@@ -2,15 +2,17 @@
 namespace Ryssbowh\Formidable;
 
 use Craft;
+use Inspire\Emails\Emails;
+use Inspire\Emails\Records\Email as EmailRecord;
 use Ryssbowh\Formidable\Assets\TestAsset;
 use Ryssbowh\Formidable\Captchas\GoogleV3;
-use Ryssbowh\Formidable\Events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent, EmailEvent};
+use Ryssbowh\Formidable\Events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent};
 use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, LightSwitch, Number, Radio, Select, Text, Textarea, SelectCategory};
 use Ryssbowh\Formidable\Models\FormSubmission;
 use Ryssbowh\Formidable\Models\Records\Submission;
 use Ryssbowh\Formidable\Models\Rules\{BiggerThan, Contain, EqualTo, Off, On, Required, SameThan, Size, SmallerThan};
 use Ryssbowh\Formidable\Models\Settings;
-use Ryssbowh\Formidable\Services\{CaptchasService, ConditionsService, ConditionGroupsService, CsvExporterService, FieldsService, FormsService, NotificationsService, RulesService, SpamService, SubmissionsService, ScheduleService};
+use Ryssbowh\Formidable\Services\{CaptchasService, ConditionsService, ConditionGroupsService, CsvExporterService, FieldsService, FormsService, RulesService, SpamService, SubmissionsService};
 use Ryssbowh\Formidable\Twig\TwigForms;
 use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
@@ -28,7 +30,7 @@ class Formidable extends Plugin
 {
     public $controllerNamespace = "Ryssbowh\\Formidable\\Controllers";
 
-    public $schemaVersion = '1.0.6';
+    public $schemaVersion = '2.0.0';
 
     public $hasCpSettings = true;
 
@@ -82,11 +84,6 @@ class Formidable extends Plugin
         $this->registerRules();
         $this->registerTwigExtension();
         $this->registerFrontTemplates();
-        $this->registerEmailWatchers();
-
-        if (Craft::$app->getRequest()->getIsConsoleRequest()) {
-            $this->controllerNamespace = 'Ryssbowh\\Formidable\\Console';
-        }
     }
 
     /**
@@ -152,37 +149,12 @@ class Formidable extends Plugin
                     ];
                     if (\Craft::$app->config->getGeneral()->allowAdminChanges) {
                         $event->navItems[] = [
-                            'url' => 'formidable',
-                            'label' => \Craft::t('formidable', 'Forms'),
-                            'subnav' => [
-                                'formidable-forms' => [
-                                    'url' => 'formidable/forms',
-                                    'label' => \Craft::t('formidable', 'Forms')
-                                ],
-                                'formidable-notifications' => [
-                                    'url' => 'formidable/notifications',
-                                    'label' => \Craft::t('formidable', 'Notifications'),
-                                ]
-                            ]
+                            'url' => 'formidable/forms',
+                            'label' => \Craft::t('formidable', 'Forms')
                         ];
                     }
                 });
         }
-    }
-
-    /**
-     * Submissions and spams callback when emails are sent
-     */
-    protected function registerEmailWatchers()
-    {
-        $_this = $this;
-        Event::on(NotificationsService::class, NotificationsService::EVENT_AFTER_SENDING_EMAIL, function (EmailEvent $event) use ($_this) {
-            if ($event->type == 'spam') {
-                $_this->spam->updateSpamAfterEmailSent($event->submitted, $event->type);
-            } elseif ($event->submitted instanceof Submission) {
-                $_this->submissions->updateSubmissionAfterEmailSent($event->submitted, $event->type);   
-            }
-        });
     }
 
     /**
@@ -211,15 +183,13 @@ class Formidable extends Plugin
     	$this->setComponents([
             'fields' => FieldsService::class,
     		'forms' => FormsService::class,
-            'notifications' => NotificationsService::class,
             'submissions' => SubmissionsService::class,
             'csvExporter' => CsvExporterService::class,
             'spam' => SpamService::class,
             'captchas' => CaptchasService::class,
             'rules' => RulesService::class,
             'conditions' => ConditionsService::class,
-            'conditionGroups' => ConditionGroupsService::class,
-            'schedule' => ScheduleService::class,
+            'conditionGroups' => ConditionGroupsService::class
     	]);
     }
 
@@ -284,12 +254,6 @@ class Formidable extends Plugin
                     'formidable/forms/<id:\d+>/<tab:fields>' => 'formidable/cp-forms/form',
                     'formidable/forms/<id:\d+>/<tab:rules>' => 'formidable/cp-forms/form',
                     'formidable/forms/delete/<id:\d+>' => 'formidable/cp-forms/delete',
-                    'formidable/notifications' => 'formidable/cp-notifications',
-                    'formidable/notifications/get/<id:\d+>' => 'formidable/cp-notifications/get',
-                    'formidable/notifications/add' => 'formidable/cp-notifications',
-                    'formidable/notifications/save' => 'formidable/cp-notifications/save',
-                    'formidable/notifications/edit/<id:\d+>' => 'formidable/cp-notifications',
-                    'formidable/notifications/delete/<id:\d+>' => 'formidable/cp-notifications/delete',
                     'formidable/categories-groups' => 'formidable/cp-categories'
                 ]);
             }
@@ -328,15 +292,29 @@ class Formidable extends Plugin
         Craft::$app->projectConfig
             ->onAdd(FormsService::CONFIG_KEY.'.{uid}',              [$this->forms,           'handleChanged'])
             ->onUpdate(FormsService::CONFIG_KEY.'.{uid}',           [$this->forms,           'handleChanged'])
-            ->onRemove(FormsService::CONFIG_KEY.'.{uid}',           [$this->forms,           'handleDeleted'])
-            ->onAdd(NotificationsService::CONFIG_KEY.'.{uid}',      [$this->notifications,   'handleChanged'])
-            ->onUpdate(NotificationsService::CONFIG_KEY.'.{uid}',   [$this->notifications,   'handleChanged'])
-            ->onRemove(NotificationsService::CONFIG_KEY.'.{uid}',   [$this->notifications,   'handleDeleted']);
+            ->onRemove(FormsService::CONFIG_KEY.'.{uid}',           [$this->forms,           'handleDeleted']);
 
         Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $e) {
             Formidable::$plugin->forms->rebuildConfig($e);
-            Formidable::$plugin->notifications->rebuildConfig($e);
         });
+    }
+
+    protected function afterInstall()
+    {
+        if (!Emails::$plugin->emails->getByKey('formidable_spam')) {
+            $email = new EmailRecord([
+                'key' => 'formidable_spam',
+                'subject' => 'New spam on {{ siteName }}',
+                'body' => 'A new spam has been caught on {{ form.name }}',
+                'heading' => 'When a spam is caught'
+            ]);
+            $email->save(false);
+        }
+    }
+
+    protected function beforeInstall(): bool
+    {
+        return \Craft::$app->plugins->installPlugin('emails');
     }
 
     protected function afterUninstall()

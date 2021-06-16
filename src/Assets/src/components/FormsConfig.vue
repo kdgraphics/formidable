@@ -88,18 +88,18 @@
         </div>
         <div class="field">
           <div class="heading">
-            <label for="form-notify_id">{{ t('User notification') }}</label>
+            <label for="form-notify_key">{{ t('User email') }}</label>
           </div>
           <div class="input ltr">
             <div class="select">
-              <select v-model="form.notify_id" class="text fullwidth" id="form.notify_id">
+              <select v-model="form.notify_key" class="text fullwidth" id="form.notify_key">
                 <option :value="null">{{ t('Don\'t notify') }}</option>
-                <option v-for="notif in notifications" :value="notif.id" :key="notif.id">{{ notif.name }}</option>
+                <option v-for="email in emails" :value="email.key" :key="email.key">{{ email.heading }}</option>
               </select>
             </div>
           </div>
         </div>
-        <div v-if="form.notify_id" class="field">
+        <div v-if="form.notify_key" class="field">
           <div class="heading">
             <label class="required" for="form.notifyField">{{ t('User email field') }}</label>
           </div>
@@ -135,20 +135,20 @@
         </div>
         <div class="field">
           <div class="heading">
-            <label for="form-notifySpam_id">{{ t('Spam notification') }}</label>
+            <label for="form-notifySpam_key">{{ t('Spam email') }}</label>
           </div>
           <div class="input ltr">
             <div class="select">
-              <select v-model="form.notifySpam_id" class="text fullwidth" id="form.notifySpam_id">
+              <select v-model="form.notifySpam_key" class="text fullwidth" id="form.notifySpam_key">
                 <option :value="null">{{ t('Don\'t notify') }}</option>
-                <option v-for="notif in notifications" :value="notif.id" :key="notif.id">{{ notif.name }}</option>
+                <option v-for="email in emails" :value="email.key" :key="email.key">{{ email.heading }}</option>
               </select>
             </div>
           </div>
         </div>
-        <div v-if="form.notifySpam_id" class="field" aria-describedby="spamemails-field-instructions">
+        <div v-if="form.notifySpam_key" class="field" aria-describedby="spamemails-field-instructions">
           <div class="heading">
-            <label class="required" for="form-notifySpamEmails">{{ t('Spam notification recipients') }}</label>
+            <label class="required" for="form-notifySpamEmails">{{ t('Spam email recipients') }}</label>
           </div>
           <div id="spamemails-field-instructions" class="instructions">
             <p>{{ t('Comma separated emails') }}</p>
@@ -159,20 +159,20 @@
         </div>
         <div class="field">
           <div class="heading">
-            <label for="form-notifyAdmin_id">{{ t('Admin notification') }}</label>
+            <label for="form-notifyAdmin_key">{{ t('Admin email') }}</label>
           </div>
           <div class="input ltr">
             <div class="select">
-              <select v-model="form.notifyAdmin_id" id="form-notifyAdmin_id" class="text fullwidth">
+              <select v-model="form.notifyAdmin_key" id="form-notifyAdmin_key" class="text fullwidth">
                 <option :value="null">{{ t('Don\'t notify') }}</option>
-                <option v-for="notif in notifications" :value="notif.id" :key="notif.id">{{ notif.name }}</option>
+                <option v-for="email in emails" :value="email.key" :key="email.key">{{ email.heading }}</option>
               </select>
             </div>
           </div>
         </div>
-        <div v-if="form.notifyAdmin_id" class="field" aria-describedby="emails-field-instructions">
+        <div v-if="form.notifyAdmin_key" class="field" aria-describedby="emails-field-instructions">
           <div class="heading">
-            <label class="required" for="form-notifyEmails">{{ t('Admin notification recipients') }}</label>
+            <label class="required" for="form-notifyEmails">{{ t('Admin email recipients') }}</label>
           </div>
           <div id="emails-field-instructions" class="instructions">
             <p>{{ t('Comma separated emails') }}</p>
@@ -250,7 +250,7 @@ import slugify from 'slugify';
 
 export default {
   props: {
-    allNotifications: Object,
+    allEmails: Array,
     allCaptchas: Object,
     allVolumes: Array,
     formEdited: Object,
@@ -289,7 +289,7 @@ export default {
     return {
       showAdvanced: false,
       captchas: this.allCaptchas,
-      notifications: this.allNotifications,
+      emails: this.allEmails,
       original: {},
       errors: {},
       notifyFieldObject: null
@@ -363,8 +363,8 @@ export default {
       this.errors = {
         name: trim(this.form.name) == '',
         handle: trim(this.form.handle) == '',
-        notifyEmails: (this.form.notifyAdmin_id && trim(this.form.notifyEmails) == ''),
-        notifySpamEmails: (this.form.notifySpam_id && trim(this.form.notifySpamEmails) == ''),
+        notifyEmails: (this.form.notifyAdmin_key && trim(this.form.notifyEmails) == ''),
+        notifySpamEmails: (this.form.notifySpam_key && trim(this.form.notifySpamEmails) == ''),
         submitLabel: trim(this.form.submitLabel) == '',
         notifyField: this.validateNotifyField(),
         honeypotField: this.validateHoneypotField()
@@ -377,7 +377,7 @@ export default {
       return (!this.form.honeypotField || this.fieldNames.indexOf(this.form.honeypotField) != -1);
     },
     validateNotifyField () {
-      if (!this.form.notify_id) {
+      if (!this.form.notify_key) {
         return false;
       }
       return (this.form.notifyField == null || this.form.notifyField == '');
