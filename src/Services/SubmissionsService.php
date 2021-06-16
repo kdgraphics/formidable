@@ -2,8 +2,9 @@
 
 namespace Ryssbowh\Formidable\Services;
 
-use Ryssbowh\Formidable\Events\EmailEvent;
 use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Jobs\SendAdminEmailJob;
+use Ryssbowh\Formidable\Jobs\SendUserEmailJob;
 use Ryssbowh\Formidable\Models\Form;
 use Ryssbowh\Formidable\Models\FormSubmission;
 use Ryssbowh\Formidable\Models\Notification;
@@ -15,27 +16,12 @@ use Ryssbowh\Formidable\Services\NotificationsService;
 use craft\base\Component;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Queue;
 use yii\base\Event;
 use yii\data\ActiveDataProvider;
 
 class SubmissionsService extends Component
 {
-    /**
-     * Updates sent markers on a submission after an email is sent
-     * 
-     * @param Submission $submission
-     * @param string     $type
-     */
-    public function updateSubmissionAfterEmailSent(Submission $submission, string $type)
-    {
-    	if ($type == 'user') {
-            $submission->notified = 1;
-        } elseif($type == 'admin') {
-            $submission->adminNotified = 1;
-        }
-        $submission->save(false);
-    }
-
 	/**
 	 * Creates a submission
 	 * 
@@ -52,12 +38,7 @@ class SubmissionsService extends Component
 				'adminNotified' => false,
 				'notified' => false
 			]);
-
-			if ($submission->save(false)) {
-				$this->sendUserEmail($form, $formSubmission, $submission);
-				$this->sendAdminEmail($form, $formSubmission, $submission);
-			}
-
+			$submission->save(false);
 			foreach ($form->fields as $field) {
 				(new SubmissionValue([
 					'submission_id' => $submission->id,
@@ -66,7 +47,10 @@ class SubmissionsService extends Component
 					'type' => $field->handle()
 				]))->save(false);
 			}
-			return $submission->toModel();
+			$submission = $submission->toModel();
+			$this->sendUserEmail($form, $formSubmission, $submission);
+			$this->sendAdminEmail($form, $formSubmission, $submission);
+			return $submission;
 		}
 		$this->sendUserEmail($form, $formSubmission);
 		$this->sendAdminEmail($form, $formSubmission);
@@ -77,12 +61,24 @@ class SubmissionsService extends Component
      * Get submission model by id
      * 
      * @param  int $id
-     * @return ?FormModel
+     * @return ?SubmissionModel
      */
 	public function getById(int $id): ?SubmissionModel
 	{
 		$record = Submission::find()->with('values')->where(['id' => $id])->one();
 		return $record ? $record->toModel() : null;
+	}
+
+	/**
+     * Get submission record by id
+     * 
+     * @param  int $id
+     * @return ?Submission
+     */
+	public function getRecordById(int $id): ?Submission
+	{
+		$record = Submission::find()->with('values')->where(['id' => $id])->one();
+		return $record ?: null;
 	}
 
 	/**
@@ -278,38 +274,48 @@ class SubmissionsService extends Component
 	/**
 	 * Sends the user notification email
 	 * 
-	 * @param  Form           $form
-	 * @param  FormSubmission $formSubmission
-	 * @param  ?Submission    $submission
+	 * @param  Form             $form
+	 * @param  FormSubmission   $formSubmission
+	 * @param  ?SubmissionModel $submission
 	 * @return bool
 	 */
-	protected function sendUserEmail(Form $form, FormSubmission $formSubmission, ?Submission $submission = null): bool
+	protected function sendUserEmail(Form $form, FormSubmission $formSubmission, ?SubmissionModel $submission = null): bool
 	{
-		$notification = $form->getNotify();
-		if (!$notification or !$form->notifyField) {
+		if (!$form->notify_key) {
 			return false;
 		}
 		if (!filter_var($formSubmission->{$form->notifyField}, FILTER_VALIDATE_EMAIL)) {
 			Formidable::log("Can't notify user for form {$form->handle} : Value {$formSubmission->{$form->notifyField}} for field {$form->notifyField} is not a valid email");
  			return false;
 		}
-		return Formidable::$plugin->notifications->send($notification, $formSubmission, $submission, [$formSubmission->{$form->notifyField}], 'user');
+		Queue::push(new SendUserEmailJob([
+			'email' => $formSubmission->{$form->notifyField},
+			'formSubmission' => $formSubmission->toArray(),
+			'submission' => $submission,
+			'form' => $form
+		]));
+		return true;
 	}
 
 	/**
 	 * Sends the user notification email(s)
 	 * 
-	 * @param  Form           $form
-	 * @param  FormSubmission $formSubmission
-	 * @param  Submission     $submission
+	 * @param  Form             $form
+	 * @param  FormSubmission   $formSubmission
+	 * @param  ?SubmissionModel $submission
 	 * @return bool
 	 */
-	protected function sendAdminEmail(Form $form, FormSubmission $formSubmission, ?Submission $submission = null): bool
+	protected function sendAdminEmail(Form $form, FormSubmission $formSubmission, ?SubmissionModel $submission = null): bool
 	{
-		if (!$notification = $form->getAdminNotify()) {
+		if (!$form->notifyAdmin_key) {
 			return false;
 		}
-		return Formidable::$plugin->notifications->send($notification, $formSubmission, $submission, explode(',', $form->notifyEmails), 'admin');
+		Queue::push(new SendAdminEmailJob([
+			'formSubmission' => $formSubmission->toArray(),
+			'submission' => $submission,
+			'form' => $form
+		]));
+		return true;
 	}
 
 	/**

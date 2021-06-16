@@ -11,6 +11,7 @@ use Ryssbowh\Formidable\Models\Notification;
 use Ryssbowh\Formidable\Services\FormsService;
 use craft\base\Model;
 use craft\helpers\ArrayHelper;
+use craft\mail\Message;
 
 class Form extends Model
 {
@@ -18,9 +19,9 @@ class Form extends Model
 	public $id;
 	public $name;
 	public $handle;
-	public $notify_id;
-	public $notifyAdmin_id;
-	public $notifySpam_id;
+	public $notify_key;
+	public $notifyAdmin_key;
+	public $notifySpam_key;
 	public $notifyField;
 	public $notifyEmails;
 	public $notifySpamEmails;
@@ -46,18 +47,18 @@ class Form extends Model
 	public function rules()
 	{
 		return [
-			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'notifySpamEmails','redirect', 'class', 'method', 'submitLabel', 'color', 'submitClass'], 'string'],
+			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'notifySpamEmails','redirect', 'class', 'method', 'submitLabel', 'color', 'submitClass', 'notifyAdmin_key', 'notify_key', 'notifySpam_key'], 'string'],
 			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'redirect', 'class', 'submitLabel', 'color', 'submitClass'], 'trim'],
-			[['id', 'notifyAdmin_id', 'notify_id', 'notifySpam_id'], 'integer'],
+			[['id'], 'integer'],
 			[['honeypot', 'saveSubmissions', 'saveSpam', 'frontEndValidation'], 'boolean'],
 			[['notifyEmails', 'notifySpamEmails'], 'validateEmails'],
 			['handle', 'validateHandle'],
 			['method', 'in', 'range' => ['GET', 'POST']],
 			['notifyEmails', 'required', 'when' => function($model){
-				return $model->notifyAdmin_id != 0;
+				return $model->notifyAdmin_key;
 			}],
 			['notifySpamEmails', 'required', 'when' => function($model){
-				return $model->notifySpam_id != 0;
+				return $model->notifySpam_key;
 			}],
 			['captcha', function($attribute){
 				if (!in_array($this->$attribute, array_keys($this->getCaptchas()))) {
@@ -65,13 +66,13 @@ class Form extends Model
 				}
 			}],
 			['notifyField', 'required', 'when' => function($model){
-				return $model->notify_id != 0;
+				return $model->notify_key;
 			}],
 			['honeypotField', 'required', 'when' => function($model){
 				return $model->honeypot;
 			}],
 			[['name', 'handle', 'method', 'submitLabel'], 'required'],
-			[['notify_id', 'notifyAdmin_id'], 'default', 'value' => null, 'when' => function($model,$attribute){
+			[['notify_key', 'notifyAdmin_key'], 'default', 'value' => null, 'when' => function($model,$attribute){
 				return empty($model->$attribute);
 			}]
 		];
@@ -181,9 +182,9 @@ class Form extends Model
 		return [
 			'name' => $this->name,
             'handle' => $this->handle,
-            'notify' => $this->notify_id ? $this->getNotify()->uid : null,
-            'notifyAdmin' => $this->notifyAdmin_id ? $this->getAdminNotify()->uid : null,
-            'notifySpam' => $this->notifySpam_id ? $this->getSpamNotify()->uid : null,
+            'notify_key' => $this->notify_key,
+            'notifyAdmin_key' => $this->notifyAdmin_key,
+            'notifySpam_key' => $this->notifySpam_key,
             'notifyField' => $this->notifyField,
             'notifyEmails' => $this->notifyEmails,
             'notifySpamEmails' => $this->notifySpamEmails,
@@ -269,45 +270,6 @@ class Form extends Model
 			return false;
 		}
 		return true;
-	}
-
-	/**
-	 * Get user notification
-	 * 
-	 * @return ?Notification
-	 */
-	public function getNotify(): ?Notification
-	{
-		if (!$this->notify_id) {
-			return null;
-		}
-		return Formidable::$plugin->notifications->getById($this->notify_id);
-	}
-
-	/**
-	 * Get spam notification
-	 * 
-	 * @return ?Notification
-	 */
-	public function getSpamNotify(): ?Notification
-	{
-		if (!$this->notifySpam_id) {
-			return null;
-		}
-		return Formidable::$plugin->notifications->getById($this->notifySpam_id);
-	}
-
-	/**
-	 * Get admin notification
-	 * 
-	 * @return ?Notification
-	 */
-	public function getAdminNotify(): ?Notification
-	{
-		if (!$this->notifyAdmin_id) {
-			return null;
-		}
-		return Formidable::$plugin->notifications->getById($this->notifyAdmin_id);
 	}
 
 	/**

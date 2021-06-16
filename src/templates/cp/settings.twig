@@ -29,22 +29,3 @@
     errors: settings.getErrors('acceptableScore'),
     })
 }}
-{{ forms.lightswitchField({
-    label: 'Send emails with a schedule'|t('formidable'),
-    id: 'sendInSchedule',
-    name: 'sendInSchedule',
-    instructions: 'You must install a cron that calls the command \'formidable/send-emails\' for this to work. This is recommended as sending emails can be a lengthy process.'|t('formidable'),
-    on: settings['sendInSchedule'],
-    errors: settings.getErrors('sendInSchedule'),
-    })
-}}
-{{ forms.textField({
-    type: 'number',
-    label: 'Force schedule unlock'|t('formidable'),
-    id: 'forceUnlock',
-    name: 'forceUnlock',
-    value: settings.forceUnlock,
-    errors: settings.getErrors('forceUnlock'),
-    instructions: 'If errors occur during schedule, it will stay in a locked state. How many minutes should the system wait until the lock should be broken.'|t('formidable')
-    }) 
-}}

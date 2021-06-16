@@ -2,34 +2,23 @@
 
 namespace Ryssbowh\Formidable\Services;
 
-use Ryssbowh\Formidable\Events\EmailEvent;
 use Ryssbowh\Formidable\Events\SpamEvent;
 use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Jobs\SendSpamEmailJob;
 use Ryssbowh\Formidable\Models\Form;
 use Ryssbowh\Formidable\Models\FormSubmission;
 use Ryssbowh\Formidable\Models\Records\Spam;
 use Ryssbowh\Formidable\Models\Spam as SpamModel;
 use Ryssbowh\Formidable\Providers\SpamProvider;
-use Ryssbowh\Formidable\Services\NotificationsService;
 use craft\base\Component;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Queue;
 use yii\base\Event;
 use yii\data\ActiveDataProvider;
 
 class SpamService extends Component
 {
 	const EVENT_ON_SPAM = 'on_spam';
-
-	/**
-	 * Marks spam as notified afte email is sent
-	 * 
-	 * @param  Spam   $spam 
-	 */
-	public function updateSpamAfterEmailSent(Spam $spam)
-	{
-		$spam->notified = 1;
-        $spam->save(false);
-	}
 
 	/**
 	 * Create a spam record
@@ -44,35 +33,44 @@ class SpamService extends Component
 		if (isset($values['CRAFT_CSRF_TOKEN'])) {
 			unset($values['CRAFT_CSRF_TOKEN']);
 		}
-		$spam = new Spam([
-			'form_id' => $form->id,
-			'ip' => \Craft::$app->request->userIP,
-			'values' => json_encode($values),
-			'reason' => $submission->_spam_reason ?? ''
-		]);
-		$spam->save(false);
-		$this->trigger(self::EVENT_ON_SPAM, new SpamEvent([
-            'spam' => $spam,
-            'form' => $form
-        ]));
-        $this->sendSpamNotification($form, $spam, $submission);
-        return $spam->toModel();
+        if ($form->saveSpam) {
+    		$spam = new Spam([
+    			'form_id' => $form->id,
+    			'ip' => \Craft::$app->request->userIP,
+    			'values' => json_encode($values),
+    			'reason' => $submission->_spam_reason ?? ''
+    		]);
+    		$spam->save(false);
+            $spam = $spam->toModel();
+    		$this->trigger(self::EVENT_ON_SPAM, new SpamEvent([
+                'spam' => $spam,
+                'form' => $form
+            ]));
+            $this->sendSpamNotification($form, $spam, $submission);
+            return $spam;
+        }
+        $this->sendSpamNotification($form, null, $submission);
 	}
 
 	/**
 	 * Send the spam notification
 	 * 
 	 * @param  Form           $form
-	 * @param  Spam           $spam
+	 * @param  ?SpamModel     $spam
 	 * @param  FormSubmission $submission
 	 * @return bool
 	 */
-	protected function sendSpamNotification(Form $form, Spam $spam, FormSubmission $submission): bool
+	protected function sendSpamNotification(Form $form, ?SpamModel $spam, FormSubmission $submission): bool
 	{
-		if (!$notification = $form->getSpamNotify()) {
-        	return false;
+        if (!$form->notifySpam_key) {
+            return false;
         }
-        return Formidable::$plugin->notifications->send($notification, $submission, $spam, explode(',', $form->notifyEmails), 'spam');
+        Queue::push(new SendSpamEmailJob([
+            'formSubmission' => $submission->toArray(),
+            'spam' => $spam,
+            'form' => $form
+        ]));
+        return true;
 	}
 
 	/**
@@ -120,6 +118,18 @@ class SpamService extends Component
 		$record = Spam::find()->with('form')->where(['id' => $id])->one();
 		return $record ? $record->toModel() : null;
 	}
+
+    /**
+     * Get spam record by id
+     * 
+     * @param  int $id
+     * @return ?Spam
+     */
+    public function getRecordById(int $id): ?Spam
+    {
+        $record = Spam::find()->with('form')->where(['id' => $id])->one();
+        return $record ?: null;
+    }
 
 	/**
 	 * Delete a spam by id

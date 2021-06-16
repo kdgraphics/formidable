@@ -19,9 +19,9 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'name' => $this->string(255)->notNull(),
             'handle' => $this->string(255)->notNull(),
-            'notify_id' => $this->integer(11),
-            'notifyAdmin_id' => $this->integer(11),
-            'notifySpam_id' => $this->integer(11),
+            'notify_key' => $this->string(255),
+            'notifyAdmin_key' => $this->string(255),
+            'notifySpam_key' => $this->string(255),
             'notifyField' => $this->string(255),
             'notifyEmails' => $this->text(),
             'notifySpamEmails' => $this->text(),
@@ -160,19 +160,14 @@ class Install extends Migration
             'uid' => $this->uid()
         ]);
 
-        $this->addForeignKey(null, '{{%formidable_forms}}', ['notify_id'], '{{%formidable_notifications}}', ['id'], 'SET NULL', null);
-        $this->addForeignKey(null, '{{%formidable_forms}}', ['notifyAdmin_id'], '{{%formidable_notifications}}', ['id'], 'SET NULL', null);
-        $this->addForeignKey(null, '{{%formidable_forms}}', ['notifySpam_id'], '{{%formidable_notifications}}', ['id'], 'SET NULL', null);
-        $this->addForeignKey(null, '{{%formidable_fields}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
-        $this->addForeignKey(null, '{{%formidable_submissions}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
-        $this->addForeignKey(null, '{{%formidable_spams}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
-        $this->addForeignKey(null, '{{%formidable_submissions_values}}', ['submission_id'], '{{%formidable_submissions}}', ['id'], 'CASCADE', null);
-        $this->addForeignKey(null, '{{%formidable_rules}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
-        $this->addForeignKey(null, '{{%formidable_conditiongroups}}', ['rule_id'], '{{%formidable_rules}}', ['id'], 'CASCADE', null);
-        $this->addForeignKey(null, '{{%formidable_conditions}}', ['rule_id'], '{{%formidable_rules}}', ['id'], 'CASCADE', null);
-        $this->addForeignKey(null, '{{%formidable_conditions}}', ['conditiongroup_id'], '{{%formidable_conditiongroups}}', ['id'], 'CASCADE', null);
-        $this->addForeignKey(null, '{{%formidable_emails}}', ['submission_id'], '{{%formidable_submissions}}', ['id'], 'SET NULL', null);
-        $this->addForeignKey(null, '{{%formidable_emails}}', ['spam_id'], '{{%formidable_spams}}', ['id'], 'SET NULL', null);
+        $this->addForeignKey('formidable_fields_form_id_fk', '{{%formidable_fields}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey('formidable_submissions_form_id_fk', '{{%formidable_submissions}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey('formidable_spams_form_id_fk', '{{%formidable_spams}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey('formidable_submissionvalues_submission_id_fk', '{{%formidable_submissions_values}}', ['submission_id'], '{{%formidable_submissions}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey('formidable_rules_form_id_fk', '{{%formidable_rules}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey('formidable_conditiongroups_rule_id_fk', '{{%formidable_conditiongroups}}', ['rule_id'], '{{%formidable_rules}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey('formidable_conditions_rule_id_fk', '{{%formidable_conditions}}', ['rule_id'], '{{%formidable_rules}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey('formidable_conditions_group_id_fk', '{{%formidable_conditions}}', ['conditiongroup_id'], '{{%formidable_conditiongroups}}', ['id'], 'CASCADE', null);
     }
 
     /**
@@ -187,11 +182,9 @@ class Install extends Migration
         $this->dropTableIfExists('{{%formidable_rules}}');
         $this->dropTableIfExists('{{%formidable_submissions_values}}');
         $this->dropTableIfExists('{{%formidable_fields}}');
-        $this->dropTableIfExists('{{%formidable_emails}}');
         $this->dropTableIfExists('{{%formidable_spams}}');
         $this->dropTableIfExists('{{%formidable_submissions}}');
         $this->dropTableIfExists('{{%formidable_forms}}');
-        $this->dropTableIfExists('{{%formidable_notifications}}');
         Craft::$app->projectConfig->remove('formidable');
     }
 }
