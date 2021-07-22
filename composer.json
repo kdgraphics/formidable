@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "craftcms/cms": "^3.6",
+        "craftcms/cms": "^3.7",
         "inspire/emails": "^1.0"
     },
     "autoload": {

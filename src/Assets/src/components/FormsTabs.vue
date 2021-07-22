@@ -1,23 +1,25 @@
 <template>
-  <nav id="tabs">
-    <ul>
-      <li>
-        <a :class="{'sel': activeTab === 'config'}" @click.prevent="changeTab('config')">
-          {{ t('Config') }}<span v-if="configHasChanged && !configHasErrors" class="red-span">*</span><span v-if="configHasErrors" class="red-span">!</span>
+  <header id="content-header" class="pane-header">
+    <nav id="tabs" class="pane-tabs">
+      <ul>
+        <li>
+          <a :class="{'sel': activeTab === 'config'}" @click.prevent="changeTab('config')">
+            {{ t('Config') }}<span v-if="configHasChanged && !configHasErrors" class="red-span">*</span><span v-if="configHasErrors" class="red-span">!</span>
+            </a>
+        </li>
+        <li>
+          <a :class="{'sel': activeTab === 'fields'}" @click.prevent="changeTab('fields')">
+            {{ t('Fields') }}<span v-if="fieldsHaveChanged && !fieldsHaveErrors" class="red-span">*</span><span v-if="fieldsHaveErrors" class="red-span">!</span>
           </a>
-      </li>
-      <li>
-        <a :class="{'sel': activeTab === 'fields'}" @click.prevent="changeTab('fields')">
-          {{ t('Fields') }}<span v-if="fieldsHaveChanged && !fieldsHaveErrors" class="red-span">*</span><span v-if="fieldsHaveErrors" class="red-span">!</span>
-        </a>
-      </li>
-      <li>
-        <a :class="{'sel': activeTab === 'rules'}" @click.prevent="changeTab('rules')">
-          {{ t('Rules') }}<span v-if="rulesHaveChanged && !rulesHaveErrors" class="red-span">*</span><span v-if="rulesHaveErrors" class="red-span">!</span>
-        </a>
-      </li>
-    </ul>
-  </nav>
+        </li>
+        <li>
+          <a :class="{'sel': activeTab === 'rules'}" @click.prevent="changeTab('rules')">
+            {{ t('Rules') }}<span v-if="rulesHaveChanged && !rulesHaveErrors" class="red-span">*</span><span v-if="rulesHaveErrors" class="red-span">!</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </header>
 </template>
 
 <script>
