@@ -7,7 +7,7 @@
 	name="{{ field.handle }}"
 	class="{{ field.fieldClass }}{% if error %} is-invalid{% endif %}" 
 	value="1"
-	{% if oldValue %}checked="checked"{% endif %}
+	{% if old_value %}checked="checked"{% endif %}
 	>
 	{% if field.label %}
 		<label for="{{ field.generateId(form) }}" class="{{ field.labelClass }}">

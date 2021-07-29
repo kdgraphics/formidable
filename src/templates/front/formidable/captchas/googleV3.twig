@@ -2,17 +2,17 @@
 	<input type="text" name="_recaptcha_response">
 </div>
 
-{% if siteKey is empty %}
+{% if site_key is empty %}
 	{{ 'The site key was not set for the Craft Recaptcha 3 plugin.'|t('formidable') }}
 	<a href="/admin/settings/plugins/formidable" target="_blank">{{ 'Please visit the settings page to add this key.'|t('formidable') }}</a>
 {% else %}
   	{% set action = action|default('contact') %}
   	
-  	<script src="https://www.google.com/recaptcha/api.js?render={{ siteKey }}"></script>
+  	<script src="https://www.google.com/recaptcha/api.js?render={{ site_key }}"></script>
 	
 	{% js %}
 		grecaptcha.ready(function () {
-		    grecaptcha.execute('{{ siteKey }}', { action: 'contact' }).then(function (token) {
+		    grecaptcha.execute('{{ site_key }}', { action: 'contact' }).then(function (token) {
 		        document.getElementById('captcha-field').querySelector("[name=_recaptcha_response]").value = token;
 		    });
 		});

@@ -33,7 +33,7 @@ class GoogleV3 implements CaptchaInterface
 	{
 		return \Craft::$app->view->renderTemplate('formidable/captchas/googleV3', [
 			'captcha' => $this,
-			'siteKey' => $this->getSiteKey()
+			'site_key' => $this->getSiteKey()
 		]);
 	}
 
