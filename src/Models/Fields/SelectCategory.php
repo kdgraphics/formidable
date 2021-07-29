@@ -13,6 +13,7 @@ class SelectCategory extends Field
 	public $optionsLabel;
 	public $includeSelect;
 	public $selectLabel;
+	public $labelHtml = false;
 
 	/**
 	 * inheritDoc
@@ -46,7 +47,7 @@ class SelectCategory extends Field
 		return [
 			[['label', 'optionsLabel', 'category', 'selectLabel'], 'string'],
 			[['label'], 'trim'],
-			['includeSelect', 'boolean']
+			[['includeSelect', 'labelHtml'], 'boolean']
 		];
 	}
 

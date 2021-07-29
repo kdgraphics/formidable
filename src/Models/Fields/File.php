@@ -16,6 +16,7 @@ class File extends Field
 	public $label;
 	public $volume;
 	public $extensions;
+	public $labelHtml = false;
 
 	/**
 	 * inheritDoc
@@ -49,7 +50,8 @@ class File extends Field
 		return [
 			[['label', 'volume'], 'string'],
 			[['label', 'volume'], 'trim'],
-			['extensions', 'validateExtensions']
+			['extensions', 'validateExtensions'],
+			['labelHtml', 'boolean'],
 		];
 	}
 

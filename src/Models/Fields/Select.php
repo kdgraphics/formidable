@@ -11,6 +11,7 @@ class Select extends Field
 	public $label;
 	public $choices;
 	public $default;
+	public $labelHtml = false;
 
 	/**
 	 * inheritDoc
@@ -45,7 +46,8 @@ class Select extends Field
 			[['label', 'default'], 'string'],
 			[['label', 'default'], 'trim'],
 			['choices', 'required'],
-			['choices', 'validateChoices']
+			['choices', 'validateChoices'],
+			['labelHtml', 'boolean']
 		];
 	}
 

@@ -10,6 +10,7 @@ class Text extends Field
 	public $placeholder;
 	public $label;
 	public $default;
+	public $labelHtml = false;
 
 	/**
 	 * inheritDoc
@@ -43,6 +44,7 @@ class Text extends Field
 		return [
 			[['placeholder','label', 'default'], 'string'],
 			[['placeholder','label', 'default'], 'trim'],
+			['labelHtml', 'boolean']
 		];
 	}
 

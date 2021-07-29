@@ -12,6 +12,7 @@ class LightSwitch extends Field
 
 	public $label;
 	public $default;
+	public $labelHtml = false;
 
 	/**
 	 * inheritDoc
@@ -45,7 +46,7 @@ class LightSwitch extends Field
 		return [
 			['label', 'string'],
 			['label', 'trim'],
-			[['default'], 'boolean']
+			[['default', 'labelHtml'], 'boolean']
 		];
 	}
 

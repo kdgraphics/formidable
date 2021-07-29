@@ -11,7 +11,9 @@
           <label>{{ t('Label') }}</label>
         </div>
         <div class="input ltr">
-          <input type="text" class="text fullwidth" v-model="field.label">
+          <textarea type="text" :class="'text fullwidth field-label-value'+index" v-model="field.label" rows="1"></textarea>
+          <a href="#" @click.prevent="switchHtml">{{ field.labelHtml ? 'Plain' : 'Html' }}</a>
+          <input type="hidden" v-model="field.labelHtml">
         </div>
       </div>
       <field-choices
@@ -53,6 +55,13 @@ export default {
       errors: {}
     }
   },
+  mounted() {
+    this.$nextTick(() => {
+      if (this.field.labelHtml) {
+        document.addEventListener("DOMContentLoaded", this.enableRedactor);
+      }
+    })
+  },
   methods: {
     isAlnum(field) {
       return this.field[field].match(/^[0-9a-zA-Z-_]*$/);
@@ -62,6 +71,24 @@ export default {
         this.$set(this.errors, field, true);
       } else {
         this.$set(this.errors, field, false);
+      }
+    },
+    enableRedactor() {
+      $R('.field-label-value'+this.index, {
+        callbacks: {
+          changed: (html) => {
+            this.field.label = html;
+          }
+        }
+      });
+    },
+    switchHtml: function() {
+      if (!this.field.labelHtml) {
+        this.enableRedactor();
+        this.field.labelHtml = true;
+      } else {
+        $R('.field-label-value'+this.index, 'destroy');
+        this.field.labelHtml = false;
       }
     }
   }
