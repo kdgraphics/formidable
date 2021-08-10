@@ -1,23 +1,20 @@
-{% from 'formidable/macros' import errorList %}
-
 <div class="{{ field.containerClass }} field">
+	{% block before_field %}
+	{% endblock %}
 	{% block label %}
-		{% if field.label %}
-			<label for="{{ field.generateId(form) }}" class="{{ field.labelClass }}">
-				{{ field.label|raw }}
-			</label>
-		{% endif %}
+		{% include "formidable/_includes/label" %}
 	{% endblock %}
 	{% block tooltip %}
 		{% include "formidable/_includes/tooltip" %}
 	{% endblock %}
 	{% block instructions %}
-		<div class="instructions">{{ field.instructions }}</div>
+		{% include "formidable/_includes/instructions" %}
 	{% endblock %}
-	{% block inner %}{% endblock %}
+	{% block inner %}
+	{% endblock %}
 	{% block errors %}
-		<div class="errors">
-			{{ errorList(error) }}
-		</div>
+		{% include "formidable/_includes/errors" %}
+	{% endblock %}
+	{% block after_field %}
 	{% endblock %}
 </div>
