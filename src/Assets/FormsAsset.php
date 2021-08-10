@@ -4,6 +4,7 @@ namespace Ryssbowh\Formidable\Assets;
 
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
+use craft\redactor\assets\redactor\RedactorAsset;
 
 class FormsAsset extends AssetBundle
 {
@@ -13,6 +14,7 @@ class FormsAsset extends AssetBundle
 
         $this->depends = [
             CpAsset::class,
+            RedactorAsset::class
         ];
 
         $this->js = [

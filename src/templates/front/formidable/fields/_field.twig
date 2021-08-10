@@ -8,6 +8,9 @@
 			</label>
 		{% endif %}
 	{% endblock %}
+	{% block tooltip %}
+		{% include "formidable/_includes/tooltip" %}
+	{% endblock %}
 	{% block instructions %}
 		<div class="instructions">{{ field.instructions }}</div>
 	{% endblock %}

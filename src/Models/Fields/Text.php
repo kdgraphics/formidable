@@ -11,6 +11,8 @@ class Text extends Field
 	public $label;
 	public $default;
 	public $labelHtml = false;
+	public $tooltip;
+	public $tooltipLabel;
 
 	/**
 	 * inheritDoc
@@ -42,8 +44,8 @@ class Text extends Field
 	public function getExtraCpRules(): array
 	{
 		return [
-			[['placeholder','label', 'default'], 'string'],
-			[['placeholder','label', 'default'], 'trim'],
+			[['placeholder','label', 'default', 'tooltip', 'tooltipLabel'], 'string'],
+			[['placeholder','label', 'default', 'tooltip', 'tooltipLabel'], 'trim'],
 			['labelHtml', 'boolean']
 		];
 	}

@@ -12,6 +12,8 @@ class Select extends Field
 	public $choices;
 	public $default;
 	public $labelHtml = false;
+	public $tooltip;
+	public $tooltipLabel;
 
 	/**
 	 * inheritDoc
@@ -43,8 +45,8 @@ class Select extends Field
 	public function getExtraCpRules(): array
 	{
 		return [
-			[['label', 'default'], 'string'],
-			[['label', 'default'], 'trim'],
+			[['label', 'default', 'tooltip', 'tooltipLabel'], 'string'],
+			[['label', 'default', 'tooltip', 'tooltipLabel'], 'trim'],
 			['choices', 'required'],
 			['choices', 'validateChoices'],
 			['labelHtml', 'boolean']

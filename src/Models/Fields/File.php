@@ -17,6 +17,8 @@ class File extends Field
 	public $volume;
 	public $extensions;
 	public $labelHtml = false;
+	public $tooltip;
+	public $tooltipLabel;
 
 	/**
 	 * inheritDoc
@@ -48,8 +50,8 @@ class File extends Field
 	public function getExtraCpRules(): array
 	{
 		return [
-			[['label', 'volume'], 'string'],
-			[['label', 'volume'], 'trim'],
+			[['label', 'volume', 'tooltip', 'tooltipLabel'], 'string'],
+			[['label', 'volume', 'tooltip', 'tooltipLabel'], 'trim'],
 			['extensions', 'validateExtensions'],
 			['labelHtml', 'boolean'],
 		];

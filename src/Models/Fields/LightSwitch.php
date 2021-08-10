@@ -13,6 +13,8 @@ class LightSwitch extends Field
 	public $label;
 	public $default;
 	public $labelHtml = false;
+	public $tooltip;
+	public $tooltipLabel;
 
 	/**
 	 * inheritDoc
@@ -44,8 +46,8 @@ class LightSwitch extends Field
 	public function getExtraCpRules(): array
 	{
 		return [
-			['label', 'string'],
-			['label', 'trim'],
+			[['label', 'tooltip', 'tooltipLabel'], 'string'],
+			[['label', 'tooltip', 'tooltipLabel'], 'trim'],
 			[['default', 'labelHtml'], 'boolean']
 		];
 	}

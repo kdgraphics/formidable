@@ -14,6 +14,8 @@ class SelectCategory extends Field
 	public $includeSelect;
 	public $selectLabel;
 	public $labelHtml = false;
+	public $tooltip;
+	public $tooltipLabel;
 
 	/**
 	 * inheritDoc
@@ -45,8 +47,8 @@ class SelectCategory extends Field
 	public function getExtraCpRules(): array
 	{
 		return [
-			[['label', 'optionsLabel', 'category', 'selectLabel'], 'string'],
-			[['label'], 'trim'],
+			[['label', 'optionsLabel', 'category', 'selectLabel', 'tooltip', 'tooltipLabel'], 'string'],
+			[['label', 'tooltip', 'tooltipLabel'], 'trim'],
 			[['includeSelect', 'labelHtml'], 'boolean']
 		];
 	}

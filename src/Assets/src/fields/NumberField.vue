@@ -12,8 +12,7 @@
         </div>
         <div class="input ltr">
           <textarea type="text" :class="'text fullwidth field-label-value'+index" v-model="field.label" rows="1"></textarea>
-          <a href="#" @click.prevent="switchHtml">{{ field.labelHtml ? 'Plain' : 'Html' }}</a>
-          <input type="hidden" v-model="field.labelHtml">
+          <a href="#" @click.prevent="field.labelHtml = !field.labelHtml">{{ field.labelHtml ? 'Plain' : 'Html' }}</a>
         </div>
       </div>
       <div class="field field-placeholder">
@@ -40,6 +39,22 @@
           <input type="number" :step="field.step" :class="'text fullwidth' + (errors.default ? ' error' : '')" v-model="field.default" @input="validateDefault">
         </div>
       </div>
+      <div class="field field-tooltip-label">
+        <div class="heading">
+          <label>{{ t('Tooltip label') }}</label>
+        </div>
+        <div class="input ltr">
+          <input type="text" class="text fullwidth" v-model="field.tooltipLabel">
+        </div>
+      </div>
+      <div class="field field-tooltip">
+        <div class="heading">
+          <label>{{ t('Tooltip') }}</label>
+        </div>
+        <div class="input ltr">
+          <textarea type="text" :class="'text fullwidth field-tooltip-value'+index" v-model="field.tooltip" rows="1"></textarea>
+        </div>
+      </div>
     </template>
   </forms-field>
 </template>
@@ -56,15 +71,28 @@ export default {
       errors: {}
     }
   },
+  watch: {
+    'field.labelHtml': function () {
+      this.toggleRedactor();
+    } 
+  },
   mounted() {
-    this.$nextTick(() => {
-      if (this.field.labelHtml) {
-        document.addEventListener("DOMContentLoaded", this.enableRedactor);
-      }
-    })
+    if (this.field.labelHtml) {
+      this.enableLabelRedactor();
+    }
+    this.enableTooltipRedactor();
   },
   methods: {
-    enableRedactor() {
+    enableTooltipRedactor: function () {
+      $R('.field-tooltip-value'+this.index, {
+        callbacks: {
+          changed: (html) => {
+            this.field.tooltip = html;
+          }
+        }
+      });
+    },
+    enableLabelRedactor: function () {
       $R('.field-label-value'+this.index, {
         callbacks: {
           changed: (html) => {
@@ -73,13 +101,11 @@ export default {
         }
       });
     },
-    switchHtml: function() {
-      if (!this.field.labelHtml) {
-        this.enableRedactor();
-        this.field.labelHtml = true;
+    toggleRedactor: function() {
+      if (this.field.labelHtml) {
+        this.enableLabelRedactor();
       } else {
         $R('.field-label-value'+this.index, 'destroy');
-        this.field.labelHtml = false;
       }
     },
     validateStep() {
