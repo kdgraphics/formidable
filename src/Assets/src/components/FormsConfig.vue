@@ -204,7 +204,15 @@
               <label for="form-class">{{ t('Class') }}</label>
             </div>
             <div class="input ltr">
-              <input type="text" id="form-class" class="text fullwidth" v-model="form.class">
+              <input type="text" id="form-class" :class="'text fullwidth' + (errors.class ? ' error' : '')" v-model="form.class">
+            </div>
+          </div>
+          <div class="field">
+            <div class="heading">
+              <label for="form-htmlId">{{ t('Html id') }}</label>
+            </div>
+            <div class="input ltr">
+              <input type="text" id="form-htmlId" :class="'text fullwidth' + (errors.htmlId ? ' error' : '')" v-model="form.htmlId">
             </div>
           </div>
           <div class="field">
@@ -365,6 +373,9 @@ export default {
         handle: trim(this.form.handle) == '',
         notifyEmails: (this.form.notifyAdmin_key && trim(this.form.notifyEmails) == ''),
         notifySpamEmails: (this.form.notifySpam_key && trim(this.form.notifySpamEmails) == ''),
+        htmlId: (this.form.htmlId && !this.form.htmlId.match(/^[0-9a-zA-Z-]*$/)),
+        class: (this.form.class && !this.form.class.match(/^[0-9a-zA-Z\s-]*$/)),
+        submitClass: (this.form.submitClass && !this.form.submitClass.match(/^[0-9a-zA-Z\s-]*$/)),
         submitLabel: trim(this.form.submitLabel) == '',
         notifyField: this.validateNotifyField(),
         honeypotField: this.validateHoneypotField()

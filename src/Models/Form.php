@@ -26,6 +26,7 @@ class Form extends Model
 	public $notifyEmails;
 	public $notifySpamEmails;
 	public $honeypot = 1;
+	public $htmlId;
 	public $honeypotField;
 	public $saveSubmissions = 1;
 	public $frontEndValidation = 0;
@@ -47,7 +48,7 @@ class Form extends Model
 	public function rules()
 	{
 		return [
-			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'notifySpamEmails','redirect', 'class', 'method', 'submitLabel', 'color', 'submitClass', 'notifyAdmin_key', 'notify_key', 'notifySpam_key'], 'string'],
+			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'notifySpamEmails','redirect', 'class', 'method', 'submitLabel', 'color', 'submitClass', 'notifyAdmin_key', 'notify_key', 'notifySpam_key', 'htmlId'], 'string'],
 			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'redirect', 'class', 'submitLabel', 'color', 'submitClass'], 'trim'],
 			[['id'], 'integer'],
 			[['honeypot', 'saveSubmissions', 'saveSpam', 'frontEndValidation'], 'boolean'],
@@ -195,6 +196,7 @@ class Form extends Model
             'frontEndValidation' => $this->frontEndValidation,
             'redirect' => $this->redirect,
             'class' => $this->class,
+            'htmlId' => $this->htmlId,
             'submitLabel' => $this->submitLabel,
             'submitClass' => $this->submitClass,
             'method' => $this->method,
@@ -279,6 +281,9 @@ class Form extends Model
 	 */
 	public function generateId(): string
 	{
+		if ($this->htmlId) {
+			return $this->htmlId;
+		}
 		return 'formidable-'.$this->handle.$this->id;
 	}
 

@@ -33,6 +33,7 @@ class Install extends Migration
             'frontEndValidation' => $this->boolean()->defaultValue(false),
             'method' => $this->string(255),
             'class' => $this->string(255),
+            'htmlId' => $this->string(255),
             'color' => $this->string(255),
             'captcha' => $this->string(255),
             'submitLabel' => $this->string(255),

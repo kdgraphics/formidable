@@ -222,6 +222,7 @@ class FormsService extends Component
             $form->saveSpam = $data['saveSpam'];
             $form->redirect = $data['redirect'];
             $form->class = $data['class'];
+            $form->htmlId = $data['htmlId'];
             $form->method = $data['method'];
             $form->submitLabel = $data['submitLabel'];
             $form->submitClass = $data['submitClass'];
