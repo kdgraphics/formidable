@@ -1,7 +1,6 @@
 <template>
   <forms-field v-on="$listeners"
-    :field="field" 
-    :index="index"
+    :field="field"
     :original="original"
     :errors="errors"
   >
@@ -19,7 +18,7 @@
           <label>{{ t('Label') }}</label>
         </div>
         <div class="input ltr">
-          <textarea type="text" :class="'text fullwidth field-label-value'+index" v-model="field.label" rows="1"></textarea>
+          <textarea type="text" :class="'text fullwidth field-label-value'+field.uid" v-model="field.label" rows="1"></textarea>
           <a href="#" @click.prevent="field.labelHtml = !field.labelHtml">{{ field.labelHtml ? 'Plain' : 'Html' }}</a>
         </div>
       </div>
@@ -36,7 +35,7 @@
           <label>{{ t('Tooltip') }}</label>
         </div>
         <div class="input ltr">
-          <textarea type="text" :class="'text fullwidth field-tooltip-value'+index" v-model="field.tooltip" rows="1"></textarea>
+          <textarea type="text" :class="'text fullwidth field-tooltip-value'+field.uid" v-model="field.tooltip" rows="1"></textarea>
         </div>
       </div>
     </template>
@@ -78,7 +77,7 @@ export default {
   },
   methods: {
     enableTooltipRedactor: function () {
-      $R('.field-tooltip-value'+this.index, {
+      $R('.field-tooltip-value'+this.field.uid, {
         callbacks: {
           changed: (html) => {
             this.field.tooltip = html;
@@ -87,7 +86,7 @@ export default {
       });
     },
     enableLabelRedactor: function () {
-      $R('.field-label-value'+this.index, {
+      $R('.field-label-value'+this.field.uid, {
         callbacks: {
           changed: (html) => {
             this.field.label = html;
@@ -99,7 +98,7 @@ export default {
       if (this.field.labelHtml) {
         this.enableLabelRedactor();
       } else {
-        $R('.field-label-value'+this.index, 'destroy');
+        $R('.field-label-value'+this.field.uid, 'destroy');
       }
     }
   }

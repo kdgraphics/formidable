@@ -74,7 +74,7 @@ Each field has a default template too, if you want to override it :
 ```
 {% for field in fields %}
 	{% set error = errors[field.name] is defined ? errors[field.name] : false %}
-	{% set oldValue = oldInput[field.name] is defined ? oldInput[field.name] : null %}
+	{% set old_value = oldInput[field.name] is defined ? oldInput[field.name] : null %}
 	{% include 'mytheme/mytemplate' %}
 {% endfor %}
 ```

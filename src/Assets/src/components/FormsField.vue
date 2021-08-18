@@ -2,7 +2,7 @@
   <div :class="field.type+'-field' + ' formidablefield-container'">
     <div class="field first">
       <div class="heading">
-        <label class="required" :for="'field-'+field.index+'-name'">{{ t('Name') }}</label>
+        <label class="required">{{ t('Name') }}</label>
       </div>
       <div class="input ltr">
         <input type="text" :class="'text fullwidth' + (errors.name ? ' error' : '')" v-model="field.name" v-on:blur="generateHandle" @input="validateName">
@@ -10,7 +10,7 @@
     </div>
     <div class="field">
       <div class="heading">
-        <label class="required" :for="'field-'+field.index+'-handle'">{{ t('Handle') }}</label>
+        <label class="required">{{ t('Handle') }}</label>
       </div>
       <div class="input ltr">
         <input type="text" :class="'text fullwidth' + (errors.handle ? ' error' : '')" v-model="field.handle" @input="validateHandle" :disabled="field.id!=null">
@@ -18,10 +18,10 @@
     </div>
     <div class="field field-instructions">
       <div class="heading">
-        <label :for="'field-'+field.index+'-instructions'">{{ t('Instructions') }}</label>
+        <label>{{ t('Instructions') }}</label>
       </div>
       <div class="input ltr">
-        <input type="text" class="text fullwidth" :id="'field-'+field.index+'-instructions'" v-model="field.instructions">
+        <input type="text" class="text fullwidth" v-model="field.instructions">
       </div>
     </div>
     <slot name="extraFields"></slot>
@@ -66,7 +66,6 @@ import slugify from 'slugify';
 
 export default {
   props: {
-    index: Number,
     field: Object,
     original: Object,
     errors: Object
@@ -133,10 +132,10 @@ export default {
   },
   watch: {
     hasErrors: function () {
-      this.$emit('error', {index: this.index, error: this.hasErrors});
+      this.$emit('error', {uid: this.field.uid, error: this.hasErrors});
     },
     hasChanges: function () {
-      this.$emit('change', {index: this.index, change: this.hasChanges});
+      this.$emit('change', {uid: this.field.uid, change: this.hasChanges});
     }
   }
 };
