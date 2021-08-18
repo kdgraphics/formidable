@@ -120,12 +120,13 @@ window.formidable = {
         this.appliesTo = function (field, result, form) {
             let rule = formidable.rules[this.type];
             let thisResult = true;
+            let thisField = form.getField(this.field);
             if (rule.requiresValue) {
-                thisResult = rule.check(field, field.getValue(), this.value);
+                thisResult = rule.check(field, thisField.getValue(), this.value);
             } else if (rule.requiresField) {
-                thisResult = rule.check(field, field.getValue(), form.getField(this.value).getValue());
+                thisResult = rule.check(field, thisField.getValue(), form.getField(this.value).getValue());
             } else {
-                thisResult = rule.check(field, field.getValue());
+                thisResult = rule.check(field, thisField.getValue());
             }
             if (this.negate) {
                 thisResult = !thisResult;

@@ -74,7 +74,7 @@ class Condition extends Model
 			type: '{$this->type}',
 			field: '{$this->field}',
 			operator: '{$this->operator}',
-			negate: '{$this->negate}',
+			negate: " . ($this->negate ? 'true' : 'false') . ",
 			value: '{$this->value}'
 		})";
 	}
