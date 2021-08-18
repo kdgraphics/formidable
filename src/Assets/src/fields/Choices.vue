@@ -10,8 +10,8 @@
             <div class="up" @click="moveChoice(index,index-1)" v-if="index != 0"></div>
             <div class="down" @click="moveChoice(index,index+1)" v-if="index != (field.choices.length-1)"></div>
           </div>
-          <input class="value choice-elem" :placeholder="t('Value')" :required="field.choices.length == 1" v-model="field.choices[index].value" @input="validate" :class="count(index) > 1 ? 'error' : ''">
-          <input class="label choice-elem" :placeholder="t('Label')" :required="field.choices.length == 1" v-model="field.choices[index].label">
+          <input class="value choice-elem" :placeholder="t('Value')" :required="field.choices.length == 1" v-model="field.choices[index].value" @input="validate" :class="countValues(index) > 1 ? 'error' : ''">
+          <input class="label choice-elem" :placeholder="t('Label')" :required="field.choices.length == 1" v-model="field.choices[index].label" @input="validate" :class="field.choices.length == 1 && !field.choices[index].label ? 'error' : ''">
           <div class="delete-container">
             <a class="delete-choice" @click.prevent="deleteChoice(index)">{{ t('Delete') }}</a>
           </div>
@@ -33,9 +33,10 @@ export default {
       this.field.choices = [];
       this.addChoice('', this.default);
     }
+    this.validate();
   },
   methods: {
-    count(index) {
+    countValues(index) {
       let count = 0;
       let source = this.field.choices[index];
       for (let choice of this.field.choices) {
@@ -48,10 +49,11 @@ export default {
     validate() {
       let error = false
       for (let index in this.field.choices) {
-        if (this.count(index) > 1) {
+        if (this.countValues(index) > 1) {
           error = true;
           break;
         }
+
       }
       this.$set(this.errors, 'choices', error);
     },

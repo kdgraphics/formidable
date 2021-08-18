@@ -9,29 +9,28 @@
         </div>
       <nav>
         <ul ref="draggable" id="fields-draggable">
-          <li v-for="(field, index) in fields" :key="'' + form.id + index" :class="{'sel': index == selectedField}" :data-index="index">
-            <a href="#" @click.prevent="selectedField = index" class="field-link">
+          <li v-for="(field, index) in fields" :key="field.uid" :class="{'sel': field.uid == selectedFieldUid}" :data-uid="field.uid">
+            <a href="#" @click.prevent="selectedFieldUid = field.uid" class="field-link">
               <div class="icon move"></div>
               <div class="name">{{ field.name }}</div>
               <div class="type">{{ field.type }}</div>
-              <div v-show="changes[index] && !errors[index]" class="red-span">*</div>
-              <div v-show="errors[index]" class="red-span">!</div>
+              <div v-show="changes[field.uid] && !errors[field.uid]" class="red-span">*</div>
+              <div v-show="errors[field.uid]" class="red-span">!</div>
             </a>
           </li>
         </ul>
       </nav>
     </div>
     <div id="fields-container">
-      <component v-for="(field, index) in fields" v-show="index == selectedField" v-on:error="onError" v-on:change="onChange"
+      <component v-for="(field, index) in fields" v-show="field.uid == selectedFieldUid" v-on:error="onError" v-on:change="onChange"
         :is="'field-'+field.type"
         :field="field" 
-        :index="index"
-        :key="index"
+        :key="field.uid"
         :original="originals[index]"
         >
       </component>
       <div class="no-fields" v-if="fields.length == 0">{{ t('No fields found') }}</div>
-      <div class="actions" v-show="selectedField != null">
+      <div class="actions" v-show="selectedFieldUid != null">
         <a @click.prevent="deleteField()">{{ t('Delete') }}</a>
         <a @click.prevent="duplicateField()">{{ t('Duplicate') }}</a>
       </div>
@@ -44,6 +43,7 @@ import { mapMutations, mapState, mapActions } from 'vuex';
 import Vue from 'vue';
 import { isEqual, cloneDeep, reduce, mapValues, get } from 'lodash';
 import { EventBus } from '../EventBus';
+import { v4 as uuidv4 } from 'uuid';
 
 export default {
   props: {
@@ -68,23 +68,32 @@ export default {
         return (result || value);
       }, false);
     },
+    selectedField: function () {
+      for (let i in this.fields) {
+        if (this.selectedFieldUid === this.fields[i].uid) {
+          return this.fields[i];
+        }
+      }
+      return null;
+    },
     ...mapState(['activeTab', 'fields', 'form', 'loadedTime']),
   },
   data: function () {
     return {
       deletedFields: 0,
       addedFields: 0,
-      selectedField: null,
+      selectedFieldUid: null,
+      dragger: null,
       /**
-       * @type {Object} Keyed by field indexes
+       * @type {Object} Keyed by field uid
        */
       errors: {},
       /**
-       * @type {Object} Keyed by field indexes
+       * @type {Object} Keyed by field uid
        */
       changes: {},
       /**
-       * @type {Object} Keyed by field indexes
+       * @type {Object} Keyed by field uid
        */
       originals: {},
     }
@@ -92,6 +101,7 @@ export default {
   watch: {
     loadedTime: function() {
       this.init();
+      this.initDragSort();
     },
     hasErrors: function () {
       this.fieldsHaveErrors(this.hasErrors);
@@ -105,22 +115,38 @@ export default {
     this.originals = cloneDeep(this.fields);
   },
   mounted() {
-    /**
-     * Initialize a garnish sort object on the field nav.
-     * will recalculate the field orders on sort change
-     */
-    let _this = this;
-    new Garnish.DragSort($(this.$refs.draggable).find('li'), {
-      axis: 'y',
-      container: this.$refs.draggable,
-      onSortChange: function(){
-        $('#fields-draggable li').each(function(index, elem) {
-          _this.fields[$(elem).data('index')].order = index;
-        });
-      }
-    });
+    this.initDragSort();
   },
   methods: {
+    initDragSort: function () {
+      if (this.dragger) {
+        this.dragger.destroy();
+      }
+      /**
+       * Initialize a garnish sort object on the field nav.
+       * will recalculate the field orders on sort change
+       */
+      this.$nextTick(() => {
+        let _this = this;
+        this.dragger = new Garnish.DragSort($(this.$refs.draggable).find('li'), {
+          axis: 'y',
+          container: this.$refs.draggable,
+          onSortChange: function(){
+            $('#fields-draggable li').each(function(index, elem) {
+              _this.getFieldByUid($(elem).data('uid')).order = index;
+            });
+          }
+        });
+      });
+    },
+    getFieldByUid: function (uid) {
+      for (let i in this.fields) {
+        if (uid === this.fields[i].uid) {
+          return this.fields[i];
+        }
+      }
+      return null;
+    },
     /**
      * (re)initialise the fields
      */
@@ -136,28 +162,35 @@ export default {
       this._addField(field);
     },
     duplicateField() {
-      let field = cloneDeep(this.fields[this.selectedField]);
-      this._addField(field);
+      this._addField(cloneDeep(this.selectedField));
     },
     _addField(field) {
       field.name = '';
       field.id = null;
+      field.uid = uuidv4();
       this.fields.push(field);
       let index = this.fields.length - 1;
       field.order = index;
       this.addedFields++;
-      this.selectedField = index;
+      this.selectedFieldUid = field.uid;
+      this.initDragSort();
     },
     deleteField() {
-      if (this.fields[this.selectedField].id) {
+      if (this.selectedField.id) {
         this.deletedFields++;
       } else {
         this.addedFields--;
       }
-      this.$delete(this.fields, this.selectedField);
-      this.$delete(this.errors, this.selectedField);
-      this.$delete(this.changes, this.selectedField);
-      this.selectedField = (this.fields.length) ? 0 : null;
+      for (let i in this.fields) {
+        if (this.fields[i].uid == this.selectedFieldUid) {
+          this.$delete(this.fields, i);
+          break;
+        }
+      }
+      this.$delete(this.errors, this.selectedFieldUid);
+      this.$delete(this.changes, this.selectedFieldUid);
+      this.selectedFieldUid = (this.fields.length == 0) ? null : this.fields[0].uid;
+      this.initDragSort();
     },
     /**
      * Detects overall field changes
@@ -167,10 +200,10 @@ export default {
       this.fieldsHaveChanged(change);
     },
     onError(data) {
-      this.$set(this.errors, data.index, data.error);
+      this.$set(this.errors, data.uid, data.error);
     },
     onChange(data) {
-      this.$set(this.changes, data.index, data.change);
+      this.$set(this.changes, data.uid, data.change);
     },
     ...mapActions({
       fieldsHaveErrors: 'fieldsHaveErrors',
