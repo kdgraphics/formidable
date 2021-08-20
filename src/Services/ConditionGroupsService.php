@@ -72,6 +72,21 @@ class ConditionGroupsService extends Component
     }
 
     /**
+     * Delete many groups for a rule
+     * 
+     * @param  int    $ruleId
+     * @param  array  $keepIds
+     */
+    public function deleteForRule(int $ruleId, array $keepIds)
+    {
+        $groups = ConditionGroupRecord::find()->where(['rule_id' => $ruleId])
+            ->andWhere(['not in', 'id', $keepIds])->all();
+        foreach ($groups as $group) {
+            $group->delete();
+        }
+    }
+
+    /**
      * Validate some conditions groups data
      * 
      * @param  array  $groupsData

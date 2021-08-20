@@ -87,6 +87,36 @@ class ConditionsService extends Component
     }
 
     /**
+     * Delete many conditions fo a rule
+     * 
+     * @param  int    $ruleId
+     * @param  array  $keepIds
+     */
+    public function deleteForRule(int $ruleId, array $keepIds)
+    {
+        $conds = ConditionRecord::find()->where(['rule_id' => $ruleId])
+            ->andWhere(['not in', 'id', $keepIds])->all();
+        foreach ($conds as $cond) {
+            $cond->delete();
+        }
+    }
+
+    /**
+     * Delete many conditions for a group
+     * 
+     * @param  int    $groupId
+     * @param  array  $keepIds
+     */
+    public function deleteForGroup(int $groupId, array $keepIds)
+    {
+        $conds = ConditionRecord::find()->where(['conditiongroup_id' => $groupId])
+            ->andWhere(['not in', 'id', $keepIds])->all();
+        foreach ($conds as $cond) {
+            $cond->delete();
+        }
+    }
+
+    /**
      * Validate some conditions data
      * 
      * @param  array  $conditionsData

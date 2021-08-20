@@ -222,7 +222,7 @@ class FormsService extends Component
             $form->saveSpam = $data['saveSpam'];
             $form->redirect = $data['redirect'];
             $form->class = $data['class'];
-            $form->htmlId = $data['htmlId'] ?? '';
+            $form->htmlId = $data['htmlId'];
             $form->method = $data['method'];
             $form->submitLabel = $data['submitLabel'];
             $form->submitClass = $data['submitClass'];
@@ -259,12 +259,15 @@ class FormsService extends Component
                 $rule->save(false);
                 $ruleIds[] = $rule->id;
 
+                $groupIds = [];
                 foreach ($ruleData['conditionGroups'] ?? [] as $groupData) {
                     $group = Formidable::$plugin->conditionGroups->getRecordByUid($groupData['uid']);
                     $group->rule_id = $rule->id;
                     $group->operator = $groupData['operator'];
                     $group->negate = $groupData['negate'];
                     $group->save(false);
+                    $groupIds[] = $group->id;
+                    $conditionIds = [];
                     foreach ($groupData['conditions'] ?? [] as $conditionData) {
                         $condition = Formidable::$plugin->conditions->getRecordByUid($conditionData['uid']);
                         $condition->conditiongroup_id = $group->id;
@@ -274,9 +277,13 @@ class FormsService extends Component
                         $condition->value = $conditionData['value'];
                         $condition->field = $conditionData['field'];
                         $condition->save(false);
+                        $conditionIds[] = $condition->id;
                     }
+                    Formidable::$plugin->conditions->deleteForGroup($group->id, $conditionIds);
                 }
+                Formidable::$plugin->conditionGroups->deleteForRule($rule->id, $groupIds);
 
+                $conditionIds = [];
                 foreach ($ruleData['conditions'] ?? [] as $conditionData) {
                     $condition = Formidable::$plugin->conditions->getRecordByUid($conditionData['uid']);
                     $condition->rule_id = $rule->id;
@@ -286,7 +293,9 @@ class FormsService extends Component
                     $condition->value = $conditionData['value'];
                     $condition->field = $conditionData['field'];
                     $condition->save(false);
+                    $conditionIds[] = $condition->id;
                 }
+                Formidable::$plugin->conditions->deleteForRule($rule->id, $conditionIds);
             }
 
             Formidable::$plugin->fields->deleteForForm($form->id, $fieldIds);
