@@ -29,9 +29,10 @@ class GoogleV3 implements CaptchaInterface
 	/**
 	 * @inheritDoc
 	 */
-	public function render(): string
+	public function render(Form $form): string
 	{
 		return \Craft::$app->view->renderTemplate('formidable/captchas/googleV3', [
+			'form' => $form,
 			'captcha' => $this,
 			'site_key' => $this->getSiteKey()
 		]);

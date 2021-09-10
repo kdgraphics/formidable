@@ -3,21 +3,26 @@
 </div>
 
 {% if site_key is empty %}
-	{{ 'The site key was not set for the Craft Recaptcha 3 plugin.'|t('formidable') }}
-	<a href="/admin/settings/plugins/formidable" target="_blank">{{ 'Please visit the settings page to add this key.'|t('formidable') }}</a>
+	{{ 'The site key was not set for the Forms plugin, Please visit the settings page to add this key'|t('formidable') }}
 {% else %}
   	{% set action = action|default('contact') %}
   	
   	<script src="https://www.google.com/recaptcha/api.js?render={{ site_key }}"></script>
 	
 	{% js %}
-		grecaptcha.ready(function () {
-		    grecaptcha.execute('{{ site_key }}', { action: 'contact' }).then(function (token) {
-		        document.getElementById('captcha-field').querySelector("[name=_recaptcha_response]").value = token;
-		    });
-		});
+		function retrieveCaptcha() {
+			grecaptcha.ready(function () {
+			    grecaptcha.execute('{{ site_key }}', { action: 'contact' }).then(function (token) {
+			        document.getElementById('{{ form.generateId() }}').querySelector("[name=_recaptcha_response]").value = token;
+			    });
+			});
+			setTimeout(function () {
+				retrieveCaptcha();
+			}, 120000);
+		}
 		document.addEventListener('DOMContentLoaded', (event) => {
 			document.getElementById('captcha-field').style.display = "none";
+			retrieveCaptcha();
 		});
 	{% endjs %}
 {% endif %}

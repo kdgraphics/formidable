@@ -25,7 +25,7 @@
 	{% endblock %}
 	{% block captcha %}
 		{% if form.captcha %}
-			{{ form.getCaptcha().render()|raw }}
+			{{ form.getCaptcha().render(form)|raw }}
 		{% endif %}
 	{% endblock %}
 	{% block submit %}

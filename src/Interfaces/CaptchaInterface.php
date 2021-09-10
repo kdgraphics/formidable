@@ -24,9 +24,10 @@ interface CaptchaInterface
 	/**
 	 * Renders this captcha
 	 * 
+	 * @param Form $form
 	 * @return string
 	 */
-	public function render(): string;
+	public function render(Form $form): string;
 
 	/**
 	 * Verify captcha after posting, returns false if should be considered as spam
