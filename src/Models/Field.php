@@ -32,10 +32,15 @@ abstract class Field extends Model implements FieldInterface
 	public $dateUpdated;
 	public $uid;
 	public $validRules = [];
+
+	private $value;
 	private $options;
 
-	protected $rootAttributes = ['id', 'name', 'handle', 'order', 'form_id', 'options', 'dateCreated', 'dateUpdated', 'uid', 'fieldClass', 'containerClass', 'labelClass', 'instructions', 'type', 'friendlyName', 'validRules'];
+	protected $rootAttributes = ['id', 'name', 'handle', 'order', 'form_id', 'options', 'dateCreated', 'dateUpdated', 'uid', 'fieldClass', 'containerClass', 'labelClass', 'instructions', 'type', 'friendlyName', 'validRules', 'value'];
 
+	/**
+	 * inheritDoc
+	 **/
 	public function init()
 	{
 		parent::init();
@@ -44,11 +49,33 @@ abstract class Field extends Model implements FieldInterface
 		$this->validRules = $this->fieldType()->validRuleTypes();
 	}
 
+	/**
+	 * inheritDoc
+	 **/
+	public function getValue()
+	{
+		return $this->value;
+	}
+
+	/**
+	 * inheritDoc
+	 **/
+	public function setValue($value)
+	{
+		$this->value = $value;
+	}
+
+	/**
+	 * inheritDoc
+	 **/
 	public function fieldType(): FieldTypeInterface
 	{
 		return $this->fieldTypeClass::getInstance();
 	}
 
+	/**
+	 * inheritDoc
+	 **/
 	public function rules()
 	{
 		return array_merge($this->getExtraCpRules(), [

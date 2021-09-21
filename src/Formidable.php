@@ -7,7 +7,7 @@ use Inspire\Emails\Records\Email as EmailRecord;
 use Ryssbowh\Formidable\Assets\TestAsset;
 use Ryssbowh\Formidable\Captchas\GoogleV3;
 use Ryssbowh\Formidable\Events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent};
-use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, LightSwitch, Number, Radio, Select, Text, Textarea, SelectCategory};
+use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, LightSwitch, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry};
 use Ryssbowh\Formidable\Models\FormSubmission;
 use Ryssbowh\Formidable\Models\Records\Submission;
 use Ryssbowh\Formidable\Models\Rules\{BiggerThan, Contain, EqualTo, Off, On, Required, SameThan, Size, SmallerThan};
@@ -46,7 +46,8 @@ class Formidable extends Plugin
         Radio::class,
         Checkboxes::class,
         File::class,
-        SelectCategory::class
+        SelectCategory::class,
+        SelectEntry::class
     ];
 
     protected $availableCaptchas = [
@@ -254,7 +255,8 @@ class Formidable extends Plugin
                     'formidable/forms/<id:\d+>/<tab:fields>' => 'formidable/cp-forms/form',
                     'formidable/forms/<id:\d+>/<tab:rules>' => 'formidable/cp-forms/form',
                     'formidable/forms/delete/<id:\d+>' => 'formidable/cp-forms/delete',
-                    'formidable/categories-groups' => 'formidable/cp-categories'
+                    'formidable/categories-groups' => 'formidable/cp-categories',
+                    'formidable/entry-sections' => 'formidable/cp-sections'
                 ]);
             }
             $event->rules = array_merge($event->rules, [

@@ -24,22 +24,12 @@
           </select>
         </div>
       </div>
-      <div class="field">
-        <div class="heading">
-          <label>{{ t('Option Label') }}</label>
-        </div>
-        <div class="select">
-          <select v-model="field.optionsLabel" :class="errors.optionsLabel ? 'error' : ''">
-            <option v-for="name, handle in fields" :key="handle" :value="handle">{{ name }}</option>
-          </select>
-        </div>
-      </div>
       <div class="lightswitch-field field-default field">
         <div class="heading">
           <label>{{ t('Include Select option') }}</label>
         </div>
         <div class="input ltr">
-          <div class="lightswitch on" tabindex="0" role="switch" :aria-checked="field.includeSelect">
+          <div :class="'lightswitch ' + (field.includeSelect ? 'on' : '')" tabindex="0" role="switch" :aria-checked="field.includeSelect">
             <div class="lightswitch-container">
               <div class="handle"></div>
             </div>
@@ -49,7 +39,7 @@
       </div>
       <div class="field field-label">
         <div class="heading">
-          <label>{{ t('Select Option Label') }}</label>
+          <label>{{ t('Select Label') }}</label>
         </div>
         <div class="input ltr">
           <input type="text" class="text fullwidth" v-model="field.selectLabel">
@@ -89,9 +79,6 @@ export default {
     'field.category': function () {
       this.validate();
     },
-    'field.optionsLabel': function () {
-      this.validate();
-    },
     'field.labelHtml': function () {
       this.toggleRedactor();
     }
@@ -106,6 +93,7 @@ export default {
      * Copies the lightswitch value on the field object
      */
     this.$nextTick(() => {
+      Craft.initUiElements(this.$el);
       let _this = this;
       $(this.$el).find('.lightswitch').on('change', function(e){
         let input = $(e.target).find('input');
@@ -133,9 +121,6 @@ export default {
         let handle = Object.keys(_this.categories)[0];
         _this.$set(_this.field, 'category', handle);
       }
-      if (!_this.field.optionsLabel) {
-        _this.$set(_this.field, 'optionsLabel', 'title'); 
-      }
     })
     .catch((error) => {
       console.log(error);
@@ -144,12 +129,8 @@ export default {
   methods: {
     validate() {
       this.$set(this.errors, 'category', false);
-      this.$set(this.errors, 'optionsLabel', false);
       if (!this.field.category) {
         this.$set(this.errors, 'category', true);
-      }
-      if (!this.field.optionsLabel) {
-        this.$set(this.errors, 'optionsLabel', true);
       }
     },
     enableTooltipRedactor: function () {

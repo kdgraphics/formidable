@@ -2,6 +2,7 @@ import TextField from './fields/TextField';
 import EmailField from './fields/EmailField';
 import SelectField from './fields/SelectField';
 import SelectCategoryField from './fields/SelectCategoryField';
+import SelectEntryField from './fields/SelectEntryField';
 import TextareaField from './fields/TextareaField';
 import SwitchField from './fields/SwitchField';
 import NumberField from './fields/NumberField';
@@ -19,5 +20,6 @@ window.formFields = {
 	file: FileField,
 	radio: RadioField,
 	checkboxes: CheckboxesField,
-    select_category: SelectCategoryField
+    select_category: SelectCategoryField,
+    select_entry: SelectEntryField
 };

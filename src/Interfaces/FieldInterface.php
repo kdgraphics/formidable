@@ -5,7 +5,19 @@ namespace Ryssbowh\Formidable\Interfaces;
 use Ryssbowh\Formidable\Models\FormSubmission;
 
 interface FieldInterface
-{
+{	
+	/**
+	 * Value getter
+	 * 
+	 * @return mixed
+	 */
+	public function getValue();
+
+	/**
+	 * Value setter
+	 */
+	public function setValue($value);
+	
 	/**
 	 * Machine name for this field
 	 * 

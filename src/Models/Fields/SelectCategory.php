@@ -10,7 +10,6 @@ class SelectCategory extends Field
 {
 	public $label;
 	public $category;
-	public $optionsLabel;
 	public $includeSelect;
 	public $selectLabel;
 	public $labelHtml = false;
@@ -38,7 +37,7 @@ class SelectCategory extends Field
 	 **/
 	public function backendTemplate(): string
 	{
-		return 'formidable/cp/fields/select-entry';
+		return 'formidable/cp/fields/select-category';
 	}
 
 	/**
@@ -47,7 +46,7 @@ class SelectCategory extends Field
 	public function getExtraCpRules(): array
 	{
 		return [
-			[['label', 'optionsLabel', 'category', 'selectLabel', 'tooltip', 'tooltipLabel'], 'string'],
+			[['label', 'category', 'selectLabel', 'tooltip', 'tooltipLabel'], 'string'],
 			[['label', 'tooltip', 'tooltipLabel'], 'trim'],
 			[['includeSelect', 'labelHtml'], 'boolean']
 		];
@@ -70,7 +69,7 @@ class SelectCategory extends Field
 	{
 		$category = Category::find()->id($submission->{$this->handle})->one();
 		if ($category) {
-			$submission->{$this->handle} = $category->{$this->optionsLabel};
+			$submission->{$this->handle} = $category->title;
 		} else {
 			$submission->{$this->handle} = '';
 		}
@@ -86,7 +85,7 @@ class SelectCategory extends Field
 		$categories = Category::find()->group($this->category)->all();
 		$out = [];
 		foreach ($categories as $category) {
-			$out[$category->id] = $category->{$this->optionsLabel};
+			$out[$category->id] = $category->title;
 		}
 		return $out;
 	}
