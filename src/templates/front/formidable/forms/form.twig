@@ -19,7 +19,7 @@
 	{% block fields %}
 		{% for field in fields %}
 			{% set error = errors[field.handle] is defined ? errors[field.handle] : false %}
-			{% set old_value = oldInput[field.handle] is defined ? oldInput[field.handle] : null %}
+			{% set old_value = oldInput[field.handle] is defined ? oldInput[field.handle] : field.value %}
 			{% include field.frontendTemplate() %}
 		{% endfor %}
 	{% endblock %}
