@@ -2,7 +2,13 @@
 
 {% set error = errors['*'] is defined ? errors['*'] : false %}
 
-<form id="{{ form.generateId() }}" action="{{ currentSite.getBaseUrl() }}formidable/submit/{{ form.id }}" method="{{ form.method }}" class="form-{{ form.handle }} {{ form.class }} formidable" enctype="multipart/form-data">
+{% set form_class = (class ?? '') ~ (form.class ? (' ' ~ form.class) : '') %}
+{% set submit_class = (submit_class ?? '') ~ (form.submitClass ? (' ' ~ form.submitClass) : '') %}
+{% set submit_container_class = submit_container_class ?? 'submit-wrapper' %}
+{% set honeypot_class = honeypot_class ?? 'field' %}
+{% set fields_class = fields_class ?? 'fields' %}
+
+<form id="{{ form.generateId() }}" action="{{ currentSite.getBaseUrl() }}formidable/submit/{{ form.id }}" method="{{ form.method }}" class="form-{{ form.handle }} {{ form_class }} formidable" enctype="multipart/form-data">
 	{% block mainErrors %}
 		{% if error %}
 			{{ errorList(error, 'alert alert-danger') }}
@@ -17,11 +23,13 @@
 		{% endif %}
 	{% endblock %}
 	{% block fields %}
-		{% for field in fields %}
-			{% set error = errors[field.handle] is defined ? errors[field.handle] : false %}
-			{% set old_value = oldInput[field.handle] is defined ? oldInput[field.handle] : field.value %}
-			{% include field.frontendTemplate() %}
-		{% endfor %}
+		<div class="{{ fields_class }}">
+			{% for field in fields %}
+				{% set error = errors[field.handle] is defined ? errors[field.handle] : false %}
+				{% set old_value = oldInput[field.handle] is defined ? oldInput[field.handle] : field.value %}
+				{% include "formidable/fields/field" %}
+			{% endfor %}
+		</div>
 	{% endblock %}
 	{% block captcha %}
 		{% if form.captcha %}
@@ -29,9 +37,7 @@
 		{% endif %}
 	{% endblock %}
 	{% block submit %}
-		<div class="submit-wrapper">
-			<button type="submit" class="{{ form.submitClass }}" id="submit">{{ form.submitLabel }}</button>
-		</div>
+		{% include "formidable/_includes/submit" %}
 	{% endblock %}
 </form>
 

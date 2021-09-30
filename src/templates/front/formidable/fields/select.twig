@@ -4,7 +4,7 @@
 	<select
 	id="{{ field.generateId(form) }}"
 	name="{{ field.handle }}"
-	class="{{ field.fieldClass }}{% if error %} is-invalid{% endif %}"
+	class="{{ field_class }}{% if error %} is-invalid{% endif %}"
 	>
 		{% for choice in field.choices %}
 			<option value="{{ choice.value == '{empty}' ? '' : choice.value }}" {% if old_value and (choice.value == old_value) %}selected="selected"{% endif %}>{{ choice.label }}</option>

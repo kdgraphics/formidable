@@ -4,7 +4,7 @@
 	<input type="file"
 	id="{{ field.generateId(form) }}"
 	name="{{ field.handle }}"
-	class="{{ field.fieldClass }}{% if error %} is-invalid{% endif %}" 
+	class="{{ field_class }}{% if error %} is-invalid{% endif %}" 
 	{% if field.extensions %}accept="{{ field.getHtmlExtensions() }}"{% endif %}
 	>
 {% endblock %}
