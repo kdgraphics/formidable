@@ -1,5 +1,7 @@
 {% extends "formidable/fields/_field" %}
 
+{% set field_class = (field_class ?? '') ~ (field.fieldClass ? (' ' ~ field.fieldClass) : '') %}
+
 {% block inner %}
 	<input type="email"
 	id="{{ field.generateId(form) }}"

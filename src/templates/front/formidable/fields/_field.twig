@@ -1,5 +1,4 @@
 {% set container_class = (container_class ?? '') ~ (field.containerClass ? (' ' ~ field.containerClass) : '') %}
-{% set field_class = (field_class ?? '') ~ (field.fieldClass ? (' ' ~ field.fieldClass) : '') %}
 
 <div class="{{ container_class }} field field-{{ field.handle }}">
 	{% block before_field %}

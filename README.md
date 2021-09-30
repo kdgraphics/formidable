@@ -20,10 +20,9 @@ And fields templates can now be overriden by creating the template `formidable/f
 You can then set some variables to control the classes :
 - container_class
 - field_class
-
-# V2 breaking changes
-
-Notifications are removed entirely to integrate with our emails plugin.
+- label_class
+- field_choice_container_class (for checkboxes, radio)
+- field_choice_label_class (for checkboxes, radio)
 
 # Forms
 
@@ -33,7 +32,7 @@ Forms can have a redirection when submitted, if they don't they will reload the 
 
 Forms can have a user notification and an admin notification, see notifications. A user notification can only be enabled if the form has an email field.
 
-Forms can have a honeypot, it's highly recommended and the field name for the honeypot **must not** be an existing form field.
+Forms can have a honeypot, it's highly recommended and the field name for the honeypot **should not** be an existing form field.
 
 Optionnaly forms can save submissions for admins to review, see submissions.
 
