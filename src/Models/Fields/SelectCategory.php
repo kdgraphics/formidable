@@ -15,6 +15,8 @@ class SelectCategory extends Field
 	public $labelHtml = false;
 	public $tooltip;
 	public $tooltipLabel;
+	//Unused, here for backward compatibility
+	public $optionsLabel;
 
 	/**
 	 * inheritDoc

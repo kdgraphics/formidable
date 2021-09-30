@@ -2,14 +2,18 @@
 
 namespace Ryssbowh\Formidable\Captchas;
 
+use Ryssbowh\Formidable\Assets\GoogleV3CaptchaBundle;
 use Ryssbowh\Formidable\Formidable;
 use Ryssbowh\Formidable\Interfaces\CaptchaInterface;
 use Ryssbowh\Formidable\Models\Form;
 use Ryssbowh\Formidable\Models\FormSubmission;
 use craft\helpers\StringHelper;
+use craft\web\View;
 
 class GoogleV3 implements CaptchaInterface
 {
+	public static $registered = false;
+
 	/**
 	 * @inheritDoc
 	 */
@@ -31,6 +35,11 @@ class GoogleV3 implements CaptchaInterface
 	 */
 	public function render(Form $form): string
 	{
+		if (!self::$registered) {
+			self::$registered = true;
+			\Craft::$app->view->registerJsFile('https://www.google.com/recaptcha/api.js?render=' . $this->getSiteKey(), ['position' => View::POS_HEAD]);
+			\Craft::$app->view->registerAssetBundle(GoogleV3CaptchaBundle::class);
+		}
 		return \Craft::$app->view->renderTemplate('formidable/captchas/googleV3', [
 			'form' => $form,
 			'captcha' => $this,

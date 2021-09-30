@@ -1,4 +1,4 @@
-<div id="captcha-field">
+<div class="captcha-field">
 	<input type="text" name="_recaptcha_response">
 </div>
 
@@ -6,23 +6,12 @@
 	{{ 'The site key was not set for the Forms plugin, Please visit the settings page to add this key'|t('formidable') }}
 {% else %}
   	{% set action = action|default('contact') %}
-  	
-  	<script src="https://www.google.com/recaptcha/api.js?render={{ site_key }}"></script>
 	
-	{% js %}
-		function retrieveCaptcha() {
-			grecaptcha.ready(function () {
-			    grecaptcha.execute('{{ site_key }}', { action: 'contact' }).then(function (token) {
-			        document.getElementById('{{ form.generateId() }}').querySelector("[name=_recaptcha_response]").value = token;
-			    });
-			});
-			setTimeout(function () {
-				retrieveCaptcha();
-			}, 120000);
-		}
-		document.addEventListener('DOMContentLoaded', (event) => {
-			document.getElementById('captcha-field').style.display = "none";
-			retrieveCaptcha();
+	{% js on ready %}
+		googleV3Captcha.init('{{ site_key }}');
+		document.getElementById('{{ form.generateId() }}').querySelector('.captcha-field').style.display = "none";
+		grecaptcha.ready(function () {
+			googleV3Captcha.retrieveCaptcha('{{ form.generateId() }}', '{{ action }}');
 		});
 	{% endjs %}
 {% endif %}

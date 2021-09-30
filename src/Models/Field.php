@@ -91,7 +91,7 @@ abstract class Field extends Model implements FieldInterface
 	 **/
 	public function frontendTemplate(): string
 	{
-		return 'formidable/fields/'.$this->handle();
+		return 'formidable/fields/' . $this->handle();
 	}
 
 	/**
