@@ -3,6 +3,24 @@
 Build forms in the backend, notify user and admins and view submissions and spams.
 Display them easily in the front end with templates.
 
+# V3 breaking changes
+
+The way fields are rendered haven been changed. You can set variables in your custom form templates to control classes :
+
+- form_class
+- submit_class
+- submit_container_class
+- honeypot_class
+- fields_class
+
+And fields templates can now be overriden by creating the template `formidable/fields/field` which should look like this at minimum :
+```
+{% include field.frontEndTemplate() %}
+```
+You can then set some variables to control the classes :
+- container_class
+- field_class
+
 # Forms
 
 Forms can be added and edited in the backend. They update the project config, so doing a change to a form and pushing it to a dev/live site will update it there too.
