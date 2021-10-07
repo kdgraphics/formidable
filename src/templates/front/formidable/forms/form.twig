@@ -26,7 +26,7 @@
 		<div class="{{ fields_class }}">
 			{% for field in fields %}
 				{% set error = errors[field.handle] is defined ? errors[field.handle] : false %}
-				{% set old_value = oldInput[field.handle] is defined ? oldInput[field.handle] : field.value %}
+				{% set old_value = oldInput[field.handle] ?? field.value %}
 				{% include "formidable/fields/field" %}
 			{% endfor %}
 		</div>

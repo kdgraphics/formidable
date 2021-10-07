@@ -26,6 +26,14 @@ class Select extends Field
 	/**
 	 * inheritDoc
 	 **/
+	public function getValue()
+	{
+		return $this->_value ?? $this->default;
+	}
+
+	/**
+	 * inheritDoc
+	 **/
 	public function friendlyName(): string
 	{
 		return 'Select';

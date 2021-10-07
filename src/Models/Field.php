@@ -33,8 +33,8 @@ abstract class Field extends Model implements FieldInterface
 	public $uid;
 	public $validRules = [];
 
-	private $value;
-	private $options;
+	protected $_value;
+	protected $options;
 
 	protected $rootAttributes = ['id', 'name', 'handle', 'order', 'form_id', 'options', 'dateCreated', 'dateUpdated', 'uid', 'fieldClass', 'containerClass', 'labelClass', 'instructions', 'type', 'friendlyName', 'validRules', 'value'];
 
@@ -54,7 +54,7 @@ abstract class Field extends Model implements FieldInterface
 	 **/
 	public function getValue()
 	{
-		return $this->value;
+		return $this->_value;
 	}
 
 	/**
@@ -62,7 +62,7 @@ abstract class Field extends Model implements FieldInterface
 	 **/
 	public function setValue($value)
 	{
-		$this->value = $value;
+		$this->_value = $value;
 	}
 
 	/**
