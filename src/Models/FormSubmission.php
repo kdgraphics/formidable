@@ -43,6 +43,18 @@ class FormSubmission extends DynamicModel
 	/**
 	 * @inheritDoc
 	 */
+	public function toArray(array $fields = [], array $expand = [], $recursive = true)
+	{
+		$array = parent::toArray($fields, $expand, $recursive);
+		foreach ($this->form->fields as $field) {
+			$array[$field->handle] = $field::getSubmissionValue($this->{$field->handle});
+		}
+		return $array;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function rules()
 	{
 		$rules = [];
