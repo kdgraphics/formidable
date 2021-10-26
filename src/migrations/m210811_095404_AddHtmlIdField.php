@@ -23,7 +23,7 @@ class m210811_095404_AddHtmlIdField extends Migration
      */
     public function safeDown()
     {
-        echo "m210811_095404_AddHtmlIdField cannot be reverted.\n";
+        $this->dropColumn('{{%formidable_forms}}', 'htmlId');
         return false;
     }
 }

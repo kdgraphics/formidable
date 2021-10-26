@@ -3,6 +3,20 @@
 Build forms in the backend, notify user and admins and view submissions and spams.
 Display them easily in the front end with templates.
 
+# Changelog
+
+### 3.0.3 
+- Added email check on the api "Stop forum spam"
+
+### 3.0.2
+- Make sure fields have a readable value (file)
+
+### 3.0.1
+- Field clases fixes
+
+### 3.0.0
+- Remade rendering logic (see below)
+
 # V3 breaking changes
 
 The way fields are rendered haven been changed. You can set variables in your custom form templates to control classes :

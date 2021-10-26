@@ -33,6 +33,7 @@ class Form extends Model
 	public $saveSpam = 1;
 	public $redirect;
 	public $class;
+	public $spamCheck;
 	public $method = 'POST';
 	public $color = '#000000';
 	public $captcha;
@@ -48,7 +49,7 @@ class Form extends Model
 	public function rules()
 	{
 		return [
-			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'notifySpamEmails','redirect', 'class', 'method', 'submitLabel', 'color', 'submitClass', 'notifyAdmin_key', 'notify_key', 'notifySpam_key', 'htmlId'], 'string'],
+			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'notifySpamEmails','redirect', 'class', 'method', 'submitLabel', 'color', 'submitClass', 'notifyAdmin_key', 'notify_key', 'notifySpam_key', 'htmlId', 'spamCheck'], 'string'],
 			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'redirect', 'class', 'submitLabel', 'color', 'submitClass'], 'trim'],
 			[['id'], 'integer'],
 			[['honeypot', 'saveSubmissions', 'saveSpam', 'frontEndValidation'], 'boolean'],
@@ -129,6 +130,22 @@ class Form extends Model
 	}
 
 	/**
+	 * Does a field handle exist
+	 * 
+	 * @param  string  $handle
+	 * @return boolean
+	 */
+	public function hasField(string $handle): bool
+	{
+		foreach ($this->getFields() as $field) {
+			if ($field->handle == $handle) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Get form rules
 	 * 
 	 * @return array
@@ -196,6 +213,7 @@ class Form extends Model
             'frontEndValidation' => $this->frontEndValidation,
             'redirect' => $this->redirect,
             'class' => $this->class,
+            'spamCheck' => $this->spamCheck,
             'htmlId' => $this->htmlId,
             'submitLabel' => $this->submitLabel,
             'submitClass' => $this->submitClass,

@@ -2,6 +2,7 @@
 
 namespace Ryssbowh\Formidable\Services;
 
+use Inspire\SpamCheck\SpamCheck;
 use Ryssbowh\Formidable\Events\FormEvent;
 use Ryssbowh\Formidable\Events\HookAssetsEvent;
 use Ryssbowh\Formidable\Events\SpamEvent;
@@ -220,6 +221,7 @@ class FormsService extends Component
             $form->saveSubmissions = $data['saveSubmissions'];
             $form->frontEndValidation = $data['frontEndValidation'];
             $form->saveSpam = $data['saveSpam'];
+            $form->spamCheck = $data['spamCheck'];
             $form->redirect = $data['redirect'];
             $form->class = $data['class'];
             $form->htmlId = $data['htmlId'];
@@ -509,6 +511,15 @@ class FormsService extends Component
 
         if ($form->captcha) {
             if (!$form->getCaptcha()->verify($form, $formSubmission, $posted)) {
+                $spam = Formidable::$plugin->spam->create($form, $formSubmission, $posted);
+                return self::SPAM;
+            }
+        }
+
+        if ($form->spamCheck and $form->hasField($form->spamCheck)) {
+            $res = SpamCheck::$plugin->spamCheck->email(trim($posted[$form->spamCheck]));
+            if ($res and $res['frequency'] > 10) {
+                $formSubmission->_spam_reason = \Craft::t('formidable', 'Known spammer');
                 $spam = Formidable::$plugin->spam->create($form, $formSubmission, $posted);
                 return self::SPAM;
             }

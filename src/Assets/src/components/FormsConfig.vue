@@ -23,6 +23,19 @@
             </div>
           </div>
         </div>
+        <div class="field">
+          <div class="heading">
+            <label for="form-spamCheck">{{ t('Check if user email is a known spammer') }}</label>
+          </div>
+          <div class="input ltr">
+            <div class="select" :class="{'error' : errors.spamCheck}">
+              <select v-model="form.spamCheck" id="form-spamCheck">
+                <option value="">{{ t('Don\'t check') }}</option>
+                <option v-for="field in emailFields" :key="field.handle" :value="field.handle">Field : {{ field.name }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
         <div class="lightswitch-field field">
           <div class="heading">
             <label for="form-frontEndValidation">{{ t('Enable front-end validation') }}</label>
@@ -84,31 +97,6 @@
           </div>
           <div class="input ltr">
             <input type="text" id="form-honeypotField" :class="'text fullwidth' + (errors.honeypotField ? ' error' : '')" v-model="form.honeypotField">
-          </div>
-        </div>
-        <div class="field">
-          <div class="heading">
-            <label for="form-notify_key">{{ t('User email') }}</label>
-          </div>
-          <div class="input ltr">
-            <div class="select">
-              <select v-model="form.notify_key" class="text fullwidth" id="form.notify_key">
-                <option :value="null">{{ t('Don\'t notify') }}</option>
-                <option v-for="email in emails" :value="email.key" :key="email.key">{{ email.heading }}</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div v-if="form.notify_key" class="field">
-          <div class="heading">
-            <label class="required" for="form.notifyField">{{ t('User email field') }}</label>
-          </div>
-          <div class="input ltr">
-            <div class="select" :class="{'error' : errors.notifyField}">
-              <select v-model="notifyField" id="form.notifyField">
-                <option v-for="field in emailFields" :key="field.handle" :value="field">{{ field.name }}</option>
-              </select>
-            </div>
           </div>
         </div>
       </div>
@@ -179,6 +167,31 @@
           </div>
           <div class="input ltr">
             <textarea id="form-notifyEmails" :class="'text fullwidth' + (errors.notifyEmails ? ' error' : '')" v-model="form.notifyEmails"></textarea>
+          </div>
+        </div>
+        <div class="field">
+          <div class="heading">
+            <label for="form-notify_key">{{ t('User email') }}</label>
+          </div>
+          <div class="input ltr">
+            <div class="select">
+              <select v-model="form.notify_key" class="text fullwidth" id="form.notify_key">
+                <option :value="null">{{ t('Don\'t notify') }}</option>
+                <option v-for="email in emails" :value="email.key" :key="email.key">{{ email.heading }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div v-if="form.notify_key" class="field">
+          <div class="heading">
+            <label class="required" for="form.notifyField">{{ t('User email field') }}</label>
+          </div>
+          <div class="input ltr">
+            <div class="select" :class="{'error' : errors.notifyField}">
+              <select v-model="notifyField" id="form.notifyField">
+                <option v-for="field in emailFields" :key="field.handle" :value="field">{{ field.name }}</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -330,6 +343,7 @@ export default {
     this.setLoadedTime(this.loaded);
     this.setVolumes(this.allVolumes);
     this.init();
+    console.log(this.form);
   },
   mounted() {
     this.$nextTick(() => {
