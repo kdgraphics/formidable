@@ -257,7 +257,7 @@ class Form extends Model
 	 * @param ?string $template
 	 * @return string
 	 */
-	public function render(?string $template = null)
+	public function render(?string $template = null, array $variables = [])
 	{
 		if (!$template) {
 			$template = 'formidable/forms/form';
@@ -268,12 +268,13 @@ class Form extends Model
             'oldInput' => Formidable::$plugin->forms->getSessionOldInput($this->handle)
         ]);
 		$this->trigger(self::EVENT_RENDER, $event);
-		return \Craft::$app->getView()->renderTemplate($template, [
+		$variables = array_merge($variables, [
 			'form' => $this,
 			'fields' => $this->getFields(),
 			'errors' => $event->errors,
 			'oldInput' => $event->oldInput
 		]);
+		return \Craft::$app->getView()->renderTemplate($template, $variables);
 	}
 
 	/**

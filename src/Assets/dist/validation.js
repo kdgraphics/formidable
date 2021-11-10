@@ -108,7 +108,9 @@ window.formidable = {
             for (i = 0; i < this.getElems().length; i++) {
                 this.getElems()[i].classList.remove('is-invalid');
             }
-            this.getWrapper().querySelector('.errors').innerHTML = '';
+            if (this.getWrapper()) {
+                this.getWrapper().querySelector('.errors').innerHTML = '';
+            }
         };
     },
     condition: function ({type, field, operator, negate, value}) {
