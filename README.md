@@ -5,8 +5,11 @@ Display them easily in the front end with templates.
 
 # Changelog
 
-### 3.0.4
+### 3.0.5
 - render function can now be called with variables as 2nd argument
+
+### 3.0.4
+- added spam check api
 
 ### 3.0.3 
 - Added email check on the api "Stop forum spam"
