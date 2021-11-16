@@ -16,16 +16,6 @@ class Form extends ActiveRecord
 	public function toModel()
 	{
 		$form = new FormModel($this->getAttributes());
-		// if ($fields = $this->fields) {
-		// 	$form->fields = array_map(function($field){
-		// 		return $field->toModel();
-		// 	}, $fields);
-		// }
-		// if ($rules = $this->rules) {
-		// 	$form->rules = array_map(function($rule){
-		// 		return $rule->toModel();
-		// 	}, $rules);
-		// }
 		return $form;
 	}
 

@@ -13,7 +13,7 @@ class Condition extends Model
 	public $conditiongroup_id;
 	public $rule_id;
 	public $type;
-	public $negate;
+	public $negate = false;
 	public $operator;
 	public $value;
 	public $field;
@@ -26,7 +26,7 @@ class Condition extends Model
 		return [
 			[['type', 'negate', 'operator', 'field', 'type'], 'required'],
 			[['type', 'operator', 'field', 'value', 'type'], 'string'],
-			['negate', 'boolean'],
+			['negate', 'boolean', 'trueValue' => true, 'falseValue' => false],
 			['operator', 'in', 'range' => ['and', 'or']]
 		];
 	}

@@ -56,7 +56,7 @@ class LightSwitch extends Field
 		return [
 			[['label', 'tooltip', 'tooltipLabel'], 'string'],
 			[['label', 'tooltip', 'tooltipLabel'], 'trim'],
-			[['default', 'labelHtml'], 'boolean']
+			[['default', 'labelHtml'], 'boolean', 'trueValue' => true, 'falseValue' => false]
 		];
 	}
 

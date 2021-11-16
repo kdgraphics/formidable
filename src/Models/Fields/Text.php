@@ -54,7 +54,7 @@ class Text extends Field
 		return [
 			[['placeholder','label', 'default', 'tooltip', 'tooltipLabel'], 'string'],
 			[['placeholder','label', 'default', 'tooltip', 'tooltipLabel'], 'trim'],
-			['labelHtml', 'boolean']
+			['labelHtml', 'boolean', 'trueValue' => true, 'falseValue' => false]
 		];
 	}
 

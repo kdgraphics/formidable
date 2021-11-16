@@ -73,8 +73,8 @@ class CpFormsController extends Controller
             'loaded' => time(),
             'success' => true,
             'form' => $form,
-            'fields' => $form->getFields(),
-            'rules' => $form->getRules(),
+            'fields' => $form->fields,
+            'rules' => $form->rules,
         ]);    
 	}
 
@@ -87,6 +87,8 @@ class CpFormsController extends Controller
             'loaded' => time(),
             'success' => true,
             'form' => new Form,
+            'fields' => [],
+            'rules' => []
         ]);    
     }
 
@@ -122,7 +124,9 @@ class CpFormsController extends Controller
                 'loaded' => time(),
                 'success' => true,
                 'message' => \Craft::t('formidable', 'Form saved successfully.'),
-                'form' => $form
+                'form' => $form,
+                'fields' => $form->fields,
+                'rules' => $form->rules
             ]);    
         }
         return $this->asJson([

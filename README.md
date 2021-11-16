@@ -5,6 +5,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 3.0.7 Fixes
+- Fields saved incorrectly
+- Boolean validation
+
 ### 3.0.6 File fields fixes
 - File fields can accept multiple files
 - Fields handle can now be changed

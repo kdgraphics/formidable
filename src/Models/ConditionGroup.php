@@ -13,7 +13,7 @@ class ConditionGroup extends Model
 	public $id;
 	public $rule_id;
 	public $conditions;
-	public $negate;
+	public $negate = false;
 	public $operator;
 	public $dateCreated;
 	public $dateUpdated;
@@ -22,7 +22,7 @@ class ConditionGroup extends Model
 	public function rules()
 	{
 		return [
-			['negate', 'boolean'],
+			['negate', 'boolean', 'trueValue' => true, 'falseValue' => false],
 			['operator', 'in', 'range' => ['and', 'or']]
 		];
 	}

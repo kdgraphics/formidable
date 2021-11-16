@@ -25,12 +25,12 @@ class Form extends Model
 	public $notifyField;
 	public $notifyEmails;
 	public $notifySpamEmails;
-	public $honeypot = 1;
+	public $honeypot = true;
 	public $htmlId;
-	public $honeypotField;
-	public $saveSubmissions = 1;
-	public $frontEndValidation = 0;
-	public $saveSpam = 1;
+	public $honeypotField = 'website';
+	public $saveSubmissions = true;
+	public $frontEndValidation = true;
+	public $saveSpam = true;
 	public $redirect;
 	public $class;
 	public $spamCheck;
@@ -52,7 +52,7 @@ class Form extends Model
 			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'notifySpamEmails','redirect', 'class', 'method', 'submitLabel', 'color', 'submitClass', 'notifyAdmin_key', 'notify_key', 'notifySpam_key', 'htmlId', 'spamCheck'], 'string'],
 			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'redirect', 'class', 'submitLabel', 'color', 'submitClass'], 'trim'],
 			[['id'], 'integer'],
-			[['honeypot', 'saveSubmissions', 'saveSpam', 'frontEndValidation'], 'boolean'],
+			[['honeypot', 'saveSubmissions', 'saveSpam', 'frontEndValidation'], 'boolean', 'trueValue' => true, 'falseValue' => false],
 			[['notifyEmails', 'notifySpamEmails'], 'validateEmails'],
 			['handle', 'validateHandle'],
 			['method', 'in', 'range' => ['GET', 'POST']],
@@ -84,11 +84,6 @@ class Form extends Model
 	{
 		$this->submitLabel = $this->submitLabel ? $this->submitLabel : \Craft::t('formidable', 'Submit');
 		parent::init();
-	}
-
-	public function fields()
-	{
-		return array_merge(parent::fields(), ['fields', 'rules']);
 	}
 
 	/**

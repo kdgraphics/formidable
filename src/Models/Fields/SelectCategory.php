@@ -50,7 +50,7 @@ class SelectCategory extends Field
 		return [
 			[['label', 'category', 'selectLabel', 'tooltip', 'tooltipLabel'], 'string'],
 			[['label', 'tooltip', 'tooltipLabel'], 'trim'],
-			[['includeSelect', 'labelHtml'], 'boolean']
+			[['includeSelect', 'labelHtml'], 'boolean', 'trueValue' => true, 'falseValue' => false]
 		];
 	}
 

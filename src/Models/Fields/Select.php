@@ -57,7 +57,7 @@ class Select extends Field
 			[['label', 'default', 'tooltip', 'tooltipLabel'], 'trim'],
 			['choices', 'required'],
 			['choices', 'validateChoices'],
-			['labelHtml', 'boolean']
+			['labelHtml', 'boolean', 'trueValue' => true, 'falseValue' => false]
 		];
 	}
 

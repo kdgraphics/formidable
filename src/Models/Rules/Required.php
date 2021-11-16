@@ -5,7 +5,6 @@ namespace Ryssbowh\Formidable\Models\Rules;
 use Ryssbowh\Formidable\Exceptions\RuleException;
 use Ryssbowh\Formidable\Interfaces\FieldInterface;
 use Ryssbowh\Formidable\Models\FieldTypes\ArrayField;
-use Ryssbowh\Formidable\Models\FieldTypes\BooleanField;
 use Ryssbowh\Formidable\Models\FieldTypes\FileField;
 use Ryssbowh\Formidable\Models\FieldTypes\NumberField;
 use Ryssbowh\Formidable\Models\FieldTypes\TextField;

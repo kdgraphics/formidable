@@ -56,7 +56,7 @@ class File extends Field
 			[['label', 'volume', 'tooltip', 'tooltipLabel'], 'string'],
 			[['label', 'volume', 'tooltip', 'tooltipLabel'], 'trim'],
 			['extensions', 'validateExtensions'],
-			[['labelHtml', 'multiple'], 'boolean'],
+			[['labelHtml', 'multiple'], 'boolean', 'trueValue' => true, 'falseValue' => false],
 		];
 	}
 

@@ -80,7 +80,7 @@ class FieldsService extends Component
             if (isset($data['id']) and is_numeric($data['id'])) {
                 $field = $this->getById($data['id']);
             } else {
-                $field = $this->getRegistered($data['type']);
+                $field = clone $this->getRegistered($data['type']);
             }
             $field->setAttributes($data);
             $field->validate();

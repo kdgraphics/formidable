@@ -48,7 +48,7 @@ class SelectEntry extends Field
 		return [
 			[['label', 'selectLabel', 'tooltip', 'tooltipLabel'], 'string'],
 			[['label', 'tooltip', 'tooltipLabel'], 'trim'],
-			[['includeSelect', 'labelHtml'], 'boolean'],
+			[['includeSelect', 'labelHtml'], 'boolean', 'trueValue' => true, 'falseValue' => false],
 			['sections', 'safe']
 		];
 	}

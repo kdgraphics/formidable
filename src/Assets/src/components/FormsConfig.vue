@@ -343,7 +343,6 @@ export default {
     this.setLoadedTime(this.loaded);
     this.setVolumes(this.allVolumes);
     this.init();
-    console.log(this.form);
   },
   mounted() {
     this.$nextTick(() => {

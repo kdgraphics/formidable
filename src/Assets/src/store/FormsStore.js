@@ -170,7 +170,7 @@ export default new Vuex.Store({
         .then((response) => {
           if (response.data.success) {
             commit('setIsAdding', true);
-            dispatch('resetForm', {form: response.data.form, fields: [], rules: [], loaded: response.data.loaded});
+            dispatch('resetForm', response.data);
           } else {
             Craft.cp.displayError(response.data.message);
           }
@@ -209,9 +209,10 @@ export default new Vuex.Store({
         });
     },
     resetForm({commit, state}, data) {
+      console.log(data);
       commit('setForm', data.form);
-      commit('setFields', data.form.fields);
-      commit('setRules', data.form.rules);
+      commit('setFields', data.fields);
+      commit('setRules', data.rules);
       commit('setLoadedTime', data.loaded);
     },
     setHistory({}, parts) {
