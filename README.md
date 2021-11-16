@@ -5,6 +5,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 3.0.6 File fields fixes
+- File fields can accept multiple files
+- Fields handle can now be changed
+
 ### 3.0.5
 - render function can now be called with variables as 2nd argument
 
