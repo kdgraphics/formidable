@@ -5,6 +5,7 @@ namespace Ryssbowh\Formidable\Models\Rules;
 use Ryssbowh\Formidable\Exceptions\RuleException;
 use Ryssbowh\Formidable\Interfaces\FieldInterface;
 use Ryssbowh\Formidable\Models\FieldTypes\ArrayField;
+use Ryssbowh\Formidable\Models\FieldTypes\BooleanField;
 use Ryssbowh\Formidable\Models\FieldTypes\FileField;
 use Ryssbowh\Formidable\Models\FieldTypes\NumberField;
 use Ryssbowh\Formidable\Models\FieldTypes\TextField;
@@ -66,7 +67,7 @@ class Required extends Rule
 			case NumberField::class:
 				return strlen(trim($value)) > 0;
 		}
-		throw RuleException::typeNotValid($rule, get_class($field->fieldType()));
+		throw RuleException::typeNotValid($this, get_class($field->fieldType()));
 	}
 
 	/**
@@ -79,7 +80,7 @@ class Required extends Rule
 				case 'text':
 				case 'number':
 				case 'file':
-					return (value.trim().length > 0);
+					return (value !== null && value.trim().length > 0);
 				case 'array':
 					return (value.length > 0);
 			}

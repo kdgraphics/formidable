@@ -13,7 +13,7 @@
         <label class="required">{{ t('Handle') }}</label>
       </div>
       <div class="input ltr">
-        <input type="text" :class="'text fullwidth' + (errors.handle ? ' error' : '')" v-model="field.handle" @input="validateHandle" :disabled="field.id!=null">
+        <input type="text" :class="'text fullwidth' + (errors.handle ? ' error' : '')" v-model="field.handle" @input="validateHandle">
       </div>
     </div>
     <div class="field field-instructions">

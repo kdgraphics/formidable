@@ -2,7 +2,9 @@
 
 namespace Ryssbowh\Formidable\Models\Fields;
 
+use Ryssbowh\Formidable\Interfaces\FieldTypeInterface;
 use Ryssbowh\Formidable\Models\Field;
+use Ryssbowh\Formidable\Models\FieldTypes\ArrayField;
 use Ryssbowh\Formidable\Models\FieldTypes\FileField;
 use Ryssbowh\Formidable\Models\FormSubmission;
 use craft\elements\Asset;
@@ -17,6 +19,7 @@ class File extends Field
 	public $volume;
 	public $extensions;
 	public $labelHtml = false;
+	public $multiple = false;
 	public $tooltip;
 	public $tooltipLabel;
 
@@ -53,7 +56,7 @@ class File extends Field
 			[['label', 'volume', 'tooltip', 'tooltipLabel'], 'string'],
 			[['label', 'volume', 'tooltip', 'tooltipLabel'], 'trim'],
 			['extensions', 'validateExtensions'],
-			['labelHtml', 'boolean'],
+			[['labelHtml', 'multiple'], 'boolean'],
 		];
 	}
 
@@ -76,14 +79,34 @@ class File extends Field
 
 	/**
 	 * inheritDoc
+	 **/
+	public function fieldType(): FieldTypeInterface
+	{
+		if ($this->multiple) {
+				$this->fieldTypeClass = ArrayField::class;
+		}
+		return $this->fieldTypeClass::getInstance();
+	}
+
+	/**
+	 * inheritDoc
 	 */
 	public function getFrontEndRules(FormSubmission $submission): array
 	{
+		if ($this->multiple) {
+			$rules = [
+				[$this->handle, 'each', 'rule' => ['file']], 
+			];
+			if ($this->extensions) {
+				$rules[0]['rule']['extensions'] = explode(',', $this->extensions);
+			}
+			return $rules;	
+		}
 		$rules = [
 			[$this->handle, 'file'], 
 		];
 		if ($this->extensions) {
-			$rules[0][] = ['extensions' => explode(',', $this->extensions)];
+			$rules[0]['extensions'] = explode(',', $this->extensions);
 		}
 		return $rules;
 	}
@@ -95,7 +118,7 @@ class File extends Field
 	 */
 	public function beforeSubmissionValidated(FormSubmission $submission)
 	{
-		$submission->{$this->handle} = UploadedFile::getInstanceByName($this->handle);
+		$submission->{$this->handle} = UploadedFile::getInstancesByName($this->handle);
 	}
 
 	/**
@@ -105,28 +128,13 @@ class File extends Field
 	 */
 	public function afterSubmissionValidated(FormSubmission $submission)
 	{
-		$file = $submission->{$this->handle};
-		if (!$file) {
-        	return;
-        }
-		$assets = \Craft::$app->getAssets();
-        $folder = $assets->getRootFolderByVolumeId($this->volume);
-        if (!$folder) {
-            throw new BadRequestHttpException(\Craft::t('formidable', 'The target folder provided for uploading is not valid'));
-        }
-        $asset = new Asset();
-        $asset->setScenario(Asset::SCENARIO_CREATE);
-        $asset->tempFilePath = $file->tempName;
-        $asset->filename = $file->name;
-        $asset->newFolderId = $folder->id;
-        $asset->volumeId = $folder->volumeId;
-        $asset->avoidFilenameConflicts = true;
-        $result = \Craft::$app->getElements()->saveElement($asset);
-        if ($result) {
-        	$submission->{$this->handle} = $asset->id;
-        } else {
-        	throw new BadRequestHttpException(\Craft::t('formidable', 'Couldn\'t create asset'));
-        }
+		$files = $submission->{$this->handle};
+		$value = [];
+		foreach ($files as $file) {
+			$asset = $this->uploadToVolume($file);
+			$value[] = $asset->id;
+		}
+		$submission->{$this->handle} = $value;
 	}
 
 	/**
@@ -146,10 +154,18 @@ class File extends Field
 	 */
 	public static function getSubmissionValue($value)
 	{
-		$asset = Asset::find()->where(['assets.id' => $value])->one();
-		if ($asset) {
-			return '<a target="_blank" href="'.$asset->getCpEditUrl().'">'.$asset->filename.'</a>';
+		if (!$value) {
+			return '';
 		}
+		if (is_string($value)) {
+			$value = json_decode($value, true);
+		}
+		$assets = Asset::find()->id($value)->all();
+		$html = '';
+		foreach ($assets as $asset) {
+			$html .= '<a target="_blank" href="'.$asset->getCpEditUrl().'">'.$asset->filename.'</a><br/>';
+		}
+		return $html;
 	}
 
 	/**
@@ -157,9 +173,43 @@ class File extends Field
 	 */
 	public static function getCsvValue($value)
 	{
-		$asset = Asset::find()->where(['assets.id' => $value])->one();
-		if ($asset) {
-			return $asset->filename;
+		if (!$value) {
+			return '';
 		}
+		if (is_string($value)) {
+			$value = json_decode($value, true);
+		}
+		$assets = Asset::find()->id($value)->all();
+		$csv = [];
+		foreach ($assets as $asset) {
+			$csv[] = $asset->filename;
+		}
+		return implode(',', $csv);
+	}
+
+	/**
+	 * Upload a file to a volume as an asset
+	 * 
+	 * @param  UploadedFile $file
+	 * @return Asset
+	 */
+	protected function uploadToVolume(UploadedFile $file): Asset
+	{
+		$assets = \Craft::$app->getAssets();
+        $folder = $assets->getRootFolderByVolumeId($this->volume);
+        if (!$folder) {
+            throw new BadRequestHttpException(\Craft::t('formidable', 'The target folder provided for uploading is not valid'));
+        }
+        $asset = new Asset();
+        $asset->setScenario(Asset::SCENARIO_CREATE);
+        $asset->tempFilePath = $file->tempName;
+        $asset->filename = $file->name;
+        $asset->newFolderId = $folder->id;
+        $asset->volumeId = $folder->volumeId;
+        $asset->avoidFilenameConflicts = true;
+        if (!\Craft::$app->getElements()->saveElement($asset)) {
+        	throw new BadRequestHttpException(\Craft::t('formidable', 'Unable to upload the asset to volume ' . $volume->name));
+        }
+        return $asset;
 	}
 }
