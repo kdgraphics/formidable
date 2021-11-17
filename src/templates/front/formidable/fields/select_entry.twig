@@ -5,8 +5,9 @@
 {% block inner %}
 	<select
 	id="{{ field.generateId(form) }}"
-	name="{{ field.handle }}"
+	name="{{ field.frontName }}{% if field.multiple %}[]{% endif %}"
 	class="{{ field_class }}{% if error %} is-invalid{% endif %}"
+	{% if field.multiple %}multiple{% endif %}
 	>
         {% if field.includeSelect %}
             <option value="">{{ field.selectLabel }}</option>

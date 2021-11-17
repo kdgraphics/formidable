@@ -53,7 +53,7 @@ class CpFormsController extends Controller
             'registeredFields' => $this->fields()->getAllRegistered(),
             'registeredRules' => $this->rules()->getAllRegistered(),
             'volumes' => array_map(function($volume) {
-                return ['id' => $volume->id, 'name' => $volume->name];
+                return ['uid' => $volume->uid, 'name' => $volume->name];
             }, \Craft::$app->volumes->getAllVolumes())
         ]);
 	}

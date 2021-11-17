@@ -52,7 +52,7 @@
         <div class="input ltr">
           <div class="select">
             <select v-model="field.volume">
-              <option v-for="volume in volumes" :key="volume.id" :value="volume.id">{{ volume.name }}</option>
+              <option v-for="volume in volumes" :key="volume.uid" :value="volume.uid">{{ volume.name }}</option>
             </select>
           </div>
         </div>
@@ -71,6 +71,42 @@
         </div>
         <div class="input ltr">
           <textarea type="text" :class="'text fullwidth field-tooltip-value'+field.uid" v-model="field.tooltip" rows="1"></textarea>
+        </div>
+      </div>
+      <div class="field field-size">
+        <div class="heading">
+          <label>{{ t('Max file size (Mb)') }}</label>
+        </div>
+        <div class="input ltr">
+          <input type="number" min="0" step="0.5" class="text fullwidth" v-model="field.size">
+        </div>
+      </div>
+    </template>
+    <template v-slot:extraAdvanced>
+      <div class="lightswitch-field field-attachToUserEmail field">
+        <div class="heading">
+          <label>{{ t('Attach to user email') }}</label>
+        </div>
+        <div class="input ltr">
+          <div :class="'lightswitch ' + (field.attachToUserEmail ? 'on' : '')" tabindex="0" role="switch" :aria-checked="field.attachToUserEmail">
+            <div class="lightswitch-container">
+              <div class="handle"></div>
+            </div>
+            <input type="hidden" name="attachToUserEmail" v-model="field.attachToUserEmail">
+          </div>
+        </div>
+      </div>
+      <div class="lightswitch-field field-attachToAdminEmail field">
+        <div class="heading">
+          <label>{{ t('Attach to admin email') }}</label>
+        </div>
+        <div class="input ltr">
+          <div :class="'lightswitch ' + (field.attachToAdminEmail ? 'on' : '')" tabindex="0" role="switch" :aria-checked="field.attachToAdminEmail">
+            <div class="lightswitch-container">
+              <div class="handle"></div>
+            </div>
+            <input type="hidden" name="attachToAdminEmail" v-model="field.attachToAdminEmail">
+          </div>
         </div>
       </div>
     </template>

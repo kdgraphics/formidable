@@ -43,7 +43,7 @@ class Email extends Text
 	/**
 	 * inheritDoc
 	 */
-	public static function getSubmissionValue($value)
+	public static function getHtmlValue($value): string
 	{
 		return '<a href="mailto:'.$value.'">'.$value.'</a>';
 	}

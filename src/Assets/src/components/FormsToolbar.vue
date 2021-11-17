@@ -27,7 +27,7 @@ export default {
   methods: {
     _delete() {
       this.$confirm({
-        message: this.t('Confirm deletion ?'),
+        message: this.t('This will also delete all submissions for this form, Confirm deletion ?'),
         button: {
           no: this.t('No'),
           yes: this.t('Yes')

@@ -26,6 +26,13 @@ interface FieldInterface
 	public function handle(): string;
 
 	/**
+	 * Name of the field for front end
+	 * 
+	 * @return string
+	 */
+	public function getFrontName(): string;
+
+	/**
 	 * Friendly name for this field
 	 * 
 	 * @return string
@@ -75,25 +82,26 @@ interface FieldInterface
 	public function afterSubmissionValidated(FormSubmission $submission);
 
 	/**
-	 * Transform a submission value
+	 * Transform a submission value into Html
 	 * 
 	 * @param mixed $value
-	 * @return  mixed
+	 * @return  string
 	 */
-	public static function getSubmissionValue($value);
+	public static function getHtmlValue($value): string;
 
 	/**
 	 * Get value for csv export
+	 * 
 	 * @param mixed $value
 	 * @return mixed
 	 */
-	public static function getCsvValue($value);
+	public static function getCsvValue($value): string;
 
 	/**
-	 * Get friendly value
+	 * Get value as string
 	 * 
 	 * @param  mixed $value
-	 * @return mixed
+	 * @return string
 	 */
-	public static function getFriendlyValue($value);
+	public static function getStringValue($value): string;
 }

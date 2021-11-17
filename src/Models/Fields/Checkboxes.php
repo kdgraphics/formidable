@@ -62,13 +62,13 @@ class Checkboxes extends Radio
 		foreach ($rawValue as $value) {
 			$selected[] = $choices[$value];
 		}
-		$submission->{$this->handle} = implode(', ', $selected);
+		$submission->{$this->handle} = $selected;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public static function getFriendlyValue($value)
+	public static function getStringValue($value): string
 	{
 		return is_array($value) ? implode(', ', $value) : $value;
 	}

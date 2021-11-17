@@ -5,10 +5,10 @@
 	{% block before_field %}
 	{% endblock %}
 	{% block inner %}
-		<input type="hidden" name="{{ field.handle }}" value="0">
+		<input type="hidden" name="{{ field.frontName }}" value="0">
 		<input type="checkbox"
 		id="{{ field.generateId(form) }}"
-		name="{{ field.handle }}"
+		name="{{ field.frontName }}"
 		class="{{ field_class }}{% if error %} is-invalid{% endif %}" 
 		value="1"
 		{% if old_value %}checked="checked"{% endif %}

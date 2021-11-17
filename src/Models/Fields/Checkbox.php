@@ -6,7 +6,7 @@ use Ryssbowh\Formidable\Models\Field;
 use Ryssbowh\Formidable\Models\FieldTypes\BooleanField;
 use Ryssbowh\Formidable\Models\FormSubmission;
 
-class LightSwitch extends Field
+class Checkbox extends Field
 {
 	protected $fieldTypeClass = BooleanField::class;
 
@@ -21,7 +21,7 @@ class LightSwitch extends Field
 	 **/
 	public function handle(): string
 	{
-		return 'switch';
+		return 'checkbox';
 	}
 
 	/**
@@ -37,7 +37,7 @@ class LightSwitch extends Field
 	 **/
 	public function friendlyName(): string
 	{
-		return 'Switch';
+		return 'Checkbox';
 	}
 
 	/**
@@ -45,7 +45,7 @@ class LightSwitch extends Field
 	 **/
 	public function backendTemplate(): string
 	{
-		return 'formidable/cp/fields/switch';
+		return 'formidable/cp/fields/checkbox';
 	}
 
 	/**
@@ -61,6 +61,16 @@ class LightSwitch extends Field
 	}
 
 	/**
+	 * Upload files before validation
+	 * 
+	 * @param  FormSubmission $submission
+	 */
+	public function beforeSubmissionValidated(FormSubmission $submission)
+	{
+		$submission->{$this->handle} = $submission->{$this->handle} ? true : false;
+	}
+
+	/**
 	 * inheritDoc
 	 */
 	public function getFrontEndRules(FormSubmission $submission): array
@@ -71,8 +81,16 @@ class LightSwitch extends Field
 	/**
 	 * @inheritDoc
 	 */
-	public static function getFriendlyValue($value)
+	public static function getStringValue($value): string
 	{
 		return $value ? \Craft::t('site', 'Yes') : \Craft::t('site', 'No');
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getHtmlValue($value): string
+	{
+		return self::getStringValue($value);
 	}
 }

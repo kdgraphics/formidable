@@ -1,6 +1,11 @@
+{% set name = form.honeypotField %}
+{% if form.obfuscateFieldNames %}
+	{% set name = form.obfuscateFieldName(form.honeypotField) %}
+{% endif %}
+
 <div class="{{ honeypot_class }}">
 	<label>{{ form.honeypotField }}</label>
 	<div class="instructions"></div>
-	<input name="{{ form.honeypotField }}" type="text" id="{{ form.handle }}-field-{{ form.honeypotField }}">
+	<input name="{{ name }}" type="text" id="{{ form.handle }}-field-{{ form.honeypotField }}">
 	<div class="errors"></div>
 </div>

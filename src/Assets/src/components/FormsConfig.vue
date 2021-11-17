@@ -36,6 +36,22 @@
             </div>
           </div>
         </div>
+        <div class="field">
+          <div class="heading">
+            <label for="form-obfuscateFieldNames">{{ t('Obfuscate field names') }}</label>
+          </div>
+          <div class="instructions">
+            {{ t('Make all field names impossible to read, helps against spam') }}
+          </div>
+          <div class="input ltr">
+            <div id="form-obfuscateFieldNames" :class="{lightswitch:true, on:form.obfuscateFieldNames}" tabindex="0" role="switch" :aria-checked="form.obfuscateFieldNames">
+              <div class="lightswitch-container">
+                <div class="handle"></div>
+              </div>
+              <input type="hidden" name="obfuscateFieldNames" v-model="form.obfuscateFieldNames">
+            </div>
+          </div>
+        </div>
         <div class="lightswitch-field field">
           <div class="heading">
             <label for="form-frontEndValidation">{{ t('Enable front-end validation') }}</label>
@@ -386,7 +402,7 @@ export default {
         handle: trim(this.form.handle) == '',
         notifyEmails: (this.form.notifyAdmin_key && trim(this.form.notifyEmails) == ''),
         notifySpamEmails: (this.form.notifySpam_key && trim(this.form.notifySpamEmails) == ''),
-        htmlId: (this.form.htmlId && !this.form.htmlId.match(/^[0-9a-zA-Z-]*$/)),
+        htmlId: (this.form.htmlId && !this.form.htmlId.match(/^[a-zA-Z_]*$/)),
         class: (this.form.class && !this.form.class.match(/^[0-9a-zA-Z\s-]*$/)),
         submitClass: (this.form.submitClass && !this.form.submitClass.match(/^[0-9a-zA-Z\s-]*$/)),
         submitLabel: trim(this.form.submitLabel) == '',

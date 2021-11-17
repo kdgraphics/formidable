@@ -17,18 +17,7 @@ class Submission extends ActiveRecord
 
 	public function toModel()
 	{
-		$model = new SubmissionModel($this->getAttributes());
-		$model->values = array_map(function($value){
-			return $value->toModel();
-		}, $this->values);
-		$model->form  = $this->form;
-		$model->_record = $this;
-		return $model;
-	}
-
-	public function getValues()
-	{
-		return $this->hasMany(SubmissionValue::className(), ['submission_id' => 'id']);
+		return new SubmissionModel($this->getAttributes());
 	}
 
 	public function getForm()

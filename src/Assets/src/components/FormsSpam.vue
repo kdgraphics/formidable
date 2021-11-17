@@ -24,6 +24,9 @@
           </tr>
         </tbody>
       </table>
+      <div class="loader" v-if="isFetching">
+        <img :src="loaderPath">
+      </div>
     </div>
     <div class="chart-view" v-show="isChartView">
       <canvas id="formidable-chart-container"></canvas>
@@ -78,12 +81,16 @@ export default {
   computed: {
     ...mapState(['filters', 'isChartView', 'spams', 'selected'])
   },
+  props: {
+    loaderPath: String
+  },
   data: function () {
     return {
       chartData: {},
       chart: null,
       chartData: false,
       pager: {},
+      isFetching: false,
       sort: {
         field: 'dateCreated',
         side: 'desc'
@@ -242,10 +249,28 @@ export default {
   .icon.icon-mask {
     cursor: pointer;
   }
+  .tableview {
+    position: relative;
+  }
   #footer {
     justify-content: space-between;
     .pagination .page-number.active{
       background: $grey200;
+    }
+  }
+  .loader {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.1);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px;
     }
   }
 }

@@ -5,6 +5,7 @@ namespace Ryssbowh\Formidable\Services;
 use Ryssbowh\Formidable\Events\FieldEvent;
 use Ryssbowh\Formidable\Events\FormEvent;
 use Ryssbowh\Formidable\Events\RegisterFieldsEvent;
+use Ryssbowh\Formidable\Exceptions\FormException;
 use Ryssbowh\Formidable\Formidable;
 use Ryssbowh\Formidable\Interfaces\FieldInterface;
 use Ryssbowh\Formidable\Models\Form;
@@ -62,7 +63,9 @@ class FieldsService extends Component
     {
         $fields = [];
         foreach (FieldRecord::find()->where(['form_id' => $form->id])->orderBy(['order' => SORT_ASC])->all() as $record) {
-            $fields[] = $record->toModel();
+            try {
+                $fields[] = $record->toModel();
+            } catch (FormException $e) {}
         }
         return $fields;
     }

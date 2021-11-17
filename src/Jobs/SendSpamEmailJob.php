@@ -13,7 +13,7 @@ class SendSpamEmailJob extends BaseJob
     public $form;
 
     /**
-     * @var ?Spam
+     * @var Spam
      */
     public $spam;
 

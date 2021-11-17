@@ -12,6 +12,7 @@ class Select extends Field
 	public $choices;
 	public $default;
 	public $labelHtml = false;
+	public $multiple = false;
 	public $tooltip;
 	public $tooltipLabel;
 
@@ -57,7 +58,7 @@ class Select extends Field
 			[['label', 'default', 'tooltip', 'tooltipLabel'], 'trim'],
 			['choices', 'required'],
 			['choices', 'validateChoices'],
-			['labelHtml', 'boolean', 'trueValue' => true, 'falseValue' => false]
+			[['labelHtml', 'multiple'], 'boolean', 'trueValue' => true, 'falseValue' => false]
 		];
 	}
 
@@ -119,6 +120,13 @@ class Select extends Field
 	 */
 	public function getFrontEndRules(FormSubmission $submission): array
 	{
+		if ($this->multiple) {
+			return [
+				[$this->handle, 'each', 'rule' => ['string']],
+				[$this->handle, 'each', 'rule' => ['trim']],
+				[$this->handle, 'each', 'rule' => ['in', 'range' => $this->allValues()]],
+			];
+		}
 		return [
 			[$this->handle, 'string'],
 			[$this->handle, 'trim'],
@@ -131,6 +139,36 @@ class Select extends Field
 	 */
 	public function afterSubmissionValidated(FormSubmission $submission)
 	{
-		$submission->{$this->handle} = $submission->{$this->handle} ? $this->buildChoices()[$submission->{$this->handle}] : '';
+		$value = is_array($submission->{$this->handle}) ? $submission->{$this->handle} : [$submission->{$this->handle}];
+		$choices = $this->buildChoices();
+		$newValue = [];
+		foreach ($value as $value) {
+			if ($choices[$value]) {
+				$newValue[] = $choices[$value];
+			}
+		}
+		$submission->{$this->handle} = $newValue;
+	}
+
+	/**
+	 * inheritDoc
+	 */
+	public static function getHtmlValue($value): string
+	{
+		if (!is_array($value)) {
+			$value = [$value];
+		}
+		return implode(', ', $value);
+	}
+
+	/**
+	 * inheritDoc
+	 */
+	public static function getStringValue($value): string
+	{
+		if (!is_array($value)) {
+			$value = [$value];
+		}
+		return implode(', ', $value);
 	}
 }

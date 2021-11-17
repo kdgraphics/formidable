@@ -34,6 +34,7 @@ abstract class Field extends Model implements FieldInterface
 	public $validRules = [];
 
 	protected $_value;
+	protected $_frontName;
 	protected $options;
 
 	protected $rootAttributes = ['id', 'name', 'handle', 'order', 'form_id', 'options', 'dateCreated', 'dateUpdated', 'uid', 'fieldClass', 'containerClass', 'labelClass', 'instructions', 'type', 'friendlyName', 'validRules', 'value'];
@@ -148,6 +149,20 @@ abstract class Field extends Model implements FieldInterface
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	public function getFrontName(): string
+	{
+		if ($this->_frontName === null) {
+			$this->_frontName = $this->name;
+			if ($this->form->obfuscateFieldNames) {
+				$this->_frontName = $this->form->obfuscateFieldName($this->handle);
+			}
+		}
+		return $this->_frontName;
+	}
+
+	/**
 	 * Field project config
 	 * 
 	 * @return array
@@ -185,25 +200,25 @@ abstract class Field extends Model implements FieldInterface
 	/**
 	 * @inheritDoc
 	 */
-	public static function getFriendlyValue($value)
+	public static function getHtmlValue($value): string
 	{
-		return $value;
+		return (string)$value;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public static function getSubmissionValue($value)
+	public static function getStringValue($value): string
 	{
-		return static::getFriendlyValue($value);
+		return (string)$value;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public static function getCsvValue($value)
+	public static function getCsvValue($value): string
 	{
-		return static::getFriendlyValue($value);
+		return (string)$value;
 	}
 
 	/**

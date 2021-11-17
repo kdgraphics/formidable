@@ -13,6 +13,7 @@ class SelectEntry extends Field
 	public $includeSelect;
 	public $selectLabel;
 	public $labelHtml = false;
+	public $multiple = false;
 	public $tooltip;
 	public $tooltipLabel;
 
@@ -48,7 +49,7 @@ class SelectEntry extends Field
 		return [
 			[['label', 'selectLabel', 'tooltip', 'tooltipLabel'], 'string'],
 			[['label', 'tooltip', 'tooltipLabel'], 'trim'],
-			[['includeSelect', 'labelHtml'], 'boolean', 'trueValue' => true, 'falseValue' => false],
+			[['includeSelect', 'labelHtml', 'multiple'], 'boolean', 'trueValue' => true, 'falseValue' => false],
 			['sections', 'safe']
 		];
 	}
@@ -58,22 +59,52 @@ class SelectEntry extends Field
 	 */
 	public function getFrontEndRules(FormSubmission $submission): array
 	{
+		if ($this->multiple) {
+			return [
+				[$this->handle, 'each', 'rule' => ['integer']]
+			];
+		}
 		return [
 			[$this->handle, 'integer']
 		];
 	}
 
 	/**
-	 * inheritDoc
+	 * @inheritDoc
 	 */
-	public function afterSubmissionValidated(FormSubmission $submission)
+	public static function getStringValue($value): string
 	{
-		$entry = Entry::find()->id($submission->{$this->handle})->one();
-		if ($entry) {
-			$submission->{$this->handle} = $entry->title;
-		} else {
-			$submission->{$this->handle} = '';
+		if (!$value) {
+			return '';
 		}
+		if (!is_array($value)) {
+			$value = [$value];
+		}
+		$entries = Entry::find()->id($value)->all();
+		$string = [];
+		foreach ($entries as $entry) {
+			$string[] = $entry->title;
+		}
+		return implode(', ', $string);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getHtmlValue($value): string
+	{
+		if (!$value) {
+			return '';
+		}
+		if (!is_array($value)) {
+			$value = [$value];
+		}
+		$entries = Entry::find()->id($value)->all();
+		$html = [];
+		foreach ($entries as $entry) {
+			$html[] = '<a target="_blank" href="'.$entry->getCpEditUrl().'">'.$entry->title.'</a>';
+		}
+		return implode('<br/>', $html);
 	}
 
 	/**
@@ -94,5 +125,13 @@ class SelectEntry extends Field
 			}
 		}
 		return $out;
+	}
+
+	/**
+	 * inheritDoc
+	 */
+	public function afterSubmissionValidated(FormSubmission $submission)
+	{
+		$submission->{$this->handle} = is_array($submission->{$this->handle}) ? $submission->{$this->handle} : [$submission->{$this->handle}];
 	}
 }

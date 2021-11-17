@@ -5,6 +5,7 @@
 {% set title = 'Spam'|t('formidable') %}
 
 {% set selectedSubnavItem = 'formidable-spam' %}
+{% set loaderPath = craft.app.view.assetManager.getPublishedUrl('@Ryssbowh/Formidable/Assets/images/loading.gif', true) %}
 
 {% block toolbar %}
     <forms-spam-toolbar
@@ -14,5 +15,7 @@
 {% endblock %}
 
 {% block content %}
-    <forms-spam></forms-spam>
+    <forms-spam
+        :loader-path="'{{ loaderPath }}'"
+    ></forms-spam>
 {% endblock %}

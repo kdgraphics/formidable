@@ -5,7 +5,7 @@
 {% block inner %}
 	<input type="file"
 	id="{{ field.generateId(form) }}"
-	name="{{ field.handle }}{{ field.multiple ? '[]' : '' }}"
+	name="{{ field.frontName }}{{ field.multiple ? '[]' : '' }}"
 	class="{{ field_class }}{% if error %} is-invalid{% endif %}" 
 	{% if field.extensions %}accept="{{ field.getHtmlExtensions() }}"{% endif %}
 	>

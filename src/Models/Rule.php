@@ -160,7 +160,7 @@ abstract class Rule extends Model implements RuleInterface
 		} else {
 			$message = \Craft::t('site', $this->message);
 		}
-		$message = str_replace('{value}', $field::getFriendlyValue($value), $message);
+		$message = str_replace('{value}', $field::getStringValue($value), $message);
 		$matches = [];
 		preg_match_all("/{field\.([\w\-_]+)}/", $message, $matches);
 		foreach ($matches[1] ?? [] as $match) {

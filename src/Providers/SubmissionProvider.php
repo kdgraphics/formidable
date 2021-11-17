@@ -15,11 +15,11 @@ class SubmissionProvider extends ActiveDataProvider
     {
         parent::init();
         if ($this->trashed === -1) {
-            $this->query = Submission::findWithTrashed()->with('values');
+            $this->query = Submission::findWithTrashed();
         } elseif ($this->trashed === true) {
-            $this->query = Submission::findTrashed()->with('values');
+            $this->query = Submission::findTrashed();
         } else {
-            $this->query = Submission::find()->with('values');
+            $this->query = Submission::find();
         }
     }
 

@@ -21,11 +21,14 @@
             <td data-title="Notified" data-attr="notified">{{ submission.notified ? t('Yes') : t('No') }}</td>
             <td data-title="Open" data-attr="open"><span v-on:click="open(index)" class="icon icon-mask categories"><span data-icon="categories"></span></span></td>
           </tr>
-          <tr v-if="submissions.length == 0">
+          <tr v-if="submissions.length == 0 && !isFetching">
             <td colspan="6">{{ t('No submissions found') }}</td>
           </tr>
         </tbody>
       </table>
+      <div class="loader" v-if="isFetching">
+        <img :src="loaderPath">
+      </div>
     </div>
     <div class="chart-view" v-show="isChartView">
       <canvas id="formidable-chart-container"></canvas>
@@ -55,7 +58,7 @@
           <div class="main">
             <div class="heading"><span>{{ t('Submission') }}</span></div>
             <ul class="submission">
-              <li class="field" v-if="viewed" v-for="value in viewed.values">{{ value.field }}: <span v-html="value.friendly"></span></li>
+              <li class="field" v-if="viewed" v-for="value in viewed.values">{{ value.field ? value.field.name : '*Field deleted*' }}: <span v-html="value.htmlValue"></span></li>
             </ul>
           </div>
         </div>
@@ -80,6 +83,9 @@ export default {
   computed: {
     ...mapState(['filters', 'isChartView', 'submissions', 'selected'])
   },
+  props: {
+    loaderPath: String
+  },
   data: function () {
     return {
       chartData: {},
@@ -95,7 +101,8 @@ export default {
         form: {},
         values: {}
       },
-      popup: null
+      popup: null,
+      isFetching: false
     }
   },
   watch: {
@@ -241,8 +248,27 @@ export default {
 @import "~craftcms-sass/mixins";
 
 .formidable-submissions {
+  .tableview {
+    position: relative;
+    min-height: 100px;
+  }
   .icon.icon-mask {
     cursor: pointer;
+  }
+  .loader {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.1);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px;
+    }
   }
   tr.unread td.read {
     font-weight: bold;

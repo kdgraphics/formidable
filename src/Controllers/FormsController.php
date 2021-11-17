@@ -47,7 +47,12 @@ class FormsController extends Controller
         if ($form->redirect) {
             return $this->redirect($form->redirect);
         }
-        return $this->redirect($this->request()->getReferrer());
+        $referer = parse_url($this->request()->getReferrer());
+        $params = explode('&', $referer['query'] ?? '');
+        if (!in_array('success=1', $params)) {
+            $params[] = 'success=1';
+        }
+        return $this->redirect($referer['scheme'] . '://' . $referer['host'] . $referer['path'] . '?' . implode('&', $params));
     }
 
     protected function onSpam(Form $form)

@@ -228,6 +228,7 @@ class FormsService extends Component
             $form->method = $data['method'];
             $form->submitLabel = $data['submitLabel'];
             $form->submitClass = $data['submitClass'];
+            $form->obfuscateFieldNames = $data['obfuscateFieldNames'];
             $form->color = $data['color'];
             $form->captcha = $data['captcha'];
             $form->save(false);
@@ -487,12 +488,24 @@ class FormsService extends Component
         $session = \Craft::$app->session;
         $posted = \Craft::$app->request->getBodyParams();
 
+        //Cleaning up post
         $values = [];
         foreach ($form->getFields() as $field) {
-            $values[$field->handle] = $posted[$field->handle] ?? null;
+            //This is needed in case field names are obfuscated
+            $postedValue = $posted[$field->frontName] ?? null;
+            unset($posted[$field->frontName]);
+            $posted[$field->handle] = $postedValue;
+            $values[$field->handle] = $postedValue;
         }
-        
+        if ($form->honeypot and $form->obfuscateFieldNames) {
+            $honeypotField = $form->obfuscateFieldName($form->honeypotField);
+            $posted[$form->honeypotField] = $posted[$honeypotField];
+            unset($posted[$honeypotField]);
+        }
+            
+        //Set old input in session
         $session->setFlash(self::SESSION_OLDINPUT_KEY.'.'.$form->handle, $values);
+        //Create form submission and assign rules
         $formSubmission = new FormSubmission($values);
         $formSubmission->setForm($form);
         $formSubmission->setRules(Formidable::$plugin->rules->getFormRules($form));
@@ -517,7 +530,7 @@ class FormsService extends Component
         }
 
         if ($form->spamCheck and $form->hasField($form->spamCheck)) {
-            $res = SpamCheck::$plugin->spamCheck->email(trim($posted[$form->spamCheck]));
+            $res = SpamCheck::$plugin->spamCheck->email(trim($values[$form->spamCheck]));
             if ($res and $res['frequency'] > 10) {
                 $formSubmission->_spam_reason = \Craft::t('formidable', 'Known spammer');
                 $spam = Formidable::$plugin->spam->create($form, $formSubmission, $posted);

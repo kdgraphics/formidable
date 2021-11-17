@@ -24,10 +24,14 @@ class Spam extends Model
 	{
 		$values = json_decode($this->values, true);
 		$out = [];
-		foreach ($values as $field => $value) {
+		foreach ($values as $fieldHandle => $value) {
 			try {
-				$instance = $this->form->getField($field);
-				$out[$field] = $instance::getSubmissionValue($value);
+				try {
+					$field = $this->form->getField($fieldHandle);
+					$out[$field->name] = $field::getHtmlValue($value);
+				} catch (FormException $e) {
+					$out[$fieldHandle] = json_encode($value);
+				}
 			} catch (FormException $e) {
 				$out[$field] = $value;
 			}
@@ -38,7 +42,7 @@ class Spam extends Model
 	public function toArray(array $fields = [], array $expand = [], $recursive = true)
 	{
 		$array = parent::toArray($fields, $expand, $recursive);
-		$array['dateCreated'] = $this->dateCreated->format('d/m/Y');
+		$array['dateCreated'] = $this->dateCreated->format('d/m/Y H:i');
 		$array['values'] = $this->normalizeValues();
 		return $array;
 	}

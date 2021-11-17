@@ -2,6 +2,7 @@
 
 namespace Ryssbowh\Formidable\Models\Records;
 
+use Ryssbowh\Formidable\Exceptions\FormException;
 use Ryssbowh\Formidable\Formidable;
 use Ryssbowh\Formidable\Interfaces\FieldInterface;
 use craft\db\ActiveRecord;
@@ -20,6 +21,9 @@ class Field extends ActiveRecord
 	public function toModel(): FieldInterface
 	{
 		$model = Formidable::$plugin->fields->getRegistered($this->type);
+		if (!$model) {
+			throw FormException::noFieldType($this->type);
+		}
 		$model = new $model($this->getAttributes());
 		return $model;
 	}

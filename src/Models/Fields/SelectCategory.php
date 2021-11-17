@@ -13,6 +13,7 @@ class SelectCategory extends Field
 	public $includeSelect;
 	public $selectLabel;
 	public $labelHtml = false;
+	public $multiple = false;
 	public $tooltip;
 	public $tooltipLabel;
 	//Unused, here for backward compatibility
@@ -50,7 +51,7 @@ class SelectCategory extends Field
 		return [
 			[['label', 'category', 'selectLabel', 'tooltip', 'tooltipLabel'], 'string'],
 			[['label', 'tooltip', 'tooltipLabel'], 'trim'],
-			[['includeSelect', 'labelHtml'], 'boolean', 'trueValue' => true, 'falseValue' => false]
+			[['includeSelect', 'labelHtml', 'multiple'], 'boolean', 'trueValue' => true, 'falseValue' => false]
 		];
 	}
 
@@ -59,22 +60,52 @@ class SelectCategory extends Field
 	 */
 	public function getFrontEndRules(FormSubmission $submission): array
 	{
+		if ($this->multiple) {
+			return [
+				[$this->handle, 'each', 'rule' => ['integer']]
+			];
+		}
 		return [
 			[$this->handle, 'integer']
 		];
 	}
 
 	/**
-	 * inheritDoc
+	 * @inheritDoc
 	 */
-	public function afterSubmissionValidated(FormSubmission $submission)
+	public static function getHtmlValue($value): string
 	{
-		$category = Category::find()->id($submission->{$this->handle})->one();
-		if ($category) {
-			$submission->{$this->handle} = $category->title;
-		} else {
-			$submission->{$this->handle} = '';
+		if (!$value) {
+			return '';
 		}
+		if (!is_array($value)) {
+			$value = [$value];
+		}
+		$categories = Category::find()->id($value)->all();
+		$html = [];
+		foreach ($categories as $category) {
+			$html[] = '<a target="_blank" href="'.$category->getCpEditUrl().'">'.$category->title.'</a>';
+		}
+		return implode('<br/>', $html);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getStringValue($value): string
+	{
+		if (!$value) {
+			return '';
+		}
+		if (!is_array($value)) {
+			$value = [$value];
+		}
+		$categories = Category::find()->id($value)->all();
+		$string = [];
+		foreach ($categories as $category) {
+			$string[] = $category->title;
+		}
+		return implode(', ', $string);
 	}
 
 	/**
@@ -90,5 +121,13 @@ class SelectCategory extends Field
 			$out[$category->id] = $category->title;
 		}
 		return $out;
+	}
+
+	/**
+	 * inheritDoc
+	 */
+	public function afterSubmissionValidated(FormSubmission $submission)
+	{
+		$submission->{$this->handle} = is_array($submission->{$this->handle}) ? $submission->{$this->handle} : [$submission->{$this->handle}];
 	}
 }

@@ -11,7 +11,7 @@
 				type="checkbox"
 				value="{{ choice.value == '{empty}' ? '' : choice.value }}"
 				id="{{ field.generateId(form) }}-{{ key }}"
-				name="{{ field.handle }}[]"
+				name="{{ field.frontName }}[]"
 				class="{{ field_class }}{% if error %} is-invalid{% endif %}"
 				{% if old_value and (choice.value in old_value) %}checked="checked"{% endif %}
 			>

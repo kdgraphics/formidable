@@ -225,11 +225,11 @@ class SpamService extends Component
 		if ($sort && strpos($sort['field'], 'form.') !== false) {
 			$provider->query->with(['form' => function ($query) use ($sort) {
 				$elems = explode('.', $sort['field']);
-				$query->orderBy($elems[1], $sort['side'] == 'asc' ? SORT_ASC : SORT_DESC);
+				$query->orderBy([$elems[1] => $sort['side'] == 'asc' ? SORT_ASC : SORT_DESC]);
 			}]);
 		} else {
 			$provider->query->with('form');
-			$provider->query->orderBy($sort['field'], $sort['side'] == 'asc' ? SORT_ASC : SORT_DESC);
+			$provider->query->orderBy([$sort['field'] => $sort['side'] == 'asc' ? SORT_ASC : SORT_DESC]);
 		}
 		// dd($provider->query->createCommand()->getRawSql());
         return $provider;

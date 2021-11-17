@@ -108,6 +108,7 @@ export default {
      * Copies the lightswitch value on the field object
      */
     this.$nextTick(() => {
+      Craft.initUiElements(this.$el);
       let _this = this;
       $(this.$el).find('.lightswitch').on('change', function(e){
         let input = $(e.target).find('input');

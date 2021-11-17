@@ -11,6 +11,7 @@ use Ryssbowh\Formidable\Models\Notification;
 use Ryssbowh\Formidable\Services\FormsService;
 use craft\base\Model;
 use craft\helpers\ArrayHelper;
+use craft\helpers\StringHelper;
 use craft\mail\Message;
 
 class Form extends Model
@@ -31,6 +32,7 @@ class Form extends Model
 	public $saveSubmissions = true;
 	public $frontEndValidation = true;
 	public $saveSpam = true;
+	public $obfuscateFieldNames = true;
 	public $redirect;
 	public $class;
 	public $spamCheck;
@@ -52,7 +54,7 @@ class Form extends Model
 			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'notifySpamEmails','redirect', 'class', 'method', 'submitLabel', 'color', 'submitClass', 'notifyAdmin_key', 'notify_key', 'notifySpam_key', 'htmlId', 'spamCheck'], 'string'],
 			[['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'redirect', 'class', 'submitLabel', 'color', 'submitClass'], 'trim'],
 			[['id'], 'integer'],
-			[['honeypot', 'saveSubmissions', 'saveSpam', 'frontEndValidation'], 'boolean', 'trueValue' => true, 'falseValue' => false],
+			[['honeypot', 'saveSubmissions', 'saveSpam', 'frontEndValidation', 'obfuscateFieldNames'], 'boolean', 'trueValue' => true, 'falseValue' => false],
 			[['notifyEmails', 'notifySpamEmails'], 'validateEmails'],
 			['handle', 'validateHandle'],
 			['method', 'in', 'range' => ['GET', 'POST']],
@@ -97,6 +99,23 @@ class Form extends Model
 			$this->_fields = Formidable::$plugin->fields->getFormFields($this);
 		}
 		return $this->_fields;
+	}
+
+	/**
+	 * Get all fields by type
+	 * 
+	 * @param  string $type
+	 * @return array
+	 */
+	public function getFieldsByType(string $type): array
+	{
+		$fields = [];
+		foreach ($this->fields as $field) {
+			if ($field->handle() == $type) {
+				$fields[] = $field;
+			}
+		}
+		return $fields;
 	}
 
 	/**
@@ -215,6 +234,7 @@ class Form extends Model
             'method' => $this->method,
             'color' => $this->color,
             'captcha' => $this->captcha,
+            'obfuscateFieldNames' => $this->obfuscateFieldNames,
             'fields' => array_map(function ($field) {
             	return $field->getConfig();
             }, $this->fields),
@@ -244,6 +264,20 @@ class Form extends Model
 			}
 		}
 		return $pass;
+	}
+
+	/**
+	 * Obfuscate a field name
+	 * 
+	 * @param  string $name
+	 * @return string
+	 */
+	public function obfuscateFieldName(string $name): string
+	{
+		if ($this->obfuscateFieldNames) {
+			return substr(\Craft::$app->security->hashData($name), 0, -1 * strlen($name));
+		}
+		return $name;
 	}
 
 	/**
@@ -298,7 +332,7 @@ class Form extends Model
 		if ($this->htmlId) {
 			return $this->htmlId;
 		}
-		return 'formidable-'.$this->handle.$this->id;
+		return 'formidable_'.str_replace('-', '_', $this->handle);
 	}
 
 	/**
@@ -344,7 +378,11 @@ JS;
 		if ($this->honeypot) {
 			$js .= <<<JS
 document.addEventListener('DOMContentLoaded', (event) => {
-	document.getElementById('{$this->generateId()}').querySelector('[id={$this->handle}-field-{$this->honeypotField}]').parentElement.style.display = 'none';
+	var css = {position: 'absolute', left: '-100000px', overflow: 'hidden'};
+	var elem = document.getElementById('{$this->generateId()}').querySelector('[id={$this->handle}-field-{$this->honeypotField}]').parentElement;
+	for (var property in css) {
+		elem.style[property] = css[property];
+	}
 });
 JS;
 		}

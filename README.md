@@ -5,6 +5,19 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 4.0.0
+- Changed submissions logic
+- Added events for emails
+- Added option to attach files to emails
+- Field names obsfuscation
+- Hide honeypot with css absolute
+- Interface improvements in submissions
+- Allow multiple on select/select entry/select category
+- Files size
+- Switch field renamed to Checkbox
+- Form html ids to only contain a-zA-Z_ to be compatible with google captcha V3 actions
+- The action sent to google captcha is the form id
+
 ### 3.0.7 Fixes
 - Fields saved incorrectly
 - Boolean validation
@@ -30,6 +43,16 @@ Display them easily in the front end with templates.
 
 ### 3.0.0
 - Remade rendering logic (see below)
+
+# V4 breaking changes
+
+Submission and how to access their values have been changed, particulary important for emails :
+
+```
+{{ submission.getValue('fieldHandle') }}           //raw value, will break for array fields (select, select entry, files etc)
+{{ submission.getValue('fieldHandle', 'string') }} //Safe string value
+{{ submission.getValue('fieldHandle', 'html') }}   //Safe html value
+```
 
 # V3 breaking changes
 
@@ -142,6 +165,42 @@ Event::on(CaptchasService::class, CaptchasService::EVENT_REGISTER_CAPTCHAS, func
     $event->addCaptcha(new $captcha);
 });
 ```
+
+# Events
+
+Examples :
+
+```
+Event::on(FormsService::class, FormsService::EVENT_BEFORE_SUBMITTING, function ($e) {
+    //Form is not validated at this point, but we know it's not a spam
+    $submission = $e->submission; //FormSubmission object
+});
+
+Event::on(FormsService::class, FormsService::EVENT_AFTER_SUBMITTING, function ($e) {
+    //Form is validated and valid at this point
+    $submission = $e->submission; //Submission object
+});
+
+Event::on(SubmissionsService::class, SubmissionsService::EVENT_BEFORE_SEND_USER_EMAIL, function ($e) {
+    $submission = $e->submission; //Submission object
+    $form = $e->form;
+    $email = $e->email;
+    $e->isValid = false; //This will stop the email being sent
+});
+
+Event::on(SubmissionsService::class, SubmissionsService::EVENT_BEFORE_SEND_ADMIN_EMAIL, function ($e) {
+    $submission = $e->submission; //Submission object
+    $form = $e->form;
+    $email = $e->email;
+    $e->isValid = false; //This will stop the email being sent
+});
+```
+
+# Obfuscation
+
+Field names can automatically be obfuscated, giving them an unreadable name. It should help with spam, but there are a few disadvantages :
+- Browsers auto populate will stop working
+- If the user session expires, he/she will be unable to post and will have to reload.
 
 # Submissions
 

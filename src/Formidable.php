@@ -7,7 +7,7 @@ use Inspire\Emails\Records\Email as EmailRecord;
 use Ryssbowh\Formidable\Assets\TestAsset;
 use Ryssbowh\Formidable\Captchas\GoogleV3;
 use Ryssbowh\Formidable\Events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent};
-use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, LightSwitch, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry};
+use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry};
 use Ryssbowh\Formidable\Models\FormSubmission;
 use Ryssbowh\Formidable\Models\Records\Submission;
 use Ryssbowh\Formidable\Models\Rules\{BiggerThan, Contain, EqualTo, Off, On, Required, SameThan, Size, SmallerThan};
@@ -30,7 +30,7 @@ class Formidable extends Plugin
 {
     public $controllerNamespace = "Ryssbowh\\Formidable\\Controllers";
 
-    public $schemaVersion = '3.0.4';
+    public $schemaVersion = '4.0.0';
 
     public $hasCpSettings = true;
 
@@ -41,7 +41,7 @@ class Formidable extends Plugin
         Email::class,
         Textarea::class,
         Number::class,
-        LightSwitch::class,
+        Checkbox::class,
         Select::class,
         Radio::class,
         Checkboxes::class,

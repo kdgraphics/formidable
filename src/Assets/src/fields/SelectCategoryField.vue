@@ -14,6 +14,19 @@
           <a href="#" @click.prevent="field.labelHtml = !field.labelHtml">{{ field.labelHtml ? 'Plain' : 'Html' }}</a>
         </div>
       </div>
+      <div class="lightswitch-field field-multiple field">
+        <div class="heading">
+          <label>{{ t('Multiple') }}</label>
+        </div>
+        <div class="input ltr">
+          <div :class="'lightswitch ' + (field.multiple ? 'on' : '')" tabindex="0" role="switch" :aria-checked="field.multiple">
+            <div class="lightswitch-container">
+              <div class="handle"></div>
+            </div>
+            <input type="hidden" name="multiple" v-model="field.multiple">
+          </div>
+        </div>
+      </div>
       <div class="field">
         <div class="heading">
           <label>{{ t('Category') }}</label>

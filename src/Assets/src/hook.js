@@ -4,7 +4,7 @@ import SelectField from './fields/SelectField';
 import SelectCategoryField from './fields/SelectCategoryField';
 import SelectEntryField from './fields/SelectEntryField';
 import TextareaField from './fields/TextareaField';
-import SwitchField from './fields/SwitchField';
+import CheckboxField from './fields/CheckboxField';
 import NumberField from './fields/NumberField';
 import FileField from './fields/FileField';
 import RadioField from './fields/RadioField';
@@ -15,7 +15,7 @@ window.formFields = {
 	email: EmailField,
 	select: SelectField,
 	textarea: TextareaField,
-	switch: SwitchField,
+	checkbox: CheckboxField,
 	number: NumberField,
 	file: FileField,
 	radio: RadioField,

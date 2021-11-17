@@ -15,4 +15,9 @@ class FormException extends \Exception
 	{
 		return new static("Field $handle doesn't exist in {$form->name}");	
 	}
+
+	public static function noFieldType(string $type)
+	{
+		return new static("Field type $type doesn't exist");
+	}
 }

@@ -20,6 +20,9 @@ class File extends Field
 	public $extensions;
 	public $labelHtml = false;
 	public $multiple = false;
+	public $attachToUserEmail = false;
+	public $attachToAdminEmail = false;
+	public $size = 2; //Max file size in Mb
 	public $tooltip;
 	public $tooltipLabel;
 
@@ -56,7 +59,8 @@ class File extends Field
 			[['label', 'volume', 'tooltip', 'tooltipLabel'], 'string'],
 			[['label', 'volume', 'tooltip', 'tooltipLabel'], 'trim'],
 			['extensions', 'validateExtensions'],
-			[['labelHtml', 'multiple'], 'boolean', 'trueValue' => true, 'falseValue' => false],
+			['size', 'double'],
+			[['labelHtml', 'multiple', 'attachToUserEmail', 'attachToAdminEmail'], 'boolean', 'trueValue' => true, 'falseValue' => false],
 		];
 	}
 
@@ -93,32 +97,43 @@ class File extends Field
 	 */
 	public function getFrontEndRules(FormSubmission $submission): array
 	{
+		$allowedExtensions = \Craft::$app->getConfig()->getGeneral()->allowedFileExtensions;
 		if ($this->multiple) {
 			$rules = [
-				[$this->handle, 'each', 'rule' => ['file']], 
+				[$this->handle, 'each', 'rule' => ['file', 'extensions' => $allowedExtensions]], 
 			];
 			if ($this->extensions) {
 				$rules[0]['rule']['extensions'] = explode(',', $this->extensions);
 			}
-			return $rules;	
+			if ($this->size) {
+				$rules[0]['rule']['maxSize'] = $this->size * 1024 * 1024;	
+			}
+			return $rules;
 		}
 		$rules = [
-			[$this->handle, 'file'], 
+			[$this->handle, 'file', 'extensions' => $allowedExtensions], 
 		];
 		if ($this->extensions) {
 			$rules[0]['extensions'] = explode(',', $this->extensions);
+		}
+		if ($this->size) {
+			$rules[0]['maxSize'] = $this->size * 1024 * 1024;	
 		}
 		return $rules;
 	}
 
 	/**
-	 * Upload file before validation
+	 * Upload files before validation
 	 * 
 	 * @param  FormSubmission $submission
 	 */
 	public function beforeSubmissionValidated(FormSubmission $submission)
 	{
-		$submission->{$this->handle} = UploadedFile::getInstancesByName($this->handle);
+		if ($this->multiple) {
+			$submission->{$this->handle} = UploadedFile::getInstancesByName($this->frontName);
+		} else {
+			$submission->{$this->handle} = UploadedFile::getInstanceByName($this->frontName);
+		}
 	}
 
 	/**
@@ -128,7 +143,12 @@ class File extends Field
 	 */
 	public function afterSubmissionValidated(FormSubmission $submission)
 	{
-		$files = $submission->{$this->handle};
+		if (!$submission->{$this->handle}) {
+			$submission->{$this->handle} = [];
+			return;
+		} else {
+			$files = is_array($submission->{$this->handle}) ? $submission->{$this->handle} : [$submission->{$this->handle}];
+		}
 		$value = [];
 		foreach ($files as $file) {
 			$asset = $this->uploadToVolume($file);
@@ -152,34 +172,49 @@ class File extends Field
 	/**
 	 * @inheritDoc
 	 */
-	public static function getSubmissionValue($value)
+	public static function getHtmlValue($value): string
 	{
 		if (!$value) {
 			return '';
 		}
-		if (is_string($value)) {
-			$value = json_decode($value, true);
-		}
 		$assets = Asset::find()->id($value)->all();
-		$html = '';
+		$html = [];
 		foreach ($assets as $asset) {
-			$html .= '<a target="_blank" href="'.$asset->getCpEditUrl().'">'.$asset->filename.'</a><br/>';
+			$html[] = '<a target="_blank" href="'.$asset->getCpEditUrl().'">'.$asset->filename.'</a>';
 		}
-		return $html;
+		return implode('<br/>', $html);
+	}
+
+	public static function getAssets($value): array
+	{
+		return Asset::find()->id($value)->all();
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public static function getCsvValue($value)
+	public static function getStringValue($value): string
 	{
 		if (!$value) {
 			return '';
 		}
-		if (is_string($value)) {
-			$value = json_decode($value, true);
+		$assets = self::getAssets($value);
+		$string = [];
+		foreach ($assets as $asset) {
+			$string[] = $asset->filename;
 		}
-		$assets = Asset::find()->id($value)->all();
+		return implode(', ', $string);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getCsvValue($value): string
+	{
+		if (!$value) {
+			return '';
+		}
+		$assets = self::getAssets($value);
 		$csv = [];
 		foreach ($assets as $asset) {
 			$csv[] = $asset->filename;
@@ -195,8 +230,9 @@ class File extends Field
 	 */
 	protected function uploadToVolume(UploadedFile $file): Asset
 	{
+		$volume = \Craft::$app->volumes->getVolumeByUid($this->volume);
 		$assets = \Craft::$app->getAssets();
-        $folder = $assets->getRootFolderByVolumeId($this->volume);
+        $folder = $assets->getRootFolderByVolumeId($volume->id);
         if (!$folder) {
             throw new BadRequestHttpException(\Craft::t('formidable', 'The target folder provided for uploading is not valid'));
         }

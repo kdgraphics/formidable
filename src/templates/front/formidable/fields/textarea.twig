@@ -5,7 +5,7 @@
 {% block inner %}
 	<textarea
 	id="{{ field.generateId(form) }}"
-	name="{{ field.handle }}"
+	name="{{ field.frontName }}"
 	class="{{ field_class }}{% if error %} is-invalid{% endif %}"
 	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
 	{% if field.rows %}rows="{{ field.rows }}"{% endif %}

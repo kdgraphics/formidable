@@ -8,9 +8,13 @@ window.googleV3Captcha = {
 		this.inited = true;
 		this.siteKey = siteKey;
 	},
+	getCaptcha: function (action) {
+		return grecaptcha.execute(this.siteKey, {action: action });
+	},
 	retrieveCaptcha: function (formId, action) {
 		var _this = this;
-	    grecaptcha.execute(this.siteKey, { action: action }).then(function (token) {
+		console.log(formId);
+	    this.getCaptcha(formId).then(function (token) {
 	        document.getElementById(formId).querySelector("[name=_recaptcha_response]").value = token;
 	    });
 		setTimeout(function () {

@@ -5,6 +5,7 @@
 {% set title = 'Forms submissions'|t('formidable') %}
 
 {% set selectedSubnavItem = 'formidable-submissions' %}
+{% set loaderPath = craft.app.view.assetManager.getPublishedUrl('@Ryssbowh/Formidable/Assets/images/loading.gif', true) %}
 
 {% block toolbar %}
     <forms-submissions-toolbar
@@ -14,5 +15,7 @@
 {% endblock %}
 
 {% block content %}
-    <forms-submissions></forms-submissions>
+    <forms-submissions
+        :loader-path="'{{ loaderPath }}'"
+    ></forms-submissions>
 {% endblock %}
