@@ -19,6 +19,7 @@ class m211116_172434_V4Changes extends Migration
     public function safeUp()
     {
         $this->alterColumn('{{%formidable_submissions_values}}', 'field', $this->string(255));
+        $this->addColumn('{{%formidable_submissions_values}}', 'dateDeleted',$this->dateTime()->after('dateUpdated'));
         $values = SubmissionValue::find()->all();
         foreach ($values as $value) {
             $value->field = null;
