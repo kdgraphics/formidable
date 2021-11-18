@@ -154,7 +154,7 @@ abstract class Field extends Model implements FieldInterface
 	public function getFrontName(): string
 	{
 		if ($this->_frontName === null) {
-			$this->_frontName = $this->name;
+			$this->_frontName = $this->handle;
 			if ($this->form->obfuscateFieldNames) {
 				$this->_frontName = $this->form->obfuscateFieldName($this->handle);
 			}

@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 4.0.2
+- Fixed front name issue
+
 ### 4.0.1
 - fixed dateCreated issue
 - fixed dateDeleted issue
