@@ -27,8 +27,7 @@ class m211116_172434_V4Changes extends Migration
             ->leftJoin("{{%formidable_fields}}", "formidable_fields.form_id = formidable_submissions.form_id AND formidable_fields.handle = formidable_submissions_values.field")
             ->all();
         foreach ($values as $value) {
-            $value['field_id'] = $value['field_id'] ?? null;
-            $this->update('{{%formidable_submissions_values}}', ['field' => $value['field_id']], ['id' => $value['value_id']]);
+            $this->update('{{%formidable_submissions_values}}', ['field' => $value['field_id'] ?? null], ['id' => $value['value_id']]);
         }
         $this->alterColumn('{{%formidable_submissions_values}}', 'field', $this->integer(11));
         $this->renameColumn('{{%formidable_submissions_values}}', 'field', 'field_id');
