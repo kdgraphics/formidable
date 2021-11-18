@@ -44,23 +44,17 @@ class FormsController extends Controller
                 'success' => $this->forms()->getSessionSuccess($form->handle)
             ]);
         }
-        if ($form->redirect) {
-            return $this->redirect($form->redirect);
-        }
-        $referer = parse_url($this->request()->getReferrer());
-        $params = explode('&', $referer['query'] ?? '');
-        if (!in_array('success=1', $params)) {
-            $params[] = 'success=1';
-        }
-        return $this->redirect($referer['scheme'] . '://' . $referer['host'] . $referer['path'] . '?' . implode('&', $params));
+        return $this->redirectAfterValidSubmission($form);
     }
 
     protected function onSpam(Form $form)
     {
         if($this->request()->isAjax) {
-            return $this->asJson(['success' => true]);
+            return $this->asJson([
+                'success' => true
+            ]);
         }
-        return $this->redirect($this->request()->getReferrer());
+        return $this->redirectAfterValidSubmission($form);
     }
 
     protected function onUnvalidForm(Form $form)
@@ -73,5 +67,18 @@ class FormsController extends Controller
             return $this->asJson($response);
         }
         return $this->redirect($this->request()->getReferrer());
+    }
+
+    protected function redirectAfterValidSubmission(Form $form)
+    {
+        if ($form->redirect) {
+            return $this->redirect($form->redirect);
+        }
+        $referer = parse_url($this->request()->getReferrer());
+        $params = explode('&', $referer['query'] ?? '');
+        if (!in_array('success=1', $params)) {
+            $params[] = 'success=1';
+        }
+        return $this->redirect($referer['scheme'] . '://' . $referer['host'] . $referer['path'] . '?' . implode('&', $params));
     }
 }

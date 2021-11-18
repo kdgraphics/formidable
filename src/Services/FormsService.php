@@ -4,6 +4,7 @@ namespace Ryssbowh\Formidable\Services;
 
 use Inspire\SpamCheck\SpamCheck;
 use Ryssbowh\Formidable\Events\FormEvent;
+use Ryssbowh\Formidable\Events\FormSubmissionEvent;
 use Ryssbowh\Formidable\Events\HookAssetsEvent;
 use Ryssbowh\Formidable\Events\SpamEvent;
 use Ryssbowh\Formidable\Events\SubmissionEvent;
@@ -27,8 +28,11 @@ class FormsService extends Component
 	const EVENT_BEFORE_APPLY_DELETE = 'before_apply_delete';
 	const EVENT_AFTER_DELETE = 'after_delete';
     const EVENT_BEFORE_DELETE = 'before_delete';
-    const EVENT_BEFORE_SUBMITTING = 'before_submitting';
-    const EVENT_AFTER_SUBMITTING = 'after_submitting';
+    
+    const EVENT_BEFORE_VALIDATING_SUBMISSION = 'before_validating';
+    const EVENT_ON_VALID_SUBMISSION = 'on_valid_submission';
+    const EVENT_ON_INVALID_SUBMISSION = 'on_invalid_submission';
+    const EVENT_ON_SPAM_SUBMISSION = 'on_spam_submission';
 
     const SESSION_ERRORS_KEY = 'formidable_errors';
     const SESSION_SUCCESS_KEY = 'formidable_success';
@@ -478,12 +482,61 @@ class FormsService extends Component
     }
 
     /**
-     * Submit a form (through front end)
+     * Enables the front javascript, registers all registered rules
+     */
+    public function enableFrontJs()
+    {
+        if ($this->frontJsRegistered) {
+            return;
+        }
+        $js = file_get_contents(self::FRONT_JS_FILE);
+        $rules = "";
+        foreach (Formidable::$plugin->rules->getAllRegistered() as $rule) {
+            $rules .= $rule->handle() . ": {
+                requiresValue: ".($rule->requiresValue ? 'true' : 'false').",
+                requiresField: ".($rule->requiresField ? 'true' : 'false').",
+                check: {$rule->checkJs()}
+            },
+            ";
+        }
+        $js = str_replace('$RULES$', $rules, $js);
+        \Craft::$app->view->registerJs($js, View::POS_END);
+        $this->frontJsRegistered = true;
+    }
+
+    /**
+     * Submit a form
      * 
      * @param  FormModel $form
      * @return int
      */
     public function submit(FormModel $form): int
+    {
+        list($result, $submission, $posted) = $this->_submit($form);
+        if ($result === self::INVALID) {
+            $type = self::EVENT_ON_INVALID_SUBMISSION;
+        } elseif ($result === self::SPAM) {
+            $type = self::EVENT_ON_SPAM_SUBMISSION;
+        } else {
+            $type = self::EVENT_ON_VALID_SUBMISSION;
+        }
+        $event = new FormSubmissionEvent([
+            'form' => $form,
+            'status' => $result,
+            'submission' => $submission,
+            'posted' => $posted
+        ]);
+        $this->trigger($type, $event);
+        return $result;
+    }
+
+    /**
+     * Submit a form
+     * 
+     * @param  FormModel $form
+     * @return int
+     */
+    protected function _submit(FormModel $form): array
     {
         $session = \Craft::$app->session;
         $posted = \Craft::$app->request->getBodyParams();
@@ -514,18 +567,19 @@ class FormsService extends Component
             $field->beforeSubmissionValidated($formSubmission);
         }
 
+        //Check honeypot
         if ($form->honeypot) {
             if (isset($posted[$form->honeypotField]) and !empty(trim($posted[$form->honeypotField]))) {
                 $formSubmission->_spam_reason = \Craft::t('formidable', 'Honeypot was filled');
                 $spam = Formidable::$plugin->spam->create($form, $formSubmission, $posted);
-                return self::SPAM;
+                return [self::SPAM, $formSubmission, $posted];
             }
         }
 
         if ($form->captcha) {
             if (!$form->getCaptcha()->verify($form, $formSubmission, $posted)) {
                 $spam = Formidable::$plugin->spam->create($form, $formSubmission, $posted);
-                return self::SPAM;
+                return [self::SPAM, $formSubmission, $posted];
             }
         }
 
@@ -534,15 +588,25 @@ class FormsService extends Component
             if ($res and $res['frequency'] > 10) {
                 $formSubmission->_spam_reason = \Craft::t('formidable', 'Known spammer');
                 $spam = Formidable::$plugin->spam->create($form, $formSubmission, $posted);
-                return self::SPAM;
+                return [self::SPAM, $formSubmission, $posted];
             }
         }
 
-        $this->trigger(self::EVENT_BEFORE_SUBMITTING, new SubmissionEvent([
+        //Allow other plugins to set the submission as invalid or spam :
+        $event = new FormSubmissionEvent([
             'submission' => $formSubmission,
-            'form' => $form
-        ]));
+            'form' => $form,
+            'posted' => $posted
+        ]);
+        $this->trigger(self::EVENT_BEFORE_VALIDATING_SUBMISSION, $event);
 
+        if ($event->status === self::INVALID) {
+            return [self::INVALID, $formSubmission, $posted];
+        } elseif ($event->status === self::SPAM) {
+            return [self::SPAM, $formSubmission, $posted];
+        }
+
+        //Validate submission
         $formSubmission->validate(null, false);
 
         if (!($errors = $formSubmission->getErrors())) {
@@ -551,34 +615,10 @@ class FormsService extends Component
             }
             $submission = Formidable::$plugin->submissions->create($form, $formSubmission);
             $session->setFlash(self::SESSION_SUCCESS_KEY.'.'.$form->handle, true);
-            $this->trigger(self::EVENT_AFTER_SUBMITTING, new SubmissionEvent([
-                'submission' => $submission,
-                'form' => $form
-            ]));
-            return self::VALID;
+            return [self::VALID, $submission, $posted];
         }
         $session->setFlash(self::SESSION_ERRORS_KEY.'.'.$form->handle, $errors);
-        return self::INVALID;
-    }
-
-    public function enableFrontJs()
-    {
-        if ($this->frontJsRegistered) {
-            return;
-        }
-        $js = file_get_contents(self::FRONT_JS_FILE);
-        $rules = "";
-        foreach (Formidable::$plugin->rules->getAllRegistered() as $rule) {
-            $rules .= $rule->handle() . ": {
-                requiresValue: ".($rule->requiresValue ? 'true' : 'false').",
-                requiresField: ".($rule->requiresField ? 'true' : 'false').",
-                check: {$rule->checkJs()}
-            },
-            ";
-        }
-        $js = str_replace('$RULES$', $rules, $js);
-        \Craft::$app->view->registerJs($js, View::POS_END);
-        $this->frontJsRegistered = true;
+        return [self::INVALID, $formSubmission, $posted];
     }
 
     /**

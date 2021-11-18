@@ -5,6 +5,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 4.1.0
+- Added events
+- Admin and spam emails accepts env variables
+
 ### 4.0.2
 - Fixed front name issue
 
@@ -178,17 +182,8 @@ Event::on(CaptchasService::class, CaptchasService::EVENT_REGISTER_CAPTCHAS, func
 
 Examples :
 
+Email events
 ```
-Event::on(FormsService::class, FormsService::EVENT_BEFORE_SUBMITTING, function ($e) {
-    //Form is not validated at this point, but we know it's not a spam
-    $submission = $e->submission; //FormSubmission object
-});
-
-Event::on(FormsService::class, FormsService::EVENT_AFTER_SUBMITTING, function ($e) {
-    //Form is validated and valid at this point
-    $submission = $e->submission; //Submission object
-});
-
 Event::on(SubmissionsService::class, SubmissionsService::EVENT_BEFORE_SEND_USER_EMAIL, function ($e) {
     $submission = $e->submission; //Submission object
     $form = $e->form;
@@ -202,6 +197,13 @@ Event::on(SubmissionsService::class, SubmissionsService::EVENT_BEFORE_SEND_ADMIN
     $email = $e->email;
     $e->isValid = false; //This will stop the email being sent
 });
+```
+Other events :
+```
+FormsService::EVENT_BEFORE_VALIDATING_SUBMISSION //At this stage we know it's not a spam
+FormsService::EVENT_ON_VALID_SUBMISSION
+FormsService::EVENT_ON_INVALID_SUBMISSION
+FormsService::EVENT_ON_SPAM_SUBMISSION
 ```
 
 # Obfuscation

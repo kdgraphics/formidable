@@ -400,8 +400,8 @@ export default {
       this.errors = {
         name: trim(this.form.name) == '',
         handle: trim(this.form.handle) == '',
-        notifyEmails: (this.form.notifyAdmin_key && trim(this.form.notifyEmails) == ''),
-        notifySpamEmails: (this.form.notifySpam_key && trim(this.form.notifySpamEmails) == ''),
+        notifyEmails: (this.form.notifyAdmin_key && this.validateEmails(this.form.notifyEmails)),
+        notifySpamEmails: (this.form.notifySpam_key && this.validateEmails(this.form.notifySpamEmails)),
         htmlId: (this.form.htmlId && !this.form.htmlId.match(/^[a-zA-Z_]*$/)),
         class: (this.form.class && !this.form.class.match(/^[0-9a-zA-Z\s-]*$/)),
         submitClass: (this.form.submitClass && !this.form.submitClass.match(/^[0-9a-zA-Z\s-]*$/)),
@@ -409,6 +409,22 @@ export default {
         notifyField: this.validateNotifyField(),
         honeypotField: this.validateHoneypotField()
       };
+    },
+    validateEmails(string) {
+      string = trim(string);
+      if (string == '') {
+        return true;
+      }
+      let emails = string.split(',');
+      for(let email of emails) {
+        email = trim(email);
+        let isEmail = email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
+        let isEnv = email.match(/^\$[A-Za-z-_]+$/);
+        if (!isEmail && !isEnv) {
+          return true;
+        }
+      }
+      return false;
     },
     validateHoneypotField() {
       if (!this.form.honeypot) {

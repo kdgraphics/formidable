@@ -27,15 +27,23 @@ class SendSpamEmailJob extends BaseJob
      */
     public function execute($queue): void
     {
+        $emails = [];
+        foreach (explode(',', trim($this->form->notifySpamEmails)) as $address) {
+            $address = trim($address);
+            $address = \Craft::parseEnv($address);
+            if (filter_var($address, FILTER_VALIDATE_EMAIL)) {
+                $emails[] = $address;
+            }
+        }
         $email = \Craft::$app->getMailer()
             ->composeFromKey($this->form->notifySpam_key, [
                 'spam' => $this->spam,
                 'formSubmission' => $this->formSubmission,
                 'form' => $this->form
-            ])->setTo(explode(',', $this->form->notifySpamEmails));
+            ])->setTo($emails);
 
         if (!$email->send()) {
-            throw new \Exception('Unable to send spam email to ' . $this->form->notifySpamEmails);
+            throw new \Exception('Unable to send spam email to ' . implode(', ', $emails));
         } else {
             if ($this->spam) {
                 $record = Formidable::$plugin->spam->getRecordById($this->spam->id);

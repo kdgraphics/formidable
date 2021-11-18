@@ -255,11 +255,12 @@ class Form extends Model
 		if (!$this->$attribute) {
 			return true;
 		}
-		$emails = array_map('trim', explode(',', $this->$attribute));
+		$emails = array_map('trim', explode(',', trim($this->$attribute)));
 		$pass = true;
 		foreach($emails as $email) {
-			if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-				$this->addError($attribute, \Craft::t('Email {email} is not valid', ['email' => $email]));
+			$isEnv = preg_match('/^\$[A-Za-z-_]+$/', $email);
+			if (!$isEnv && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+				$this->addError($attribute, \Craft::t('formidable', 'Email {email} is not valid', ['email' => $email]));
 				$pass = false;
 			}
 		}
