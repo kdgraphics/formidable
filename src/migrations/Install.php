@@ -34,6 +34,8 @@ class Install extends Migration
             'method' => $this->string(255),
             'class' => $this->string(255),
             'htmlId' => $this->string(255),
+            'spamCheck' => $this->string(255)->defaultValue(''),
+            'obfuscateFieldNames' => $this->boolean()->defaultValue(false),
             'color' => $this->string(255),
             'captcha' => $this->string(255),
             'submitLabel' => $this->string(255),
@@ -102,7 +104,7 @@ class Install extends Migration
         $this->createTable('{{%formidable_submissions_values}}', [
             'id' => $this->primaryKey(),
             'type' => $this->string(255)->notNull(),
-            'field' => $this->string(255)->notNull(),
+            'field_id' => $this->integer(11),
             'submission_id' => $this->integer(11)->notNull(),
             'value' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -169,6 +171,7 @@ class Install extends Migration
         $this->addForeignKey('formidable_conditiongroups_rule_id_fk', '{{%formidable_conditiongroups}}', ['rule_id'], '{{%formidable_rules}}', ['id'], 'CASCADE', null);
         $this->addForeignKey('formidable_conditions_rule_id_fk', '{{%formidable_conditions}}', ['rule_id'], '{{%formidable_rules}}', ['id'], 'CASCADE', null);
         $this->addForeignKey('formidable_conditions_group_id_fk', '{{%formidable_conditions}}', ['conditiongroup_id'], '{{%formidable_conditiongroups}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey('formidable_submissions_values_field_id_fk', '{{%formidable_submissions_values}}', ['field_id'], '{{%formidable_fields}}', ['id'], 'SET NULL', null);
     }
 
     /**

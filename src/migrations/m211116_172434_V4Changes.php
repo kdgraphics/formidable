@@ -7,6 +7,7 @@ use Ryssbowh\Formidable\Models\Records\Field;
 use Ryssbowh\Formidable\Models\Records\Submission;
 use Ryssbowh\Formidable\Models\Records\SubmissionValue;
 use craft\db\Migration;
+use craft\db\Query;
 
 /**
  * m211116_172434_V4Changes migration.
@@ -18,22 +19,16 @@ class m211116_172434_V4Changes extends Migration
      */
     public function safeUp()
     {
-        $this->alterColumn('{{%formidable_submissions_values}}', 'field', $this->string(255));
-        $this->addColumn('{{%formidable_submissions_values}}', 'dateDeleted',$this->dateTime()->after('dateUpdated'));
-        $values = SubmissionValue::find()->all();
+        $this->alterColumn('{{%formidable_submissions_values}}', 'field', $this->string(255)->null());
+        $values = (new Query())
+            ->select(["formidable_submissions_values.id as value_id", "field", "formidable_fields.id as field_id"])
+            ->from("{{%formidable_submissions_values}}")
+            ->leftJoin("{{%formidable_submissions}}", "formidable_submissions.id = formidable_submissions_values.submission_id")
+            ->leftJoin("{{%formidable_fields}}", "formidable_fields.form_id = formidable_submissions.form_id AND formidable_fields.handle = formidable_submissions_values.field")
+            ->all();
         foreach ($values as $value) {
-            $value->field = null;
-            $submission = Submission::find()->where(['id' => $value->submission_id])->one();
-            if ($submission) {
-                $field = Field::find()->where([
-                    'form_id' => $submission->form_id,
-                    'handle' => $value->field
-                ])->one();
-                if ($field) {
-                    $value->field = $field->id;
-                }
-            }
-            $value->save(false);
+            $value['field_id'] = $value['field_id'] ?? null;
+            $this->update('{{%formidable_submissions_values}}', ['field' => $value['field_id']], ['id' => $value['value_id']]);
         }
         $this->alterColumn('{{%formidable_submissions_values}}', 'field', $this->integer(11));
         $this->renameColumn('{{%formidable_submissions_values}}', 'field', 'field_id');
@@ -46,7 +41,7 @@ class m211116_172434_V4Changes extends Migration
      */
     public function safeDown()
     {
-        echo "m211116_172434_V4Changes cannot be reverted.\n";
+        echo "m211116_172433_V4Changes cannot be reverted.\n";
         return false;
     }
 }

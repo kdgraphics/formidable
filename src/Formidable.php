@@ -71,7 +71,7 @@ class Formidable extends Plugin
         parent::init();
         $this::$plugin = $this;
         $fileTarget = new FileTarget([
-            'logFile' => \Yii::$app->getRuntimePath() . '/logs/formidable.log',
+            'logFile' => \Craft::getAlias('@storage/logs/formidable.log'),
             'categories' => ['formidable']
         ]);
         \Craft::getLogger()->dispatcher->targets[] = $fileTarget;

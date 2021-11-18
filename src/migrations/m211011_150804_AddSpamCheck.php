@@ -8,14 +8,16 @@ use craft\db\Migration;
 /**
  * m261011_150804_AddSpamCheck migration.
  */
-class m261011_150804_AddSpamCheck extends Migration
+class m211011_150804_AddSpamCheck extends Migration
 {
     /**
      * @inheritdoc
      */
     public function safeUp()
     {
-        $this->addColumn('{{%formidable_forms}}', 'spamCheck', $this->string(255)->after('class')->defaultValue(''));
+        try {
+            $this->addColumn('{{%formidable_forms}}', 'spamCheck', $this->string(255)->after('class')->defaultValue(''));
+        } catch (\Exception $e) {}
     }
 
     /**
