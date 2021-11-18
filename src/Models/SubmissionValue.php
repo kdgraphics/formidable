@@ -15,7 +15,6 @@ class SubmissionValue extends Model
 	public $type;
 	public $dateCreated;
 	public $dateUpdated;
-	public $dateDeleted;
 	public $uid;
 
 	protected $_field = false;
