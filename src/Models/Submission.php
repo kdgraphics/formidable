@@ -111,9 +111,10 @@ class Submission extends Model
 	 */
 	public function toArray(array $fields = [], array $expand = [], $recursive = true)
 	{
-		$dateCreated = $this->dateCreated->format('d/m/Y H:i');
 		$array = parent::toArray($fields, $expand, $recursive);
-		$array['dateCreated'] = $dateCreated;
+		if ($this->dateCreated instanceof \DateTime) {
+			$array['dateCreated'] = $this->dateCreated->format('d/m/Y H:i');
+		}
 		return $array;
 	}
 }

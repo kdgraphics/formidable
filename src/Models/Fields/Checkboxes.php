@@ -70,6 +70,6 @@ class Checkboxes extends Radio
 	 */
 	public static function getStringValue($value): string
 	{
-		return is_array($value) ? implode(', ', $value) : $value;
+		return is_array($value) ? implode(', ', $value) : (string)$value;
 	}
 }

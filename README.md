@@ -5,6 +5,11 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 4.0.1
+- fixed dateCreated issue
+- fixed dateDeleted issue
+- fixed checkboxes string value issue
+
 ### 4.0.0
 - Changed submissions logic
 - Added events for emails
