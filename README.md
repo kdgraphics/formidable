@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 4.1.2
+- Renamed switch fields in migration
+
 ### 4.1.1
 - Forgot production assets
 
