@@ -152,7 +152,7 @@
         </div>
         <div v-if="form.notifySpam_key" class="field" aria-describedby="spamemails-field-instructions">
           <div class="heading">
-            <label class="required" for="form-notifySpamEmails">{{ t('Spam email recipients') }}</label>
+            <label class="required" for="form-notifySpamEmails">{{ t('Spam email recipients (env variables supported)') }}</label>
           </div>
           <div id="spamemails-field-instructions" class="instructions">
             <p>{{ t('Comma separated emails') }}</p>
@@ -176,7 +176,7 @@
         </div>
         <div v-if="form.notifyAdmin_key" class="field" aria-describedby="emails-field-instructions">
           <div class="heading">
-            <label class="required" for="form-notifyEmails">{{ t('Admin email recipients') }}</label>
+            <label class="required" for="form-notifyEmails">{{ t('Admin email recipients (env variables supported)') }}</label>
           </div>
           <div id="emails-field-instructions" class="instructions">
             <p>{{ t('Comma separated emails') }}</p>

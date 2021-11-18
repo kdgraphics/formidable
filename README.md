@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 4.1.1
+- Forgot production assets
+
 ### 4.1.0
 - Added events
 - Admin and spam emails accepts env variables
