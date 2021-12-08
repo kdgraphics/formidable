@@ -16,29 +16,25 @@ export default {
     allForms: Object
   },
   computed:{
-    ...mapState(['form', 'hasUnsavedChanges'])
+    ...mapState(['form'])
   },
   created() {
     this.setAllForms(this.allForms);
   },
   methods: {
     load (id) {
-      if (this.hasUnsavedChanges) {
-        this.$confirm({
-          message: this.t('You have unsaved changes, continue anyway ?'),
-          button: {
-            no: this.t('No'),
-            yes: this.t('Yes')
-          },
-          callback: confirm => {
-            if (confirm) {
-              this.loadForm(id);
-            }
+      this.$confirm({
+        message: this.t('You will loose unsaved changes, continue anyway ?'),
+        button: {
+          no: this.t('No'),
+          yes: this.t('Yes')
+        },
+        callback: confirm => {
+          if (confirm) {
+            this.loadForm(id);
           }
-        })
-      } else {
-        this.loadForm(id);
-      }
+        }
+      });
     },
     ...mapMutations(['setIsAdding', 'setAllForms']),
     ...mapActions(['loadForm'])

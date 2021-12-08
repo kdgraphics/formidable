@@ -92,7 +92,7 @@ class ConditionGroupsService extends Component
      * @param  array  $groupsData
      * @return array
      */
-    public function validateData(array $groupsData): array
+    public function populateFromData(array $groupsData): array
     {
         $groups = [];
         foreach ($groupsData as $index => $data) {
@@ -102,7 +102,6 @@ class ConditionGroupsService extends Component
                 $group = new ConditionGroup;
             }
             $group->setAttributes($data);
-            $group->validate();
             $group->conditions = Formidable::$plugin->conditions->validateData($data['conditions']);
             $groups[$index] = $group;
         }

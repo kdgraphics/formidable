@@ -123,7 +123,7 @@
             <label class="required" for="form-handle">{{ t('Handle') }}</label>
           </div>
           <div class="input ltr">
-            <input id="form-handle" v-model="form.handle" :disabled="!isAdding" :class="'text fullwidth' + (errors.handle ? ' error' : '')">
+            <input id="form-handle" v-model="form.handle" :class="'text fullwidth' + (errors.handle ? ' error' : '')">
           </div>
         </div>
         <div class="field" aria-describedby="redirect-field-instructions">
@@ -290,8 +290,7 @@ export default {
     allEmails: Array,
     allCaptchas: Object,
     allVolumes: Array,
-    formEdited: Object,
-    loaded: Number
+    formEdited: Number
   },
   computed: {
     ...mapState(['activeTab', 'form', 'fields', 'isAdding', 'loadedTime']),
@@ -307,10 +306,23 @@ export default {
      * @return {Array} list of field names
      */
     fieldNames: function () {
-      return this.fields.map((field) => field.name);
+      return this.allFields.map((field) => field.name);
     },
     emailFields: function () {
-      return this.fields.filter((field) => field.type == 'email');
+      return this.allFields.filter((field) => field.type == 'email');
+    },
+    allFields: function () {
+      let fields = [];
+      for(let field of this.fields) {
+        if (field.type == 'group') {
+          for(let subfield of field.fields) {
+            fields.push(subfield);
+          }
+        } else {
+          fields.push(field);
+        }
+      }
+      return fields;
     },
     notifyField: {
       get: function() {
@@ -327,7 +339,6 @@ export default {
       showAdvanced: false,
       captchas: this.allCaptchas,
       emails: this.allEmails,
-      original: {},
       errors: {},
       notifyFieldObject: null
     }
@@ -341,7 +352,6 @@ export default {
     },
     form: {
       handler: function() {
-        this.configHasChanged(!isEqual(this.form, this.original));
         this.validate();
       },
       deep: true
@@ -354,11 +364,11 @@ export default {
     }
   },
   created() {
-    this.setIsAdding(this.formEdited.id == null);
-    this.setForm(this.formEdited);
-    this.setLoadedTime(this.loaded);
+    this.setIsAdding(this.formEdited == null);
+    if (this.formEdited) {
+      this.loadForm(this.formEdited);
+    }
     this.setVolumes(this.allVolumes);
-    this.init();
   },
   mounted() {
     this.$nextTick(() => {
@@ -383,8 +393,7 @@ export default {
   methods: {
     init() {
       this.errors = {};
-      this.original = cloneDeep(this.form);
-      this.notifyFieldObject = this.fields.filter((field) => field.handle == this.form.notifyField)[0];
+      this.notifyFieldObject = this.allFields.filter((field) => field.handle == this.form.notifyField)[0];
       if (this.isAdding) {
         this.changePageTitle(this.t('Add new form'));
       } else {
@@ -439,7 +448,7 @@ export default {
       return (this.form.notifyField == null || this.form.notifyField == '');
     },
     ...mapMutations(['setForm', 'setLoadedTime', 'setIsAdding', 'setVolumes']),
-    ...mapActions(['configHasChanged', 'configHasErrors'])
+    ...mapActions(['configHasErrors', 'loadForm'])
   }
 };
 </script>

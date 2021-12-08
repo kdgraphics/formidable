@@ -24,12 +24,11 @@
       </nav>
     </div>
     <div id="formidablerules-container">
-      <forms-rule v-for="(rule, index) in rules" v-show="index == selectedRule" v-on:error="onError" v-on:change="onChange"
+      <forms-rule v-for="(rule, index) in rules" v-show="index == selectedRule" v-on:error="onError"
         :class="rule.type+'-rule form-rule'" 
         :key="'' + form.id + index"
         :index="index"
         :rule="rule"
-        :original="originals[index]"
         >
       </forms-rule>
       <div class="no-rules" v-if="rules.length == 0">{{ t('No rules found') }}</div>
@@ -48,18 +47,9 @@ import { EventBus } from '../EventBus';
 
 export default {
 	props: {
-		allRules: Array,
 		registeredRules: Object
 	},
   computed: {
-    /**
-     * @return {Boolean} global change status
-     */
-    hasChanges: function () {
-      return (reduce(this.changes, function(result, value, key) {
-        return result || value
-      }, false) || this.deletedRules > 0 || this.addedRules > 0);
-    },
     /**
      * @return {Boolean} global error status
      */
@@ -85,17 +75,11 @@ export default {
       /**
        * @type {Object} Keyed by rule index
        */
-      changes: {},
-      /**
-       * @type {Object} Keyed by rule index
-       */
-      originals: {}
+      changes: {}
     }
   },
   created() {
-    this.setRules(this.allRules);
     this.setRegisteredRules(this.registeredRules);
-    this.selectedRule = this.rules.length ? 0 : null;
     this.init();
   },
   watch: {
@@ -104,9 +88,6 @@ export default {
     },
     hasErrors: function () {
       this.rulesHaveErrors(this.hasErrors);
-    },
-    hasChanges: function () {
-      this.handleRulesChanged();
     }
   },
   methods: {
@@ -115,8 +96,6 @@ export default {
      */
     init () {
       this.errors = {};
-      this.changes = {};
-      this.originals = cloneDeep(this.rules);
       this.deletedRules = 0;
       this.addedRules = 0;
     },
@@ -158,25 +137,15 @@ export default {
     setSelectedRule(index) {
       this.selectedRule = index;
     },
-    handleRulesChanged() {
-      let change = (this.deletedRules > 0 || this.addedRules > 0 || this.hasChanges);
-      this.rulesHaveChanged(change);
-    },
     onError(data) {
       this.$set(this.errors, data.index, data.error);
-    },
-    onChange(data) {
-      this.$set(this.changes, data.index, data.change);
     },
     ...mapMutations({
       setRules: 'setRules',
       setConditionTypes: 'setConditionTypes',
       setRegisteredRules: 'setRegisteredRules',
     }),
-  	...mapActions({
-      rulesHaveChanged: 'rulesHaveChanged',
-      rulesHaveErrors: 'rulesHaveErrors'
-  	})
+  	...mapActions(['rulesHaveErrors'])
   }
 };
 </script>

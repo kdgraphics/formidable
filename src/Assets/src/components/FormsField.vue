@@ -1,60 +1,77 @@
 <template>
-  <div :class="field.type+'-field' + ' formidablefield-container'">
-    <div class="field first">
-      <div class="heading">
-        <label class="required">{{ t('Name') }}</label>
+  <div :class="field.type+'-field' + ' formidablefield-container'" ref="field">
+    <slot name="fields">
+      <div class="field first">
+        <div class="heading">
+          <label for="form-active">{{ t('Active') }}</label>
+        </div>
+        <div class="input ltr">
+          <div id="form-active" :class="{lightswitch:true, on:field.active}">
+            <div class="lightswitch-container">
+              <div class="handle"></div>
+            </div>
+            <input type="hidden" name="active" v-model="field.active">
+          </div>
+        </div>
       </div>
-      <div class="input ltr">
-        <input type="text" :class="'text fullwidth' + (errors.name ? ' error' : '')" v-model="field.name" v-on:blur="generateHandle" @input="validateName">
+      <div class="field">
+        <div class="heading">
+          <label class="required">{{ t('Name') }}</label>
+        </div>
+        <div class="input ltr">
+          <input type="text" :class="'text fullwidth' + (errors.name ? ' error' : '')" v-model="field.name" v-on:blur="generateHandle" @input="validateName">
+        </div>
       </div>
-    </div>
-    <div class="field">
-      <div class="heading">
-        <label class="required">{{ t('Handle') }}</label>
+      <div class="field">
+        <div class="heading">
+          <label class="required">{{ t('Handle') }}</label>
+        </div>
+        <div class="input ltr">
+          <input type="text" :class="'text fullwidth' + (errors.handle ? ' error' : '')" v-model="field.handle" @input="validateHandle">
+        </div>
       </div>
-      <div class="input ltr">
-        <input type="text" :class="'text fullwidth' + (errors.handle ? ' error' : '')" v-model="field.handle" @input="validateHandle">
+      <div class="field field-instructions">
+        <div class="heading">
+          <label>{{ t('Instructions') }}</label>
+        </div>
+        <div class="input ltr">
+          <input type="text" class="text fullwidth" v-model="field.instructions">
+        </div>
       </div>
-    </div>
-    <div class="field field-instructions">
-      <div class="heading">
-        <label>{{ t('Instructions') }}</label>
-      </div>
-      <div class="input ltr">
-        <input type="text" class="text fullwidth" v-model="field.instructions">
-      </div>
-    </div>
+    </slot>
     <slot name="extraFields"></slot>
-    <div class="advanced">
-      <div class="header" @click="showAdvanced = !showAdvanced" :class="{'closed': !showAdvanced}">{{ t('Advanced') }}</div>
-      <div class="content" v-show="showAdvanced">
-        <div class="field field-fieldClass">
-          <div class="heading">
-            <label>{{ t('Field class') }}</label>
+    <slot name="advanced">
+      <div class="advanced">
+        <div class="header" @click="showAdvanced = !showAdvanced" :class="{'closed': !showAdvanced}">{{ t('Advanced') }}</div>
+        <div class="content" v-show="showAdvanced">
+          <div class="field field-fieldClass">
+            <div class="heading">
+              <label>{{ t('Field class') }}</label>
+            </div>
+            <div class="input ltr">
+              <input type="text" :class="'text fullwidth' + (errors.fieldClass ? ' error' : '')" v-model="field.fieldClass" @input="validateAlnum('fieldClass')">
+            </div>
           </div>
-          <div class="input ltr">
-            <input type="text" :class="'text fullwidth' + (errors.fieldClass ? ' error' : '')" v-model="field.fieldClass" @input="validateAlnum('fieldClass')">
+          <div class="field field-containerClass">
+            <div class="heading">
+              <label>{{ t('Container class') }}</label>
+            </div>
+            <div class="input ltr">
+              <input type="text" :class="'text fullwidth' + (errors.containerClass ? ' error' : '')" v-model="field.containerClass" @input="validateAlnum('containerClass')">
+            </div>
           </div>
+          <div class="field field-labelClass">
+            <div class="heading">
+              <label>{{ t('Label class') }}</label>
+            </div>
+            <div class="input ltr">
+              <input type="text" :class="'text fullwidth' + (errors.labelClass ? ' error' : '')" v-model="field.labelClass" @input="validateAlnum('labelClass')">
+            </div>
+          </div>
+          <slot name="extraAdvanced"></slot>
         </div>
-        <div class="field field-containerClass">
-          <div class="heading">
-            <label>{{ t('Container class') }}</label>
-          </div>
-          <div class="input ltr">
-            <input type="text" :class="'text fullwidth' + (errors.containerClass ? ' error' : '')" v-model="field.containerClass" @input="validateAlnum('containerClass')">
-          </div>
-        </div>
-        <div class="field field-labelClass">
-          <div class="heading">
-            <label>{{ t('Label class') }}</label>
-          </div>
-          <div class="input ltr">
-            <input type="text" :class="'text fullwidth' + (errors.labelClass ? ' error' : '')" v-model="field.labelClass" @input="validateAlnum('labelClass')">
-          </div>
-        </div>
-        <slot name="extraAdvanced"></slot>
       </div>
-    </div>
+    </slot>
   </div>
 </template>
 
@@ -67,7 +84,6 @@ import slugify from 'slugify';
 export default {
   props: {
     field: Object,
-    original: Object,
     errors: Object
   },
   data: function() {
@@ -79,21 +95,40 @@ export default {
     this.validateName();
     this.validateHandle();
   },
+  mounted() {
+    Craft.initUiElements(this.$refs.field);
+    let _this = this;
+    $(this.$el).find('.lightswitch').on('change', function(e){
+      let input = $(e.target).find('input');
+      let value = input.val() == 1;
+      _this.field[input.attr('name')] = value;
+    });
+  },
   computed: {
+    otherFieldHandles: function () {
+      let _this = this;
+      return this.allFields.filter((field) => field.uid != this.field.uid).map((field) => field.handle);
+    },
     hasErrors: function () {
       return reduce(this.errors, function(result, value, key) {
         return (result || value);
       }, false);
     },
-    hasChanges: function () {
-      return !isEqual(this.field, this.original);
+    allFields: function () {
+      let fields = [];
+      for(let field of this.fields) {
+        fields.push(field);
+        if (field.type == 'group') {
+          for(let subfield of field.fields) {
+            fields.push(subfield);
+          }
+        }
+      }
+      return fields;
     },
     ...mapState(['fields'])
   },
   methods: {
-    /**
-     * Validates the field name
-     */
     validateName() {
       let error = (this.field.name.trim() == '');
       this.$set(this.errors, 'name', error);
@@ -105,19 +140,9 @@ export default {
       this.$set(this.field, 'handle', slugify(this.field.name, {lower: true}));
       this.validateHandle();
     },
-    /**
-     * Validates the field handle
-     */
     validateHandle() {
-      let error = (!this.field.handle || !this.isAlnum('handle') || this.otherFieldHandles().includes(this.field.handle));
+      let error = (!this.field.handle || !this.isAlnum('handle') || this.otherFieldHandles.includes(this.field.handle));
       this.$set(this.errors, 'handle', error);
-    },
-    /**
-     * @return {Array} list of names for all the field except this
-     */
-    otherFieldHandles: function () {
-      let _this = this;
-      return this.fields.filter((field) => field.order != this.field.order).map((field) => field.handle);
     },
     isAlnum(field) {
       return this.field[field].match(/^[0-9a-zA-Z-_\s]*$/);
@@ -136,6 +161,9 @@ export default {
     },
     hasChanges: function () {
       this.$emit('change', {uid: this.field.uid, change: this.hasChanges});
+    },
+    otherFieldHandles: function () {
+      this.validateHandle();
     }
   }
 };

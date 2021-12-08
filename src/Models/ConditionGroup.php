@@ -10,61 +10,95 @@ use craft\helpers\StringHelper;
 
 class ConditionGroup extends Model
 {
-	public $id;
-	public $rule_id;
-	public $conditions;
-	public $negate = false;
-	public $operator;
-	public $dateCreated;
-	public $dateUpdated;
-	public $uid;
+    public $id;
+    public $rule_id;
+    public $conditions;
+    public $negate = false;
+    public $operator;
+    public $dateCreated;
+    public $dateUpdated;
+    public $uid;
 
-	public function rules()
-	{
-		return [
-			['negate', 'boolean', 'trueValue' => true, 'falseValue' => false],
-			['operator', 'in', 'range' => ['and', 'or']]
-		];
-	}
+    /**
+     * @inheritDoc
+     */
+    public function afterValidate()
+    {
+        foreach ($this->conditions as $condition) {
+            $condition->validate();
+        }
+        parent::afterValidate();
+    }
 
-	/**
-	 * Project config to be saved
-	 * 
-	 * @return array
-	 */
-	public function getConfig(): array
-	{
-		return [
-			'negate' => $this->negate,
-			'operator' => $this->operator,
-			'uid' => $this->uid ?? StringHelper::UUID(),
-			'conditions' => array_map(function ($condition) {
-            	return $condition->getConfig();
+    /**
+     * @inheritDoc
+     */
+    public function hasErrors($attribute = null)
+    {
+        if (parent::hasErrors($attribute)) {
+            return true;
+        }
+        foreach ($this->conditions as $condition) {
+            if ($condition->hasErrors()) {
+                return true;
+            }
+        }
+    }
+
+    public function defineRules(): array
+    {
+        return [
+            ['negate', 'boolean', 'trueValue' => true, 'falseValue' => false],
+            ['operator', 'in', 'range' => ['and', 'or']]
+        ];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function fields()
+    {
+        return array_merge(parent::fields(), ['errors']);
+    }
+
+    /**
+     * Project config to be saved
+     * 
+     * @return array
+     */
+    public function getConfig(): array
+    {
+        return [
+            'negate' => $this->negate,
+            'operator' => $this->operator,
+            'uid' => $this->uid ?? StringHelper::UUID(),
+            'conditions' => array_map(function ($condition) {
+                return $condition->getConfig();
             }, $this->conditions),
-		];
-	}
+        ];
+    }
 
-	public function appliesTo(FormSubmission $submission, bool $result)
-	{
-		$thisResult = true;
-		foreach ($this->conditions as $condition) {
-			$thisResult = $condition->appliesTo($submission, $thisResult);
-		}
-		if ($this->negate) {
-			$thisResult = !$thisResult;
-		}
-		if ($this->operator == 'and') {
-			return ($thisResult and $result);
-		}
-		return ($thisResult or $result);
-	}
+    public function appliesTo(FormSubmission $submission, bool $result)
+    {
+        $thisResult = true;
+        foreach ($this->conditions as $condition) {
+            $thisResult = $condition->appliesTo($submission, $thisResult);
+        }
+        if ($this->negate) {
+            $thisResult = !$thisResult;
+        }
+        if ($this->operator == 'and') {
+            return ($thisResult and $result);
+        }
+        return ($thisResult or $result);
+    }
 
-	public function frontJs(): string
-	{
-		return "new formidable.conditionGroup({
-			conditions: [" . implode(',', array_map(function($condition) {return $condition->frontJs();}, $this->conditions)) . "],
-			operator: '{$this->operator}',
-			negate: '{$this->negate}',
-		})";
-	}
+    public function frontJs(): string
+    {
+        return "new formidable.conditionGroup({
+            conditions: [" . implode(',', array_map(function($condition) {return $condition->frontJs();}, $this->conditions)) . "],
+            operator: '{$this->operator}',
+            negate: '{$this->negate}',
+        })";
+    }
 }

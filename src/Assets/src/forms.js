@@ -17,6 +17,7 @@ import FormsStore from './store/FormsStore';
 import VueConfirmDialog from 'vue-confirm-dialog';
 import Multiselect from 'vue-multiselect';
 import { capitalize, isEqual } from 'lodash';
+import draggable from 'vuedraggable'
 
 Vue.mixin({
   methods: {
@@ -43,6 +44,7 @@ Vue.component('field-choices', Choices);
 Vue.component('multiselect', Multiselect);
 Vue.component('condition', RuleCondition);
 Vue.component('condition-group', RuleConditionGroup);
+Vue.component('draggable', draggable);
 
 new Vue({
   el: '#main',

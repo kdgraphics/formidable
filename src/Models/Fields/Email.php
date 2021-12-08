@@ -24,14 +24,6 @@ class Email extends Text
 
 	/**
 	 * inheritDoc
-	 **/
-	public function backendTemplate(): string
-	{
-		return 'formidable/cp/fields/email';
-	}
-
-	/**
-	 * inheritDoc
 	 */
 	public function getFrontEndRules(FormSubmission $submission): array
 	{

@@ -14,7 +14,7 @@ class Settings extends Model
     /**
      * @return array
      */
-    public function rules()
+    public function defineRules(): array
     {
         return [
             ['siteKey', 'string'],

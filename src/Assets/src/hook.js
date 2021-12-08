@@ -9,6 +9,7 @@ import NumberField from './fields/NumberField';
 import FileField from './fields/FileField';
 import RadioField from './fields/RadioField';
 import CheckboxesField from './fields/CheckboxesField';
+import Group from './fields/Group';
 
 window.formFields = {
 	text: TextField,
@@ -21,5 +22,6 @@ window.formFields = {
 	radio: RadioField,
 	checkboxes: CheckboxesField,
     select_category: SelectCategoryField,
-    select_entry: SelectEntryField
+    select_entry: SelectEntryField,
+    group: Group
 };

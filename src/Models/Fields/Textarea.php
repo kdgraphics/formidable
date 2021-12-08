@@ -27,14 +27,6 @@ class Textarea extends Text
 	/**
 	 * inheritDoc
 	 **/
-	public function backendTemplate(): string
-	{
-		return 'formidable/cp/fields/textarea';
-	}
-
-	/**
-	 * inheritDoc
-	 **/
 	public function getExtraCpRules(): array
 	{
 		$rules = parent::getExtraCpRules();

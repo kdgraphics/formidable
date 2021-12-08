@@ -122,7 +122,7 @@ class ConditionsService extends Component
      * @param  array  $conditionsData
      * @return array
      */
-    public function validateData(array $conditionsData): array
+    public function populateFromData(array $conditionsData): array
     {
         $conditions = [];
         foreach ($conditionsData as $index => $data) {
@@ -132,7 +132,6 @@ class ConditionsService extends Component
                 $condition = new Condition;
             }
             $condition->setAttributes($data);
-            $condition->validate();
             $conditions[$index] = $condition;
         }
         return $conditions;

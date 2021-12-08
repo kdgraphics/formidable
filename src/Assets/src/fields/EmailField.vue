@@ -1,10 +1,17 @@
 <template>
   <forms-field v-on="$listeners"
-    :field="field"  
-    :original="original"
+    :field="field"
     :errors="errors"
   >
     <template v-slot:extraFields>
+      <div class="field field-placeholder">
+        <div class="heading">
+          <label>{{ t('Placeholder') }}</label>
+        </div>
+        <div class="input ltr">
+          <input type="text" class="text fullwidth" v-model="field.placeholder">
+        </div>
+      </div>
       <div class="field field-label">
         <div class="heading">
           <label>{{ t('Label') }}</label>
@@ -12,14 +19,6 @@
         <div class="input ltr">
           <textarea type="text" :class="'text fullwidth field-label-value'+field.uid" v-model="field.label" rows="1"></textarea>
           <a href="#" @click.prevent="field.labelHtml = !field.labelHtml">{{ field.labelHtml ? 'Plain' : 'Html' }}</a>
-        </div>
-      </div>
-      <div class="field field-placeholder">
-        <div class="heading">
-          <label>{{ t('Placeholder') }}</label>
-        </div>
-        <div class="input ltr">
-          <input type="text" class="text fullwidth" v-model="field.placeholder">
         </div>
       </div>
       <div class="field field-placeholder">
@@ -53,8 +52,7 @@
 <script>
 export default {
   props: {
-    field: Object,
-    original: Object
+    field: Object
   },
   data() {
     return {

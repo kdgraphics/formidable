@@ -1,5 +1,4 @@
-<?php 
-
+<?php
 namespace Ryssbowh\Formidable\Controllers;
 
 use Inspire\Emails\Emails;
@@ -17,21 +16,12 @@ use yii\web\NotFoundHttpException;
 
 class CpFormsController extends Controller
 {
-	public function actionForm(int $id = null, string $tab = 'config')
-	{
+    public function actionForm(int $id = null, string $tab = 'config')
+    {
         $template = 'create';
         if ($id) {
             $template = 'edit';
-            $form = $this->forms()->getById($id);
-            if (!$form) {
-                throw new NotFoundHttpException(\Craft::t('formidable', "Form with id {id} doesn't exist", ['id' => $id]));
-            }
-        } else {
-            $form = new Form;
         }
-
-        $fields = $form->getFields();
-        $rules = $form->getRules();
 
         $this->view->registerAssetBundle(HookAsset::class);
         foreach ($this->forms()->getRegisteredAssets() as $asset) {
@@ -39,27 +29,24 @@ class CpFormsController extends Controller
         }
         $this->view->registerAssetBundle(FormsAsset::class);
 
-		$this->renderTemplate('formidable/cp/forms/'.$template, [
-            'loaded' => time(),
+        $this->renderTemplate('formidable/cp/forms/'.$template, [
             'tab' => $tab,
-            'form' => $form,
+            'form' => $id ?? 0,
             'forms' => $this->forms()->getAllAsArray(),
             'emails' => array_map(function ($email) {
                 return $email->toArray();
             }, Emails::$plugin->emails->all()),
             'captchas' => $this->captchas()->getAllAsArray(),
-            'fields' => $fields,
-            'rules' => $rules,
             'registeredFields' => $this->fields()->getAllRegistered(),
             'registeredRules' => $this->rules()->getAllRegistered(),
             'volumes' => array_map(function($volume) {
                 return ['uid' => $volume->uid, 'name' => $volume->name];
             }, \Craft::$app->volumes->getAllVolumes())
         ]);
-	}
+    }
 
-	public function actionGet(int $id)
-	{
+    public function actionGet(int $id)
+    {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
@@ -69,14 +56,14 @@ class CpFormsController extends Controller
             throw new NotFoundHttpException(\Craft::t('formidable', "Form with id {id} doesn't exist", ['id' => $id]));
         }
 
-		return $this->asJson([
+        return $this->asJson([
             'loaded' => time(),
             'success' => true,
             'form' => $form,
-            'fields' => $form->fields,
+            'fields' => $form->rootFields,
             'rules' => $form->rules,
         ]);    
-	}
+    }
 
     public function actionNew()
     {
@@ -92,7 +79,7 @@ class CpFormsController extends Controller
         ]);    
     }
 
-	public function actionSave()
+    public function actionSave()
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
@@ -102,36 +89,38 @@ class CpFormsController extends Controller
         $fieldsData = $this->request()->getRequiredParam('fields');
         $rulesData = $this->request()->getRequiredParam('rules');
         
-        $form = $this->forms()->validateData($formData);
+        $form = $this->forms()->populateFromData($formData);
 
         if ($form->dateUpdated && $form->dateUpdated->getTimestamp() > $loaded) {
             return $this->asJson([
+                'false' => $success,
                 'message' => \Craft::t('formidable', 'This form has been updated since you last loaded it, please reload the page')
             ]);
         }
 
-        $form->fields = $this->fields()->validateData($fieldsData);
-        $form->rules = $this->rules()->validateData($rulesData);
+        $form->fields = $this->fields()->populateFromData($fieldsData);
+        $form->rules = $this->rules()->populateFromData($rulesData);
+        $form->validate();
 
-        if ($errors = $this->forms()->gatherErrors($form)) {
-            return $this->asJson([
-                'errors' => $errors,
-                'message' => \Craft::t('formidable', 'Please fix the errors before saving.')
-            ]);
-        }
-        if ($this->forms()->save($form)) {
-            return $this->asJson([
-                'loaded' => time(),
-                'success' => true,
-                'message' => \Craft::t('formidable', 'Form saved successfully.'),
-                'form' => $form,
-                'fields' => $form->fields,
-                'rules' => $form->rules
-            ]);    
+        $success = false;
+        if ($form->hasErrors()) {
+            $message = \Craft::t('formidable', 'Please fix the errors before saving.');
+        } else {
+            if ($this->forms()->save($form)) {
+                $message = \Craft::t('formidable', 'Form saved successfully.');
+                $success = true;
+            } else {
+                $message = \Craft::t('formidable', 'Unexpected error happened.');
+            }
         }
         return $this->asJson([
-            'message' => \Craft::t('formidable', 'Unexpected error happened.')
-        ]);
+            'loaded' => time(),
+            'success' => $success,
+            'message' => $message,
+            'form' => $form,
+            'fields' => $form->rootFields,
+            'rules' => $form->rules
+        ]);    
     }
 
     public function actionDelete(int $id)

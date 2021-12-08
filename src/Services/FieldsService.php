@@ -28,6 +28,11 @@ class FieldsService extends Component
     protected $registeredFields;
 
     /**
+     * @var array
+     */
+    protected $_fields;
+
+    /**
      * Get all registered fields 
      * 
      * @return array
@@ -56,27 +61,43 @@ class FieldsService extends Component
     /**
      * Get all fields for a form
      * 
-     * @param  Form   $form
+     * @param  Form    $form
+     * @param  boolean $all include fields within groups as well
      * @return array
      */
-    public function getFormFields(Form $form): array
+    public function getForForm(Form $form, bool $all = false): array
     {
-        $fields = [];
-        foreach (FieldRecord::find()->where(['form_id' => $form->id])->orderBy(['order' => SORT_ASC])->all() as $record) {
-            try {
-                $fields[] = $record->toModel();
-            } catch (FormException $e) {}
-        }
-        return $fields;
+        return array_values(array_filter($this->all(), function ($field) use ($all, $form) {
+            if (!$form->id == $field->form_id) {
+                return false;
+            }
+            if (!$all and $field->group_id != null) {
+                return false;
+            }
+            return true;
+        }));
     }
 
     /**
-     * Validate an array of fields data
+     * Get all fields for a group
+     * 
+     * @param  int    $groupId
+     * @return array
+     */
+    public function getForGroup(int $groupId): array
+    {
+        return array_values(array_filter($this->all(), function ($field) use ($groupId) {
+            return $field->group_id == $groupId;
+        }));
+    }
+
+    /**
+     * Populate an array of fields data into field instances
      * 
      * @param  array  $fieldsData
      * @return array
      */
-    public function validateData(array $fieldsData): array
+    public function populateFromData(array $fieldsData): array
     {
         $fields = [];
         foreach ($fieldsData as $index => $data) {
@@ -84,6 +105,22 @@ class FieldsService extends Component
                 $field = $this->getById($data['id']);
             } else {
                 $field = clone $this->getRegistered($data['type']);
+            }
+            if ($data['type'] == 'group') {
+                $groupFields = [];
+                foreach ($data['fields'] ?? [] as $fieldData) {
+                    $fieldData['group_id'] = null;
+                    if (isset($fieldData['id']) and is_numeric($fieldData['id'])) {
+                        $field2 = $this->getById($fieldData['id']);
+                    } else {
+                        $field2 = clone $this->getRegistered($fieldData['type']);
+                    }
+                    $field2->setAttributes($fieldData);
+                    $field2->group = $field;
+                    $field2->validate();
+                    $groupFields[] = $field2;
+                }
+                $field->fields = $groupFields;
             }
             $field->setAttributes($data);
             $field->validate();
@@ -109,11 +146,13 @@ class FieldsService extends Component
      * @param  int $id
      * @return ?FieldInterface
      */
-	public function getById(int $id): ?FieldInterface
-	{
-		$field = FieldRecord::find()->where(['id' => $id])->one();
-        return $field ? $field->toModel() : null;
-	}
+    public function getById(int $id): ?FieldInterface
+    {
+        $fields = array_values(array_filter($this->all(), function ($field) use ($id) {
+            return $field->id == $id;
+        }));
+        return $fields[0] ?? null;
+    }
 
     /**
      * Get field model by uid
@@ -121,10 +160,12 @@ class FieldsService extends Component
      * @param  string $uid
      * @return ?FieldInterface
      */
-	public function getByUid(string $uid): ?FieldInterface
+    public function getByUid(string $uid): ?FieldInterface
     {
-        $field = FieldRecord::find()->where(['uid' => $uid])->one();
-        return $field ? $field->toModel() : null;
+        $fields = array_values(array_filter($this->all(), function ($field) use ($uid) {
+            return $field->uid == $uid;
+        }));
+        return $fields[0] ?? null;
     }
 
     /**
@@ -140,17 +181,26 @@ class FieldsService extends Component
         foreach ($fields as $field) {
             $field->delete();
         }
+        $this->_fields = null;
     }
 
     /**
-     * Checks a field name exists for a form id
+     * Get all defined fields
      * 
-     * @param  string $name
-     * @param  int    $form
-     * @return bool
+     * @return array
      */
-    public function existsForForm(string $name, int $form): bool
+    protected function all(): array
     {
-        return is_object(FieldRecord::find()->where(['name' => $name, 'form_id' => $form])->one());
+        if ($this->_fields === null) {
+            $fields = [];
+            $records = FieldRecord::find()->orderBy(['order' => SORT_ASC])->all();
+            foreach ($records as $record) {
+                try {
+                    $fields[] = $record->toModel();
+                } catch (FormException $e) {}
+            }
+            $this->_fields = $fields;
+        }
+        return $this->_fields;
     }
 }

@@ -29,14 +29,6 @@ class Number extends Text
 
 	/**
 	 * inheritDoc
-	 **/
-	public function backendTemplate(): string
-	{
-		return 'formidable/cp/fields/number';
-	}
-
-	/**
-	 * inheritDoc
 	 */
 	public function getFrontEndRules(FormSubmission $submission): array
 	{

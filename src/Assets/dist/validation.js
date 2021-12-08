@@ -63,12 +63,21 @@ window.formidable = {
         this.id = id;
         this.formId = formId;
         this.getElems = function () {
+            if (this.type == 'null') {
+                return [];
+            }
             return document.querySelector('form[id='+this.formId+']').querySelectorAll('[id^='+this.id+']');
         };
         this.getWrapper = function () {
+            if (this.type == 'null') {
+                return null;
+            }
             return this.getElems()[0].closest('.field');
         };
         this.getValue = function () {
+            if (this.type == 'null') {
+                return null;
+            }
             let elems = this.getElems();
             if (this.type == 'array') {
                 let val = [];

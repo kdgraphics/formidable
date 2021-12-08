@@ -108,7 +108,6 @@ export default {
   props: {
     rule: Object,
     index: Number,
-    original: Object
   },
   data() {
     return {
@@ -148,8 +147,21 @@ export default {
         this.rule.value = value.handle;
       }
     },
+    allFields: function () {
+      let fields = [];
+      for(let field of this.fields) {
+        if (field.type == 'group') {
+          for(let subfield of field.fields) {
+            fields.push(subfield);
+          }
+        } else {
+          fields.push(field);
+        }
+      }
+      return fields;
+    },
     validFields: function () {
-      return this.fields.filter((field) => field.validRules.includes(this.rule.type));
+      return this.allFields.filter((field) => field.validRules.includes(this.rule.type));
     },
     ...mapState(['fields', 'loadedTime']),
   },
@@ -163,18 +175,12 @@ export default {
     'rule.value'(){
       this.validate();
     },
-    rule: {
-      handler: function () {
-        this.$emit('change', {index: this.index, change: !isEqual(this.rule, this.original)});
-      },
-      deep: true
-    },
     loadedTime: function() {
       this.init();
     },
     fields: {
       handler: function () {
-        let fields = intersectionBy(this.selectedFields, this.fields, 'order').map((field) => field.handle);
+        let fields = intersectionBy(this.selectedFields, this.allFields, 'order').map((field) => field.handle);
         if (!isEqual(fields.sort(), this.rule.fields.sort())) {
           this.rule.fields = fields;
         }
@@ -188,9 +194,9 @@ export default {
   },
   methods: {
     init() {
-      this.selectedFields = filter(this.fields, (field) => this.rule.fields.includes(field.handle));
+      this.selectedFields = filter(this.allFields, (field) => this.rule.fields.includes(field.handle));
       if (this.rule.requiresField) {
-        this.selectedField = filter(this.fields, (field) => field.handle == this.rule.value)[0] ?? null;
+        this.selectedField = filter(this.allFields, (field) => field.handle == this.rule.value)[0] ?? null;
       }
     },
     validate() {
@@ -233,7 +239,7 @@ export default {
         negate: false, 
         value: '', operator: 
         'and', field: 
-        this.fields[0].name ?? ''
+        this.allFields[0].name ?? ''
       };
     },
     onConditionError(data) {

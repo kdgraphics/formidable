@@ -1,5 +1,4 @@
-<?php 
-
+<?php
 namespace Ryssbowh\Formidable\Services;
 
 use Inspire\SpamCheck\SpamCheck;
@@ -23,10 +22,10 @@ use yii\web\View;
 
 class FormsService extends Component
 {
-	const EVENT_BEFORE_SAVE = 'before_save';
-	const EVENT_AFTER_SAVE = 'after_save';
-	const EVENT_BEFORE_APPLY_DELETE = 'before_apply_delete';
-	const EVENT_AFTER_DELETE = 'after_delete';
+    const EVENT_BEFORE_SAVE = 'before_save';
+    const EVENT_AFTER_SAVE = 'after_save';
+    const EVENT_BEFORE_APPLY_DELETE = 'before_apply_delete';
+    const EVENT_AFTER_DELETE = 'after_delete';
     const EVENT_BEFORE_DELETE = 'before_delete';
     
     const EVENT_BEFORE_VALIDATING_SUBMISSION = 'before_validating';
@@ -40,7 +39,7 @@ class FormsService extends Component
 
     const EVENT_HOOK_ASSETS = 'formidable_hook';
 
-	const CONFIG_KEY = 'formidable.forms';
+    const CONFIG_KEY = 'formidable.forms';
 
     const FRONT_JS_FILE = __DIR__ . '/../Assets/dist/validation.js';
 
@@ -54,7 +53,7 @@ class FormsService extends Component
      * Forms keyed by id
      * @var array
      */
-	protected $forms;
+    protected $forms;
 
     /**
      * Registered fields assets. Assets typically provides with Vue components to render the fields.
@@ -85,21 +84,21 @@ class FormsService extends Component
         return $this->fieldsAssets;
     }
 
-	/**
-	 * Get all forms
-	 * 
-	 * @return array
-	 */
-	public function getAll(): array
-	{
+    /**
+     * Get all forms
+     * 
+     * @return array
+     */
+    public function getAll(): array
+    {
         if (is_null($this->forms)) {
             $this->forms = [];
             foreach (FormRecord::find()->all() as $record) {
                 $this->forms[$record->id] = $record->toModel();
             }
         }
-		return $this->forms;
-	}
+        return $this->forms;
+    }
 
     /**
      * Get all forms as array 'id' => 'name'
@@ -115,16 +114,16 @@ class FormsService extends Component
         return $forms;
     }
 
-	/**
+    /**
      * Get form record by uid
      * 
      * @param  string $uid
      * @return FormRecord
      */
-	public function getRecordByUid(string $uid): FormRecord
-	{
-		return FormRecord::findOne(['uid' => $uid]) ?? new FormRecord(['uid' => $uid]);
-	}
+    public function getRecordByUid(string $uid): FormRecord
+    {
+        return FormRecord::findOne(['uid' => $uid]) ?? new FormRecord(['uid' => $uid]);
+    }
 
     /**
      * Get form model by id
@@ -133,14 +132,14 @@ class FormsService extends Component
      * @param  bool $throwIfNotFound
      * @return ?FormModel
      */
-	public function getById(int $id, bool $throwIfNotFound = false): ?FormModel
-	{
-		$form = $this->getAll()[$id] ?? null;
+    public function getById(int $id, bool $throwIfNotFound = false): ?FormModel
+    {
+        $form = $this->getAll()[$id] ?? null;
         if (!$form and $throwIfNotFound) {
             throw FormException::idNotFound($id);
         }
         return $form;
-	}
+    }
 
     /**
      * Get form model by handle
@@ -159,7 +158,7 @@ class FormsService extends Component
      * @param  string $uid
      * @return ?FormModel
      */
-	public function getByUid(string $uid): ?FormModel
+    public function getByUid(string $uid): ?FormModel
     {
         return ArrayHelper::firstWhere($this->getAll(), 'uid', $uid, true);
     }
@@ -172,8 +171,8 @@ class FormsService extends Component
      * @param  array     $rules
      * @return bool
      */ 
-	public function save(FormModel $form): bool
-	{
+    public function save(FormModel $form): bool
+    {
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE)) {
             $this->trigger(self::EVENT_BEFORE_SAVE, new FormEvent([
                 'form' => $form,
@@ -195,7 +194,7 @@ class FormsService extends Component
         $form->rules = null;
 
         return true;
-	}
+    }
 
     /**
      * Handle a added or modified config
@@ -238,21 +237,16 @@ class FormsService extends Component
             $form->save(false);
 
             $fieldIds = $ruleIds = [];
-
             foreach ($data['fields'] ?? [] as $fieldData) {
-                $field = Formidable::$plugin->fields->getRecordByUid($fieldData['uid']);
-                $field->name = $fieldData['name'];
-                $field->handle = $fieldData['handle'];
-                $field->form_id = $form->id;
-                $field->order = $fieldData['order'];
-                $field->type = $fieldData['type'];
-                $field->options = $fieldData['options'];
-                $field->fieldClass = $fieldData['fieldClass'];
-                $field->containerClass = $fieldData['containerClass'];
-                $field->labelClass = $fieldData['labelClass'];
-                $field->instructions = $fieldData['instructions'];
-                $field->save(false);
+                $field = $this->handleFieldChange($form, $fieldData);
                 $fieldIds[] = $field->id;
+                if ($field->type == 'group') {
+                    foreach ($fieldData['fields'] ?? [] as $fieldData) {
+                        $fieldData['group_id'] = $field->id;
+                        $field2 = $this->handleFieldChange($form, $fieldData);
+                        $fieldIds[] = $field2->id;
+                    }
+                }
             }
 
             foreach ($data['rules'] ?? [] as $ruleData) {
@@ -325,13 +319,32 @@ class FormsService extends Component
         }
     }
 
+    protected function handleFieldChange(FormRecord $form, array $fieldData)
+    {
+        $field = Formidable::$plugin->fields->getRecordByUid($fieldData['uid']);
+        $field->group_id = $fieldData['group_id'] ?? null;
+        $field->active = $fieldData['active'];
+        $field->name = $fieldData['name'];
+        $field->handle = $fieldData['handle'];
+        $field->form_id = $form->id;
+        $field->order = $fieldData['order'];
+        $field->type = $fieldData['type'];
+        $field->options = $fieldData['options'];
+        $field->fieldClass = $fieldData['fieldClass'];
+        $field->containerClass = $fieldData['containerClass'];
+        $field->labelClass = $fieldData['labelClass'];
+        $field->instructions = $fieldData['instructions'];
+        $field->save(false);
+        return $field;
+    }
+
     /**
      * Validate form data
      * 
      * @param  array  $data [description]
      * @return FormModel
      */
-    public function validateData(array $data): FormModel
+    public function populateFromData(array $data): FormModel
     {
         if (isset($data['id']) and is_numeric($data['id'])) {
             $form = $this->getById($data['id']);
@@ -339,7 +352,6 @@ class FormsService extends Component
             $form = new FormModel();
         }
         $form->setAttributes($data);
-        $form->validate();
         return $form;
     }
 
@@ -543,7 +555,7 @@ class FormsService extends Component
 
         //Cleaning up post
         $values = [];
-        foreach ($form->getFields() as $field) {
+        foreach ($form->fields as $field) {
             //This is needed in case field names are obfuscated
             $postedValue = $posted[$field->frontName] ?? null;
             unset($posted[$field->frontName]);
@@ -619,43 +631,5 @@ class FormsService extends Component
         }
         $session->setFlash(self::SESSION_ERRORS_KEY.'.'.$form->handle, $errors);
         return [self::INVALID, $formSubmission, $posted];
-    }
-
-    /**
-     * Sort out fields to delete
-     * 
-     * @param  FormModel $form
-     * @param  array     $fields
-     * @return array
-     */
-    protected function gatherFieldsToDelete(FormModel $form, array $fields): array
-    {
-        $allFields = Formidable::$plugin->fields->getFormFields($form);
-        $toDelete = [];
-        foreach ($allFields as $field) {
-            if (!ArrayHelper::contains($fields, 'id', $field->id)) {
-                $toDelete[] = $field;
-            }
-        }
-        return $toDelete;
-    }
-
-    /**
-     * Sort out rules to delete
-     * 
-     * @param  FormModel $form
-     * @param  array     $rules
-     * @return array
-     */
-    protected function gatherRulesToDelete(FormModel $form, array $rules): array
-    {
-        $allRules = Formidable::$plugin->rules->getFormRules($form);
-        $toDelete = [];
-        foreach ($allRules as $rule) {
-            if (!ArrayHelper::contains($rules, 'id', $rule->id)) {
-                $toDelete[] = $rule;
-            }
-        }
-        return $toDelete;
     }
 }
