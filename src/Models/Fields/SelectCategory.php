@@ -38,14 +38,6 @@ class SelectCategory extends Field
 	/**
 	 * inheritDoc
 	 **/
-	public function backendTemplate(): string
-	{
-		return 'formidable/cp/fields/select-category';
-	}
-
-	/**
-	 * inheritDoc
-	 **/
 	public function getExtraCpRules(): array
 	{
 		return [

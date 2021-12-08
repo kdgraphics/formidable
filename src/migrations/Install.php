@@ -62,6 +62,8 @@ class Install extends Migration
         $this->createTable('{{%formidable_fields}}', [
             'id' => $this->primaryKey(),
             'form_id' => $this->integer(11)->notNull(),
+            'group_id' => $this->integer(11)->null(),
+            'active' => $this->boolean()->defaultValue(true),
             'name' => $this->string(255)->notNull(),
             'handle' => $this->string(255)->notNull(),
             'order' => $this->integer(11)->notNull(),
@@ -93,7 +95,7 @@ class Install extends Migration
             'form_id' => $this->integer(11)->notNull(),
             'ip' => $this->string(255),
             'values' => $this->text(),
-            'notified' => $this->boolean(false),
+            'notified' => $this->boolean()->defaultValue(false),
             'reason' => $this->string(255),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -164,6 +166,7 @@ class Install extends Migration
         ]);
 
         $this->addForeignKey('formidable_fields_form_id_fk', '{{%formidable_fields}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
+        $this->addForeignKey('formidable_fields_group_id_fk', '{{%formidable_fields}}', ['group_id'], '{{%formidable_fields}}', ['id'], 'SET NULL', null);
         $this->addForeignKey('formidable_submissions_form_id_fk', '{{%formidable_submissions}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
         $this->addForeignKey('formidable_spams_form_id_fk', '{{%formidable_spams}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
         $this->addForeignKey('formidable_submissionvalues_submission_id_fk', '{{%formidable_submissions_values}}', ['submission_id'], '{{%formidable_submissions}}', ['id'], 'CASCADE', null);

@@ -31,15 +31,7 @@ class Radio extends Select
 	{
 		return 'Radio';
 	}
-
-	/**
-	 * inheritDoc
-	 **/
-	public function backendTemplate(): string
-	{
-		return 'formidable/cp/fields/radio';
-	}
-
+	
 	/**
 	 * inheritDoc
 	 **/

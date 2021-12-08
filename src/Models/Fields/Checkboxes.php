@@ -26,14 +26,6 @@ class Checkboxes extends Radio
 
 	/**
 	 * inheritDoc
-	 **/
-	public function backendTemplate(): string
-	{
-		return 'formidable/cp/fields/checkboxes';
-	}
-
-	/**
-	 * inheritDoc
 	 */
 	public function getFrontEndRules(FormSubmission $submission): array
 	{

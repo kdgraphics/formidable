@@ -45,14 +45,6 @@ class File extends Field
 	/**
 	 * inheritDoc
 	 **/
-	public function backendTemplate(): string
-	{
-		return 'formidable/cp/fields/file';
-	}
-
-	/**
-	 * inheritDoc
-	 **/
 	public function getExtraCpRules(): array
 	{
 		return [

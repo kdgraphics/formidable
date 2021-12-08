@@ -9,7 +9,7 @@ window.googleV3Captcha = {
 		this.siteKey = siteKey;
 	},
 	getCaptcha: function (action) {
-		return grecaptcha.execute(this.siteKey, {action: action });
+		return grecaptcha.execute(this.siteKey, {action: action});
 	},
 	retrieveCaptcha: function (formId, action) {
 		var _this = this;

@@ -43,14 +43,6 @@ class Select extends Field
 	/**
 	 * inheritDoc
 	 **/
-	public function backendTemplate(): string
-	{
-		return 'formidable/cp/fields/select';
-	}
-
-	/**
-	 * inheritDoc
-	 **/
 	public function getExtraCpRules(): array
 	{
 		return [

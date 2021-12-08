@@ -41,14 +41,6 @@ class Text extends Field
 	/**
 	 * inheritDoc
 	 **/
-	public function backendTemplate(): string
-	{
-		return 'formidable/cp/fields/text';
-	}
-
-	/**
-	 * inheritDoc
-	 **/
 	public function getExtraCpRules(): array
 	{
 		return [

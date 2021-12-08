@@ -1,7 +1,6 @@
 <template>
   <forms-field v-on="$listeners"
     :field="field"
-    :original="original"
     :errors="errors"
   >
     <template v-slot:extraFields>
@@ -59,8 +58,7 @@
 export default {
   props: {
     index: Number,
-    field: Object,
-    original: Object
+    field: Object
   },
   data() {
     return {

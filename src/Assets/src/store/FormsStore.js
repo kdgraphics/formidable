@@ -1,6 +1,6 @@
 import Vuex from 'vuex';
 import Vue from 'vue';
-import { unset, keys } from 'lodash';
+import { unset, keys, filter } from 'lodash';
 
 Vue.use(Vuex);
 
@@ -13,10 +13,6 @@ export default new Vuex.Store({
     rules: [],
     registeredRules: [],
     fieldNames: [],
-    configHasChanged: false,
-    fieldsHaveChanged: false,
-    rulesHaveChanged: false,
-    hasUnsavedChanges: false,
     activeTab: null,
     fieldsHaveErrors: false,
     rulesHaveErrors: false,
@@ -30,22 +26,18 @@ export default new Vuex.Store({
     setIsLoading(state, value) {
       state.isSaving = value;
     },
-    setHasUnsavedChanges(state, value) {
-      state.hasUnsavedChanges = value;
-    },
     setIsAdding (state, value) {
       state.isAdding = value;
     },
-    setConfigHasChanged(state, value) {
-      state.configHasChanged = value;
-    },
-    setFieldsHaveChanged(state, value) {
-      state.fieldsHaveChanged = value;
-    },
-    setRulesHaveChanged(state, value) {
-      state.rulesHaveChanged = value;
-    },
     setFields(state, value) {
+      for (let i in value) {
+        value[i].order = i;
+        if (value[i].type == 'group') {
+          for (let j in value[i].fields) {
+            value[i].fields[j].order = j;
+          }
+        }
+      }
       state.fields = value;
     },
     setRules(state, value) {
@@ -80,6 +72,41 @@ export default new Vuex.Store({
     },
     setVolumes(state, value) {
       state.volumes = value;
+    },
+    updateField(state, field) {
+      for (let i in state.fields) {
+        if (state.fields[i].uid == field.uid) {
+          Vue.set(state.fields, i, field);
+          return;
+        }
+        if (state.fields[i].type == 'group') {
+          for (let j in state.fields[i].fields) {
+            if (state.fields[i].fields[j] == field.uid) {
+              Vue.set(state.fields[i].fields, j, field);
+              return;
+            }   
+          }
+        }
+      }
+    },
+    deleteField(state, uid) {
+      for (let i in state.fields) {
+        if (state.fields[i].type == 'group') {
+          for (let j in state.fields[i].fields) {
+            if (state.fields[i].fields[j].uid == uid) {
+              Vue.set(state.fields[i], 'fields', state.fields[i].fields.filter(field => field.uid != uid));
+              return;
+            }
+          }
+        }
+        if (state.fields[i].uid == uid) {
+          state.fields = state.fields.filter(field => field.uid != uid);
+          return;
+        }
+      }
+    },
+    addField(state, field) {
+      state.fields.push(field);
     }
   },
   actions: {
@@ -94,21 +121,6 @@ export default new Vuex.Store({
     rulesHaveErrors({commit, dispatch, state}, value) {
       commit('setRulesHaveErrors', value);
       dispatch('checkIfErrors');
-    },
-    configHasChanged({commit, dispatch, state}, value) {
-      commit('setConfigHasChanged', value);
-      dispatch('checkIfChanges');
-    },
-    fieldsHaveChanged({commit, dispatch, state}, value) {
-      commit('setFieldsHaveChanged', value);
-      dispatch('checkIfChanges');
-    },
-    rulesHaveChanged({commit, dispatch, state}, value) {
-      commit('setRulesHaveChanged', value);
-      dispatch('checkIfChanges');
-    },
-    checkIfChanges({commit, state}) {
-      commit('setHasUnsavedChanges', state.rulesHaveChanged || state.fieldsHaveChanged || state.configHasChanged);
     },
     checkIfErrors({commit, state}) {
       commit('setHasErrors', state.rulesHaveErrors || state.fieldsHaveErrors || state.configHasErrors);
@@ -209,7 +221,6 @@ export default new Vuex.Store({
         });
     },
     resetForm({commit, state}, data) {
-      console.log(data);
       commit('setForm', data.form);
       commit('setFields', data.fields);
       commit('setRules', data.rules);

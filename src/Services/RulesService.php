@@ -127,7 +127,7 @@ class RulesService extends Component
      * @param  array $rulesData
      * @return array
      */
-    public function validateData(array $rulesData)
+    public function populateFromData(array $rulesData)
     {
         $rules = [];
         foreach ($rulesData as $index => $data) {
@@ -137,9 +137,8 @@ class RulesService extends Component
                 $rule = $this->getRegistered($data['type']);
             }
             $rule->setAttributes($data);
-            $rule->validate();
-            $rule->conditions = Formidable::$plugin->conditions->validateData($data['conditions']);
-            $rule->conditionGroups = Formidable::$plugin->conditionGroups->validateData($data['conditionGroups']);
+            $rule->conditions = Formidable::$plugin->conditions->populateFromData($data['conditions']);
+            $rule->conditionGroups = Formidable::$plugin->conditionGroups->populateFromData($data['conditionGroups']);
             $rules[$index] = $rule;
         }
         return $rules;

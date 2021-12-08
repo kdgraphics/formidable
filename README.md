@@ -5,6 +5,12 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.0.0
+- Added groups. Groups are a field which can contain fields. Groups can't contain groups.
+- Allow changing form handle
+- Active marker on fields
+- Removed unused code
+
 ### 4.1.2
 - Renamed switch fields in migration
 

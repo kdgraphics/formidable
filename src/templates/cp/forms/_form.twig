@@ -22,20 +22,17 @@
 
 {% block content %}
     <forms-config
-        :loaded="{{ loaded }}"
-        :form-edited="{{ form|json_encode }}"
+        :form-edited="{{ form }}"
         :all-emails="{{ emails ? emails|json_encode : '{}' }}"
         :all-captchas="{{ captchas ? captchas|json_encode : '{}' }}"
         :all-volumes="{{ volumes ? volumes|json_encode : '{}' }}"
     ></forms-config>
     <forms-fields
         :registered-fields="{{ registeredFields|json_encode }}"
-        :all-fields="{{ fields ? fields|json_encode : '[]' }}"
     >
     </forms-fields>
     <forms-rules
         :registered-rules="{{ registeredRules ? registeredRules|json_encode : '{}' }}"
-        :all-rules="{{ rules ? rules|json_encode : '[]' }}"
     ></forms-rules>
     <confirm-dialog></confirm-dialog>
 {% endblock %}
