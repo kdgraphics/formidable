@@ -68,7 +68,7 @@ class FieldsService extends Component
     public function getForForm(Form $form, bool $all = false): array
     {
         return array_values(array_filter($this->all(), function ($field) use ($all, $form) {
-            if (!$form->id == $field->form_id) {
+            if ($form->id != $field->form_id) {
                 return false;
             }
             if (!$all and $field->group_id != null) {

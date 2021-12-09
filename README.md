@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.0.1
+- issue loading fields
+
 ### 5.0.0
 - Added groups. Groups are a field which can contain fields. Groups can't contain groups.
 - Allow changing form handle
