@@ -130,7 +130,13 @@ export default {
       this._addRule(merge({}, this.registeredRules[type]));
     },
     duplicateRule() {
-      this._addRule(merge({}, this.rules[this.selectedRule]));
+      let rule = merge({}, this.rules[this.selectedRule]);
+      rule.conditions = [];
+      for (let i in this.rules[this.selectedRule].conditions) {
+        let condition = merge({}, this.rules[this.selectedRule].conditions[i]);
+        rule.conditions.push(condition);
+      }
+      this._addRule(rule);
     },
   	_addRule(rule) {
       rule.id = null;

@@ -78,6 +78,9 @@ class BiggerThan extends Rule
 	public function checkJs(): string
 	{
 		return "function (field, value, against) {
+			if (field.type == 'hidden') {
+				return parseFloat(value) > parseFloat(against);
+			}
 			switch (field.valueType) {
 				case 'text':
 				case 'array':
