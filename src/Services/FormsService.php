@@ -224,14 +224,14 @@ class FormsService extends Component
             $form->saveSubmissions = $data['saveSubmissions'];
             $form->frontEndValidation = $data['frontEndValidation'];
             $form->saveSpam = $data['saveSpam'];
-            $form->spamCheck = $data['spamCheck'];
+            $form->spamCheck = $data['spamCheck'] ?? '';
             $form->redirect = $data['redirect'];
             $form->class = $data['class'];
             $form->htmlId = $data['htmlId'];
             $form->method = $data['method'];
             $form->submitLabel = $data['submitLabel'];
             $form->submitClass = $data['submitClass'];
-            $form->obfuscateFieldNames = $data['obfuscateFieldNames'];
+            $form->obfuscateFieldNames = $data['obfuscateFieldNames'] ?? false;
             $form->color = $data['color'];
             $form->captcha = $data['captcha'];
             $form->save(false);

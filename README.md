@@ -8,6 +8,7 @@ Display them easily in the front end with templates.
 ### 5.1.1
 - Bigger than rule fix for hidden fields
 - Duplicate condition issue
+- Default values fixes when applying config
 
 ### 5.1.0
 - Added fields autocomplete option
