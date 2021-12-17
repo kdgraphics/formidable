@@ -68,6 +68,19 @@
               <input type="text" :class="'text fullwidth' + (errors.labelClass ? ' error' : '')" v-model="field.labelClass" @input="validateAlnum('labelClass')">
             </div>
           </div>
+          <div class="field first">
+            <div class="heading">
+              <label for="form-active">{{ t('Autocomplete') }}</label>
+            </div>
+            <div class="input ltr">
+              <div id="form-autocomplete" :class="{lightswitch:true, on:field.autocomplete}">
+                <div class="lightswitch-container">
+                  <div class="handle"></div>
+                </div>
+                <input type="hidden" name="autocomplete" v-model="field.autocomplete">
+              </div>
+            </div>
+          </div>
           <slot name="extraAdvanced"></slot>
         </div>
       </div>
@@ -158,9 +171,6 @@ export default {
   watch: {
     hasErrors: function () {
       this.$emit('error', {uid: this.field.uid, error: this.hasErrors});
-    },
-    hasChanges: function () {
-      this.$emit('change', {uid: this.field.uid, change: this.hasChanges});
     },
     otherFieldHandles: function () {
       this.validateHandle();

@@ -21,12 +21,28 @@
           <input type="text" class="text fullwidth" v-model="field.placeholder">
         </div>
       </div>
+      <div class="field field-min">
+        <div class="heading">
+          <label>{{ t('Minimum') }}</label>
+        </div>
+        <div class="input ltr">
+          <input type="number" :class="'text fullwidth' + (errors.min ? ' error' : '')" v-model="field.min" @input="validateNumber('min', $event)">
+        </div>
+      </div>
+      <div class="field field-max">
+        <div class="heading">
+          <label>{{ t('Maximum') }}</label>
+        </div>
+        <div class="input ltr">
+          <input type="number" :class="'text fullwidth' + (errors.max ? ' error' : '')" v-model="field.max" @input="validateNumber('max', $event)">
+        </div>
+      </div>
       <div class="field field-step">
         <div class="heading">
           <label>{{ t('Step') }}</label>
         </div>
         <div class="input ltr">
-          <input type="number" step="0.00000000001" :class="'text fullwidth' + (errors.step ? ' error' : '')" v-model="field.step" @input="validateStep">
+          <input type="number" :class="'text fullwidth' + (errors.step ? ' error' : '')" v-model="field.step" @input="validateNumber('step', $event)">
         </div>
       </div>
       <div class="field field-placeholder">
@@ -34,7 +50,7 @@
           <label>{{ t('Default value') }}</label>
         </div>
         <div class="input ltr">
-          <input type="number" :step="field.step" :class="'text fullwidth' + (errors.default ? ' error' : '')" v-model="field.default" @input="validateDefault">
+          <input type="number" :step="field.step" :class="'text fullwidth' + (errors.default ? ' error' : '')" v-model="field.default" @input="validateNumber('default', $event)">
         </div>
       </div>
       <div class="field field-tooltip-label">
@@ -105,20 +121,17 @@ export default {
         $R('.field-label-value'+this.field.uid, 'destroy');
       }
     },
-    validateStep() {
-      if (!this.field.step.match(/^[0-9]+(\.[0-9]+)?$/)) {
-        this.$set(this.errors, 'step', true);
-      } else {
-        this.$set(this.errors, 'step', false);
+    validateNumber(handle, evt) {
+      if (!evt.data) {
+        this.$set(this.errors, handle, false);
+        return;
       }
-    },
-    validateDefault() {
-      if (!this.field.step.match(/^[0-9]+(\.[0-9]+)?$/)) {
-        this.$set(this.errors, 'default', true);
+      if (!evt.data.match(/^[0-9]+(\.[0-9]+)?$/)) {
+        this.$set(this.errors, handle, true);
       } else {
-        this.$set(this.errors, 'default', false);
+        this.$set(this.errors, handle, false);
       }
-    },
+    }
   }
 };
 </script>

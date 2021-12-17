@@ -9,5 +9,6 @@
 	class="{{ field_class }}{% if error %} is-invalid{% endif %}" 
 	value="{{ old_value }}"
 	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
+	{% if not field.autocomplete %}autocomplete="off"{% endif %}
 	>
 {% endblock %}

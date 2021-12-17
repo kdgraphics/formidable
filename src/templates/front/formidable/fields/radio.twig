@@ -14,6 +14,7 @@
 				name="{{ field.frontName }}"
 				class="{{ field_class }}{% if error %} is-invalid{% endif %}"
 				{% if old_value and (choice.value == old_value) %}checked="checked"{% endif %}
+				{% if not field.autocomplete %}autocomplete="off"{% endif %}
 			>
 			<label class="{{ field_choice_label_class }}" for="{{ field.generateId(form) }}-{{ key }}">{{ choice.label }}</label>
 		</div>

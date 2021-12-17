@@ -7,19 +7,19 @@ window.formidable = {
         this.fields = fields;
         this.conditions = conditions;
         this.conditionGroups = conditionGroups;
-        this.appliesTo = function (fieldName, field, form) {
+        this.appliesTo = function (field, form) {
             if (!this.conditions.length && !this.conditionGroups.length) {
                 return true;
             }
             let conditionnables = this.conditions.concat(this.conditionGroups);
             let res = true;
             for (const i in conditionnables) {
-                res = conditionnables[i].appliesTo(field, res, form);
+                res = conditionnables[i].check(field, res, form);
             }
             return res;
         };
-        this.validate = function (fieldName, field, form) {
-            if (!this.appliesTo(fieldName, field, form)) {
+        this.validate = function (field, form) {
+            if (!this.appliesTo(field, form)) {
                 return true;
             }
             let result;
@@ -56,30 +56,38 @@ window.formidable = {
             return message;
         };
     },
-    field: function ({name, handle, type, id, formId}) {
+    field: function ({name, handle, type, valueType, id, formId, fieldNames}) {
         this.name = name;
         this.handle = handle;
+        this.valueType = valueType;
         this.type = type;
         this.id = id;
         this.formId = formId;
+        this.fieldNames = fieldNames; //only used for groups
         this.getElems = function () {
-            if (this.type == 'null') {
+            if (this.valueType == 'null') {
                 return [];
             }
-            return document.querySelector('form[id='+this.formId+']').querySelectorAll('[id^='+this.id+']');
+            return document.querySelector('form[id='+this.formId+']').querySelectorAll('[id='+this.id+']');
         };
         this.getWrapper = function () {
-            if (this.type == 'null') {
+            if (this.type == 'group' || this.type == 'hidden') {
                 return null;
             }
             return this.getElems()[0].closest('.field');
         };
         this.getValue = function () {
-            if (this.type == 'null') {
+            if (this.type == 'group') {
                 return null;
             }
             let elems = this.getElems();
-            if (this.type == 'array') {
+            if (this.type == 'file') {
+                return elems[0].files;
+            }
+            if (this.type == 'hidden') {
+                return elems[0].value;
+            }
+            if (this.valueType == 'array') {
                 let val = [];
                 for (i = 0; i < elems.length; i++) {
                     let elem = elems[i];
@@ -98,7 +106,7 @@ window.formidable = {
                 }
                 return null;
             }
-            if (this.type == 'boolean' && elems[0].type == 'checkbox') {
+            if (this.valueType == 'boolean' && elems[0].valueType == 'checkbox') {
                 return elems[0].checked;
             }
             return elems[0].value;
@@ -128,16 +136,16 @@ window.formidable = {
         this.operator = operator;
         this.negate = negate;
         this.value = value;
-        this.appliesTo = function (field, result, form) {
+        this.check = function (field, result, form) {
             let rule = formidable.rules[this.type];
             let thisResult = true;
             let thisField = form.getField(this.field);
             if (rule.requiresValue) {
-                thisResult = rule.check(field, thisField.getValue(), this.value);
+                thisResult = rule.check(thisField, thisField.getValue(), this.value);
             } else if (rule.requiresField) {
-                thisResult = rule.check(field, thisField.getValue(), form.getField(this.value).getValue());
+                thisResult = rule.check(thisField, thisField.getValue(), form.getField(this.value).getValue());
             } else {
-                thisResult = rule.check(field, thisField.getValue());
+                thisResult = rule.check(thisField, thisField.getValue());
             }
             if (this.negate) {
                 thisResult = !thisResult;
@@ -152,10 +160,10 @@ window.formidable = {
         this.conditions = conditions;
         this.operator = operator;
         this.negate = negate;
-        this.appliesTo = function (field, result, form) {
+        this.check = function (field, result, form) {
             let thisResult = true;
             for (const i in this.conditions) {
-                thisResult = this.conditions[i].appliesTo(field, result, form);
+                thisResult = this.conditions[i].check(field, result, form);
             }
             if (this.negate) {
                 thisResult = !thisResult;
@@ -188,7 +196,7 @@ window.formidable = {
                 for (j in rule.fields) {
                     let fieldName = rule.fields[j];
                     let field = this.getField(fieldName);
-                    if (!rule.validate(fieldName, field, this)) {
+                    if (!rule.validate(field, this)) {
                         field.setError(rule.getMessage(field));
                         res = false;
                     }
@@ -196,6 +204,32 @@ window.formidable = {
             }
             return res;
         };
+        this.validateGroup = function (handle) {
+            let group = this.getField(handle);
+            if (!group) {
+                return null;
+            }
+            res = true;
+            for (let i in group.fieldNames) {
+                let field = this.getField(group.fieldNames[i]);
+                field.clearErrors();
+            }
+            for (i in this.rules) {
+                let rule = this.rules[i];
+                for (j in rule.fields) {
+                    let fieldName = rule.fields[j];
+                    if (!group.fieldNames.includes(fieldName)) {
+                        continue;
+                    }
+                    let field = this.getField(fieldName);
+                    if (!rule.validate(field, this)) {
+                        field.setError(rule.getMessage(field));
+                        res = false;
+                    }
+                }
+            }
+            return res;
+        }
     },
     forms: {},
     rules: {$RULES$},
@@ -204,6 +238,9 @@ window.formidable = {
         Array.isArray(b) &&
         a.length === b.length &&
         a.every((val, index) => val === b[index]);
+    },
+    getForm: function (id) {
+        return this.forms[id];
     },
     validateForm: function(form, submitEvent) {
         let formObject = this.forms[form.id];

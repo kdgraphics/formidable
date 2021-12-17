@@ -72,13 +72,13 @@ class Contain extends Rule
 	public function checkJs(): string
 	{
 		return "function (field, value, against) {
-			switch (field.type) {
+			switch (field.valueType) {
 				case 'array':
 					return value.indexOf(against) != -1;
 				case 'text':
 					return value.search(against) != -1;
 			}
-			throw 'Field type '+field.type+' can\'t be checked for a contain rule';
+			throw 'Field type '+field.valueType+' can\'t be checked for a contain rule';
 		}";
 	}
 }

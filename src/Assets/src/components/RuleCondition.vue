@@ -9,7 +9,7 @@
     </div>
     <div class="select no-shrink" :class="{'error' : errors.field}">
       <select v-model="selectedField">
-        <option v-for="field in fields" :value="field">{{ field.name }}</option>
+        <option v-for="field in allFields" :value="field">{{ field.name }}</option>
       </select>
     </div>
     <div class="select type no-shrink" :class="{'error' : errors.type}">
@@ -22,7 +22,7 @@
     </div>
     <div class="value select no-shrink" v-if="selectedType && selectedType.requiresField" :class="{'error' : errors.value}">
       <select v-model="condition.value">
-        <option v-for="field in fields" :value="field.name">{{ field.name }}</option>
+        <option v-for="field in allFields" :value="field">{{ field.name }}</option>
       </select>
     </div>
     <a class="icon-negate no-shrink" href="#" v-if="!condition.negate" @click.prevent="negate"></a>
@@ -46,6 +46,18 @@ export default {
     }
   },
   computed: {
+    allFields: function () {
+      let fields = [];
+      for(let field of this.fields) {
+        fields.push(field);
+        if (field.type == 'group') {
+          for(let subfield of field.fields) {
+            fields.push(subfield);
+          }
+        }
+      }
+      return fields;
+    },
     /**
      * @return {Boolean} global error status
      */
@@ -91,7 +103,7 @@ export default {
     ...mapState(['fields', 'registeredRules'])
   },
   created() {
-    this.selectedField = find(this.fields, (field) => (field.handle == this.condition.field));
+    this.selectedField = find(this.allFields, (field) => (field.handle == this.condition.field));
     this.selectedType = find(this.registeredRules, (rule) => (rule.type == this.condition.type));
     this.validate();
   },
@@ -101,7 +113,7 @@ export default {
     },
     fields: {
       handler: function () {
-        let field = find(this.fields, (field) => this.selectedField ? field.handle == this.selectedField.handle : null);
+        let field = find(this.allFields, (field) => this.selectedField ? field.handle == this.selectedField.handle : null);
         this.selectedField = field;
         this.validate();
       },

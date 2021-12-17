@@ -78,14 +78,14 @@ class SmallerThan extends Rule
 	public function checkJs(): string
 	{
 		return "function (field, value, against) {
-			switch (field.type) {
+			switch (field.valueType) {
 				case 'text':
 				case 'array':
 					return value.length < against;
 				case 'number':
 					return parseFloat(value) < parseFloat(against);
 			}
-			throw 'Field type '+field.type+' can\'t be checked for a smaller than rule';
+			throw 'Field type '+field.valueType+' can\'t be checked for a smaller than rule';
 		}";
 	}
 }

@@ -227,7 +227,20 @@
                 </select>
               </div>
             </div>
-          </div>                        
+          </div>
+          <div class="field">
+            <div class="heading">
+              <label for="form-autocomplete">{{ t('Autocomplete') }}</label>
+            </div>
+            <div class="input ltr">
+              <div id="form-autocomplete" :class="{lightswitch:true, on:form.autocomplete}" tabindex="0" role="switch" :aria-checked="form.autocomplete">
+                <div class="lightswitch-container">
+                  <div class="handle"></div>
+                </div>
+                <input type="hidden" name="autocomplete" v-model="form.autocomplete">
+              </div>
+            </div>
+          </div>                   
           <div class="field">
             <div class="heading">
               <label for="form-class">{{ t('Class') }}</label>
@@ -364,11 +377,12 @@ export default {
     }
   },
   created() {
-    this.setIsAdding(this.formEdited == null);
+    this.setVolumes(this.allVolumes);
     if (this.formEdited) {
       this.loadForm(this.formEdited);
+    } else {
+      this.newForm();
     }
-    this.setVolumes(this.allVolumes);
   },
   mounted() {
     this.$nextTick(() => {
@@ -448,7 +462,7 @@ export default {
       return (this.form.notifyField == null || this.form.notifyField == '');
     },
     ...mapMutations(['setForm', 'setLoadedTime', 'setIsAdding', 'setVolumes']),
-    ...mapActions(['configHasErrors', 'loadForm'])
+    ...mapActions(['configHasErrors', 'loadForm', 'newForm'])
   }
 };
 </script>

@@ -58,7 +58,7 @@
           <div class="main">
             <div class="heading"><span>{{ t('Submission') }}</span></div>
             <ul class="submission">
-              <li class="field" v-if="viewed" v-for="value in viewed.values">{{ value.field ? value.field.name : '*Field deleted*' }}: <span v-html="value.htmlValue"></span></li>
+              <li :class="{field: true, padded: (value.field ? value.field.group_id != null : false), bold: (value.field ? value.field.type == 'group' : false)}" v-if="viewed" v-for="value in viewed.values">{{ value.field ? value.field.name : '*Field deleted*' }}: <span v-html="value.htmlValue"></span></li>
             </ul>
           </div>
         </div>
@@ -306,6 +306,12 @@ export default {
   }
   .buttons{
     justify-content: space-between;
+  }
+  .bold {
+    font-weight: bold;
+  }
+  .padded {
+    padding-left: 10px;
   }
 }
 </style>

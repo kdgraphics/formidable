@@ -75,15 +75,14 @@ class Required extends Rule
 	public function checkJs(): string
 	{
 		return "function (field, value, against) {
-			switch (field.type) {
+			switch (field.valueType) {
 				case 'text':
 				case 'number':
 				case 'file':
-					return (value !== null && value.trim().length > 0);
 				case 'array':
 					return (value.length > 0);
 			}
-			throw 'Field type '+field.type+' can\'t be checked for a required rule';
+			throw 'Field type '+field.valueType+' can\'t be checked for a required rule';
 		}";
 	}
 }

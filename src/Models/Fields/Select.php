@@ -66,10 +66,10 @@ class Select extends Field
 		$choices = $this->$attribute;
 		$values = [];
 		foreach ($choices as $index => $choice) {
-			if ($index != 0 and !$choice['value']) {
-				$this->addError(\Craft::t($attribute, 'formidable', 'Value is missing'));
+			if ($index != 0 and $choice['value'] == '') {
+				$this->addError($attribute, \Craft::t('formidable', 'Value is missing'));
 			}
-			if (!$choice['label']) {
+			if ($choice['label'] == '') {
 				$this->addError($attribute, \Craft::t('formidable', 'Label is missing'));
 			}
 			if (in_array($choice['value'], $values)) {

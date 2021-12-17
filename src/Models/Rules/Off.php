@@ -67,11 +67,11 @@ class Off extends Rule
 	public function checkJs(): string
 	{
 		return "function (field, value, against) {
-			switch (field.type) {
+			switch (field.valueType) {
 				case 'boolean':
 					return value === false;
 			}
-			throw 'Field type '+field.type+' can\'t be checked for a off rule';
+			throw 'Field type '+field.valueType+' can\'t be checked for a off rule';
 		}";
 	}
 }

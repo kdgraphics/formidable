@@ -12,6 +12,7 @@
 		class="{{ field_class }}{% if error %} is-invalid{% endif %}" 
 		value="1"
 		{% if old_value %}checked="checked"{% endif %}
+		{% if not field.autocomplete %}autocomplete="off"{% endif %}
 		>
 	{% endblock %}
 	{% block label %}

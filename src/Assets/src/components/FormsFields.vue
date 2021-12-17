@@ -11,20 +11,20 @@
       </div>
       <draggable group="fields" id="fields-draggable" v-model="sortableFields" :move="checkMove" @change="removeGroupId">
         <div v-for="field in fields" :key="field.uid" :class="{opaque: !field.active, item: true, sel: field.uid == selectedFieldUid}" :data-uid="field.uid" :data-type="field.type">
-          <a href="#" @click.prevent="selectedFieldUid = field.uid" class="field-link">
+          <div class="field-link">
             <div class="icon move"></div>
-            <div class="name-wrapper"><span class="name">{{ field.name }}</span> <code>{{ field.handle }}</code></div>
-            <div class="type">{{ field.type }}</div>
+            <div class="name-wrapper"><a href="#" @click.prevent="selectedFieldUid = field.uid" class="name">{{ field.name }}</a> <code>{{ field.handle }}</code></div>
+            <div class="type"><a class="chevron" v-if="field.type == 'group'" @click.prevent="toggleGroupFields"></a>{{ field.type }}</div>
             <div v-show="errors[field.uid]" class="red-span">!</div>
-          </a>
-          <draggable group="fields" class="group-fields" v-if="field.type == 'group'" v-model="field.fields" @change="removeGroupId">
+          </div>
+          <draggable group="fields" class="group-fields" v-if="field.type == 'group'" v-model="field.fields" @change="changeGroup">
             <div v-for="field2 in field.fields" :key="field2.uid" :class="{opaque: !field.active, item: true, sel: field2.uid == selectedFieldUid}" :data-uid="field2.uid" :data-type="field2.type">
-              <a href="#" @click.prevent="selectedFieldUid = field2.uid" class="field-link">
+              <div class="field-link">
                 <div class="icon move"></div>
-                <div class="name-wrapper"><span class="name">{{ field2.name }}</span> <code>{{ field2.handle }}</code></div>
+                <div class="name-wrapper"><a href="#" @click.prevent="selectedFieldUid = field2.uid" class="name">{{ field2.name }}</a> <code>{{ field2.handle }}</code></div>
                 <div class="type">{{ field2.type }}</div>
                 <div v-show="errors[field2.uid]" class="red-span">!</div>
-              </a>
+              </div>
             </div>
           </draggable>
         </div>
@@ -39,8 +39,9 @@
       </component>
       <div class="no-fields" v-if="fields.length == 0">{{ t('No fields found') }}</div>
       <div class="actions" v-show="selectedFieldUid != null">
-        <a @click.prevent="deleteFieldInternal()" v-if="!(selectedField && selectedField.type == 'group' && selectedField.fields.length > 0)">{{ t('Delete') }}</a>
+        <a @click.prevent="deleteFieldInternal()">{{ t('Delete') }}</a>
         <a @click.prevent="duplicateField()">{{ t('Duplicate') }}</a>
+        <a @click.prevent="duplicateGroup()" v-if="selectedField && selectedField.type == 'group'">{{ t('Duplicate with fields') }}</a>
       </div>
     </div>
   </div>
@@ -126,6 +127,9 @@ export default {
   mounted() {
   },
   methods: {
+    toggleGroupFields: function (evt) {
+      $(evt.target).parent().parent().next().slideToggle('fast');
+    },
     checkMove: function (evt) {
       if ($(evt.dragged).data('type') == 'group' && $(evt.to).hasClass('group-fields')){
         return false;
@@ -134,30 +138,58 @@ export default {
     },
     addFieldInternal(type) {
       let field = merge({}, this.registeredFields[type]);
-      this._addField(field);
-    },
-    duplicateField() {
-      this._addField(merge({}, this.selectedField));
-    },
-    _addField(field) {
-      field.name = '';
+      field.order = this.fields.length - 1;
+      field.active = true;
       field.id = null;
       field.uid = uuidv4();
-      let index = this.fields.length - 1;
-      field.order = index;
-      field.active = true;
       if (field.type == 'group') {
         field.fields = [];
       }
-      this.selectedFieldUid = field.uid;
       this.addField(field);
+      this.selectedFieldUid = field.uid;
+    },
+    duplicateField() {
+      let field = merge({}, this.selectedField);
+      field.order = this.fields.length - 1;
+      field.id = null;
+      field.uid = uuidv4();
+      if (field.type == 'group') {
+        field.fields = [];
+      }
+      this.addField(field);
+      this.selectedFieldUid = field.uid;
+    },
+    duplicateGroup() {
+      let field = merge({}, this.selectedField);
+      field.order = this.fields.length - 1;
+      field.id = null;
+      field.uid = uuidv4();
+      field.fields = [];
+      for (let i in this.selectedField.fields) {
+        let field2 = merge({}, this.selectedField.fields[i]);
+        field2.id = null;
+        field2.uid = uuidv4();
+        field.fields.push(field2);
+      }
+      this.addField(field);
+      this.selectedFieldUid = field.uid;
     },
     onError(data) {
       this.$set(this.errors, data.uid, data.error);
     },
     deleteFieldInternal() {
-      this.deleteField(this.selectedFieldUid);
+      if (this.selectedField.type == 'group' && this.selectedField.fields.length ) {
+        if (!confirm("This will also delete all children, continue ?")) {
+          return;
+        }
+      }
       this.$delete(this.errors, this.selectedFieldUid);
+      if (this.selectedField.type == 'group') {
+        for (let i in this.selectedField.fields) {
+          this.$delete(this.errors, this.selectedField.fields[i].uid);
+        }
+      }
+      this.deleteField(this.selectedFieldUid);
       if (this.fields.length) {
         this.selectedFieldUid = this.fields[0].uid
       } else {
@@ -165,6 +197,11 @@ export default {
       }
     },
     removeGroupId(evt) {
+      if (evt.added) {
+        evt.added.element.group_id = null;
+      }
+    },
+    changeGroup(evt) {
       if (evt.added) {
         evt.added.element.group_id = null;
       }
@@ -188,7 +225,7 @@ export default {
   .item {
     margin-bottom: 5px;
   }
-  .item > a {
+  .field-link {
     border: 1px solid rgba(96, 125, 159, 0.25);
     box-shadow: inset 0 1px 4px -1px rgba(96, 125, 159, 0.25);
     background-color: #fbfcfe;
@@ -200,7 +237,7 @@ export default {
   }
   .item {
     &.sel {
-      & > a {
+      & > .field-link {
         background-color: #e4edf6
       }
     }
@@ -217,8 +254,21 @@ export default {
   }
 }
 
+.chevron {
+  display: inline-block;
+  border-right: 2px solid grey;
+  border-bottom: 2px solid grey;
+  width: 7px; 
+  height: 7px;
+  transform: rotate(45deg);
+  margin-top: 4px;
+  margin-right: 5px;
+}
+
 #fields-draggable {
   width: 100%;
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
 }
 
 .draghelper .field-link, #fields-sidebar .field-link {
@@ -227,6 +277,7 @@ export default {
   padding: 7px !important;
   display: flex;
   flex-wrap: wrap;
+  cursor: default;
   .type {
     text-align: right;
     flex-grow: 1;
@@ -257,6 +308,12 @@ export default {
   position: relative;
   align-items: flex-start;
   justify-content: space-between;
+  max-height: calc(100vh - 250px);
+}
+
+.formidablefield-container {
+  max-height: calc(100vh - 280px);
+  overflow-y: auto;
 }
 
 #fields-container {

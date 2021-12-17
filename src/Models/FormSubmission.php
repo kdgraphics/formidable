@@ -43,7 +43,7 @@ class FormSubmission extends DynamicModel
     /**
      * @inheritDoc
      */
-    public function defineRules(): array
+    public function rules(): array
     {
         $rules = [];
         foreach ($this->_form->getFields() as $field) {

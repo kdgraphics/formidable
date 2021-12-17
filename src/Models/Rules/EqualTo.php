@@ -71,12 +71,12 @@ class EqualTo extends Rule
 	public function checkJs(): string
 	{
 		return "function (field, value, against) {
-			switch (field.type) {
+			switch (field.valueType) {
 				case 'text':
 				case 'number':
 					return value === against;
 			}
-			throw 'Field type '+field.type+' can\'t be checked for a equal rule';
+			throw 'Field type '+field.valueType+' can\'t be checked for a equal rule';
 		}";
 	}
 }

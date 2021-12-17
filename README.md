@@ -5,6 +5,13 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.1.0
+- Added fields autocomplete option
+- Fixed issues with groups
+- Added hidden field
+- Fixed validation issues
+- Added number field minimum and maximum
+
 ### 5.0.1
 - issue loading fields
 

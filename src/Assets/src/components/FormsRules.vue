@@ -42,7 +42,7 @@
 
 <script>
 import { mapMutations, mapState, mapActions } from 'vuex';
-import { isEqual, cloneDeep, reduce, mapValues } from 'lodash';
+import { isEqual, cloneDeep, reduce, mapValues, merge } from 'lodash';
 import { EventBus } from '../EventBus';
 
 export default {
@@ -57,6 +57,19 @@ export default {
       return reduce(this.errors, function(result, value, key) {
         return (result || value);
       }, false);
+    },
+    allFields: function () {
+      let fields = [];
+      for(let field of this.fields) {
+        if (field.type == 'group') {
+          for(let subfield of field.fields) {
+            fields.push(subfield);
+          }
+        } else {
+          fields.push(field);
+        }
+      }
+      return fields;
     },
     ...mapState(['activeTab', 'rules', 'form', 'loadedTime', 'fields'])
   },
@@ -100,7 +113,10 @@ export default {
       this.addedRules = 0;
     },
     getRuleSelectedFields(fields) {
-      return this.fields.filter((field) => fields.includes(field.handle)).map((field) => field.name).join(', ');
+      if (!fields) {
+        return [];
+      }
+      return this.allFields.filter((field) => fields.includes(field.handle)).map((field) => field.name).join(', ');
     },
     countConditions(index) {
       let count = this.rules[index].conditions.length;
@@ -111,10 +127,10 @@ export default {
       return count;
     },
     addRule(type) {
-      this._addRule(cloneDeep(this.registeredRules[type]));
+      this._addRule(merge({}, this.registeredRules[type]));
     },
     duplicateRule() {
-      this._addRule(cloneDeep(this.rules[this.selectedRule]));
+      this._addRule(merge({}, this.rules[this.selectedRule]));
     },
   	_addRule(rule) {
       rule.id = null;
@@ -210,7 +226,6 @@ export default {
 #formidablerules-container {
   width: 70%;
   .multiselect {
-    height: 37px;
     min-height: unset;
     border: 1px solid $grey200;
     box-shadow: inset 0 1px 4px -1px $grey200;
@@ -221,7 +236,6 @@ export default {
     padding-top: 4px;
     padding-bottom: 4px;
     min-height: unset;
-    height: 37px;
     background-color: unset;
   }
   .multiselect__content {
@@ -232,6 +246,7 @@ export default {
     color: $textColor;
     padding-top: 6px;
     padding-bottom: 6px;
+    margin-bottom: 0;
   }
   .multiselect__tag-icon:focus, .multiselect__tag-icon:hover {
     background-color: $primaryColor;

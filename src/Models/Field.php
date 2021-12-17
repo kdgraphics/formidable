@@ -20,8 +20,9 @@ abstract class Field extends Model implements FieldInterface
 
     public $id;
     public $active = true;
-    public $name;
-    public $handle;
+    public $name = '';
+    public $handle = '';
+    public $autocomplete = true;
     public $friendlyName;
     public $order;
     public $fieldClass;
@@ -115,7 +116,7 @@ abstract class Field extends Model implements FieldInterface
     {
         return array_merge($this->getExtraCpRules(), [
             [['id', 'order'], 'integer'],
-            ['active', 'boolean', 'trueValue' => true, 'falseValue' => false],
+            [['active', 'autocomplete'], 'boolean', 'trueValue' => true, 'falseValue' => false],
             [['name', 'handle'], 'required'],
             [['name', 'fieldClass', 'containerClass', 'instructions', 'labelClass', 'handle'], 'string'],
             [['name', 'fieldClass', 'containerClass', 'instructions', 'labelClass', 'handle'], 'trim']
@@ -208,7 +209,6 @@ abstract class Field extends Model implements FieldInterface
             'active' => $this->active,
             'name' => $this->name,
             'handle' => $this->handle,
-            'order' => $this->order,
             'fieldClass' => $this->fieldClass,
             'containerClass' => $this->containerClass,
             'labelClass' => $this->labelClass,
@@ -267,7 +267,8 @@ abstract class Field extends Model implements FieldInterface
         return "new formidable.field({
             name: '".addslashes($this->name)."',
             handle: '{$this->handle}',
-            type: '{$this->fieldType()->jsType()}',
+            valueType: '{$this->fieldType()->jsType()}',
+            type: '" . $this->handle() . "',
             id: '{$this->generateId($form)}',
             formId: '{$form->generateId()}'
         })";

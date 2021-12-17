@@ -9,5 +9,6 @@
 	class="{{ field_class }}{% if error %} is-invalid{% endif %}"
 	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
 	{% if field.rows %}rows="{{ field.rows }}"{% endif %}
+	{% if not field.autocomplete %}autocomplete="off"{% endif %}
 	>{{ old_value }}</textarea>
 {% endblock %}

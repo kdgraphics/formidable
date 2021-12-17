@@ -189,7 +189,7 @@ class FormsService extends Component
             $form->id = Db::idByUid(FormRecord::tableName(), $form->uid);
         }
 
-        //Empty caches
+        Formidable::$plugin->fields->reset();
         $form->fields = null;
         $form->rules = null;
 
@@ -237,12 +237,14 @@ class FormsService extends Component
             $form->save(false);
 
             $fieldIds = $ruleIds = [];
-            foreach ($data['fields'] ?? [] as $fieldData) {
+            foreach ($data['fields'] ?? [] as $index => $fieldData) {
+                $fieldData['order'] = $index;
                 $field = $this->handleFieldChange($form, $fieldData);
                 $fieldIds[] = $field->id;
                 if ($field->type == 'group') {
-                    foreach ($fieldData['fields'] ?? [] as $fieldData) {
+                    foreach ($fieldData['fields'] ?? [] as $index => $fieldData) {
                         $fieldData['group_id'] = $field->id;
+                        $fieldData['order'] = $index;
                         $field2 = $this->handleFieldChange($form, $fieldData);
                         $fieldIds[] = $field2->id;
                     }

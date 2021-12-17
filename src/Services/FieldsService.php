@@ -33,6 +33,14 @@ class FieldsService extends Component
     protected $_fields;
 
     /**
+     * Reset internal cache
+     */
+    public function reset()
+    {
+        $this->_fields = null;
+    }
+
+    /**
      * Get all registered fields 
      * 
      * @return array

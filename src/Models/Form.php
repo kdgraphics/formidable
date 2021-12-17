@@ -33,6 +33,7 @@ class Form extends Model
     public $frontEndValidation = true;
     public $saveSpam = true;
     public $obfuscateFieldNames = true;
+    public $autocomplete = true;
     public $redirect;
     public $class;
     public $spamCheck;
@@ -57,7 +58,7 @@ class Form extends Model
             [['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'notifySpamEmails','redirect', 'class', 'method', 'submitLabel', 'color', 'submitClass', 'notifyAdmin_key', 'notify_key', 'notifySpam_key', 'htmlId', 'spamCheck'], 'string'],
             [['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'redirect', 'class', 'submitLabel', 'color', 'submitClass'], 'trim'],
             [['id'], 'integer'],
-            [['honeypot', 'saveSubmissions', 'saveSpam', 'frontEndValidation', 'obfuscateFieldNames'], 'boolean', 'trueValue' => true, 'falseValue' => false],
+            [['honeypot', 'saveSubmissions', 'saveSpam', 'frontEndValidation', 'obfuscateFieldNames', 'autocomplete'], 'boolean', 'trueValue' => true, 'falseValue' => false],
             [['notifyEmails', 'notifySpamEmails'], 'validateEmails'],
             ['handle', 'validateHandle'],
             ['method', 'in', 'range' => ['GET', 'POST']],
@@ -126,6 +127,26 @@ class Form extends Model
                 return true;
             }
         }
+    }
+
+    /**
+     * Get the session errors
+     * 
+     * @return array
+     */
+    public function getSessionErrors(): ?array
+    {
+        return Formidable::$plugin->forms->getSessionErrors($this->handle);
+    }
+
+    /**
+     * Get the previous input by user
+     * 
+     * @return array
+     */
+    public function getOldInput(): ?array
+    {
+        return Formidable::$plugin->forms->getSessionOldInput($this->handle);
     }
 
     /**
@@ -379,8 +400,8 @@ class Form extends Model
         }
         $event = new FormEvent([
             'form' => $this,
-            'errors' => Formidable::$plugin->forms->getSessionErrors($this->handle),
-            'oldInput' => Formidable::$plugin->forms->getSessionOldInput($this->handle)
+            'errors' => $this->getSessionErrors(),
+            'oldInput' => $this->getOldInput()
         ]);
         $this->trigger(self::EVENT_RENDER, $event);
         $variables = array_merge($variables, [
