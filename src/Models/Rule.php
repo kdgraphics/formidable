@@ -19,6 +19,7 @@ abstract class Rule extends Model implements RuleInterface
     public $id;
     public $type;
     public $name;
+    public $title = '';
     public $conditionName;
     public $message;
     public $messages = [];
@@ -47,7 +48,7 @@ abstract class Rule extends Model implements RuleInterface
     public function defineRules(): array
     {
         return [
-            [['message', 'value'], 'string'],
+            [['message', 'value', 'title'], 'string'],
             ['type', function () {
                 if (!Formidable::$plugin->rules->getRegistered($this->type)) {
                     $this->addError('type', \Craft::t('formidable', '{type} is not a valid rule type', ['type' => $this->type]));
@@ -131,6 +132,7 @@ abstract class Rule extends Model implements RuleInterface
     public function getConfig(): array
     {
         return [
+            'title' => $this->title,
             'type' => $this->type,
             'message' => $this->message,
             'messages' => $this->messages,

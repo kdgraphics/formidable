@@ -5,6 +5,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.1.2
+- Added Rule title
+- 
+
 ### 5.1.1
 - Bigger than rule fix for hidden fields
 - Duplicate condition issue

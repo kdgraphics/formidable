@@ -159,6 +159,9 @@ export default {
   &:last-child {
     margin-bottom: 0;
   }
+  .select {
+    max-width: 33%;
+  }
   .negate, .operator, .icon-negate, .type, .select, .value {
     line-height: 24px;
     margin-left: 5px;
