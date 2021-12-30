@@ -7,12 +7,12 @@
           <li><a v-for="registered in registeredRules" :key="registered.type" @click.prevent="addRule(registered.type)" href="#">{{ registered.name }}</a></li>
         </ul>
       </div>
-      <nav>
+      <nav class="rules-nav">
         <ul>
           <li v-for="(rule, index) in rules" :key="'' + form.id + index" :class="{'sel': index == selectedRule}" :data-index="index">
             <a href="#" @click.prevent="setSelectedRule(index)" class="rule-link">
               <div class="top">
-                <div class="name">{{ rule.name }}</div>
+                <div class="name">{{ getRuleName(rule) }}</div>
                 <div v-show="changes[index] && !errors[index]" class="red-span">*</div>
                 <div v-show="errors[index]" class="red-span">!</div>
               </div>
@@ -112,6 +112,12 @@ export default {
       this.deletedRules = 0;
       this.addedRules = 0;
     },
+    getRuleName(rule) {
+      if (rule.title) {
+        return rule.title + ' (' + rule.name + ')';
+      }
+      return rule.name;
+    },
     getRuleSelectedFields(fields) {
       if (!fields) {
         return [];
@@ -184,6 +190,8 @@ export default {
   nav {
     padding-left: 0;
     width: 100%;
+    max-height: calc(100vh - 300px);
+    overflow-y: auto;
     margin-bottom: 0;
   }
   li {
@@ -227,10 +235,17 @@ export default {
 
 #formidable-rules {
   align-items: flex-start;
+  .form-rule {
+    width: calc(100% - 2px);
+  }
 }
 
 #formidablerules-container {
   width: 70%;
+  max-height: calc(100vh - 260px);
+  margin-bottom: 0 !important;
+  overflow-y: auto;
+  overflow-x: visible;
   .multiselect {
     min-height: unset;
     border: 1px solid $grey200;

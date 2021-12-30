@@ -255,6 +255,7 @@ class FormsService extends Component
                 $rule = Formidable::$plugin->rules->getRecordByUid($ruleData['uid']);
                 $rule->form_id = $form->id;
                 $rule->type = $ruleData['type'];
+                $rule->title = $ruleData['title'] ?? '';
                 $rule->message = $ruleData['message'];
                 $rule->messages = $ruleData['messages'] ?? '{}';
                 $rule->value = $ruleData['value'];

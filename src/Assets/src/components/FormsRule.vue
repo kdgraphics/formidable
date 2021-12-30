@@ -3,6 +3,14 @@
     <div :class="'rule-fields' + (errors.rule.fields ? ' error' : '')">
       <div class="field">
         <div class="heading">
+          <label>{{ t('Title') }}</label>
+        </div>
+        <div class="input ltr">
+          <input class="text fullwidth" v-model="rule.title"/>
+        </div>
+      </div>
+      <div class="field">
+        <div class="heading">
           <label>{{ t('Fields') }}</label>
         </div>
         <div class="instructions">

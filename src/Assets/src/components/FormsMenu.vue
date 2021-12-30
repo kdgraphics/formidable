@@ -2,7 +2,7 @@
   <nav id="forms-nav">
     <ul>
       <li v-for="label, id in allForms">
-        <a :href="'/admin/formidable/forms/' + id" :class="(id == form.id) ? 'sel' : ''" @click.prevent="load(id)">{{ label }}</a>
+        <a :href="getAdminUrl('formidable/forms/' + id)" :class="(id == form.id) ? 'sel' : ''" @click.prevent="load(id)">{{ label }}</a>
       </li>
     </ul>
   </nav>
@@ -35,6 +35,9 @@ export default {
           }
         }
       });
+    },
+    getAdminUrl(url) {
+      return Craft.getUrl(url);
     },
     ...mapMutations(['setIsAdding', 'setAllForms']),
     ...mapActions(['loadForm'])

@@ -30,7 +30,7 @@ class Formidable extends Plugin
 {
     public $controllerNamespace = "Ryssbowh\\Formidable\\Controllers";
 
-    public $schemaVersion = '5.1.0';
+    public $schemaVersion = '5.1.2';
 
     public $hasCpSettings = true;
 

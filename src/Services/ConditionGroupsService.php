@@ -102,7 +102,7 @@ class ConditionGroupsService extends Component
                 $group = new ConditionGroup;
             }
             $group->setAttributes($data);
-            $group->conditions = Formidable::$plugin->conditions->validateData($data['conditions']);
+            $group->conditions = Formidable::$plugin->conditions->populateFromData($data['conditions']);
             $groups[$index] = $group;
         }
         return $groups;
