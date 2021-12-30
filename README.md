@@ -5,9 +5,12 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.1.3
+- Vue issue fetching categories
+
 ### 5.1.2
 - Added Rule title
-- 
+- Fixed condition groups issue
 
 ### 5.1.1
 - Bigger than rule fix for hidden fields

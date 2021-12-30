@@ -129,16 +129,15 @@ export default {
       .catch((error) => {
         console.log(error);
       })
-    } else {
-      window.selectCategoryFieldCategories.then(function (res) {
-        _this.categories = res.data.groups;
-        _this.allFields = res.data.fields;
-        if (!_this.field.category && Object.keys(_this.categories).length) {
-          let handle = Object.keys(_this.categories)[0];
-          _this.$set(_this.field, 'category', handle);
-        }
-      })
     }
+    window.selectCategoryFieldCategories.then(function (res) {
+      _this.categories = res.data.groups;
+      _this.allFields = res.data.fields;
+      if (!_this.field.category && Object.keys(_this.categories).length) {
+        let handle = Object.keys(_this.categories)[0];
+        _this.$set(_this.field, 'category', handle);
+      }
+    })
   },
   methods: {
     validate() {
