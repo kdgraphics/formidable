@@ -462,7 +462,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         $js .= "],
         fields: {
         ";
-        foreach ($this->getFields() as $field) {
+        foreach ($this->getActiveFields() as $field) {
             $js .= "'".$field->handle . '\': ' . $field->frontJs($this) . ',
             ';
         }

@@ -46,11 +46,14 @@ class FormSubmission extends DynamicModel
     public function rules(): array
     {
         $rules = [];
-        foreach ($this->_form->getFields() as $field) {
+        $fieldNames = [];
+        foreach ($this->_form->getActiveFields() as $field) {
             $rules = array_merge($rules, $field->getFrontEndRules($this));
+            $fieldNames[] = $field->handle;
         }
         foreach ($this->_rules as $rule) {
-            $rules[] = [$rule->fields, 'validateRule', 'params' => ['rule' => $rule], 'skipOnEmpty' => false, 'skipOnError' => false];
+            $fields = array_intersect($fieldNames, $rule->fields);
+            $rules[] = [$fields, 'validateRule', 'params' => ['rule' => $rule], 'skipOnEmpty' => false, 'skipOnError' => false];
         }
         return $rules;
     }

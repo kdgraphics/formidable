@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.1.4
+- Fixed disabled fields validation
+
 ### 5.1.3
 - Vue issue fetching categories
 

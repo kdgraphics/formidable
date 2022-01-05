@@ -196,7 +196,7 @@ window.formidable = {
                 for (j in rule.fields) {
                     let fieldName = rule.fields[j];
                     let field = this.getField(fieldName);
-                    if (!rule.validate(field, this)) {
+                    if (field && !rule.validate(field, this)) {
                         field.setError(rule.getMessage(field));
                         res = false;
                     }
