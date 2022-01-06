@@ -192,11 +192,11 @@ Load a form with its handle : `{% set form = formidable.forms.getByHandle('conta
 
 Render it with : `{{ form.render()|raw }}`
 
-This will use the default template for forms, you can render it with your own template : `{{ form.render('myTheme/myTemplate')|raw }}`
+This will use the default template for forms, you can render it with your own template : `{{ form.render('forms/myTemplate')|raw }}`
 
 Each field has a default template too, if you want to override it :
 
-- Create the template in your theme, in the folder `themeName/formidable/`. Example if you want to override the text field template you'd write the template `themeName/formidable/fields/text.twig`
+- Create the template in your theme, in the folder `themeName/templates/formidable/`. Example if you want to override the text field template you'd write the template `themeName/templates/formidable/fields/text.twig`
 - Or if you are writing a custom form template you would include it by doing so :
 ```
 {% for field in fields %}
