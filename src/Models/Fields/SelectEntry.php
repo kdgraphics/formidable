@@ -100,7 +100,7 @@ class SelectEntry extends Field
 	}
 
 	/**
-	 * get all sections
+	 * get all entries (id, title)
 	 * 
 	 * @return array
 	 */
@@ -114,6 +114,26 @@ class SelectEntry extends Field
 			$entries = Entry::find()->section($section)->all();
 			foreach ($entries as $entry) {
 				$out[$entry->id] = $entry->title;
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * get all entries
+	 * 
+	 * @return array
+	 */
+	public function getAllEntries(array $eagerLoad = []): array
+	{
+		$sections = array_map(function ($uid) {
+			return \Craft::$app->sections->getSectionByUid($uid);
+		}, $this->sections);
+		$out = [];
+		foreach ($sections as $section) {
+			$entries = Entry::find()->section($section)->with($eagerLoad)->all();
+			foreach ($entries as $entry) {
+				$out[] = $entry;
 			}
 		}
 		return $out;

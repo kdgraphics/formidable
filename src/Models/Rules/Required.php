@@ -80,7 +80,7 @@ class Required extends Rule
 				case 'number':
 				case 'file':
 				case 'array':
-					return (value.length > 0);
+					return (value !== null && value.length > 0);
 			}
 			throw 'Field type '+field.valueType+' can\'t be checked for a required rule';
 		}";

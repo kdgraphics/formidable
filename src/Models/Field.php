@@ -267,6 +267,7 @@ abstract class Field extends Model implements FieldInterface
         return "new formidable.field({
             name: '".addslashes($this->name)."',
             handle: '{$this->handle}',
+            frontName: '{$this->frontName}',
             valueType: '{$this->fieldType()->jsType()}',
             type: '" . $this->handle() . "',
             id: '{$this->generateId($form)}',

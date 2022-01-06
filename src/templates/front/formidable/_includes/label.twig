@@ -1,7 +1,7 @@
 {% set label_class = (label_class ?? '') ~ (field.labelClass ? (' ' ~ field.labelClass) : '') %}
 
 {% if field.label %}
-	<label for="{{ field.generateId(form) }}" class="{{ label_class }}">
+	<label for="{{ field.generateId(form) }}-input" class="{{ label_class }}">
 		{{ field.label|raw }}
 	</label>
 {% endif %}

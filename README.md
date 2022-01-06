@@ -5,6 +5,12 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.2.0
+- Fixed validation
+- Added Entry checkboxes field
+- Moved id from the input into the wrapper
+- Submission UI improvements
+
 ### 5.1.4
 - Fixed disabled fields validation
 

@@ -3,9 +3,9 @@
 	{% set name = form.obfuscateFieldName(form.honeypotField) %}
 {% endif %}
 
-<div class="{{ honeypot_class }}">
+<div class="{{ honeypot_class }}" id="{{ form.handle }}-field-{{ form.honeypotField }}">
 	<label>{{ form.honeypotField }}</label>
 	<div class="instructions"></div>
-	<input name="{{ name }}" type="text" id="{{ form.handle }}-field-{{ form.honeypotField }}" autocomplete="off">
+	<input name="{{ name }}" type="text" autocomplete="off">
 	<div class="errors"></div>
 </div>

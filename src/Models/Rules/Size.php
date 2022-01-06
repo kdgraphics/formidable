@@ -79,7 +79,7 @@ class Size extends Rule
 				case 'text':
 				case 'file':
 				case 'array':
-					return (value.length === Number(against));
+					return (value !== null && value.length === Number(against));
 			}
 			throw 'Field type '+field.valueType+' can\'t be checked for a size rule';
 		}";

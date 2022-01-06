@@ -486,7 +486,7 @@ JS;
             $js .= <<<JS
 document.addEventListener('DOMContentLoaded', (event) => {
     var css = {position: 'absolute', left: '-100000px', overflow: 'hidden'};
-    var elem = document.getElementById('{$this->generateId()}').querySelector('[id={$this->handle}-field-{$this->honeypotField}]').parentElement;
+    var elem = document.getElementById('{$this->generateId()}').querySelector('[id={$this->handle}-field-{$this->honeypotField}]');
     for (var property in css) {
         elem.style[property] = css[property];
     }

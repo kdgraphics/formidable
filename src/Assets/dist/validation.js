@@ -56,25 +56,30 @@ window.formidable = {
             return message;
         };
     },
-    field: function ({name, handle, type, valueType, id, formId, fieldNames}) {
+    field: function ({name, handle, type, valueType, id, formId, fieldNames, frontName}) {
         this.name = name;
         this.handle = handle;
+        this.frontName = frontName;
         this.valueType = valueType;
         this.type = type;
         this.id = id;
         this.formId = formId;
         this.fieldNames = fieldNames; //only used for groups
         this.getElems = function () {
-            if (this.valueType == 'null') {
-                return [];
-            }
-            return document.querySelector('form[id='+this.formId+']').querySelectorAll('[id='+this.id+']');
-        };
-        this.getWrapper = function () {
-            if (this.type == 'group' || this.type == 'hidden') {
+            let wrapper = this.getWrapper();
+            if (!wrapper) {
                 return null;
             }
-            return this.getElems()[0].closest('.field');
+            if (this.type == 'hidden') {
+                return wrapper;
+            }
+            return wrapper.querySelectorAll('select[name^="'+this.frontName+'"], input[name^="'+this.frontName+'"], textarea[name^="'+this.frontName+'"]');
+        };
+        this.getWrapper = function () {
+            if (this.type == 'group') {
+                return null;
+            }
+            return document.querySelector('form[id='+this.formId+']').querySelector('[id='+this.id+']');
         };
         this.getValue = function () {
             if (this.type == 'group') {
