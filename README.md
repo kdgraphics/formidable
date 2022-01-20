@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.2.1
+- submission not returned when created
+
 ### 5.2.0
 - Fixed validation
 - Added Entry checkboxes field

@@ -54,7 +54,7 @@ class SubmissionsService extends Component
 		}
 		$this->sendUserEmail($form, $submission);
 		$this->sendAdminEmail($form, $submission);
-		return null;
+		return $submission;
 	}
 
 	/**
