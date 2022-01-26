@@ -565,10 +565,14 @@ class FormsService extends Component
             $posted[$field->handle] = $postedValue;
             $values[$field->handle] = $postedValue;
         }
-        if ($form->honeypot and $form->obfuscateFieldNames) {
-            $honeypotField = $form->obfuscateFieldName($form->honeypotField);
-            $posted[$form->honeypotField] = $posted[$honeypotField];
-            unset($posted[$honeypotField]);
+        if ($form->honeypot) {
+            if ($form->obfuscateFieldNames) {
+                $honeypotField = $form->obfuscateFieldName($form->honeypotField);
+                $posted[$form->honeypotField] = $posted[$honeypotField] ?? 'missing honeypot from post';
+                unset($posted[$honeypotField]);
+            } else {
+                $posted[$form->honeypotField] = $posted[$form->honeypotField] ?? 'missing honeypot from post';
+            }
         }
             
         //Set old input in session
@@ -584,7 +588,7 @@ class FormsService extends Component
 
         //Check honeypot
         if ($form->honeypot) {
-            if (isset($posted[$form->honeypotField]) and !empty(trim($posted[$form->honeypotField]))) {
+            if (!empty(trim($posted[$form->honeypotField]))) {
                 $formSubmission->_spam_reason = \Craft::t('formidable', 'Honeypot was filled');
                 $spam = Formidable::$plugin->spam->create($form, $formSubmission, $posted);
                 return [self::SPAM, $formSubmission, $posted];

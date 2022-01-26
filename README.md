@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.2.2
+- Fixed issue when honeypot was not posted
+
 ### 5.2.1
 - submission not returned when created
 
