@@ -8,12 +8,12 @@
   	{% set action = action|default('contact') %}
 	
 	{% js %}
-		(function() {
+		document.addEventListener("DOMContentLoaded", function() {
 			googleV3Captcha.init('{{ site_key }}');
 			document.getElementById('{{ form.generateId() }}').querySelector('.captcha-field').style.display = "none";
 			grecaptcha.ready(function () {
 				googleV3Captcha.retrieveCaptcha('{{ form.generateId() }}', '{{ action }}');
 			});
-		})();
+		});
 	{% endjs %}
 {% endif %}
