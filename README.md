@@ -7,6 +7,7 @@ Display them easily in the front end with templates.
 
 ### 5.2.2
 - Fixed issue when honeypot was not posted
+- Removed dependency for jquery for Google catpcha
 
 ### 5.2.1
 - submission not returned when created
