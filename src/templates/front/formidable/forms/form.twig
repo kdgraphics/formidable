@@ -8,7 +8,7 @@
 {% set honeypot_class = honeypot_class ?? 'field' %}
 {% set fields_class = fields_class ?? 'fields' %}
 
-<form id="{{ form.generateId() }}" action="{{ currentSite.getBaseUrl() }}formidable/submit/{{ form.id }}" method="{{ form.method }}" class="form-{{ form.handle }} {{ form_class }} formidable" enctype="multipart/form-data"{% if not form.autocomplete %} autocomplete="off"{% endif %}>
+<form id="{{ form.generateId() }}" action="{{ currentSite.getBaseUrl() }}formidable/submit/{{ form.id }}" method="{{ form.method }}" class="form-{{ form.handle }} {{ form_class }}{% if form.frontEndValidation %} js-validate{% endif %} formidable" enctype="multipart/form-data"{% if not form.autocomplete %} autocomplete="off"{% endif %}>
 	{% block mainErrors %}
 		{% if error %}
 			{{ errorList(error, 'alert alert-danger') }}

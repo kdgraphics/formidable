@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.2.3
+- Added js-validate class to forms that have frontend validation active
+
 ### 5.2.2
 - Fixed issue when honeypot was not posted
 - Removed dependency for jquery for Google catpcha
