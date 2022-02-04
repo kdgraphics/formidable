@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.2.4
+- Allow v2 for inspire/emails plugin
+
 ### 5.2.3
 - Added js-validate class to forms that have frontend validation active
 
