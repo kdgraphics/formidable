@@ -72,7 +72,7 @@ class GoogleV3 implements CaptchaInterface
 	 * 
 	 * @return int
 	 */
-	public function getAcceptableScore(): int
+	public function getAcceptableScore(): float
 	{
 		return (int)Formidable::$plugin->getSettings()->acceptableScore / 10;
 	}

@@ -5,6 +5,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.2.5
+
+- fixed issue with captcha score
+
 ### 5.2.4
 - Allow v2 for inspire/emails plugin
 
