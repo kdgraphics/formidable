@@ -20,7 +20,7 @@
     ],
     "require": {
         "craftcms/cms": "^3.7",
-        "inspire/emails": "^2.0",
+        "inspire/emails": "^1.0 || ^2.0",
         "inspire/spam-check": "^1.0"
     },
     "autoload": {
