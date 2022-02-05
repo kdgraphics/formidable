@@ -97,7 +97,7 @@ class GoogleV3 implements CaptchaInterface
             if ($data['success']) {
             	$success = ($data['score'] >= $score);
             	if (!$success) {
-            		$formSubmission->_spam_reason = 'Google captcha score ('.$data['score'].')';
+            		$submission->_spam_reason = 'Google captcha score ('.$data['score'].')';
             	}
             	return $success;
             }
