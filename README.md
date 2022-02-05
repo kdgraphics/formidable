@@ -5,6 +5,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.2.6
+
+- fixed issue with captcha
+
 ### 5.2.5
 
 - fixed issue with captcha score
