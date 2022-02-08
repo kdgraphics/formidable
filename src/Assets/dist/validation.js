@@ -90,7 +90,7 @@ window.formidable = {
                 return elems[0].files;
             }
             if (this.type == 'hidden') {
-                return elems[0].value;
+                return elems.value;
             }
             if (this.valueType == 'array') {
                 let val = [];
@@ -127,10 +127,13 @@ window.formidable = {
             this.getWrapper().querySelector('.errors').appendChild(error);
         };
         this.clearErrors = function () {
+            if (this.type == 'group') {
+                return;
+            }
             for (i = 0; i < this.getElems().length; i++) {
                 this.getElems()[i].classList.remove('is-invalid');
             }
-            if (this.getWrapper()) {
+            if (this.type != 'hidden' && this.getWrapper()) {
                 this.getWrapper().querySelector('.errors').innerHTML = '';
             }
         };
