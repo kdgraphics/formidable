@@ -10,6 +10,7 @@ class CpSpamController extends Controller
 {
 	public function actionIndex()
 	{
+        $this->requirePermission('manageFormidableSubmissions');
         $this->view->registerAssetBundle(SpamAsset::class);
 
         return $this->renderTemplate('formidable/cp/spam/index', [
@@ -19,6 +20,7 @@ class CpSpamController extends Controller
 
     public function actionLoad()
     {
+        $this->requirePermission('manageFormidableSubmissions');
         $this->requireAcceptsJson();
         $this->requirePostRequest();
 
@@ -39,6 +41,7 @@ class CpSpamController extends Controller
 
     public function actionLoadAll()
     {
+        $this->requirePermission('manageFormidableSubmissions');
         $this->requireAcceptsJson();
         $this->requirePostRequest();
 
@@ -54,6 +57,7 @@ class CpSpamController extends Controller
 
     public function actionDeletemany()
     {
+        $this->requirePermission('manageFormidableSubmissions');
         $this->requireAcceptsJson();
         $this->requirePostRequest();
 

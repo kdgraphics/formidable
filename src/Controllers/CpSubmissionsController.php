@@ -11,6 +11,7 @@ class CpSubmissionsController extends Controller
 {
 	public function actionIndex()
 	{
+        $this->requirePermission('manageFormidableSubmissions');
         $this->view->registerAssetBundle(SubmissionsAsset::class);
 
         return $this->renderTemplate('formidable/cp/submissions/index', [
@@ -20,6 +21,7 @@ class CpSubmissionsController extends Controller
 
     public function actionLoad()
     {
+        $this->requirePermission('manageFormidableSubmissions');
         $this->requireAcceptsJson();
         $this->requirePostRequest();
 
@@ -40,6 +42,7 @@ class CpSubmissionsController extends Controller
 
     public function actionLoadAll()
     {
+        $this->requirePermission('manageFormidableSubmissions');
         $this->requireAcceptsJson();
         $this->requirePostRequest();
 
@@ -55,6 +58,7 @@ class CpSubmissionsController extends Controller
 
     public function actionSetAsRead()
     {
+        $this->requirePermission('manageFormidableSubmissions');
         $this->requireAcceptsJson();
         $this->requirePostRequest();
         
@@ -69,6 +73,7 @@ class CpSubmissionsController extends Controller
 
     public function actionDeletemany()
     {
+        $this->requirePermission('manageFormidableSubmissions');
         $this->requireAcceptsJson();
         $this->requirePostRequest();
 
@@ -87,6 +92,7 @@ class CpSubmissionsController extends Controller
 
     public function actionExport()
     {
+        $this->requirePermission('manageFormidableSubmissions');
         $ids = explode(',', $this->request()->getRequiredParam('ids'));
         $data = $this->submissions()->exportAsCsv($ids);
         return \Craft::$app->getResponse()->sendContentAsFile($data, 'submissions.csv', [

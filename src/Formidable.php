@@ -16,9 +16,11 @@ use Ryssbowh\Formidable\Services\{CaptchasService, ConditionsService, ConditionG
 use Ryssbowh\Formidable\Twig\TwigForms;
 use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
+use craft\events\RegisterUserPermissionsEvent;
 use craft\events\{RebuildConfigEvent, RegisterCpNavItemsEvent, RegisterTemplateRootsEvent, RegisterUrlRulesEvent};
 use craft\log\FileTarget;
 use craft\services\ProjectConfig;
+use craft\services\UserPermissions;
 use craft\web\UrlManager;
 use craft\web\View;
 use craft\web\twig\variables\Cp;
@@ -80,6 +82,7 @@ class Formidable extends Plugin
         \Craft::getLogger()->dispatcher->targets[] = $fileTarget;
         $this->registerComponents();
         $this->registerCpRoutes();
+        $this->registerPermissions();
         $this->registerNavItem();
         $this->registerFrontRoutes();
         $this->registerProjectConfig();
@@ -88,6 +91,32 @@ class Formidable extends Plugin
         $this->registerRules();
         $this->registerTwigExtension();
         $this->registerFrontTemplates();
+    }
+
+    /**
+     * Register permissions
+     */
+    protected function registerPermissions()
+    {
+        Event::on(
+            UserPermissions::class,
+            UserPermissions::EVENT_REGISTER_PERMISSIONS,
+            function(RegisterUserPermissionsEvent $event) {
+                $event->permissions['Forms'] = [
+                    'accessPlugin-formidable' => [
+                        'label' => 'Access forms',
+                        'nested' => [
+                            'manageFormidableForms' => [
+                                'label' => 'Manage forms',
+                            ],
+                            'manageFormidableSubmissions' => [
+                                'label' => 'Manage submissions',
+                            ]
+                        ]
+                    ]
+                ];
+            }
+        );
     }
 
     /**
@@ -137,27 +166,30 @@ class Formidable extends Plugin
             $_this = $this;
             Event::on(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS,
                 function(RegisterCpNavItemsEvent $event) use ($_this){
-                    $event->navItems[] = [
-                        'url' => 'formidable/submissions',
-                        'label' => \Craft::t('formidable', 'Form Submissions'),
-                        'subnav' => [
-                            'formidable-submissions' => [
-                                'url' => 'formidable/submissions',
-                                'label' => \Craft::t('formidable', 'Submissions'),
-                            ],
-                            'formidable-spam' => [
-                                'url' => 'formidable/submissions/spam',
-                                'label' => \Craft::t('formidable', 'Spam'),
+                    if (\Craft::$app->user->checkPermission('manageFormidableSubmissions')) {
+                        $event->navItems[] = [
+                            'url' => 'formidable/submissions',
+                            'label' => \Craft::t('formidable', 'Form Submissions'),
+                            'subnav' => [
+                                'formidable-submissions' => [
+                                    'url' => 'formidable/submissions',
+                                    'label' => \Craft::t('formidable', 'Submissions'),
+                                ],
+                                'formidable-spam' => [
+                                    'url' => 'formidable/submissions/spam',
+                                    'label' => \Craft::t('formidable', 'Spam'),
+                                ]
                             ]
-                        ]
-                    ];
-                    if (\Craft::$app->config->getGeneral()->allowAdminChanges) {
+                        ];
+                    }
+                    if (\Craft::$app->config->getGeneral()->allowAdminChanges and \Craft::$app->user->checkPermission('manageFormidableForms')) {
                         $event->navItems[] = [
                             'url' => 'formidable/forms',
                             'label' => \Craft::t('formidable', 'Forms')
                         ];
                     }
-                });
+                }
+            );
         }
     }
 

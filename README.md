@@ -5,6 +5,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.2.8
+
+- Added permissions 'manageFormidableSubmissions' and 'manageFormidableForms'
+
 ### 5.2.7
 
 - fixed validation issues

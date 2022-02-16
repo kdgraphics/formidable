@@ -18,6 +18,7 @@ class CpFormsController extends Controller
 {
     public function actionForm(int $id = null, string $tab = 'config')
     {
+        $this->requirePermission('manageFormidableForms');
         $template = 'create';
         if ($id) {
             $template = 'edit';
@@ -47,6 +48,7 @@ class CpFormsController extends Controller
 
     public function actionGet(int $id)
     {
+        $this->requirePermission('manageFormidableForms');
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
@@ -67,6 +69,7 @@ class CpFormsController extends Controller
 
     public function actionNew()
     {
+        $this->requirePermission('manageFormidableForms');
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
@@ -81,6 +84,7 @@ class CpFormsController extends Controller
 
     public function actionSave()
     {
+        $this->requirePermission('manageFormidableForms');
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
@@ -125,6 +129,7 @@ class CpFormsController extends Controller
 
     public function actionDelete(int $id)
     {
+        $this->requirePermission('manageFormidableForms');
         $this->requirePostRequest();
         $this->requireAcceptsJson();
         $form = $this->forms()->getById($id);
