@@ -5,6 +5,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.2.9
+
+- Fixed missing 'title' field on tbale rules on install migration
+
 ### 5.2.8
 
 - Added permissions 'manageFormidableSubmissions' and 'manageFormidableForms'

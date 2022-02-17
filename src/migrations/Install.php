@@ -119,6 +119,7 @@ class Install extends Migration
             'form_id' => $this->integer(11)->notNull(),
             'type' => $this->string(255)->notNull(),
             'value' => $this->string(255),
+            'title' => $this->string(255),
             'message' => $this->text(),
             'messages' => $this->text(),
             'fields' => $this->string(1000),
