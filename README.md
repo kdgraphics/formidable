@@ -5,6 +5,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.2.10
+
+- Fixed validation issue
+
 ### 5.2.9
 
 - Fixed missing 'title' field on tbale rules on install migration

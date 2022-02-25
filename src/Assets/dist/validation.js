@@ -133,7 +133,7 @@ window.formidable = {
             for (i = 0; i < this.getElems().length; i++) {
                 this.getElems()[i].classList.remove('is-invalid');
             }
-            if (this.type != 'hidden' && this.getWrapper()) {
+            if (this.type != 'hidden' && this.getWrapper().length) {
                 this.getWrapper().querySelector('.errors').innerHTML = '';
             }
         };
