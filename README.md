@@ -5,6 +5,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.2.11
+
+- Fixed errors not removed on validation
+
 ### 5.2.10
 
 - Fixed validation issue
