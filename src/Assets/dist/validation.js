@@ -111,8 +111,8 @@ window.formidable = {
                 }
                 return null;
             }
-            if (this.valueType == 'boolean' && elems[0].valueType == 'checkbox') {
-                return elems[0].checked;
+            if (this.valueType == 'boolean' && elems[elems.length - 1].type == 'checkbox') {
+                return elems[elems.length - 1].checked;
             }
             return elems[0].value;
         };
@@ -135,7 +135,7 @@ window.formidable = {
             for (i = 0; i < this.getElems().length; i++) {
                 this.getElems()[i].classList.remove('is-invalid');
             }
-            if (this.type != 'hidden' && this.getWrapper()) {
+            if (this.type != 'hidden' && this.getWrapper() && this.getWrapper().childElementCount) {
                 this.getWrapper().querySelector('.errors').innerHTML = '';
             }
         };
