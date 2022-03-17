@@ -120,11 +120,13 @@ window.formidable = {
             for (i = 0; i < this.getElems().length; i++) {
                 this.getElems()[i].classList.add('is-invalid');
             }
-            let error = document.createElement("div");
-            error.classList.add('invalid-feedback');
-            let text = document.createTextNode(message);
-            error.appendChild(text);
-            this.getWrapper().querySelector('.errors').appendChild(error);
+            if (this.getWrapper()) {
+                let error = document.createElement("div");
+                error.classList.add('invalid-feedback');
+                let text = document.createTextNode(message);
+                error.appendChild(text);
+                this.getWrapper().querySelector('.errors').appendChild(error);
+            }
         };
         this.clearErrors = function () {
             if (this.type == 'group') {
@@ -133,7 +135,7 @@ window.formidable = {
             for (i = 0; i < this.getElems().length; i++) {
                 this.getElems()[i].classList.remove('is-invalid');
             }
-            if (this.type != 'hidden' && this.getWrapper().length) {
+            if (this.type != 'hidden' && this.getWrapper()) {
                 this.getWrapper().querySelector('.errors').innerHTML = '';
             }
         };
