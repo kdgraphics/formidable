@@ -79,6 +79,6 @@ class FormsController extends Controller
         if (!in_array('success=1', $params)) {
             $params[] = 'success=1';
         }
-        return $this->redirect($referer['scheme'] . '://' . $referer['host'] . $referer['path'] . '?' . implode('&', $params));
+        return $this->redirect(( $referer['scheme'] ?? 'http') . '://' . $referer['host'] . $referer['path'] . '?' . implode('&', $params));
     }
 }

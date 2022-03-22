@@ -5,6 +5,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.2.13
+
+- Fixed error when redirecting on spam if the scheme is not set
+
 ### 5.2.12
 
 - Fixed validation issue
