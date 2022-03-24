@@ -5,6 +5,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.3.0
+
+- Added Craft field "Form"
+
 ### 5.2.13
 
 - Fixed error when redirecting on spam if the scheme is not set
@@ -312,3 +316,7 @@ Submission can be viewed in the back end, they can be deleted and exported as cs
 
 A form is considered as spam if the honeypot has been filled, in this case the submission will not be created and the previous page will be reloaded without any indication that something went wrong.
 Spams attempts are saved in database and can be viewed in back end.
+
+# Craft field
+
+Since 5.3.0 you have a new type of field "Form" that lets the user choose a form as another field. A different template for each of the form can be defined in the backend
