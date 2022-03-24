@@ -8,6 +8,7 @@ use Ryssbowh\Formidable\Assets\TestAsset;
 use Ryssbowh\Formidable\Captchas\GoogleV3;
 use Ryssbowh\Formidable\Events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent};
 use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry, Group, Hidden, CheckboxEntry};
+use Ryssbowh\Formidable\Models\FormField;
 use Ryssbowh\Formidable\Models\FormSubmission;
 use Ryssbowh\Formidable\Models\Records\Submission;
 use Ryssbowh\Formidable\Models\Rules\{BiggerThan, Contain, EqualTo, Off, On, Required, SameThan, Size, SmallerThan};
@@ -19,6 +20,7 @@ use craft\console\Application as ConsoleApplication;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\events\{RebuildConfigEvent, RegisterCpNavItemsEvent, RegisterTemplateRootsEvent, RegisterUrlRulesEvent};
 use craft\log\FileTarget;
+use craft\services\Fields;
 use craft\services\ProjectConfig;
 use craft\services\UserPermissions;
 use craft\web\UrlManager;
@@ -91,6 +93,17 @@ class Formidable extends Plugin
         $this->registerRules();
         $this->registerTwigExtension();
         $this->registerFrontTemplates();
+        $this->registerCraftField();
+    }
+
+    /**
+     * Register Craft field
+     */
+    protected function registerCraftField()
+    {
+        Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function (Event $event) {
+            $event->types[] = FormField::class;
+        });
     }
 
     /**

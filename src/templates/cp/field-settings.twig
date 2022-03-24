@@ -1,0 +1,26 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.checkboxSelectField({
+    label: 'Allowed forms to choose from'|t('formidable'),
+    options: forms,
+    values: allowedForms,
+    name: 'allowedForms',
+    showAllOption: true
+}) }}
+
+
+<div class="field">
+    <div class="heading">
+        <legend aria-hidden="true">{{ 'Templates to use on the frontend'|t('formidable') }}</legend>
+    </div>
+    <div class="input ltr">
+        <fieldset>
+            {% for uid, form in forms %}
+                <div class="flex">
+                    <label>{{ form }}: </label>
+                    <input type="text" name="templates[{{ uid }}]" class="text" value="{{ templates[uid] ?? '' }}" placeholder="formidable/forms/form">
+                </div>
+            {% endfor %}
+        </fieldset>
+    </div>
+</div>
