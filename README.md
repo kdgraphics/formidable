@@ -5,6 +5,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.3.1
+
+- Fixed error when redirecting on spam if the path is not set
+
 ### 5.3.0
 
 - Added Craft field "Form"
