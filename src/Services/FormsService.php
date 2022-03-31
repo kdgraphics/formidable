@@ -590,15 +590,16 @@ class FormsService extends Component
         if ($form->honeypot) {
             if (!empty(trim($posted[$form->honeypotField]))) {
                 $formSubmission->_spam_reason = \Craft::t('formidable', 'Honeypot was filled');
+                $formSubmission->addError('*', \Craft::t('formidable', 'Our spam protection software has detected a high probability that this is a spam or bot submission. If this is a real enquiry please try another browser just in case there is a problem with this one for you.'));
                 $spam = Formidable::$plugin->spam->create($form, $formSubmission, $posted);
-                return [self::SPAM, $formSubmission, $posted];
+                return $this->onSpam($form, $formSubmission, $posted);
             }
         }
 
         if ($form->captcha) {
             if (!$form->getCaptcha()->verify($form, $formSubmission, $posted)) {
                 $spam = Formidable::$plugin->spam->create($form, $formSubmission, $posted);
-                return [self::SPAM, $formSubmission, $posted];
+                return $this->onSpam($form, $formSubmission, $posted);
             }
         }
 
@@ -606,8 +607,9 @@ class FormsService extends Component
             $res = SpamCheck::$plugin->spamCheck->email(trim($values[$form->spamCheck]));
             if ($res and $res['frequency'] > 10) {
                 $formSubmission->_spam_reason = \Craft::t('formidable', 'Known spammer');
+                $formSubmission->addError('*', \Craft::t('formidable', 'Our spam protection software has detected a high probability that this is a spam or bot submission. If this is a real enquiry please try another browser just in case there is a problem with this one for you.'));
                 $spam = Formidable::$plugin->spam->create($form, $formSubmission, $posted);
-                return [self::SPAM, $formSubmission, $posted];
+                return $this->onSpam($form, $formSubmission, $posted);
             }
         }
 
@@ -620,14 +622,13 @@ class FormsService extends Component
         $this->trigger(self::EVENT_BEFORE_VALIDATING_SUBMISSION, $event);
 
         if ($event->status === self::INVALID) {
-            return [self::INVALID, $formSubmission, $posted];
+            return $this->onInvalid($form, $formSubmission, $posted);
         } elseif ($event->status === self::SPAM) {
-            return [self::SPAM, $formSubmission, $posted];
+            return $this->onSpam($form, $formSubmission, $posted);
         }
 
         //Validate submission
         $formSubmission->validate(null, false);
-
         if (!($errors = $formSubmission->getErrors())) {
             foreach ($form->fields as $field) {
                 $field->afterSubmissionValidated($formSubmission);
@@ -636,7 +637,20 @@ class FormsService extends Component
             $session->setFlash(self::SESSION_SUCCESS_KEY.'.'.$form->handle, true);
             return [self::VALID, $submission, $posted];
         }
-        $session->setFlash(self::SESSION_ERRORS_KEY.'.'.$form->handle, $errors);
+        return $this->onInvalid($form, $formSubmission, $posted);
+    }
+
+    protected function onSpam(FormModel $form, FormSubmission $formSubmission, array $posted)
+    {
+        $session = \Craft::$app->session;
+        $session->setFlash(self::SESSION_ERRORS_KEY.'.'.$form->handle, $formSubmission->errors);
+        return [self::SPAM, $formSubmission, $posted];
+    }
+
+    protected function onInvalid(FormModel $form, FormSubmission $formSubmission, array $posted)
+    {
+        $session = \Craft::$app->session;
+        $session->setFlash(self::SESSION_ERRORS_KEY.'.'.$form->handle, $formSubmission->errors);
         return [self::INVALID, $formSubmission, $posted];
     }
 }

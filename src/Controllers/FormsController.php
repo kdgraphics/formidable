@@ -28,10 +28,8 @@ class FormsController extends Controller
 
         $result = $this->forms()->submit($form);
 
-        if ($result === FormsService::INVALID) {
+        if ($result === FormsService::INVALID or $result === FormsService::SPAM) {
             return $this->onUnvalidForm($form);
-        } elseif ($result === FormsService::SPAM) {
-            return $this->onSpam($form);
         }
         return $this->onValidSubmission($form);
     }
@@ -42,16 +40,6 @@ class FormsController extends Controller
         if ($this->request()->isAjax) {
             return $this->asJson([
                 'success' => $this->forms()->getSessionSuccess($form->handle)
-            ]);
-        }
-        return $this->redirectAfterValidSubmission($form);
-    }
-
-    protected function onSpam(Form $form)
-    {
-        if($this->request()->isAjax) {
-            return $this->asJson([
-                'success' => true
             ]);
         }
         return $this->redirectAfterValidSubmission($form);

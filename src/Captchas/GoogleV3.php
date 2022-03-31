@@ -97,12 +97,17 @@ class GoogleV3 implements CaptchaInterface
             if ($data['success']) {
             	$success = ($data['score'] >= $score);
             	if (!$success) {
-            		$submission->_spam_reason = 'Google captcha score ('.$data['score'].')';
+            		$submission->_spam_reason = 'Google captcha score '.$data['score'].' smaller than ' . $score;
+            		$submission->addError('*', \Craft::t('formidable', 'Our spam protection software has detected a high probability that this is a spam or bot submission. If this is a real enquiry please try another browser just in case there is a problem with this one for you.'));
             	}
             	return $success;
             }
+            $submission->_spam_reason = 'Unable to verify Google captcha';
+	        $submission->addError('*', \Craft::t('site', 'Unable to verify your captcha'));
+	        return false;
         }
-        $submission->addError('*', \Craft::t('site', 'Unable to verify your captcha, please try again'));
-        return true;
+        $submission->_spam_reason = 'Google captcha information not sent';
+        $submission->addError('*', \Craft::t('site', 'Unable to verify your captcha'));
+        return false;
 	}
 }
