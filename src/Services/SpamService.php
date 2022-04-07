@@ -18,8 +18,6 @@ use yii\data\ActiveDataProvider;
 
 class SpamService extends Component
 {
-	const EVENT_ON_SPAM = 'on_spam';
-
 	/**
 	 * Create a spam record
 	 * 
@@ -33,23 +31,24 @@ class SpamService extends Component
 		if (isset($values['CRAFT_CSRF_TOKEN'])) {
 			unset($values['CRAFT_CSRF_TOKEN']);
 		}
+		$spam = new SpamModel([
+			'form_id' => $form->id,
+			'ip' => \Craft::$app->request->userIP,
+			'values' => json_encode($values),
+			'reason' => $submission->_spam_reason ?? ''
+		]);
         if ($form->saveSpam) {
-    		$spam = new Spam([
-    			'form_id' => $form->id,
-    			'ip' => \Craft::$app->request->userIP,
-    			'values' => json_encode($values),
-    			'reason' => $submission->_spam_reason ?? ''
-    		]);
-    		$spam->save(false);
-            $spam = $spam->toModel();
-    		$this->trigger(self::EVENT_ON_SPAM, new SpamEvent([
-                'spam' => $spam,
-                'form' => $form
-            ]));
-            $this->sendSpamNotification($form, $spam, $submission);
-            return $spam;
+        	$record = new Spam([
+				'form_id' => $form->id,
+				'ip' => \Craft::$app->request->userIP,
+				'values' => json_encode($values),
+				'reason' => $submission->_spam_reason ?? ''
+			]);
+    		$record->save(false);
+    		$spam = $record->toModel();
         }
-        $this->sendSpamNotification($form, null, $submission);
+        $this->sendSpamNotification($form, $spam, $submission);
+        return $spam;
 	}
 
 	/**
@@ -60,7 +59,7 @@ class SpamService extends Component
 	 * @param  FormSubmission $submission
 	 * @return bool
 	 */
-	protected function sendSpamNotification(Form $form, ?SpamModel $spam, FormSubmission $submission): bool
+	protected function sendSpamNotification(Form $form, SpamModel $spam, FormSubmission $submission): bool
 	{
         if (!$form->notifySpam_key) {
             return false;

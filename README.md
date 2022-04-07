@@ -5,54 +5,46 @@ Display them easily in the front end with templates.
 
 # Changelog
 
-### 5.4.0
+### 5.4.1
+- Removed SpamService::EVENT_ON_SPAM
+- Fixed issue on SpamService::create returning wrong type
 
+### 5.4.0
 - Improved spam handling
 - Spam submission will now return a 422 error
 - All spam tools (honeypot, captcha, spammer database) now add an error on the form submission which is then returned to the user.
 
 ### 5.3.1
-
 - Fixed error when redirecting on spam if the path is not set
 
 ### 5.3.0
-
 - Added Craft field "Form"
 
 ### 5.2.13
-
 - Fixed error when redirecting on spam if the scheme is not set
 
 ### 5.2.12
-
 - Fixed validation issue
 
 ### 5.2.11
-
 - Fixed errors not removed on validation
 
 ### 5.2.10
-
 - Fixed validation issue
 
 ### 5.2.9
-
 - Fixed missing 'title' field on table rules on install migration
 
 ### 5.2.8
-
 - Added permissions 'manageFormidableSubmissions' and 'manageFormidableForms'
 
 ### 5.2.7
-
 - fixed validation issues
 
 ### 5.2.6
-
 - fixed issue with captcha
 
 ### 5.2.5
-
 - fixed issue with captcha score
 
 ### 5.2.4

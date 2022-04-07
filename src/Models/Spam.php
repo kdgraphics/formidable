@@ -46,4 +46,9 @@ class Spam extends Model
 		$array['values'] = $this->normalizeValues();
 		return $array;
 	}
+
+	public function getForm(): ?Form
+	{
+		Formidable::$plugin->forms->getById($this->form_id);
+	}
 }
