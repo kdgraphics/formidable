@@ -50,7 +50,7 @@
         </div>
         <div class="input ltr">
           <div class="select">
-            <select v-model="field.volume">
+            <select v-model="field.volume" @input="validateVolume" :class="'text ' + (errors.volume ? ' error' : '')">
               <option v-for="volume in volumes" :key="volume.uid" :value="volume.uid">{{ volume.name }}</option>
             </select>
           </div>
@@ -174,6 +174,12 @@ export default {
         $R('.field-label-value'+this.field.uid, 'destroy');
       }
     },
+    validateVolume() {
+      this.$set(this.errors, 'volume', false);
+      if (!this.field.volume) {
+        this.$set(this.errors, 'volume', true);
+      }
+    },
     validateExtensions() {
       if (this.field.extensions == '') {
         this.$set(this.errors, 'extensions', false);
@@ -190,8 +196,9 @@ export default {
   },
   created() {
     if (!this.field.id) {
-      this.field.volume = this.volumes[0].id;
+      this.field.volume = this.volumes[0].uid ?? null;
     }
+    this.validateVolume();
   }
 };
 

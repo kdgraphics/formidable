@@ -20,6 +20,7 @@
       </button>
       <div class="menu">
         <ul class="padded">
+          <li><a href="#" v-on:click="selectAllForms">{{ t('All') }}</a></li>
           <li v-for="title, id in allForms"><a href="#" :class="filters.forms.includes(id) ? 'sel' : ''" v-on:click="toggleForm(id)">{{ title }}</a></li>
         </ul>
       </div>
@@ -97,6 +98,14 @@ export default {
         this.removeForm(id);
       } else {
         this.addForm(id);
+      }
+    },
+    selectAllForms: function (e) {
+      e.preventDefault();
+      for (let i in this.allForms) {
+        if (!this.filters.forms.includes(i)) {
+          this.addForm(i);
+        }
       }
     },
     ...mapMutations(['setTimezone', 'setForms', 'setPager', 'setIP', 'setTrashed', 'setDateTo', 'setDateFrom', 'addForm', 'removeForm', 'setIsChartView', 'deleteSelected']),

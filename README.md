@@ -5,6 +5,11 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.4.2
+- Allow selecting all forms in backend spam
+- Auto select volume on file fields
+- Fixed issue with empty choices values
+
 ### 5.4.1
 - Removed SpamService::EVENT_ON_SPAM
 - Fixed issue on SpamService::create returning wrong type
