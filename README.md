@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.4.3
+- Fixed date sorting in submissions
+
 ### 5.4.2
 - Allow selecting all forms in backend spam
 - Auto select volume on file fields
