@@ -9,6 +9,7 @@ use Ryssbowh\Formidable\Jobs\SendUserEmailJob;
 use Ryssbowh\Formidable\Models\Form;
 use Ryssbowh\Formidable\Models\FormSubmission;
 use Ryssbowh\Formidable\Models\Notification;
+use Ryssbowh\Formidable\Models\Records\Form as FormRecord;
 use Ryssbowh\Formidable\Models\Records\Submission;
 use Ryssbowh\Formidable\Models\Records\SubmissionValue;
 use Ryssbowh\Formidable\Models\Submission as SubmissionModel;
@@ -346,10 +347,15 @@ class SubmissionsService extends Component
 		if ($sort && strpos($sort['field'], 'form.') !== false) {
 			$provider->query->with(['form' => function ($query) use ($sort) {
 				$elems = explode('.', $sort['field']);
-				$query->orderBy([$elems[1] => $sort['side'] == 'asc' ? SORT_ASC : SORT_DESC]);
+				$query->orderBy([FormRecord::tableName() . '.' . $elems[1] => $sort['side'] == 'asc' ? SORT_ASC : SORT_DESC]);
 			}]);
 		} else {
-			$provider->query->orderBy([$sort['field'] => $sort['side'] == 'asc' ? SORT_ASC : SORT_DESC]);
+			$provider->query->orderBy([Submission::tableName() . '.' . $sort['field'] => $sort['side'] == 'asc' ? SORT_ASC : SORT_DESC]);
+		}
+		if ($filters['search']) {
+			$search = '%' . preg_replace('/\s+/', '%', $filters['search']) . '%';
+			$provider->query->leftJoin(SubmissionValue::tableName(), SubmissionValue::tableName() . '.submission_id = ' . Submission::tableName() . '.id')
+				->andWhere(['LIKE', SubmissionValue::tableName() . '.value', $search, false]);
 		}
 		// dd($provider->query->createCommand()->getRawSql());
         return $provider;

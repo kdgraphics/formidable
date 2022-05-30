@@ -55,6 +55,9 @@
         </div>
       </div>
     </div>
+    <div class="input">
+      <input class="text" name="search" placeholder="Search" size="10" autocomplete="off" :disabled="isFetching" v-on:keyup="search">
+    </div>
     <button class="btn" @click="setIsChartView(!isChartView)">{{ isChartView ? t('Table view') : t('Chart view')}}</button>
     <div v-show="selected.length">
       <button type="button" class="btn menubtn" data-icon="settings">
@@ -88,7 +91,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['sort', 'filters', 'selected', 'isChartView', 'submissions'])
+    ...mapState(['sort', 'filters', 'selected', 'isChartView', 'submissions', 'isFetching'])
   },
   mounted () {
     Craft.initUiElements(this.$refs.container);
@@ -118,6 +121,18 @@ export default {
         }
       }
     },
+    search: function (e) {
+      console.log(this.isFetching, this.timer);
+      if (this.timer) {
+        clearTimeout(this.timer);
+        this.timer = null;
+      }
+      this.timer = setTimeout(() => {
+        if (!this.isFetching) {
+          this.setSearch(e.target.value);
+        }
+      }, 800);
+    },
     formatFilter: function (filters) {
       let out = {};
       for (let i in filters) {
@@ -132,7 +147,7 @@ export default {
     exportToCSV: function () {
       window.open(Craft.getCpUrl('formidable/submissions/export?ids='+this.selected.join(',')));
     },
-    ...mapMutations(['setTimezone', 'setForms', 'setPager', 'setTrashed', 'setRead', 'setDateTo', 'setDateFrom', 'addForm', 'removeForm', 'setIsChartView', 'deleteSelected']),
+    ...mapMutations(['setTimezone', 'setForms', 'setPager', 'setTrashed', 'setRead', 'setDateTo', 'setDateFrom', 'addForm', 'removeForm', 'setIsChartView', 'deleteSelected', 'setSearch']),
     ...mapActions(['markSelectedAsRead', 'deleteSelection'])
   }
 };

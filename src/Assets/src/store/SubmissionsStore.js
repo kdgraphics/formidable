@@ -7,12 +7,14 @@ export default new Vuex.Store({
   state: {
     selected: [],
     isChartView: false,
+    isFetching: false,
     forms: {},
     submissions: [],
     filters: {
       forms: [],
       trashed: false,
       read: null,
+      search: null,
       dateFrom: {
         date: null,
         timezone: null
@@ -26,6 +28,9 @@ export default new Vuex.Store({
   mutations: {
     setForms (state, value) {
       state.forms = value;
+    },
+    setIsFetching (state, value) {
+      state.isFetching = value;
     },
     setTimezone(state, value) {
       Vue.set(state.filters.dateFrom, 'timezone', value);
@@ -48,6 +53,9 @@ export default new Vuex.Store({
     },
     setRead(state, value) {
       Vue.set(state.filters, 'read', value);
+    },
+    setSearch(state, value) {
+      Vue.set(state.filters, 'search', value);
     },
     addForm(state, value) {
       let forms = state.filters.forms;

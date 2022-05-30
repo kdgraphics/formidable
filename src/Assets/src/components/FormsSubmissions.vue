@@ -81,7 +81,7 @@ import Chart from 'chart.js/dist/Chart';
 
 export default {
   computed: {
-    ...mapState(['filters', 'isChartView', 'submissions', 'selected'])
+    ...mapState(['filters', 'isChartView', 'submissions', 'selected', 'isFetching'])
   },
   props: {
     loaderPath: String
@@ -102,7 +102,6 @@ export default {
         values: {}
       },
       popup: null,
-      isFetching: false
     }
   },
   watch: {
@@ -202,7 +201,7 @@ export default {
       data.filters = this.filters;
       data.sort = this.sort;
       data.page = this.pager.page;
-      this.isFetching = true;
+      this.setIsFetching(true);
       axios.post(Craft.getCpUrl('formidable/submissions/load'), data)
         .then((response) => {
           this.setSubmissions(response.data.submissions);
@@ -217,14 +216,14 @@ export default {
           console.log(error);
         })
         .finally(() => {
-          this.isFetching = false;
+          this.setIsFetching(false);
         });
     },
     fetchAll: function() {
       let data = {};
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       data.filters = this.filters;
-      this.isFetching = true;
+      this.setIsFetching(true);
       axios.post(Craft.getCpUrl('formidable/submissions/loadAll'), data)
         .then((response) => {
           this.chartData = true;
@@ -234,10 +233,10 @@ export default {
           console.log(error);
         })
         .finally(() => {
-          this.isFetching = false;
+          this.setIsFetching(false);
         });
     },
-    ...mapMutations(['setSelected', 'setSort', 'setSubmissions']),
+    ...mapMutations(['setSelected', 'setSort', 'setSubmissions', 'setIsFetching']),
     ...mapActions(['markAsRead', 'deleteMany'])
   }
 };

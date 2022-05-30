@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.4.4
+- Added submission search
+
 ### 5.4.3
 - Fixed date sorting in submissions
 
