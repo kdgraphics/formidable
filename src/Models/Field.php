@@ -254,7 +254,7 @@ abstract class Field extends Model implements FieldInterface
      */
     public static function getCsvValue($value): string
     {
-        return (string)$value;
+        return static::getStringValue($value);
     }
 
     /**

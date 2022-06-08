@@ -21,10 +21,13 @@ class CsvExporterService extends Component
 			return null;
 		}
 
-		$fields = $this->resolveHeaders($query);
+		$fields = $this->resolveCsvFields($query);
 		$headers = [\Craft::t('formidable','Form'), \Craft::t('formidable','Status'), \Craft::t('formidable','Date created'), \Craft::t('formidable','User notified'), \Craft::t('formidable','Admin notified')];
+		$names = array_map(function ($field) {
+			return $field->name;
+		}, $fields);
 		$fp = fopen("php://temp", 'w');
-		fputcsv($fp, array_merge($headers, $fields), ',');
+		fputcsv($fp, array_merge($headers, $names), ',');
 
 		if ($count < 100) {
 			$submissions = $query->all();
@@ -51,30 +54,23 @@ class CsvExporterService extends Component
 	protected function exportBatch($fp, array $submissions, array $fields)
 	{
 		foreach ($submissions as $submission) {
+			$submission = $submission->toModel();
 			$line = [
 				$submission->form->name,
 				$submission->read ? 'Read': 'Unread',
-				$submission->dateCreated,
+				$submission->dateCreated->format('d/m/Y'),
 				$submission->notified ? 'Yes' : 'No',
 				$submission->adminNotified ? 'Yes' : 'No',
 			];
 			foreach ($fields as $field) {
-				if ($value = ArrayHelper::firstWhere($submission->values, 'field', $field)) {
-					if ($fieldInstance = Formidable::$plugin->fields->getRegistered($value['type'])) {
-						$line[] = $fieldInstance->getCsvValue($value->value);
-					} else {
-						$line[] = '';
-					}
-				} else {
-					$line[] = '';
-				}
+				$line[] = $submission->getValue($field->handle, 'csv');
 			}
 			fputcsv($fp, $line, ',');
 		}
 	}
 
 	/**
-	 * Returns all headers for csv. Because the export might
+	 * Returns all fields for csv. Because the export might
 	 * contain several forms with different fields, the headers
 	 * will be the same for all the forms, just some csv lines
 	 * will have some blanks, as they don't have values for fields
@@ -83,19 +79,20 @@ class CsvExporterService extends Component
 	 * @param $query
 	 * @return array
 	 */
-	protected function resolveHeaders($query)
+	protected function resolveCsvFields($query): array
 	{
 		$values = (new \yii\db\Query())
-		    ->select('field')
+		    ->select('field_id')
+		    ->where(['is not', 'field_id', null])
 		    ->from(SubmissionValue::tableName());
 		if ($query->where) {
 			$where = $query->where;
 			$where[1] = 'submission_id';
-			$values->where($where);
+			$values->andWhere($where);
 		}
 		$values = $values->distinct()->all();
 		return array_map(function ($value) {
-			return $value['field'];
+			return Formidable::$plugin->fields->getById($value['field_id']);
 		}, $values);
 	}
 }

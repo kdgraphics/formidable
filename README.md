@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.4.5
+- Fixed issue with CSV export
+
 ### 5.4.4
 - Added submission search
 

@@ -199,22 +199,6 @@ class File extends Field
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	public static function getCsvValue($value): string
-	{
-		if (!$value) {
-			return '';
-		}
-		$assets = self::getAssets($value);
-		$csv = [];
-		foreach ($assets as $asset) {
-			$csv[] = $asset->filename;
-		}
-		return implode(',', $csv);
-	}
-
-	/**
 	 * Upload a file to a volume as an asset
 	 * 
 	 * @param  UploadedFile $file
