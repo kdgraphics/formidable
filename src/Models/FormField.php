@@ -101,6 +101,9 @@ class FormField extends Field
      */
     protected function getForms(): array
     {
+        if ($this->allowedForms == '') {
+            $this->allowedForms = [];
+        }
         if ($this->allowedForms == '*') {
             return Formidable::$plugin->forms->all;
         }

@@ -5,6 +5,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.4.7
+- Fixed issue when no forms were selected in the craft field config
+- Added twig blocks before_form and after_form
+
 ### 5.4.6
 - Added Date picker. Options are to be used with [Flatpickr](https://flatpickr.js.org/)
 - Added captcha V2

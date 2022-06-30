@@ -8,6 +8,8 @@
 {% set honeypot_class = honeypot_class ?? 'field' %}
 {% set fields_class = fields_class ?? 'fields' %}
 
+{% block before_form %}{% endblock %}
+
 <form id="{{ form.generateId() }}" action="{{ currentSite.getBaseUrl() }}formidable/submit/{{ form.id }}" method="{{ form.method }}" class="form-{{ form.handle }} {{ form_class }}{% if form.frontEndValidation %} js-validate{% endif %} formidable" enctype="multipart/form-data"{% if not form.autocomplete %} autocomplete="off"{% endif %}>
 	{% block mainErrors %}
 		{% if error %}
@@ -40,6 +42,8 @@
 		{% include "formidable/_includes/submit" %}
 	{% endblock %}
 </form>
+
+{% block after_form %}{% endblock %}
 
 {% js %}
 	{{ form.getFrontJs()|raw }}
