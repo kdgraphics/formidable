@@ -68,7 +68,7 @@
               <input type="text" :class="'text fullwidth' + (errors.labelClass ? ' error' : '')" v-model="field.labelClass" @input="validateAlnum('labelClass')">
             </div>
           </div>
-          <div class="field first">
+          <div class="field">
             <div class="heading">
               <label for="form-active">{{ t('Autocomplete') }}</label>
             </div>

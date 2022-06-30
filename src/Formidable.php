@@ -5,9 +5,10 @@ use Craft;
 use Inspire\Emails\Emails;
 use Inspire\Emails\Records\Email as EmailRecord;
 use Ryssbowh\Formidable\Assets\TestAsset;
+use Ryssbowh\Formidable\Captchas\GoogleV2;
 use Ryssbowh\Formidable\Captchas\GoogleV3;
 use Ryssbowh\Formidable\Events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent};
-use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry, Group, Hidden, CheckboxEntry};
+use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry, Group, Hidden, CheckboxEntry, Date};
 use Ryssbowh\Formidable\Models\FormField;
 use Ryssbowh\Formidable\Models\FormSubmission;
 use Ryssbowh\Formidable\Models\Records\Submission;
@@ -42,6 +43,7 @@ class Formidable extends Plugin
 
     protected $availableFields = [
         Text::class,
+        Date::class,
         Email::class,
         Textarea::class,
         Number::class,
@@ -58,7 +60,8 @@ class Formidable extends Plugin
     ];
 
     protected $availableCaptchas = [
-        GoogleV3::class
+        GoogleV3::class,
+        GoogleV2::class,
     ];
 
     protected $availableRules = [

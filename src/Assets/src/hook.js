@@ -10,6 +10,7 @@ import FileField from './fields/FileField';
 import RadioField from './fields/RadioField';
 import CheckboxesField from './fields/CheckboxesField';
 import Group from './fields/Group';
+import Date from './fields/DateField';
 import Hidden from './fields/Hidden';
 import CheckboxEntryField from './fields/CheckboxEntryField';
 
@@ -27,5 +28,6 @@ window.formFields = {
     select_entry: SelectEntryField,
     group: Group,
     hidden: Hidden,
+    date: Date,
     checkbox_entry: CheckboxEntryField
 };

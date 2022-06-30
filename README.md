@@ -5,6 +5,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.4.6
+- Added Date picker. Options are to be used with [Flatpickr](https://flatpickr.js.org/)
+- Added captcha V2
+
 ### 5.4.5
 - Fixed issue with CSV export
 

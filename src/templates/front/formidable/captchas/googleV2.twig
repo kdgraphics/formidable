@@ -1,0 +1,5 @@
+{% if site_key is empty %}
+ 	{{ 'The site key was not set for the Forms plugin, Please visit the settings page to add this key'|t('formidable') }}
+{% else %}
+ 	<div class="g-recaptcha" data-sitekey="{{ site_key }}"></div>
+{% endif %}
