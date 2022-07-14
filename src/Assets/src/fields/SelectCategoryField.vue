@@ -31,7 +31,7 @@
           <label>{{ t('Category') }}</label>
         </div>
         <div class="select">
-          <select v-model="field.category" :class="errors.category ? 'error' : ''">
+          <select multiple v-model="field.groups" :class="errors.groups ? 'error' : ''">
             <option v-for="name, id in categories" :key="id" :value="id">{{ name }}</option>
           </select>
         </div>

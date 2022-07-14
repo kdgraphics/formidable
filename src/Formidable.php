@@ -8,7 +8,7 @@ use Ryssbowh\Formidable\Assets\TestAsset;
 use Ryssbowh\Formidable\Captchas\GoogleV2;
 use Ryssbowh\Formidable\Captchas\GoogleV3;
 use Ryssbowh\Formidable\Events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent};
-use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry, Group, Hidden, CheckboxEntry, Date};
+use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry, Group, Hidden, CheckboxEntry, Date, CheckboxCategory};
 use Ryssbowh\Formidable\Models\FormField;
 use Ryssbowh\Formidable\Models\FormSubmission;
 use Ryssbowh\Formidable\Models\Records\Submission;
@@ -35,7 +35,7 @@ class Formidable extends Plugin
 {
     public $controllerNamespace = "Ryssbowh\\Formidable\\Controllers";
 
-    public $schemaVersion = '5.1.2';
+    public $schemaVersion = '5.4.8';
 
     public $hasCpSettings = true;
 
@@ -47,16 +47,17 @@ class Formidable extends Plugin
         Email::class,
         Textarea::class,
         Number::class,
-        Checkbox::class,
-        Select::class,
         Radio::class,
-        Checkboxes::class,
         File::class,
+        Hidden::class,
+        Select::class,
         SelectCategory::class,
         SelectEntry::class,
-        Hidden::class,
-        Group::class,
-        CheckboxEntry::class
+        Checkbox::class,
+        Checkboxes::class,
+        CheckboxEntry::class,
+        CheckboxCategory::class,
+        Group::class
     ];
 
     protected $availableCaptchas = [

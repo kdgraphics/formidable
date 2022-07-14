@@ -5,6 +5,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.4.8
+- Added checkbox category field
+- Changed select category field to be able to select several category groups
+
 ### 5.4.7
 - Fixed issue when no forms were selected in the craft field config
 - Added twig blocks before_form and after_form

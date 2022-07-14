@@ -9,7 +9,7 @@ use craft\elements\Category;
 class SelectCategory extends Field
 {
 	public $label;
-	public $category;
+	public $groups = [];
 	public $includeSelect;
 	public $selectLabel;
 	public $labelHtml = false;
@@ -41,9 +41,10 @@ class SelectCategory extends Field
 	public function getExtraCpRules(): array
 	{
 		return [
-			[['label', 'category', 'selectLabel', 'tooltip', 'tooltipLabel'], 'string'],
+			[['label', 'selectLabel', 'tooltip', 'tooltipLabel'], 'string'],
 			[['label', 'tooltip', 'tooltipLabel'], 'trim'],
-			[['includeSelect', 'labelHtml', 'multiple'], 'boolean', 'trueValue' => true, 'falseValue' => false]
+			[['includeSelect', 'labelHtml', 'multiple'], 'boolean', 'trueValue' => true, 'falseValue' => false],
+			['groups', 'safe']
 		];
 	}
 
@@ -107,7 +108,7 @@ class SelectCategory extends Field
 	 */
 	public function getCategories(): array
 	{
-		$categories = Category::find()->group($this->category)->all();
+		$categories = Category::find()->group($this->groups)->all();
 		$out = [];
 		foreach ($categories as $category) {
 			$out[$category->id] = $category->title;

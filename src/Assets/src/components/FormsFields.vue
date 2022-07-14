@@ -13,7 +13,7 @@
         <div v-for="field in fields" :key="field.uid" :class="{opaque: !field.active, item: true, sel: field.uid == selectedFieldUid}" :data-uid="field.uid" :data-type="field.type">
           <div class="field-link">
             <div class="icon move"></div>
-            <div class="name-wrapper"><a href="#" @click.prevent="selectedFieldUid = field.uid" class="name">{{ field.name }}</a> <code>{{ field.handle }}</code></div>
+            <div class="name-wrapper"><a href="#" @click.prevent="selectedFieldUid = field.uid" class="name">{{ field.name ? field.name : 'No name' }}</a> <code>{{ field.handle }}</code></div>
             <div class="type"><a class="chevron" v-if="field.type == 'group'" @click.prevent="toggleGroupFields"></a>{{ field.type }}</div>
             <div v-show="errors[field.uid]" class="red-span">!</div>
           </div>

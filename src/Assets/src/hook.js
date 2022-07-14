@@ -13,21 +13,23 @@ import Group from './fields/Group';
 import Date from './fields/DateField';
 import Hidden from './fields/Hidden';
 import CheckboxEntryField from './fields/CheckboxEntryField';
+import CheckboxCategoryField from './fields/CheckboxCategoryField';
 
 window.formFields = {
 	text: TextField,
 	email: EmailField,
-	select: SelectField,
 	textarea: TextareaField,
-	checkbox: CheckboxField,
+	date: Date,
+	select: SelectField,
+	select_category: SelectCategoryField,
+    select_entry: SelectEntryField,
 	number: NumberField,
 	file: FileField,
 	radio: RadioField,
+	checkbox: CheckboxField,
 	checkboxes: CheckboxesField,
-    select_category: SelectCategoryField,
-    select_entry: SelectEntryField,
+	checkbox_entry: CheckboxEntryField,
+    checkbox_category: CheckboxCategoryField,
     group: Group,
-    hidden: Hidden,
-    date: Date,
-    checkbox_entry: CheckboxEntryField
+    hidden: Hidden
 };

@@ -115,6 +115,9 @@ export default {
         this.$set(this.errors, 'sections', true);
       }
     },
+    isAlnum(field) {
+      return this.field[field].match(/^[0-9a-zA-Z-_\s]*$/);
+    },
     validateAlnum(field) {
       if (!this.isAlnum(field)) {
         this.$set(this.errors, field, true);
