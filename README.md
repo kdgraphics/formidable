@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.4.9
+- Fixed error when value wasn't defined in choices in Select field
+
 ### 5.4.8
 - Added checkbox category field
 - Changed select category field to be able to select several category groups

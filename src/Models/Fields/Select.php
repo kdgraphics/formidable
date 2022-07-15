@@ -135,7 +135,7 @@ class Select extends Field
 		$choices = $this->buildChoices();
 		$newValue = [];
 		foreach ($value as $value) {
-			if ($choices[$value]) {
+			if ($choices[$value] ?? null) {
 				$newValue[] = $choices[$value];
 			}
 		}
