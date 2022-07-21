@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.4.10
+- Added Craft field setting `defaultTemplate`
+
 ### 5.4.9
 - Fixed error when value wasn't defined in choices in Select field
 

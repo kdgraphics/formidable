@@ -13,12 +13,23 @@ class FormField extends Field
 {
     public $allowedForms = [];
     public $templates = [];
+    public $defaultTemplate;
 
     /**
      * @inheritDoc
      */
     public function getContentColumnType(): string {
         return Schema::TYPE_INTEGER;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function defineRules(): array
+    {
+        $rules = parent::defineRules();
+        $rules[] = ['defaultTemplate', 'required'];
+        return $rules;
     }
 
     /**
@@ -32,8 +43,7 @@ class FormField extends Field
         }
         return \Craft::$app->view->renderTemplate('formidable/cp/field-settings', [
             'forms' => $allForms,
-            'allowedForms' => $this->allowedForms,
-            'templates' => $this->templates
+            'field' => $this
         ]);
     }
 
@@ -53,7 +63,7 @@ class FormField extends Field
         } catch (FormException $e) {}
         $template = null;
         if ($form) {
-            $template = $this->templates[$form->uid] ?? null;
+            $template = (isset($this->templates[$form->uid]) and $this->templates[$form->uid]) ? $this->templates[$form->uid] : $this->defaultTemplate;
         }
         return new TemplateForm([
             'form' => $form,

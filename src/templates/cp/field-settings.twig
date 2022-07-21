@@ -3,7 +3,7 @@
 {{ forms.checkboxSelectField({
     label: 'Allowed forms to choose from'|t('formidable'),
     options: forms,
-    values: allowedForms,
+    values: field.allowedForms,
     name: 'allowedForms',
     showAllOption: true
 }) }}
@@ -18,9 +18,18 @@
             {% for uid, form in forms %}
                 <div class="flex">
                     <label>{{ form }}: </label>
-                    <input type="text" name="templates[{{ uid }}]" class="text" value="{{ templates[uid] ?? '' }}" placeholder="formidable/forms/form">
+                    <input type="text" name="templates[{{ uid }}]" class="text" value="{{ field.templates[uid] ?? '' }}" placeholder="use default">
                 </div>
             {% endfor %}
         </fieldset>
     </div>
 </div>
+
+{{ forms.textField({
+    label: 'Default template'|t('formidable'),
+    value: field.defaultTemplate,
+    name: 'defaultTemplate',
+    size: 30,
+    required: true,
+    errors: field.getErrors('defaultTemplate')
+}) }}
