@@ -22,6 +22,7 @@ use craft\events\RegisterUserPermissionsEvent;
 use craft\events\{RebuildConfigEvent, RegisterCpNavItemsEvent, RegisterTemplateRootsEvent, RegisterUrlRulesEvent};
 use craft\log\FileTarget;
 use craft\services\Fields;
+use craft\services\Gc;
 use craft\services\ProjectConfig;
 use craft\services\UserPermissions;
 use craft\web\UrlManager;
@@ -100,6 +101,7 @@ class Formidable extends Plugin
         $this->registerTwigExtension();
         $this->registerFrontTemplates();
         $this->registerCraftField();
+        $this->registerGc();
     }
 
     /**
@@ -210,6 +212,17 @@ class Formidable extends Plugin
                 }
             );
         }
+    }
+
+    /**
+     * Register garbace collection
+     */
+    protected function registerGc()
+    {
+        Event::on(Gc::class, Gc::EVENT_RUN, function () {
+            Formidable::$plugin->submissions->runGc();
+            Formidable::$plugin->spam->runGc();
+        });
     }
 
     /**

@@ -29,3 +29,29 @@
     errors: settings.getErrors('acceptableScore'),
     })
 }}
+
+{{
+    forms.textField({
+        type: 'number',
+        min: 1,
+        label: 'Automatically delete submissions older than'|t('formidable'),
+        name: 'deleteSubmissionsThreshold',
+        value: settings.deleteSubmissionsThreshold,
+        errors: settings.getErrors('deleteSubmissionsThreshold'),
+        unit: 'days',
+        size: 30
+    })
+}}
+
+{{
+    forms.textField({
+        type: 'number',
+        min: 1,
+        label: 'Automatically delete spams older than'|t('formidable'),
+        name: 'deleteSpamThreshold',
+        value: settings.deleteSpamThreshold,
+        errors: settings.getErrors('deleteSpamThreshold'),
+        unit: 'days',
+        size: 30
+    })
+}}

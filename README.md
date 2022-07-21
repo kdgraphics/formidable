@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.4.12
+- Settings to automatically delete submissions and spams through garbage collection
+
 ### 5.4.11
 - Duplicate a field feature
 - Radio Category field

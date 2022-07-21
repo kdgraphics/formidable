@@ -159,6 +159,19 @@ class SubmissionsService extends Component
 	}
 
 	/**
+	 * Run garbage collection
+	 */
+	public function runGc()
+	{
+		$threshold = Formidable::$plugin->settings->deleteSubmissionsThreshold;
+		if (!$threshold) {
+			return;
+		}
+		$date = (new \DateTime)->sub(new \DateInterval('P' . $threshold . 'D'));
+		Submission::deleteAll(['<', 'dateCreated', $date->format('Y-m-d H:i:s')]);
+	}
+
+	/**
 	 * Delete many submissions bt ids
 	 * 
 	 * @param  array  $ids

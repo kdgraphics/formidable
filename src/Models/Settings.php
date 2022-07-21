@@ -10,6 +10,8 @@ class Settings extends Model
     public $siteKey = '';
     public $secretKey = '';
     public $acceptableScore = 5;
+    public $deleteSubmissionsThreshold = '';
+    public $deleteSpamThreshold = 30;
 
     /**
      * @return array
@@ -17,8 +19,7 @@ class Settings extends Model
     public function defineRules(): array
     {
         return [
-            ['siteKey', 'string'],
-            ['secretKey', 'string'],
+            [['siteKey', 'secretKey', 'deleteSpamThreshold', 'deleteSubmissionsThreshold'], 'string'],
             [['acceptableScore'], 'number'],
             [['acceptableScore'], 'required']
         ];

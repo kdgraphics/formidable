@@ -158,6 +158,19 @@ class SpamService extends Component
 	}
 
 	/**
+	 * Run garbage collection
+	 */
+	public function runGc()
+	{
+		$threshold = Formidable::$plugin->settings->deleteSpamThreshold;
+		if (!$threshold) {
+			return;
+		}
+		$date = (new \DateTime)->sub(new \DateInterval('P' . $threshold . 'D'));
+		Spam::deleteAll(['<', 'dateCreated', $date->format('Y-m-d H:i:s')]);
+	}
+
+	/**
 	 * Build data for a chart js instance
 	 * 
 	 * @param  array  $models
