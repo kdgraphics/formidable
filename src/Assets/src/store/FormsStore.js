@@ -1,6 +1,7 @@
 import Vuex from 'vuex';
 import Vue from 'vue';
 import { unset, keys, filter } from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 
 Vue.use(Vuex);
 
@@ -193,6 +194,31 @@ export default new Vuex.Store({
         .finally(() => {
           commit('setIsLoading', false);
         });
+    },
+    duplicateForm({commit, state, dispatch}) {
+      let newForm = { ...state.form };
+      newForm.uid = uuidv4();
+      newForm.id = null;
+      let newFields = [];
+      for (let i in state.fields) {
+        let field = {...state.fields[i]};
+        field.id = null;
+        field.form_id = null;
+        field.uid = uuidv4();
+        newFields.push(field);
+      }
+      let newRules = [];
+      for (let i in state.rules) {
+        let rule = {...state.rules[i]};
+        rule.id = null;
+        rule.form_id = null;
+        rule.uid = uuidv4();
+        newRules.push(rule);
+      }
+      commit('setIsAdding', true);
+      commit('setForm', newForm);
+      commit('setFields', newFields);
+      commit('setRules', newRules);
     },
     deleteForm({commit, state, dispatch}) {
       let data = {};

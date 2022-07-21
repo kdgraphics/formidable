@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.4.11
+- Duplicate a field feature
+
 ### 5.4.10
 - Added Craft field setting `defaultTemplate`
 
