@@ -108,18 +108,13 @@ export default {
     }
     window.selectCategoryFieldCategories.then(function (res) {
       _this.categories = res.data.groups;
-      _this.allFields = res.data.fields;
-      if (!_this.field.category && Object.keys(_this.categories).length) {
-        let handle = Object.keys(_this.categories)[0];
-        _this.$set(_this.field, 'category', handle);
-      }
     })
   },
   methods: {
     validate() {
-      this.$set(this.errors, 'sections', false);
-      if (!this.field.sections.length) {
-        this.$set(this.errors, 'sections', true);
+      this.$set(this.errors, 'groups', false);
+      if (!this.field.groups.length) {
+        this.$set(this.errors, 'groups', true);
       }
     },
     validateAlnum(field) {
@@ -161,8 +156,7 @@ export default {
   data() {
     return {
       errors: {},
-      categories: [],
-      allFields: {},
+      categories: []
     }
   }
 };

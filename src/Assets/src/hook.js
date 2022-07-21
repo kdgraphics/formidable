@@ -14,6 +14,8 @@ import Date from './fields/DateField';
 import Hidden from './fields/Hidden';
 import CheckboxEntryField from './fields/CheckboxEntryField';
 import CheckboxCategoryField from './fields/CheckboxCategoryField';
+import RadioCategoryField from './fields/RadioCategoryField';
+import RadioEntryField from './fields/RadioEntryField';
 
 window.formFields = {
 	text: TextField,
@@ -30,6 +32,8 @@ window.formFields = {
 	checkboxes: CheckboxesField,
 	checkbox_entry: CheckboxEntryField,
     checkbox_category: CheckboxCategoryField,
+    radio_category: RadioCategoryField,
+    radio_entry: RadioEntryField,
     group: Group,
     hidden: Hidden
 };

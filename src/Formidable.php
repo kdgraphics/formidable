@@ -8,7 +8,7 @@ use Ryssbowh\Formidable\Assets\TestAsset;
 use Ryssbowh\Formidable\Captchas\GoogleV2;
 use Ryssbowh\Formidable\Captchas\GoogleV3;
 use Ryssbowh\Formidable\Events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent};
-use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry, Group, Hidden, CheckboxEntry, Date, CheckboxCategory};
+use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry, Group, Hidden, CheckboxEntry, Date, CheckboxCategory, RadioCategory, RadioEntry};
 use Ryssbowh\Formidable\Models\FormField;
 use Ryssbowh\Formidable\Models\FormSubmission;
 use Ryssbowh\Formidable\Models\Records\Submission;
@@ -48,6 +48,8 @@ class Formidable extends Plugin
         Textarea::class,
         Number::class,
         Radio::class,
+        RadioEntry::class,
+        RadioCategory::class,
         File::class,
         Hidden::class,
         Select::class,

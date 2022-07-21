@@ -7,6 +7,8 @@ Display them easily in the front end with templates.
 
 ### 5.4.11
 - Duplicate a field feature
+- Radio Category field
+- Radio Entry field
 
 ### 5.4.10
 - Added Craft field setting `defaultTemplate`

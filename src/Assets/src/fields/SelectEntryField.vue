@@ -113,15 +113,17 @@ export default {
     this.enableTooltipRedactor();
   },
   created() {
-    let data = {};
     let _this = this;
-    data[Craft.csrfTokenName] = Craft.csrfTokenValue;
-    axios.post(Craft.getCpUrl('formidable/entry-sections'), data)
-    .then(function (res) {
+    if (typeof window.selectEntryFieldSections == 'undefined') {
+      let data = {};
+      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
+      window.selectEntryFieldSections = axios.post(Craft.getCpUrl('formidable/entry-sections'), data)
+      .catch((error) => {
+        console.log(error);
+      })
+    }
+    window.selectEntryFieldSections.then(function (res) {
       _this.sections = res.data.sections;
-    })
-    .catch((error) => {
-      console.log(error);
     })
   },
   methods: {
