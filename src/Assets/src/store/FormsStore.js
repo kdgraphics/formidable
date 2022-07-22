@@ -5,6 +5,22 @@ import { v4 as uuidv4 } from 'uuid';
 
 Vue.use(Vuex);
 
+function duplicateField(field) {
+  let newField = {...field};
+  newField.id = null;
+  newField.form_id = null;
+  newField.group_id = null;
+  newField.uid = uuidv4();
+  if (newField.type == 'group') {
+    let groupFields = [];
+    for (let i in field.fields) {
+      groupFields.push(duplicateField(field.fields[i]));
+    }
+    newField.fields = groupFields;
+  }
+  return newField;
+}
+
 export default new Vuex.Store({
   state: {
     isAdding: false,
@@ -201,11 +217,7 @@ export default new Vuex.Store({
       newForm.id = null;
       let newFields = [];
       for (let i in state.fields) {
-        let field = {...state.fields[i]};
-        field.id = null;
-        field.form_id = null;
-        field.uid = uuidv4();
-        newFields.push(field);
+        newFields.push(duplicateField(state.fields[i]));
       }
       let newRules = [];
       for (let i in state.rules) {

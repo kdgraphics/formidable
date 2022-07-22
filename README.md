@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.4.13
+- Fixed issue when duplicating form with groups
+
 ### 5.4.12
 - Settings to automatically delete submissions and spams through garbage collection
 
