@@ -414,6 +414,17 @@ class Form extends Model
     }
 
     /**
+     * Handle setter, can be used by twig when trying to display two times
+     * the same form on the same page, one of them will need to change handle
+     * 
+     * @param string $handle
+     */
+    public function setHandle(string $handle)
+    {
+        $this->handle = $handle;
+    }
+
+    /**
      * Validate handle 
      * 
      * @param  Form $model

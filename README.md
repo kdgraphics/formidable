@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.4.14
+- Added Form::setHandle method, to change form handle in templates
+
 ### 5.4.13
 - Fixed issue when duplicating form with groups
 
