@@ -383,7 +383,7 @@ class Formidable extends Plugin
 
     protected function beforeInstall(): bool
     {
-        return \Craft::$app->plugins->installPlugin('emails');
+        return \Craft::$app->plugins->installPlugin('inspire-emails');
     }
 
     protected function afterUninstall()
