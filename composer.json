@@ -1,6 +1,6 @@
 {
-    "name": "ryssbowh/formidable",
-    "description": "Craft CMS 3 Form builder with Database/Config integration",
+    "name": "inspire/formidable",
+    "description": "Craft CMS 4 Form builder with Database/Config integration",
     "type": "craft-plugin",
     "keywords": [
         "craft",
@@ -19,9 +19,9 @@
         }
     ],
     "require": {
-        "craftcms/cms": "^3.7",
-        "inspire/emails": "^1.0 || ^2.0",
-        "inspire/spam-check": "^1.0"
+        "craftcms/cms": "^4.0",
+        "inspire/emails": "^3.0",
+        "inspire/spam-check": "^2.0"
     },
     "autoload": {
         "psr-4": {
