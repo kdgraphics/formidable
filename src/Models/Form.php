@@ -89,7 +89,7 @@ class Form extends Model
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         $this->submitLabel = $this->submitLabel ? $this->submitLabel : \Craft::t('formidable', 'Submit');
         parent::init();
@@ -112,7 +112,7 @@ class Form extends Model
     /**
      * @inheritDoc
      */
-    public function hasErrors($attribute = null)
+    public function hasErrors($attribute = null): bool
     {
         if (parent::hasErrors($attribute)) {
             return true;
@@ -127,6 +127,7 @@ class Form extends Model
                 return true;
             }
         }
+        return false;
     }
 
     /**
@@ -152,7 +153,7 @@ class Form extends Model
     /**
      * @inheritDoc
      */
-    public function fields()
+    public function fields(): array
     {
         return array_merge(parent::fields(), ['errors']);
     }

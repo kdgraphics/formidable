@@ -1,13 +1,12 @@
-{% extends "formidable/fields/_field" %}
+{% extends "_formidable/fields/_field" %}
 
 {% set field_class = (field_class ?? '') ~ (field.fieldClass ? (' ' ~ field.fieldClass) : '') %}
 
 {% block inner %}
 	<input type="text"
-	data-options="{{ field.datepickerOptions|json_encode }}"
 	id="{{ field.generateId(form) }}-input"
 	name="{{ field.frontName }}"
-	class="datepicker {{ field_class }}{% if error %} is-invalid{% endif %}" 
+	class="{{ field_class }}{% if error %} is-invalid{% endif %}" 
 	value="{{ old_value }}"
 	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
 	{% if not field.autocomplete %}autocomplete="off"{% endif %}

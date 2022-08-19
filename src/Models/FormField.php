@@ -18,7 +18,8 @@ class FormField extends Field
     /**
      * @inheritDoc
      */
-    public function getContentColumnType(): string {
+    public function getContentColumnType(): string
+    {
         return Schema::TYPE_INTEGER;
     }
 
@@ -35,7 +36,7 @@ class FormField extends Field
     /**
      * @inheritDoc
      */
-    public function getSettingsHtml()
+    public function getSettingsHtml(): ?string
     {
         $allForms = [];
         foreach (Formidable::$plugin->forms->all as $form) {
@@ -50,7 +51,7 @@ class FormField extends Field
     /**
      * @inheritDoc
      */
-    public function normalizeValue($value, ElementInterface $element = null)
+    public function normalizeValue($value, ElementInterface $element = null): mixed
     {
         if ($value instanceof TemplateForm) {
             return $value;
@@ -74,7 +75,7 @@ class FormField extends Field
     /**
      * @inheritDoc
      */
-    public function serializeValue($value, ElementInterface $element = null)
+    public function serializeValue($value, ElementInterface $element = null): mixed
     {
         return $value->form ? $value->form->id : null;
     }
@@ -82,7 +83,8 @@ class FormField extends Field
     /**
      * @inheritDoc
      */
-    public function isValueEmpty($value, ElementInterface $element): bool {
+    public function isValueEmpty($value, ElementInterface $element): bool
+    {
         if ($value instanceof TemplateForm) {
           return ($value->form === null);
         }

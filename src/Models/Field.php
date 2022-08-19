@@ -10,6 +10,7 @@ use Ryssbowh\Formidable\Models\FieldTypes\TextField;
 use Ryssbowh\Formidable\Models\Fields\Group;
 use Ryssbowh\Formidable\Models\FormSubmission;
 use craft\base\Model;
+use craft\helpers\Json;
 use craft\helpers\StringHelper;
 
 abstract class Field extends Model implements FieldInterface
@@ -47,7 +48,7 @@ abstract class Field extends Model implements FieldInterface
     /**
      * inheritDoc
      **/
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->type = $this->handle();
@@ -58,7 +59,7 @@ abstract class Field extends Model implements FieldInterface
     /**
      * @inheritDoc
      */
-    public function fields()
+    public function fields(): array
     {
         return array_merge(parent::fields(), ['errors']);
     }
@@ -128,7 +129,7 @@ abstract class Field extends Model implements FieldInterface
      **/
     public function frontendTemplate(): string
     {
-        return 'formidable/fields/' . $this->handle();
+        return '_formidable/fields/' . $this->handle();
     }
 
     /**
@@ -148,7 +149,7 @@ abstract class Field extends Model implements FieldInterface
      */
     public function setOptions(string $value)
     {
-        $this->options = decodeJson($value, true);
+        $this->options = Json::decode($value, true);
         foreach($this->options as $name => $value) {
             $this->$name = $value;
         }
@@ -157,7 +158,7 @@ abstract class Field extends Model implements FieldInterface
     /**
      * Unique id for this field
      * 
-     * @param  Form   $form
+     * @param  Form $form
      * @return string
      */
     public function generateId(Form $form): string

@@ -10,10 +10,6 @@
     <forms-toolbar></forms-toolbar>
 {% endblock %}
 
-{% block tabs %}
-    <forms-tabs :tab="'{{ tab }}'"></forms-tabs>
-{% endblock %}
-
 {% block sidebar %}
     <forms-menu
         :all-forms="{{ forms ? forms|json_encode : '{}' }}"
@@ -21,6 +17,7 @@
 {% endblock %}
 
 {% block content %}
+    <forms-tabs :tab="'{{ tab }}'"></forms-tabs>
     <forms-config
         :form-edited="{{ form }}"
         :all-emails="{{ emails ? emails|json_encode : '{}' }}"

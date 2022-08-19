@@ -8,7 +8,7 @@ use Twig\Extension\GlobalsInterface;
 
 class TwigForms extends AbstractExtension implements GlobalsInterface
 {
-    public function getGlobals()
+    public function getGlobals(): array
     {
         return array(
             'formidable' => Formidable::$plugin,

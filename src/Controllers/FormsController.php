@@ -14,7 +14,7 @@ use yii\web\HttpException;
 
 class FormsController extends Controller
 {
-    protected $allowAnonymous = self::ALLOW_ANONYMOUS_LIVE;
+    protected array|int|bool$allowAnonymous = self::ALLOW_ANONYMOUS_LIVE;
 
     public function actionSubmit(int $id)
     {

@@ -11,7 +11,7 @@ class SpamProvider extends ActiveDataProvider
 {
     public $trashed;
 
-	public function init()
+	public function init(): void
     {
         parent::init();
         if ($this->trashed === -1) {

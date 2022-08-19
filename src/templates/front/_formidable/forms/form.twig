@@ -1,4 +1,4 @@
-{% from 'formidable/macros' import errorList %}
+{% from '_formidable/macros' import errorList %}
 
 {% set error = errors['*'] is defined ? errors['*'] : false %}
 
@@ -21,7 +21,7 @@
 	{% endblock %}
 	{% block honeypot %}
 		{% if form.honeypot %}
-			{% include "formidable/fields/_honeypot" %}
+			{% include "_formidable/fields/_honeypot" %}
 		{% endif %}
 	{% endblock %}
 	{% block fields %}
@@ -29,7 +29,7 @@
 			{% for field in fields %}
 				{% set error = errors[field.handle] is defined ? errors[field.handle] : false %}
 				{% set old_value = oldInput[field.handle] ?? field.value %}
-				{% include "formidable/fields/field" %}
+				{% include "_formidable/fields/field" %}
 			{% endfor %}
 		</div>
 	{% endblock %}
@@ -39,7 +39,7 @@
 		{% endif %}
 	{% endblock %}
 	{% block submit %}
-		{% include "formidable/_includes/submit" %}
+		{% include "_formidable/_includes/submit" %}
 	{% endblock %}
 </form>
 

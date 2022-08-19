@@ -39,7 +39,7 @@ class GoogleV2 implements CaptchaInterface
             self::$registered = true;
             \Craft::$app->view->registerJsFile('https://www.google.com/recaptcha/api.js', ['position' => View::POS_HEAD]);
         }
-        return \Craft::$app->view->renderTemplate('formidable/captchas/googleV2', [
+        return \Craft::$app->view->renderTemplate('_formidable/captchas/googleV2', [
             'form' => $form,
             'captcha' => $this,
             'site_key' => $this->getSiteKey()

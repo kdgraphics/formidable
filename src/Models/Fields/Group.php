@@ -34,7 +34,7 @@ class Group extends Field
     /**
      * @inheritDoc
      */
-    public function hasErrors($attribute = null)
+    public function hasErrors($attribute = null): bool
     {
         if (parent::hasErrors($attribute)) {
             return true;
@@ -207,7 +207,7 @@ class Group extends Field
     /**
      * @inheritDoc
      */
-    public function fields()
+    public function fields(): array
     {
         return array_merge(parent::fields(), ['fields', 'errors']);
     }

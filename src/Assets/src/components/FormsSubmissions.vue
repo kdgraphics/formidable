@@ -13,13 +13,17 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="submission,index in submissions" :class="{'sel': selected.includes(submission.id), 'unread': !submission.read }">
+          <tr v-for="submission,index in submissions" :class="{'sel': selected.includes(submission.id), 'unread': !submission.read, trashed: submission.dateDeleted }">
             <td class="checkbox-cell"><div class="checkbox" title="Select" v-on:click="toggleSelect(submission.id)"></div></td>
             <td data-title="Form" data-attr="form">{{ submission.form.name }}</td>
             <td data-title="Submitted" data-attr="submitted">{{ submission.dateCreated }}</td>
             <td data-title="Read" class="read" data-attr="read">{{ submission.read ? t('Yes') : t('No') }}</td>
             <td data-title="Notified" data-attr="notified">{{ submission.notified ? t('Yes') : t('No') }}</td>
-            <td data-title="Open" data-attr="open"><span v-on:click="open(index)" class="icon icon-mask categories"><span data-icon="categories"></span></span></td>
+            <td data-title="Open" data-attr="open">
+              <a v-on:click.prevent="open(index)" class="icon icon-mask">
+                open
+              </a>
+            </td>
           </tr>
           <tr v-if="submissions.length == 0 && !isFetching">
             <td colspan="6">{{ t('No submissions found') }}</td>
@@ -271,6 +275,9 @@ export default {
   }
   tr.unread td.read {
     font-weight: bold;
+  }
+  tr.trashed * {
+    opacity: 0.7
   }
   #footer {
     justify-content: space-between;

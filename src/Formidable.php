@@ -16,11 +16,11 @@ use Ryssbowh\Formidable\Models\Rules\{BiggerThan, Contain, EqualTo, Off, On, Req
 use Ryssbowh\Formidable\Models\Settings;
 use Ryssbowh\Formidable\Services\{CaptchasService, ConditionsService, ConditionGroupsService, CsvExporterService, FieldsService, FormsService, RulesService, SpamService, SubmissionsService};
 use Ryssbowh\Formidable\Twig\TwigForms;
+use craft\base\Model;
 use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\events\{RebuildConfigEvent, RegisterCpNavItemsEvent, RegisterTemplateRootsEvent, RegisterUrlRulesEvent};
-use craft\log\FileTarget;
 use craft\services\Fields;
 use craft\services\Gc;
 use craft\services\ProjectConfig;
@@ -29,16 +29,15 @@ use craft\web\UrlManager;
 use craft\web\View;
 use craft\web\twig\variables\Cp;
 use yii\base\Event;
-use yii\base\Model;
 use yii\log\Logger;
 
 class Formidable extends Plugin
 {
     public $controllerNamespace = "Ryssbowh\\Formidable\\Controllers";
 
-    public $schemaVersion = '5.4.8';
+    public string $schemaVersion = '5.4.8';
 
-    public $hasCpSettings = true;
+    public bool $hasCpSettings = true;
 
     public static $plugin;
 
@@ -80,15 +79,10 @@ class Formidable extends Plugin
         SmallerThan::class
     ];
 
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this::$plugin = $this;
-        $fileTarget = new FileTarget([
-            'logFile' => \Craft::getAlias('@storage/logs/formidable.log'),
-            'categories' => ['formidable']
-        ]);
-        \Craft::getLogger()->dispatcher->targets[] = $fileTarget;
         $this->registerComponents();
         $this->registerCpRoutes();
         $this->registerPermissions();
@@ -123,15 +117,18 @@ class Formidable extends Plugin
             UserPermissions::class,
             UserPermissions::EVENT_REGISTER_PERMISSIONS,
             function(RegisterUserPermissionsEvent $event) {
-                $event->permissions['Forms'] = [
-                    'accessPlugin-formidable' => [
-                        'label' => 'Access forms',
-                        'nested' => [
-                            'manageFormidableForms' => [
-                                'label' => 'Manage forms',
-                            ],
-                            'manageFormidableSubmissions' => [
-                                'label' => 'Manage submissions',
+                $event->permissions[] = [
+                    'heading' => \Craft::t('formidable', 'Forms'),
+                    'permissions' => [
+                        'accessPlugin-formidable' => [
+                            'label' => 'Access forms',
+                            'nested' => [
+                                'manageFormidableForms' => [
+                                    'label' => 'Manage forms',
+                                ],
+                                'manageFormidableSubmissions' => [
+                                    'label' => 'Manage submissions',
+                                ]
                             ]
                         ]
                     ]
@@ -145,7 +142,7 @@ class Formidable extends Plugin
      *
      * @return \craft\base\Model|null
      */
-    protected function createSettingsModel()
+    protected function createSettingsModel(): ?Model
     {
         return new Settings();
     }
@@ -368,7 +365,7 @@ class Formidable extends Plugin
         });
     }
 
-    protected function afterInstall()
+    protected function afterInstall(): void
     {
         if (!Emails::$plugin->emails->getByKey('formidable_spam')) {
             $email = new EmailRecord([
@@ -381,12 +378,12 @@ class Formidable extends Plugin
         }
     }
 
-    protected function beforeInstall(): bool
+    protected function beforeInstall(): void
     {
-        return \Craft::$app->plugins->installPlugin('inspire-emails');
+        \Craft::$app->plugins->installPlugin('inspire-emails');
     }
 
-    protected function afterUninstall()
+    protected function afterUninstall(): void
     {
         \Craft::$app->getProjectConfig()->remove('formidable');
     }

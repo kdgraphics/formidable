@@ -40,7 +40,7 @@ class GoogleV3 implements CaptchaInterface
 			\Craft::$app->view->registerJsFile('https://www.google.com/recaptcha/api.js?render=' . $this->getSiteKey(), ['position' => View::POS_HEAD]);
 			\Craft::$app->view->registerAssetBundle(GoogleV3CaptchaBundle::class);
 		}
-		return \Craft::$app->view->renderTemplate('formidable/captchas/googleV3', [
+		return \Craft::$app->view->renderTemplate('_formidable/captchas/googleV3', [
 			'form' => $form,
 			'captcha' => $this,
 			'site_key' => $this->getSiteKey()

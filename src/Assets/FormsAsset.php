@@ -8,7 +8,7 @@ use craft\redactor\assets\redactor\RedactorAsset;
 
 class FormsAsset extends AssetBundle
 {
-	public function init()
+	public function init(): void
     {
         $this->sourcePath = __DIR__ . '/dist';
 

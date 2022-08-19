@@ -9,6 +9,7 @@ Display them easily in the front end with templates.
 
 ### 6.0.0
 - Craft 4 changes
+- Changed templates prefix from formidable to \_formidable
 
 # V4 breaking changes
 

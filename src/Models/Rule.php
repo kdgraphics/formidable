@@ -35,7 +35,7 @@ abstract class Rule extends Model implements RuleInterface
 
     protected $applies;
 
-    public function init()
+    public function init(): void
     {
         $this->type = $this->handle();
         $this->name = $this->name();
@@ -76,7 +76,7 @@ abstract class Rule extends Model implements RuleInterface
     /**
      * @inheritDoc
      */
-    public function hasErrors($attribute = null)
+    public function hasErrors($attribute = null): bool
     {
         if (parent::hasErrors($attribute)) {
             return true;
@@ -91,12 +91,13 @@ abstract class Rule extends Model implements RuleInterface
                 return true;
             }
         }
+        return false;
     }
 
     /**
      * @inheritDoc
      */
-    public function fields()
+    public function fields(): array
     {
         return array_merge(parent::fields(), ['errors']);
     }

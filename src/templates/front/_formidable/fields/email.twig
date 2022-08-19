@@ -1,9 +1,9 @@
-{% extends "formidable/fields/_field" %}
+{% extends "_formidable/fields/_field" %}
 
 {% set field_class = (field_class ?? '') ~ (field.fieldClass ? (' ' ~ field.fieldClass) : '') %}
 
 {% block inner %}
-	<input type="text"
+	<input type="email"
 	id="{{ field.generateId(form) }}-input"
 	name="{{ field.frontName }}"
 	class="{{ field_class }}{% if error %} is-invalid{% endif %}" 

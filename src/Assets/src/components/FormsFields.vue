@@ -38,7 +38,7 @@
         >
       </component>
       <div class="no-fields" v-if="fields.length == 0">{{ t('No fields found') }}</div>
-      <div class="actions" v-show="selectedFieldUid != null">
+      <div class="actions" v-show="selectedField">
         <a @click.prevent="deleteFieldInternal()">{{ t('Delete') }}</a>
         <a @click.prevent="duplicateField()">{{ t('Duplicate') }}</a>
         <a @click.prevent="duplicateGroup()" v-if="selectedField && selectedField.type == 'group'">{{ t('Duplicate with fields') }}</a>

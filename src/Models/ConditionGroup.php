@@ -56,7 +56,7 @@ class ConditionGroup extends Model
     /**
      * @inheritDoc
      */
-    public function fields()
+    public function fields(): array
     {
         return array_merge(parent::fields(), ['errors']);
     }

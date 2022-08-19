@@ -7,7 +7,7 @@ use craft\web\assets\cp\CpAsset;
 
 class HookAsset extends AssetBundle
 {
-	public function init()
+	public function init(): void
     {
         $this->sourcePath = __DIR__ . '/dist';
 
