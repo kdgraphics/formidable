@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.4.16
+- Fixed multiple files missing multiple attribute
+
 ### 5.4.15
 - Fixed emails not installed automatically on install
 
