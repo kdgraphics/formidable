@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.0.1
+- Fixed multiple files missing multiple attribute
+
 ### 6.0.0
 - Craft 4 changes
 - Changed templates prefix from formidable to \_formidable

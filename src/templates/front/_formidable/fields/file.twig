@@ -9,5 +9,6 @@
 	class="{{ field_class }}{% if error %} is-invalid{% endif %}" 
 	{% if field.extensions %}accept="{{ field.getHtmlExtensions() }}"{% endif %}
 	{% if not field.autocomplete %}autocomplete="off"{% endif %}
+	{% if field.multiple %}multiple{% endif %}
 	>
 {% endblock %}
