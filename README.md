@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.5.0
+- Removed file field "multiple" and replaced by "maxFiles"
+
 ### 5.4.16
 - Fixed multiple files missing multiple attribute
 

@@ -21,17 +21,12 @@
           <input type="text" class="text fullwidth" v-model="field.placeholder">
         </div>
       </div>
-      <div class="lightswitch-field field-multiple field">
+      <div class="lightswitch-field field-maxfiles field">
         <div class="heading">
-          <label>{{ t('Multiple files') }}</label>
+          <label>{{ t('Max files') }}</label>
         </div>
         <div class="input ltr">
-          <div :class="'lightswitch ' + (field.multiple ? 'on' : '')" tabindex="0" role="switch" :aria-checked="field.multiple">
-            <div class="lightswitch-container">
-              <div class="handle"></div>
-            </div>
-            <input type="hidden" name="multiple" v-model="field.multiple">
-          </div>
+          <input type="nuymber" min="2" class="text fullwidth" v-model="field.maxFiles">
         </div>
       </div>
       <div class="field field-extensions" aria-describedby="field-extensions-instructions">

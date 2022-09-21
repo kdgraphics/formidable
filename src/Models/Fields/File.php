@@ -19,7 +19,7 @@ class File extends Field
 	public $volume;
 	public $extensions;
 	public $labelHtml = false;
-	public $multiple = false;
+	public $maxFiles = 1;
 	public $attachToUserEmail = false;
 	public $attachToAdminEmail = false;
 	public $size = 2; //Max file size in Mb
@@ -45,6 +45,17 @@ class File extends Field
 	/**
 	 * inheritDoc
 	 **/
+	public function fieldType(): FieldTypeInterface
+	{
+		if ($this->maxFiles != 1) {
+			$this->fieldTypeClass = ArrayField::class;
+		}
+		return $this->fieldTypeClass::getInstance();
+	}
+
+	/**
+	 * inheritDoc
+	 **/
 	public function getExtraCpRules(): array
 	{
 		return [
@@ -52,7 +63,8 @@ class File extends Field
 			[['label', 'volume', 'tooltip', 'tooltipLabel'], 'trim'],
 			['extensions', 'validateExtensions'],
 			['size', 'double'],
-			[['labelHtml', 'multiple', 'attachToUserEmail', 'attachToAdminEmail'], 'boolean', 'trueValue' => true, 'falseValue' => false],
+			['maxFiles', 'integer'],
+			[['labelHtml', 'attachToUserEmail', 'attachToAdminEmail'], 'boolean', 'trueValue' => true, 'falseValue' => false],
 		];
 	}
 
@@ -75,38 +87,15 @@ class File extends Field
 
 	/**
 	 * inheritDoc
-	 **/
-	public function fieldType(): FieldTypeInterface
-	{
-		if ($this->multiple) {
-				$this->fieldTypeClass = ArrayField::class;
-		}
-		return $this->fieldTypeClass::getInstance();
-	}
-
-	/**
-	 * inheritDoc
 	 */
 	public function getFrontEndRules(FormSubmission $submission): array
 	{
 		$allowedExtensions = \Craft::$app->getConfig()->getGeneral()->allowedFileExtensions;
-		if ($this->multiple) {
-			$rules = [
-				[$this->handle, 'each', 'rule' => ['file', 'extensions' => $allowedExtensions]], 
-			];
-			if ($this->extensions) {
-				$rules[0]['rule']['extensions'] = explode(',', $this->extensions);
-			}
-			if ($this->size) {
-				$rules[0]['rule']['maxSize'] = $this->size * 1024 * 1024;	
-			}
-			return $rules;
-		}
 		$rules = [
-			[$this->handle, 'file', 'extensions' => $allowedExtensions], 
+			[$this->handle, 'file', 'extensions' => $allowedExtensions, 'maxFiles' => (int)$this->maxFiles, 'checkExtensionByMimeType' => false], 
 		];
 		if ($this->extensions) {
-			$rules[0]['extensions'] = explode(',', $this->extensions);
+			$rules[0]['extensions'] = $this->extensions;
 		}
 		if ($this->size) {
 			$rules[0]['maxSize'] = $this->size * 1024 * 1024;	
@@ -121,7 +110,7 @@ class File extends Field
 	 */
 	public function beforeSubmissionValidated(FormSubmission $submission)
 	{
-		if ($this->multiple) {
+		if ($this->maxFiles != 1) {
 			$submission->{$this->handle} = UploadedFile::getInstancesByName($this->frontName);
 		} else {
 			$submission->{$this->handle} = UploadedFile::getInstanceByName($this->frontName);
