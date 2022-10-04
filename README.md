@@ -8,6 +8,8 @@ Display them easily in the front end with templates.
 # Changelog
 
 ### 6.1.0
+- Added the option to skip the queue for email sending, and send emails instantly. By default queue won't be used
+- Added `FormEmailException` thrown when an email fails to send
 - Removed file field "multiple" and replaced by "maxFiles"
 
 ### 6.0.1

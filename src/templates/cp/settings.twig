@@ -8,7 +8,8 @@
     name: 'siteKey',
     value: settings.siteKey,
     errors: settings.getErrors('siteKey'),
-    suggestEnvVars: true
+    suggestEnvVars: true,
+    fieldClass: 'first'
     }) 
 }}
 {{ forms.autosuggestField({
@@ -53,5 +54,13 @@
         errors: settings.getErrors('deleteSpamThreshold'),
         unit: 'days',
         size: 30
+    })
+}}
+
+{{
+    forms.lightswitchField({
+        label: 'Use the queue for emailing'|t('formidable'),
+        name: 'useQueue',
+        on: settings.useQueue
     })
 }}

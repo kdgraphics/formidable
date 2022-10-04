@@ -3,6 +3,7 @@
 namespace Ryssbowh\Formidable\Services;
 
 use Ryssbowh\Formidable\Events\EmailEvent;
+use Ryssbowh\Formidable\Exceptions\FormEmailException;
 use Ryssbowh\Formidable\Formidable;
 use Ryssbowh\Formidable\Jobs\SendAdminEmailJob;
 use Ryssbowh\Formidable\Jobs\SendUserEmailJob;
@@ -53,8 +54,8 @@ class SubmissionsService extends Component
 		if ($form->saveSubmissions) {
 			$this->saveSubmission($submission);
 		}
-		$this->sendUserEmail($form, $submission);
-		$this->sendAdminEmail($form, $submission);
+		$this->_sendUserEmail($form, $submission);
+		$this->_sendAdminEmail($form, $submission);
 		return $submission;
 	}
 
@@ -298,15 +299,14 @@ class SubmissionsService extends Component
 	 * Trigger email event to allow other plugin to modify the email
 	 * 
 	 * @param  Message         $email
-	 * @param  Form            $form
 	 * @param  SubmissionModel $submission
 	 * @return EmailEvent
 	 */
-	public function sendBeforeUserEmailEvent(Message $email, Form $form, SubmissionModel $submission): EmailEvent
+	public function sendBeforeUserEmailEvent(Message $email, SubmissionModel $submission): EmailEvent
 	{
 		$event = new EmailEvent([
 			'email' => $email,
-			'form' => $form,
+			'form' => $submission->form,
 			'submission' => $submission
 		]);
 		$this->trigger(self::EVENT_BEFORE_SEND_USER_EMAIL, $event);
@@ -317,20 +317,113 @@ class SubmissionsService extends Component
 	 * Trigger email event to allow other plugin to modify the email
 	 * 
 	 * @param  Message         $email
-	 * @param  Form            $form
 	 * @param  SubmissionModel $submission
 	 * @return EmailEvent
 	 */
-	public function sendBeforeAdminEmailEvent(Message $email, Form $form, SubmissionModel $submission): EmailEvent
+	public function sendBeforeAdminEmailEvent(Message $email, SubmissionModel $submission): EmailEvent
 	{
 		$event = new EmailEvent([
 			'email' => $email,
-			'form' => $form,
+			'form' => $submission->form,
 			'submission' => $submission
 		]);
 		$this->trigger(self::EVENT_BEFORE_SEND_ADMIN_EMAIL, $event);
 		return $event;
 	}
+
+	/**
+	 * Send user email now
+	 * 
+	 * @param  SubmissionModel $submission
+	 * @return bool
+	 */
+	public function sendUserEmail(SubmissionModel $submission, bool $throwException = true): bool
+	{
+		$recipient = $submission->getValue($submission->form->notifyField);
+		$email = \Craft::$app->getMailer()
+            ->composeFromKey($submission->form->notify_key, [
+                'submission' => $submission,
+                'form' => $submission->form
+            ])->setTo($recipient);
+        $this->attachSubmissionFiles($email, $submission, 'user');
+		$event = $this->sendBeforeUserEmailEvent($email, $submission);
+        if (!$event->isValid) {
+            return false;
+        }
+        if ($email->send()) {
+        	if ($submission->id) {
+                $record = $this->getRecordById($submission->id);
+                $record->notified = 1;
+                $record->save(false);
+            }
+            return true;
+        }
+        throw new FormEmailException("Unable to send user email");
+	}
+
+	/**
+	 * Send admin email now
+	 * 
+	 * @param  SubmissionModel $submission
+	 * @return bool
+	 */
+	public function sendAdminEmail(SubmissionModel $submission): bool
+	{
+		$emails = [];
+        foreach (explode(',', trim($submission->form->notifyEmails)) as $address) {
+            $address = trim($address);
+            $address = \Craft::parseEnv($address);
+            if (filter_var($address, FILTER_VALIDATE_EMAIL)) {
+                $emails[] = $address;
+            }
+        }
+        $email = \Craft::$app->getMailer()
+            ->composeFromKey($submission->form->notifyAdmin_key, [
+                'submission' => $submission,
+                'form' => $submission->form
+            ])->setTo($emails);
+        $this->attachSubmissionFiles($email, $submission, 'admin');
+        $event = $this->sendBeforeAdminEmailEvent($email, $submission);
+        if (!$event->isValid) {
+            return false;
+        }
+        if ($email->send()) {
+        	if ($submission->id) {
+                $record = $this->getRecordById($submission->id);
+                $record->adminNotified = 1;
+                $record->save(false);
+            }
+            return true;
+        }
+        throw new FormEmailException("Unable to send admin email");
+	}
+
+	/**
+	 * Attach submission files to an email if they were marked as such on the form config
+	 * $type must be 'user' or 'admin'
+	 * 
+	 * @param Message         $email
+	 * @param SubmissionModel $submission
+	 * @param string          $type
+	 */
+	protected function attachSubmissionFiles(Message $email, SubmissionModel $submission, string $type)
+    {
+        $fileFields = $submission->form->getFieldsByType('file');
+        $assets = [];
+        foreach ($fileFields as $field) {
+            if ($type == 'user' and !$field->attachToUserEmail) {
+                continue;
+            }
+            if ($type == 'admin' and !$field->attachToAdminEmail) {
+                continue;
+            }
+            $assets = array_merge($assets, $field::getAssets($submission->getValue($field->handle)));
+        }
+        foreach ($assets as $asset) {
+            $path = \Craft::getAlias($asset->volume->path . '/' . $asset->getPath($asset->getFilename(true)));
+            $email->attach($path);
+        }
+    }
 
 	/**
 	 * Filters the submission data provider
@@ -381,7 +474,7 @@ class SubmissionsService extends Component
 	 * @param  SubmissionModel $submission
 	 * @return bool
 	 */
-	protected function sendUserEmail(Form $form, SubmissionModel $submission): bool
+	protected function _sendUserEmail(Form $form, SubmissionModel $submission): bool
 	{
 		if (!$form->notify_key) {
 			return false;
@@ -391,12 +484,13 @@ class SubmissionsService extends Component
  			return false;
 		}
 
-		Queue::push(new SendUserEmailJob([
-			'email' => $submission->getValue($form->notifyField),
-			'submission' => $submission,
-			'form' => $form
-		]));
-		return true;
+		if (Formidable::$plugin->settings->useQueue) {
+			Queue::push(new SendUserEmailJob([
+				'submission' => $submission
+			]));
+			return true;
+		}
+		return $this->sendUserEmail($submission);
 	}
 
 	/**
@@ -406,16 +500,18 @@ class SubmissionsService extends Component
 	 * @param  ?SubmissionModel $submission
 	 * @return bool
 	 */
-	protected function sendAdminEmail(Form $form, SubmissionModel $submission): bool
+	protected function _sendAdminEmail(Form $form, SubmissionModel $submission): bool
 	{
 		if (!$form->notifyAdmin_key) {
 			return false;
 		}
-		Queue::push(new SendAdminEmailJob([
-			'submission' => $submission,
-			'form' => $form
-		]));
-		return true;
+		if (Formidable::$plugin->settings->useQueue) {
+			Queue::push(new SendAdminEmailJob([
+				'submission' => $submission
+			]));
+			return true;
+		}
+		return $this->sendAdminEmail($submission);
 	}
 
 	/**

@@ -3,6 +3,7 @@
 namespace Ryssbowh\Formidable\Services;
 
 use Ryssbowh\Formidable\Events\SpamEvent;
+use Ryssbowh\Formidable\Exceptions\FormEmailException;
 use Ryssbowh\Formidable\Formidable;
 use Ryssbowh\Formidable\Jobs\SendSpamEmailJob;
 use Ryssbowh\Formidable\Models\Form;
@@ -47,8 +48,36 @@ class SpamService extends Component
     		$record->save(false);
     		$spam = $record->toModel();
         }
-        $this->sendSpamNotification($form, $spam, $submission);
+        $this->_sendEmail($spam, $submission);
         return $spam;
+	}
+
+	public function sendEmail(SpamModel $spam, array $submission): bool
+	{
+		$emails = [];
+        foreach (explode(',', trim($spam->form->notifySpamEmails)) as $address) {
+            $address = trim($address);
+            $address = \Craft::parseEnv($address);
+            if (filter_var($address, FILTER_VALIDATE_EMAIL)) {
+                $emails[] = $address;
+            }
+        }
+        $email = \Craft::$app->getMailer()
+            ->composeFromKey($spam->form->notifySpam_key, [
+                'spam' => $spam,
+                'formSubmission' => $submission,
+                'form' => $spam->form
+            ])->setTo($emails);
+
+        if ($email->send()) {
+            if ($spam->id) {
+                $record = $this->getRecordById($spam->id);
+                $record->notified = 1;
+                $record->save(false);
+            }
+            return true;
+        }
+        throw new FormEmailException("Unable to send admin email");
 	}
 
 	/**
@@ -59,17 +88,19 @@ class SpamService extends Component
 	 * @param  FormSubmission $submission
 	 * @return bool
 	 */
-	protected function sendSpamNotification(Form $form, SpamModel $spam, FormSubmission $submission): bool
+	protected function _sendEmail(SpamModel $spam, FormSubmission $submission): bool
 	{
-        if (!$form->notifySpam_key) {
+        if (!$spam->form->notifySpam_key) {
             return false;
         }
-        Queue::push(new SendSpamEmailJob([
-            'formSubmission' => $submission->toArray(),
-            'spam' => $spam,
-            'form' => $form
-        ]));
-        return true;
+        if (Formidable::$plugin->settings->useQueue) {
+        	Queue::push(new SendSpamEmailJob([
+            	'formSubmission' => $submission->toArray(),
+            	'spam' => $spam
+        	]));
+        	return true;
+        }
+        return $this->sendEmail($spam, $submission->toArray());
 	}
 
 	/**

@@ -8,11 +8,6 @@ use craft\queue\BaseJob;
 class SendSpamEmailJob extends BaseJob
 {
     /**
-     * @var Form
-     */
-    public $form;
-
-    /**
      * @var Spam
      */
     public $spam;
@@ -27,30 +22,7 @@ class SendSpamEmailJob extends BaseJob
      */
     public function execute($queue): void
     {
-        $emails = [];
-        foreach (explode(',', trim($this->form->notifySpamEmails)) as $address) {
-            $address = trim($address);
-            $address = \Craft::parseEnv($address);
-            if (filter_var($address, FILTER_VALIDATE_EMAIL)) {
-                $emails[] = $address;
-            }
-        }
-        $email = \Craft::$app->getMailer()
-            ->composeFromKey($this->form->notifySpam_key, [
-                'spam' => $this->spam,
-                'formSubmission' => $this->formSubmission,
-                'form' => $this->form
-            ])->setTo($emails);
-
-        if (!$email->send()) {
-            throw new \Exception('Unable to send spam email to ' . implode(', ', $emails));
-        } else {
-            if ($this->spam) {
-                $record = Formidable::$plugin->spam->getRecordById($this->spam->id);
-                $record->notified = 1;
-                $record->save(false);
-            }
-        }
+        Formidable::$plugin->spam->sendEmail($this->spam, $this->formSubmission);
     }
 
     /**
@@ -58,6 +30,6 @@ class SendSpamEmailJob extends BaseJob
      */
     protected function defaultDescription(): string
     {
-        return \Craft::t('formidable', 'Sending a spam email');
+        return \Craft::t('formidable', 'Sending form spam email');
     }
 }
