@@ -3,16 +3,10 @@
 namespace Ryssbowh\Formidable\Jobs;
 
 use Ryssbowh\Formidable\Formidable;
-use craft\mail\Message;
 use craft\queue\BaseJob;
 
 class SendAdminEmailJob extends BaseJob
 {
-    /**
-     * @var Form
-     */
-    public $form;
-
     /**
      * @var Submission
      */
@@ -23,51 +17,7 @@ class SendAdminEmailJob extends BaseJob
      */
     public function execute($queue): void
     {
-        $emails = [];
-        foreach (explode(',', trim($this->form->notifyEmails)) as $address) {
-            $address = trim($address);
-            $address = \Craft::parseEnv($address);
-            if (filter_var($address, FILTER_VALIDATE_EMAIL)) {
-                $emails[] = $address;
-            }
-        }
-        $email = \Craft::$app->getMailer()
-            ->composeFromKey($this->form->notifyAdmin_key, [
-                'submission' => $this->submission,
-                'form' => $this->form
-            ])->setTo($emails);
-        $this->attachFiles($email);
-
-        $event = Formidable::$plugin->submissions->sendBeforeAdminEmailEvent($email, $this->form, $this->submission);
-        if (!$event->isValid) {
-            return;
-        }
-
-        if (!$email->send()) {
-            throw new \Exception('Unable to send form submission email to ' . implode(', ', $emails));
-        } else {
-            if ($this->submission->id) {
-                $record = Formidable::$plugin->submissions->getRecordById($this->submission->id);
-                $record->adminNotified = 1;
-                $record->save(false);
-            }
-        }
-    }
-
-    protected function attachFiles(Message $email)
-    {
-        $fileFields = $this->form->getFieldsByType('file');
-        $assets = [];
-        foreach ($fileFields as $field) {
-            if (!$field->attachToAdminEmail) {
-                continue;
-            }
-            $assets = array_merge($assets, $field::getAssets($this->submission->getValue($field->handle)));
-        }
-        foreach ($assets as $asset) {
-            $path = \Craft::getAlias($asset->volume->path . '/' . $asset->getPath($asset->getFilename(true)));
-            $email->attach($path);
-        }
+        Formidable::$plugin->submissions->sendAdminEmail($this->submission);
     }
 
     /**

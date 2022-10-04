@@ -12,6 +12,7 @@ class Settings extends Model
     public $acceptableScore = 5;
     public $deleteSubmissionsThreshold = '';
     public $deleteSpamThreshold = 30;
+    public $useQueue = false;
 
     /**
      * @return array
@@ -21,7 +22,8 @@ class Settings extends Model
         return [
             [['siteKey', 'secretKey', 'deleteSpamThreshold', 'deleteSubmissionsThreshold'], 'string'],
             [['acceptableScore'], 'number'],
-            [['acceptableScore'], 'required']
+            [['acceptableScore'], 'required'],
+            [['useQueue'], 'boolean']
         ];
     }
 }

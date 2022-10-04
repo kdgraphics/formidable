@@ -3,6 +3,7 @@
 namespace Ryssbowh\Formidable\Controllers;
 
 use Ryssbowh\Formidable\Assets\FormsAsset;
+use Ryssbowh\Formidable\Exceptions\FormEmailException;
 use Ryssbowh\Formidable\Formidable;
 use Ryssbowh\Formidable\Models\Form;
 use Ryssbowh\Formidable\Models\FormSubmission;
@@ -26,7 +27,16 @@ class FormsController extends Controller
             $this->requirePostRequest();
         }
 
-        $result = $this->forms()->submit($form);
+        try {
+            $result = $this->forms()->submit($form);
+        } catch (FormEmailException $e) {
+            $this->response->setStatusCode(500);
+            return $this->asJson([
+                'errors' => [
+                    '_emailing' => [\Craft::t('formidable', "Your submission is saved but there's been a problem while sending out emails. We have been informed of the problem")]
+                ]
+            ]);
+        }
 
         if ($result === FormsService::INVALID or $result === FormsService::SPAM) {
             return $this->onUnvalidForm($form);
