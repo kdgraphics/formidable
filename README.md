@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.1.0
+- Removed file field "multiple" and replaced by "maxFiles"
+
 ### 6.0.1
 - Fixed multiple files missing multiple attribute
 
