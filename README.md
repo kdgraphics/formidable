@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.1.1
+- Fixed typing error
+
 ### 6.1.0
 - Added the option to skip the queue for email sending, and send emails instantly. By default queue won't be used
 - Added `FormEmailException` thrown when an email fails to send
