@@ -122,7 +122,6 @@ export default {
       }
     },
     search: function (e) {
-      console.log(this.isFetching, this.timer);
       if (this.timer) {
         clearTimeout(this.timer);
         this.timer = null;

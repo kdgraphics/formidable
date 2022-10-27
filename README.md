@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.1.2
+- Fixed an error when filtering on submissions with both a date and a search
+
 ### 6.1.1
 - Fixed typing error
 
