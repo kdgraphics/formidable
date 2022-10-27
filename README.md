@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.6.1
+- Fixed an error when filtering on submissions with both a date and a search
+
 ### 5.6.0
 - Added the option to skip the queue for email sending, and send emails instantly. By default queue won't be used
 - Added `FormEmailException` thrown when an email fails to send

@@ -444,11 +444,11 @@ class SubmissionsService extends Component
 		}
 		if (isset($filters['dateFrom']['date']) and $filters['dateFrom']['date']) {
 			$date = $this->parseDateFilter($filters['dateFrom']);
-			$provider->query->andWhere(['>=', 'dateCreated', $date]);
+			$provider->query->andWhere(['>=', 'formidable_submissions.dateCreated', $date]);
 		}
 		if (isset($filters['dateTo']['date']) and $filters['dateTo']['date']) {
 			$date = $this->parseDateFilter($filters['dateTo'], [23,59,59]);
-			$provider->query->andWhere(['<=', 'dateCreated', $date]);
+			$provider->query->andWhere(['<=', 'formidable_submissions.dateCreated', $date]);
 		}
 		if ($sort && strpos($sort['field'], 'form.') !== false) {
 			$provider->query->with(['form' => function ($query) use ($sort) {
