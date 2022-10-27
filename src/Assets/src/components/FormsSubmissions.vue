@@ -213,6 +213,7 @@ export default {
           };
         })
         .catch((error) => {
+          Craft.cp.displayError('There\'s been a problem loading the submissions');
           console.log(error);
         })
         .finally(() => {
