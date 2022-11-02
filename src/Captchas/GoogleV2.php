@@ -31,14 +31,22 @@ class GoogleV2 implements CaptchaInterface
     }
 
     /**
-     * @inheritDoc
+     * Register captcha on the view
      */
-    public function render(Form $form): string
+    public function register()
     {
         if (!self::$registered) {
             self::$registered = true;
             \Craft::$app->view->registerJsFile('https://www.google.com/recaptcha/api.js', ['position' => View::POS_HEAD]);
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function render(Form $form): string
+    {
+        $this->register();
         return \Craft::$app->view->renderTemplate('_formidable/captchas/googleV2', [
             'form' => $form,
             'captcha' => $this,

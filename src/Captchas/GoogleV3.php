@@ -31,15 +31,23 @@ class GoogleV3 implements CaptchaInterface
 	}
 
 	/**
-	 * @inheritDoc
+	 * Register captcha on the view
 	 */
-	public function render(Form $form): string
+	public function register()
 	{
 		if (!self::$registered) {
 			self::$registered = true;
 			\Craft::$app->view->registerJsFile('https://www.google.com/recaptcha/api.js?render=' . $this->getSiteKey(), ['position' => View::POS_HEAD]);
 			\Craft::$app->view->registerAssetBundle(GoogleV3CaptchaBundle::class);
 		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function render(Form $form): string
+	{
+		$this->register();
 		return \Craft::$app->view->renderTemplate('_formidable/captchas/googleV3', [
 			'form' => $form,
 			'captcha' => $this,

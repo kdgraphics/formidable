@@ -13,9 +13,11 @@ window.googleV3Captcha = {
 	},
 	retrieveCaptcha: function (formId, action) {
 		var _this = this;
-	    this.getCaptcha(formId).then(function (token) {
-	        document.getElementById(formId).querySelector("[name=_recaptcha_response]").value = token;
-	    });
+		grecaptcha.ready(function() {
+		    _this.getCaptcha(formId).then(function (token) {
+		        document.getElementById(formId).querySelector("[name=_recaptcha_response]").value = token;
+		    });
+		});
 		setTimeout(function () {
 			_this.retrieveCaptcha(formId, action);
 		}, 120000);

@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.1.3
+- Added captcha register methods so they can be used manually without a formidable form : `{% do formidable.captchas.getRegistered('googleV3').register() %}`
+
 ### 6.1.2
 - Fixed an error when filtering on submissions with both a date and a search
 
