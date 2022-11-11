@@ -44,6 +44,7 @@ class Group extends Field
                 return true;
             }
         }
+        return false;
     }
 
     /**

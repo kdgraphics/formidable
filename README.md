@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.1.4
+- Fixed error with group hasErrors() function
+
 ### 6.1.3
 - Added captcha register methods so they can be used manually without a formidable form : `{% do formidable.captchas.getRegistered('googleV3').register() %}`
 
