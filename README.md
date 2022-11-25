@@ -199,3 +199,11 @@ Spams attempts are saved in database and can be viewed in back end.
 # Craft field
 
 Since 5.3.0 you have a new type of field "Form" that lets the user choose a form as another field. A different template for each of the form can be defined in the backend
+
+# Known issue
+
+You will have a problem with ajax and validation when using the same form twice on a page. To make this work you will need to change the handle of the second form before you output it :
+- remove the html id in the form configuration if there's one
+- In your template call this before you output the form : `{% do form.setHandle('new-handle) %}`
+
+When the handles of the 2 forms are different, the html id will be different and things will work.
