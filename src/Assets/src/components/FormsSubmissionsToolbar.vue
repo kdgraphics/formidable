@@ -1,72 +1,200 @@
 <template>
-  <div class="formidable-submissions-toolbar flex flex-no-wrap" ref="container">
+  <div
+    ref="container"
+    class="formidable-submissions-toolbar flex flex-no-wrap"
+  >
     <div>
-      <button type="button" class="btn menubtn statusmenubtn">
-        <span v-if="!filters.trashed" class="status"></span>
-        <span v-if="filters.trashed" class="icon" data-icon="trash"></span>
+      <button
+        type="button"
+        class="btn menubtn statusmenubtn"
+      >
+        <span
+          v-if="filters.trashed === false"
+          class="status live"
+        />
+        <span
+          v-if="filters.trashed === true"
+          class="icon"
+          data-icon="trash"
+        />
+        <span
+          v-if="filters.trashed === -1"
+          class="status"
+        />
         {{ t(filters.trashed === -1 ? t("All") : (filters.trashed === false ? t("Not trashed") : t('Trashed'))) }}
       </button>
       <div class="menu">
         <ul class="padded">
-          <li><a href="#" :class="filters.trashed === -1 ? 'sel' : ''" v-on:click="setTrashed(-1)"><span class="status"></span>{{ t('All') }}</a></li>
-          <li><a href="#" :class="filters.trashed === false ? 'sel' : ''" v-on:click="setTrashed(false)">{{ t('Not trashed') }}</a></li>
-          <li><a href="#" :class="filters.trashed === true ? 'sel' : ''" v-on:click="setTrashed(true)"><span class="icon" data-icon="trash"></span>{{ t('Trashed') }}</a></li>
+          <li>
+            <a
+              href="#"
+              :class="filters.trashed === -1 ? 'sel' : ''"
+              @click="setTrashed(-1)"
+            ><span class="status" />{{ t('All') }}</a>
+          </li>
+          <li>
+            <a
+              href="#"
+              :class="filters.trashed === false ? 'sel' : ''"
+              @click="setTrashed(false)"
+            ><span class="status live" />{{ t('Not trashed') }}</a>
+          </li>
+          <li>
+            <a
+              href="#"
+              :class="filters.trashed === true ? 'sel' : ''"
+              @click="setTrashed(true)"
+            ><span
+              class="icon"
+              data-icon="trash"
+            />{{ t('Trashed') }}</a>
+          </li>
         </ul>
       </div>
     </div>
     <div>
-      <button type="button" class="btn menubtn statusmenubtn">
-        <span v-if="!filters.read" class="status"></span>
-        <span v-if="filters.read" class="icon"></span>
-        {{ filters.read === null ? t("All") : (filters.read === true ? t("Read") : t("Not read")) }}
+      <button
+        type="button"
+        class="btn menubtn statusmenubtn"
+      >
+        <span
+          v-if="filters.read === -1"
+          class="status"
+        />
+        <span
+          v-if="filters.read === true"
+          class="status live"
+        />
+        <span
+          v-if="filters.read === false"
+          class="status suspended"
+        />
+        {{ filters.read === -1 ? t("All") : (filters.read === true ? t("Read") : t("Not read")) }}
       </button>
       <div class="menu">
         <ul class="padded">
-          <li><a href="#" :class="filters.read === -1 ? 'sel' : ''" v-on:click="setRead(-1)">{{ t('All') }}</a></li>
-          <li><a href="#" :class="filters.read === true ? 'sel' : ''" v-on:click="setRead(true)">{{ t('Read') }}</a></li>
-          <li><a href="#" :class="filters.read === false ? 'sel' : ''" v-on:click="setRead(false)">{{ t('Not read') }}</a></li>
+          <li>
+            <a
+              href="#"
+              :class="filters.read === -1 ? 'sel' : ''"
+              @click="setRead(-1)"
+            ><span class="status" />{{ t('All') }}</a>
+          </li>
+          <li>
+            <a
+              href="#"
+              :class="filters.read === true ? 'sel' : ''"
+              @click="setRead(true)"
+            ><span class="status live" />{{ t('Read') }}</a>
+          </li>
+          <li>
+            <a
+              href="#"
+              :class="filters.read === false ? 'sel' : ''"
+              @click="setRead(false)"
+            ><span class="status suspended" />{{ t('Not read') }}</a>
+          </li>
         </ul>
       </div>
     </div>
     <div>
-      <button type="button" class="btn menubtn statusmenubtn">
+      <button
+        type="button"
+        class="btn menubtn statusmenubtn"
+      >
         {{ t("Select form(s)") }}
       </button>
       <div class="menu">
         <ul class="padded">
-          <li><a href="#" v-on:click="selectAllForms">{{ t('All') }}</a></li>
-          <li v-for="title, id in allForms"><a href="#" :class="filters.forms.includes(id) ? 'sel' : ''" v-on:click="toggleForm(id)">{{ title }}</a></li>
+          <li>
+            <a
+              href="#"
+              @click="selectAllForms"
+            >{{ t('All') }}</a>
+          </li>
+          <li
+            v-for="title, id in allForms"
+            :key="id"
+          >
+            <a
+              href="#"
+              :class="filters.forms.includes(id) ? 'sel' : ''"
+              @click="toggleForm(id)"
+            >{{ title }}</a>
+          </li>
         </ul>
       </div>
     </div>
     <div>
       <div class="datetimewrapper">
         <div class="datewrapper">
-          <input class="text datepicker" name="dateFrom" :placeholder="'      '+t('Date from')" autocomplete="off">
-          <div data-icon="date"></div>
+          <input
+            class="text datepicker"
+            name="dateFrom"
+            :placeholder="'      '+t('Date from')"
+            autocomplete="off"
+          >
+          <div data-icon="date" />
         </div>
       </div>
     </div>
     <div>
       <div class="datetimewrapper">
         <div class="datewrapper"> 
-          <input class="text datepicker" name="dateTo" :placeholder="'       '+t('Date to')" autocomplete="off">
-          <div data-icon="date"></div>
+          <input
+            class="text datepicker"
+            name="dateTo"
+            :placeholder="'       '+t('Date to')"
+            autocomplete="off"
+          >
+          <div data-icon="date" />
         </div>
       </div>
     </div>
     <div class="input">
-      <input class="text" name="search" placeholder="Search" size="10" autocomplete="off" :disabled="isFetching" v-on:keyup="search">
+      <input
+        class="text"
+        name="search"
+        placeholder="Search"
+        size="10"
+        autocomplete="off"
+        :disabled="isFetching"
+        @keyup="search"
+      >
     </div>
-    <button class="btn" @click="setIsChartView(!isChartView)">{{ isChartView ? t('Table view') : t('Chart view')}}</button>
+    <button
+      class="btn"
+      @click="setIsChartView(!isChartView)"
+    >
+      {{ isChartView ? t('Table view') : t('Chart view') }}
+    </button>
     <div v-show="selected.length">
-      <button type="button" class="btn menubtn" data-icon="settings">
-      </button>
+      <button
+        type="button"
+        class="btn menubtn"
+        data-icon="settings"
+      />
       <div class="menu">
         <ul class="padded">
-          <li><a href="#" v-on:click="markSelectedAsRead">{{ t('Mark as read') }}</a></li>
-          <li><a href="#" v-on:click="deleteSelection">{{ t('Delete') }}</a></li>
-          <li><a href="#" v-if="filters.forms.length == 1" v-on:click="exportToCSV">{{ t('Export') }}</a></li>
+          <li>
+            <a
+              href="#"
+              @click="markSelectedAsRead"
+            >{{ t('Mark as read') }}</a>
+          </li>
+          <li>
+            <a
+              href="#"
+              @click="deleteSelection"
+            >{{ t('Delete') }}</a>
+          </li>
+          <li>
+            <a
+              v-if="filters.forms.length == 1"
+              href="#"
+              @click="exportToCSV"
+            >{{ t('Export') }}</a>
+          </li>
         </ul>
       </div>
     </div>
@@ -75,13 +203,21 @@
 
 <script>
 import { mapMutations, mapState, mapActions } from 'vuex';
-import axios from 'axios';
 import { keys, remove } from 'lodash';
 
 export default {
   props: {
-    allForms: Object,
-    timezone: String
+    allForms: {
+      type: Object,
+      default: () => {return {};}
+    },
+    timezone: {
+      type: String,
+      default: ''
+    }
+  },
+  computed: {
+    ...mapState(['sort', 'filters', 'selected', 'isChartView', 'submissions', 'isFetching'])
   },
   created: function(){
     this.setForms(this.allForms);
@@ -89,9 +225,6 @@ export default {
     if (this.allForms) {
       this.addForm(keys(this.allForms)[0]);
     }
-  },
-  computed: {
-    ...mapState(['sort', 'filters', 'selected', 'isChartView', 'submissions', 'isFetching'])
   },
   mounted () {
     Craft.initUiElements(this.$refs.container);

@@ -1,12 +1,15 @@
 <template>
   <div>
-    <div :class="'rule-fields' + (errors.rule.fields ? ' error' : '')">
+    <div class="rule-fields">
       <div class="field">
         <div class="heading">
           <label>{{ t('Title') }}</label>
         </div>
         <div class="input ltr">
-          <input class="text fullwidth" v-model="rule.title"/>
+          <input
+            v-model="selectedRule.title"
+            class="text fullwidth"
+          >
         </div>
       </div>
       <div class="field">
@@ -17,7 +20,8 @@
           {{ t('Fields to which this rule apply') }}
         </div>
         <div class="input ltr">
-          <multiselect v-model="multiselectedFields"
+          <multiselect
+            v-model="selectedFields"
             :options="validFields"
             track-by="handle"
             label="name"
@@ -30,9 +34,21 @@
             :close-on-select="false"
           />
         </div>
+        <ul class="errors">
+          <li
+            v-for="error, index in errors.fields"
+            :key="index"
+            class="error"
+          >
+            {{ error }}
+          </li>
+        </ul>
       </div>
     </div>
-    <div class="rule-value" v-if="rule.requiresValue">
+    <div
+      v-if="selectedRule.requiresValue"
+      class="rule-value"
+    >
       <div class="field">
         <div class="heading">
           <label>{{ t('Value') }}</label>
@@ -41,11 +57,26 @@
           {{ t('Value to compare against') }}
         </div>
         <div class="input ltr">
-          <input :class="'text fullwidth' + (errors.rule.value ? ' error' : '')" v-model="rule.value"/>
+          <input
+            v-model="selectedRule.value"
+            class="text fullwidth"
+          >
         </div>
+        <ul class="errors">
+          <li
+            v-for="error, index in errors.value"
+            :key="index"
+            class="error"
+          >
+            {{ error }}
+          </li>
+        </ul>
       </div>
     </div>
-    <div class="rule-value" v-if="rule.requiresField">
+    <div
+      v-if="selectedRule.requiresField"
+      class="rule-value"
+    >
       <div class="field">
         <div class="heading">
           <label>{{ t('Field') }}</label>
@@ -54,10 +85,28 @@
           {{ t('Field to compare against') }}
         </div>
         <div class="select">
-          <select :class="'text fullwidth' + (errors.rule.value ? ' error' : '')" v-model="fieldSelected">
-            <option v-for="field in fields" :value="field">{{ field.name }}</option>
+          <select
+            v-model="selectedRule.value"
+            class="'text fullwidth"
+          >
+            <option
+              v-for="field, index in allFields"
+              :key="index"
+              :value="field.handle"
+            >
+              {{ field.name }}
+            </option>
           </select>
         </div>
+        <ul class="errors">
+          <li
+            v-for="error, index in errors.value"
+            :key="index"
+            class="error"
+          >
+            {{ error }}
+          </li>
+        </ul>
       </div>
     </div>
     <div class="rule-conditions">
@@ -65,8 +114,14 @@
         <div class="heading">
           <label>{{ t('Conditions') }}</label>
           <div class="actions">
-            <a href="#" @click.prevent="addCondition">{{ t('Add condition') }}</a>
-            <a href="#" @click.prevent="addGroup">{{ t('Add group') }}</a>
+            <a
+              href="#"
+              @click.prevent="addCondition"
+            >{{ t('Add condition') }}</a>&nbsp;
+            <a
+              href="#"
+              @click.prevent="addGroup"
+            >{{ t('Add group') }}</a>
           </div>
         </div>
         <div class="instructions">
@@ -74,33 +129,52 @@
         </div>
       </div>
       <div class="conditions-list">
-        <condition v-for="(condition, index) in rule.conditions" v-on:delete="deleteCondition(index)" v-on:error="onConditionError"
-          :key="'condition-'+index" 
-          :index="index" 
-          :condition="condition"
+        <rule-condition
+          v-for="(condition, index) in selectedRule.conditions"
+          :key="index"
+          :uid="condition.uid"
+          @delete="deleteCondition(condition.uid)"
         />
-        <condition-group v-for="(group, index) in rule.conditionGroups" v-on:delete="deleteGroup(index)" v-on:error="onGroupError"
-          :key="'group-'+index" 
-          :has-conditions="rule.conditions.length > 0" 
-          :index="index" 
-          :group="group"
+        <rule-condition-group
+          v-for="(group, index) in selectedRule.conditionGroups"
+          :key="index"
+          :uid="group.uid"
+          @delete="deleteGroup(group.uid)"
         />
-        <p v-if="rule.conditions.length == 0 && rule.conditionGroups.length == 0">{{ t('No conditions') }}</p>
+        <p v-if="selectedRule.conditions.length == 0 && selectedRule.conditionGroups.length == 0">
+          {{ t('No conditions') }}
+        </p>
       </div>
     </div>
     <div class="rule-message field">
       <div class="heading">
-        <label>{{ t('Error message')}}</label>
+        <label>{{ t('Error message') }}</label>
       </div>
-      <div class="instructions">{{ t('Messages to display when this rule doesn\'t pass. Every field parameters are accessible with the shortcut {field.parameter}. Use {value} for the posted value.') }}<br/>{{ t('Default message') }}</div>
+      <div class="instructions">
+        {{ t('Messages to display when this rule doesn\'t pass. Every field parameters are accessible with the shortcut {field.parameter}. Use {value} for the posted value.') }}<br>{{ t('Default message') }}
+      </div>
       <div class="input ltr">
-        <input class="text fullwidth" v-model="rule.message" :placeholder="rule.defaultMessage">
+        <input
+          v-model="selectedRule.message"
+          class="text fullwidth"
+          :placeholder="selectedRule.defaultMessage"
+        >
       </div>
     </div>
-    <div class="rule-messages field" v-for="field in selectedFields" :key="field.handle">
-      <div class="instructions">{{ t('Message for {field}', {field: field.name}) }}</div>
+    <div
+      v-for="field in selectedFields"
+      :key="field.handle"
+      class="rule-messages field"
+    >
+      <div class="instructions">
+        {{ t('Message for {field}', {field: field.name}) }}
+      </div>
       <div class="input ltr">
-        <input class="text fullwidth" v-model="rule.messages[field.handle]" :placeholder="rule.message">
+        <input
+          v-model="selectedRule.messages[field.handle]"
+          class="text fullwidth"
+          :placeholder="selectedRule.message"
+        >
       </div>
     </div>
   </div>
@@ -109,50 +183,27 @@
 <script>
 import { mapMutations, mapState } from 'vuex';
 import Vue from 'vue';
-import { isEqual, cloneDeep, reduce, filter, intersectionBy } from 'lodash';
-import { EventBus } from '../EventBus';
+import { isEqual, cloneDeep, reduce, filter, intersection } from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
+import Multiselect from 'vue-multiselect';
+import RuleCondition from './RuleCondition.vue';
+import RuleConditionGroup from './RuleConditionGroup.vue';
 
 export default {
-  props: {
-    rule: Object,
-    index: Number,
-  },
-  data() {
-    return {
-      selectedFields: {},
-      selectedField: null,
-      errors: {rule: {}, conditions: {}, groups: {}}
-    }
-  },
+  components: {Multiselect, RuleCondition, RuleConditionGroup},
   computed: {
-    /**
-     * @return {Boolean} global error status
-     */
-    hasErrors: function () {
-      return reduce(this.errors.conditions, function(result, value, key) {
-        return (result || value);
-      }, false) || reduce(this.errors.groups, function(result, value, key) {
-        return (result || value);
-      }, false) || reduce(this.errors.rule, function(result, value, key) {
-        return (result || value);
-      }, false);
-    },
-    multiselectedFields: {
-      get: function () {
-        return this.selectedFields;
-      },
-      set: function (value) {
-        this.selectedFields = value;
-        this.rule.fields = value.map((field) => field.handle);
+    errors: function () {
+      if (!this.selectedRule.errors) {
+        return {};
       }
+      return this.selectedRule.errors;
     },
-    fieldSelected: {
+    selectedFields: {
       get: function () {
-        return this.selectedField;
+        return filter(this.allFields, (field) => this.selectedRule.fields.includes(field.handle));
       },
       set: function (value) {
-        this.selectedField = value;
-        this.rule.value = value.handle;
+        this.selectedRule.fields = value.map((field) => field.handle);
       }
     },
     allFields: function () {
@@ -169,98 +220,43 @@ export default {
       return fields;
     },
     validFields: function () {
-      return this.allFields.filter((field) => field.validRules.includes(this.rule.type));
+      return this.allFields.filter((field) => field.validRules.includes(this.selectedRule.type));
     },
-    ...mapState(['fields', 'loadedTime']),
-  },
-  watch: {
-    hasErrors: function () {
-      this.$emit('error', {index: this.index, error: this.hasErrors});
-    },
-    'rule.fields'(){
-      this.validate();
-    },
-    'rule.value'(){
-      this.validate();
-    },
-    loadedTime: function() {
-      this.init();
-    },
-    fields: {
-      handler: function () {
-        let fields = intersectionBy(this.selectedFields, this.allFields, 'order').map((field) => field.handle);
-        if (!isEqual(fields.sort(), this.rule.fields.sort())) {
-          this.rule.fields = fields;
-        }
-      },
-      deep: true
-    }
-  },
-  created () {
-    this.init();
-    this.validate();
+    ...mapState(['fields', 'selectedRule']),
   },
   methods: {
-    init() {
-      this.selectedFields = filter(this.allFields, (field) => this.rule.fields.includes(field.handle));
-      if (this.rule.requiresField) {
-        this.selectedField = filter(this.allFields, (field) => field.handle == this.rule.value)[0] ?? null;
-      }
-    },
-    validate() {
-      let errors = {
-        value: this.validateValue(),
-        fields: this.selectedFields.length == 0
-      };
-      this.$set(this.errors, 'rule', errors);
-    },
-    validateValue() {
-      if (this.rule.requiresField) {
-        return this.selectedField == null;
-      }
-      if (this.rule.requiresValue) {
-        return !this.rule.value || String(this.rule.value).trim() == '';
-      }
-      return false;
-    },
     addCondition() {
-      this.rule.conditions.push(this._newCondition());
+      this.selectedRule.conditions.push(this._newCondition());
     },
     addGroup() {
-      this.rule.conditionGroups.push({
+      this.selectedRule.conditionGroups.push({
         negate: false, 
         operator: 'and', 
+        uid: uuidv4(),
         conditions: [this._newCondition()]
       });
     },
-    deleteCondition(index) {
-      this.$delete(this.rule.conditions, index);
-      this.$delete(this.errors, 'conditions', index);
+    deleteCondition(uid) {
+      this.selectedRule.conditions = this.selectedRule.conditions.filter(r => r.uid != uid);
     },
-    deleteGroup(index) {
-      this.$delete(this.rule.conditionGroups, index);
-      this.$delete(this.errors, 'groups', index);
+    deleteGroup(uid) {
+      this.selectedRule.conditionGroups = this.selectedRule.conditionGroups.filter(r => r.uid != uid);
     },
     _newCondition() {
       return {
-        type: 'present', 
+        type: 'required', 
         negate: false, 
-        value: '', operator: 
-        'and', field: 
-        this.allFields[0].name ?? ''
+        uid: uuidv4(),
+        value: '',
+        operator: 'and', 
+        field: this.allFields.length ? this.allFields[0].handle : ''
       };
-    },
-    onConditionError(data) {
-      this.$set(this.errors.conditions, data.index, data.error);
-    },
-    onGroupError(data) {
-      this.$set(this.errors.groups, data.index, data.error);
     }
   }
 };
 </script>
 
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
 
 <style lang="scss">
 @import "~craftcms-sass/mixins";
@@ -276,20 +272,15 @@ export default {
   }
   .conditions-list {
     border: 1px solid $grey200;
-      box-shadow: inset 0 1px 4px -1px $grey200;
-      background-color: #fbfcfe;
-      padding: 10px;
-      border-radius: 3px;
+    padding: 5px;
+    border-radius: 3px;
   }
 }
 
 .rule-messages {
   margin: 5px 0;
-}
-
-.rule-fields.error {
-  .multiselect {
-    border-color: $red400 !important;
+  &:last-child {
+    margin-bottom: 10px !important;
   }
 }
 

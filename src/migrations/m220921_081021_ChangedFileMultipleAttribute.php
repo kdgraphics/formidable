@@ -1,10 +1,10 @@
 <?php
 
-namespace Ryssbowh\Formidable\migrations;
+namespace Inspire\Formidable\migrations;
 
 use Craft;
 use craft\db\Migration;
-use Ryssbowh\Formidable\Models\Records\Field;
+use Inspire\Formidable\Models\Records\Field;
 
 /**
  * m220921_081021_ChangedFileMultipleAttribute migration.

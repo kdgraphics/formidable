@@ -1,8 +1,8 @@
 <?php
 
-namespace Ryssbowh\Formidable\Events;
+namespace Inspire\Formidable\Events;
 
-use Ryssbowh\Formidable\Interfaces\FieldInterface;
+use Inspire\Formidable\Interfaces\FieldInterface;
 use yii\base\Event;
 
 class RegisterFieldsEvent extends Event

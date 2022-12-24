@@ -1,8 +1,8 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Controllers;
+namespace Inspire\Formidable\Controllers;
 
-use Ryssbowh\Formidable\Assets\SpamAsset;
+use Inspire\Formidable\Assets\SpamAsset;
 use yii\web\BadRequestHttpException;
 use yii\widgets\LinkPager;
 
@@ -55,7 +55,7 @@ class CpSpamController extends Controller
         ]);
     }
 
-    public function actionDeletemany()
+    public function actionDeleteMany()
     {
         $this->requirePermission('manageFormidableSubmissions');
         $this->requireAcceptsJson();

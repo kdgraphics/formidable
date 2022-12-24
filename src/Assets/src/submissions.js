@@ -1,25 +1,15 @@
-import Vue from 'vue';
+import { createApp } from 'vue';
 
 import FormsSubmissions from './components/FormsSubmissions.vue';
 import FormsSubmissionsToolbar from './components/FormsSubmissionsToolbar.vue';
-import SubmissionsStore from './store/SubmissionsStore';
-import VueConfirmDialog from 'vue-confirm-dialog';
+import { store } from './store/SubmissionsStore';
+import { Functions } from './functions';
 
-Vue.mixin({
-  methods: {
-    t: (str, params) => {
-      return Craft.t('formidable', str, params);
-    }
-  }
-});
+const app = createApp();
 
-Vue.use(VueConfirmDialog);
+app.use(Functions);
+app.use(store);
+app.component('forms-submissions', FormsSubmissions);
+app.component('forms-submissions-toolbar', FormsSubmissionsToolbar);
 
-new Vue({
-  el: '#main',
-  store: SubmissionsStore,
-  components: {
-    FormsSubmissions,
-    FormsSubmissionsToolbar
-  }
-});
+app.mount('#main');

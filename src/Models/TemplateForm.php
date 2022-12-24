@@ -1,6 +1,6 @@
 <?php
 
-namespace Ryssbowh\Formidable\Models;
+namespace Inspire\Formidable\Models;
 
 use craft\base\Model;
 

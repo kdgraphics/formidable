@@ -25,12 +25,12 @@
     },
     "autoload": {
         "psr-4": {
-          "Ryssbowh\\Formidable\\": "src/"
+          "Inspire\\Formidable\\": "src/"
         }
     },
     "extra": {
         "name": "Formidable Forms",
         "handle": "formidable",
-        "class": "Ryssbowh\\Formidable\\Formidable"
+        "class": "Inspire\\Formidable\\Formidable"
     }
 }

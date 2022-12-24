@@ -1,9 +1,9 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models;
+namespace Inspire\Formidable\Models;
 
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Interfaces\FieldInterface;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Interfaces\FieldInterface;
 use craft\base\Model;
 
 class SubmissionValue extends Model

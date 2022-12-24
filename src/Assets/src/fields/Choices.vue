@@ -1,36 +1,87 @@
 <template>
   <div class="field choices">
     <div class="heading">
-      <label>{{ t('Choices') }}<a class="add-choice" href="#" @click.prevent="addChoice('', '')">{{ t('Add') }}</a></label>
+      <label>{{ t('Choices') }}<a
+        class="add-choice"
+        href="#"
+        @click.prevent="addChoice('', '')"
+      >{{ t('Add') }}</a></label>
     </div>
     <div class="list text">
       <ul>
-        <li v-for="(choice, index) in field.choices" :key="index" class="choice">
+        <li
+          v-for="(choice, index) in selectedField.choices"
+          :key="index"
+          class="choice"
+        >
           <div class="move-choice">
-            <div class="up" @click="moveChoice(index,index-1)" v-if="index != 0"></div>
-            <div class="down" @click="moveChoice(index,index+1)" v-if="index != (field.choices.length-1)"></div>
+            <div
+              v-if="index != 0"
+              class="up"
+              @click="moveChoice(index,index-1)"
+            />
+            <div
+              v-if="index != (selectedField.choices.length-1)"
+              class="down"
+              @click="moveChoice(index,index+1)"
+            />
           </div>
-          <input class="value choice-elem" :placeholder="t('Value')" :required="field.choices.length == 1" v-model="field.choices[index].value" @input="validate" :class="(countValues(index) > 1 || field.choices[index].value.trim() !== field.choices[index].value) ? 'error' : ''">
-          <input class="label choice-elem" :placeholder="t('Label')" :required="field.choices.length == 1" v-model="field.choices[index].label" @input="validate" :class="field.choices.length == 1 && !field.choices[index].label ? 'error' : ''">
+          <input
+            v-model="selectedField.choices[index].value"
+            class="value choice-elem"
+            :placeholder="t('Value')"
+            :required="selectedField.choices.length == 1"
+            :class="(countValues(index) > 1 || selectedField.choices[index].value.trim() !== selectedField.choices[index].value) ? 'error' : ''"
+            @input="validate"
+          >
+          <input
+            v-model="selectedField.choices[index].label"
+            class="label choice-elem"
+            :placeholder="t('Label')"
+            :required="selectedField.choices.length == 1"
+            :class="selectedField.choices.length == 1 && !selectedField.choices[index].label ? 'error' : ''"
+            @input="validate"
+          >
           <div class="delete-container">
-            <a class="delete-choice" @click.prevent="deleteChoice(index)">{{ t('Delete') }}</a>
+            <a
+              class="delete-choice"
+              @click.prevent="deleteChoice(index)"
+            >{{ t('Delete') }}</a>
           </div>
         </li>
       </ul>
     </div>
+    <ul
+      v-if="selectedField.errors && selectedField.errors.choices"
+      class="errors"
+    >
+      <li
+        v-for="error, index in selectedField.errors.choices"
+        :key="index"
+        class="error"
+      >
+        {{ error }}
+      </li>
+    </ul>
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 export default {
   props: {
-    field: Object,
-    default: String,
-    errors: Object
+    default: {
+      type: String,
+      default: ''
+    }
+  },
+  computed: {
+    ...mapState(['selectedField']),
   },
   created() {
-    if (!this.field.choices) {
-      this.field.choices = [];
+    if (!this.selectedField.choices) {
+      this.selectedField.choices = [];
       this.addChoice('', this.default);
     }
     this.validate();
@@ -38,8 +89,8 @@ export default {
   methods: {
     countValues(index) {
       let count = 0;
-      let source = this.field.choices[index];
-      for (let choice of this.field.choices) {
+      let source = this.selectedField.choices[index];
+      for (let choice of this.selectedField.choices) {
         if (choice.value == source.value) {
           count++;
         }
@@ -49,8 +100,8 @@ export default {
     validate() {
       let error = false;
       let value;
-      for (let index in this.field.choices) {
-        value = this.field.choices[index].value;
+      for (let index in this.selectedField.choices) {
+        value = this.selectedField.choices[index].value;
         if (value.trim() !== value) {
           error = true;
           break;
@@ -60,20 +111,21 @@ export default {
           break;
         }
       }
-      this.$set(this.errors, 'choices', error);
     },
     addChoice(value = '', label = '') {
-      this.field.choices.push({value:value, label:label});
+      this.selectedField.choices.push({value:value, label:label});
       this.validate();
     },
     deleteChoice(id) {
-      if (this.field.choices.length == 1) {
+      if (this.selectedField.choices.length == 1) {
         return;
       }
-      this.$delete(this.field.choices, id);
+      this.selectedField.choices = this.selectedField.choices.filter((choice, id2) => {
+        return id != id2;
+      });
     },
     moveChoice(from, to) {
-      this.field.choices.splice(to, 0, this.field.choices.splice(from, 1)[0]);
+      this.selectedField.choices.splice(to, 0, this.selectedField.choices.splice(from, 1)[0]);
     }
   }
 };
@@ -89,7 +141,7 @@ export default {
     input {
       border: 1px solid #e4edf6;
       padding:5px;
-      width: calc(50% - 45px);
+      width: calc(50% - 50px);
       &.error {
         border: 1px solid $red400;
       }
@@ -108,7 +160,7 @@ export default {
     }
     .delete-container {
       padding-left: 10px;
-      width: 50px;
+      width: 60px;
       line-height: 30px;
     }
     .choice {
@@ -116,7 +168,7 @@ export default {
     }
     .move-choice {
       padding-top: 10px;
-      width: 40px;
+      width: 25px;
       .up,.down {
         width: 0;
         height: 0;

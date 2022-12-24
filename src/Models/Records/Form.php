@@ -1,9 +1,9 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models\Records;
+namespace Inspire\Formidable\Models\Records;
 
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Models\Form as FormModel;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Models\Form as FormModel;
 use craft\db\ActiveRecord;
 
 class Form extends ActiveRecord

@@ -1,10 +1,10 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models\Fields;
+namespace Inspire\Formidable\Models\Fields;
 
-use Ryssbowh\Formidable\Models\Field;
-use Ryssbowh\Formidable\Models\FieldTypes\BooleanField;
-use Ryssbowh\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\Field;
+use Inspire\Formidable\Models\FieldTypes\BooleanField;
+use Inspire\Formidable\Models\FormSubmission;
 
 class Checkbox extends Field
 {

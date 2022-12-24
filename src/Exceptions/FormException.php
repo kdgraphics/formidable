@@ -1,8 +1,8 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Exceptions;
+namespace Inspire\Formidable\Exceptions;
 
-use Ryssbowh\Formidable\Models\Form;
+use Inspire\Formidable\Models\Form;
 
 class FormException extends \Exception
 {

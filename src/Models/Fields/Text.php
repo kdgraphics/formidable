@@ -1,63 +1,63 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models\Fields;
+namespace Inspire\Formidable\Models\Fields;
 
-use Ryssbowh\Formidable\Models\Field;
-use Ryssbowh\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\Field;
+use Inspire\Formidable\Models\FormSubmission;
 
 class Text extends Field
 {
-	public $placeholder;
-	public $label;
-	public $default;
-	public $labelHtml = false;
-	public $tooltip;
-	public $tooltipLabel;
+    public $placeholder;
+    public $label;
+    public $default;
+    public $labelHtml = false;
+    public $tooltip;
+    public $tooltipLabel;
 
-	/**
-	 * inheritDoc
-	 **/
-	public function handle(): string
-	{
-		return 'text';
-	}
+    /**
+     * inheritDoc
+     **/
+    public function handle(): string
+    {
+        return 'text';
+    }
 
-	/**
-	 * inheritDoc
-	 **/
-	public function getValue()
-	{
-		return $this->_value ?? $this->default;
-	}
+    /**
+     * inheritDoc
+     **/
+    public function getValue()
+    {
+        return $this->_value ?? $this->default;
+    }
 
-	/**
-	 * inheritDoc
-	 **/
-	public function friendlyName(): string
-	{
-		return 'Text';
-	}
+    /**
+     * inheritDoc
+     **/
+    public function friendlyName(): string
+    {
+        return 'Text';
+    }
 
-	/**
-	 * inheritDoc
-	 **/
-	public function getExtraCpRules(): array
-	{
-		return [
-			[['placeholder','label', 'default', 'tooltip', 'tooltipLabel'], 'string'],
-			[['placeholder','label', 'default', 'tooltip', 'tooltipLabel'], 'trim'],
-			['labelHtml', 'boolean', 'trueValue' => true, 'falseValue' => false]
-		];
-	}
+    /**
+     * inheritDoc
+     **/
+    public function getExtraCpRules(): array
+    {
+        return [
+            [['placeholder','label', 'default', 'tooltip', 'tooltipLabel'], 'string'],
+            [['placeholder','label', 'default', 'tooltip', 'tooltipLabel'], 'trim'],
+            ['labelHtml', 'boolean', 'trueValue' => true, 'falseValue' => false]
+        ];
+    }
 
-	/**
-	 * inheritDoc
-	 */
-	public function getFrontEndRules(FormSubmission $submission): array
-	{
-		return [
-			[$this->handle, 'string'], 
-			[$this->handle, 'trim']
-		];
-	}
+    /**
+     * inheritDoc
+     */
+    public function getFrontEndRules(FormSubmission $submission): array
+    {
+        return [
+            [$this->handle, 'string'], 
+            [$this->handle, 'trim']
+        ];
+    }
 }

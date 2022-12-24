@@ -1,8 +1,8 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models\Records;
+namespace Inspire\Formidable\Models\Records;
 
-use Ryssbowh\Formidable\Models\Condition as ConditionModel;
+use Inspire\Formidable\Models\Condition as ConditionModel;
 use craft\db\ActiveRecord;
 
 class Condition extends ActiveRecord

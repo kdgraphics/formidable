@@ -1,8 +1,8 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models\Records;
+namespace Inspire\Formidable\Models\Records;
 
-use Ryssbowh\Formidable\Models\Spam as SpamModel;
+use Inspire\Formidable\Models\Spam as SpamModel;
 use craft\db\ActiveRecord;
 use craft\db\SoftDeleteTrait;
 

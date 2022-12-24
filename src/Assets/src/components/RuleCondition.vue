@@ -1,51 +1,153 @@
 <template>
   <div class="form-condition no-shrink">
-    <a href="#" class="delete icon" @click.prevent="$emit('delete')" :title="t('Delete')"></a>
-    <div class="operator">
-      <a href="#" v-if="index != 0" @click="changeOperator">{{ capitalize(condition.operator) }}</a>
+    <div class="inner">
+      <a
+        href="#"
+        class="delete icon"
+        :title="t('Delete')"
+        @click.prevent="$emit('delete')"
+      />
+      <div
+        v-if="!isFirst"
+        class="operator"
+      >
+        <a
+          href="#"
+          @click="changeOperator"
+        >{{ capitalize(condition.operator) }}</a>
+      </div>
+      <div
+        v-if="condition.negate"
+        class="negate no-shrink"
+      >
+        <a
+          href="#"
+          @click.prevent="negate"
+        >{{ t('not') }}</a>
+      </div>
+      <div
+        class="select no-shrink"
+      >
+        <select v-model="selectedField">
+          <option
+            v-for="field2, index in allFields"
+            :key="index"
+            :value="field2"
+          >
+            {{ field2.name }}
+          </option>
+        </select>
+      </div>
+      <div
+        class="select type no-shrink"
+      >
+        <select v-model="condition.type">
+          <option
+            v-for="item, index in types"
+            :key="index"
+            :value="item.type"
+          >
+            {{ item.conditionName }}
+          </option>
+        </select>
+      </div>
+      <div
+        v-if="selectedType && selectedType.requiresValue"
+        class="value flex-grow"
+      >
+        <input
+          v-model="condition.value"
+          :placeholder="t('Value')"
+          size=""
+        >
+      </div>
+      <div
+        v-if="selectedType && selectedType.requiresField"
+        class="value select no-shrink"
+      >
+        <select v-model="condition.value">
+          <option
+            v-for="field2, index in allFields"
+            :key="index"
+            :value="field2"
+          >
+            {{ field2.name }}
+          </option>
+        </select>
+      </div>
+      <a
+        v-if="!condition.negate"
+        class="icon-negate no-shrink"
+        href="#"
+        @click.prevent="negate"
+      />
     </div>
-    <div class="negate no-shrink" v-if="condition.negate">
-      <a href="#" @click.prevent="negate">{{ t('not') }}</a>
-    </div>
-    <div class="select no-shrink" :class="{'error' : errors.field}">
-      <select v-model="selectedField">
-        <option v-for="field in allFields" :value="field">{{ field.name }}</option>
-      </select>
-    </div>
-    <div class="select type no-shrink" :class="{'error' : errors.type}">
-      <select v-model="selectedType">
-        <option v-for="item in types" :value="item">{{ item.conditionName }}</option>
-      </select>
-    </div>
-    <div class="value flex-grow" v-if="selectedType && selectedType.requiresValue" :class="{'error' : errors.value}">
-      <input v-model="condition.value" :placeholder="t('Value')" size="">
-    </div>
-    <div class="value select no-shrink" v-if="selectedType && selectedType.requiresField" :class="{'error' : errors.value}">
-      <select v-model="condition.value">
-        <option v-for="field in allFields" :value="field">{{ field.name }}</option>
-      </select>
-    </div>
-    <a class="icon-negate no-shrink" href="#" v-if="!condition.negate" @click.prevent="negate"></a>
+    <ul
+      v-if="errors.field || errors.value"
+      class="errors"
+    >
+      <li
+        v-for="error, index in errors.field"
+        :key="index"
+        class="error"
+      >
+        {{ error }}
+      </li>
+      <li
+        v-for="error, index in errors.value"
+        :key="index"
+        class="error"
+      >
+        {{ error }}
+      </li>
+    </ul>
   </div>
 </template>
 
 <script>
 import { mapMutations, mapState } from 'vuex';
-import { isEqual, cloneDeep, reduce, find, has } from 'lodash';
+import { isEqual, cloneDeep, reduce, find, has, capitalize } from 'lodash';
 
 export default {
   props: {
-    condition: Object,
-    index: Number
+    uid: {
+      type: String,
+      default: ''
+    },
+    group: {
+      type: Object,
+      default: null
+    }
   },
+  emits: ['delete'],
   data() {
     return {
-      errors: {},
-      field: null,
-      rule: null
+      rule: null,
+      field: null
     }
   },
   computed: {
+    errors: function () {
+      if (!this.condition.errors) {
+        return {};
+      }
+      return this.condition.errors;
+    },
+    isFirst: function () {
+      let condition;
+      if (this.group) {
+        condition = this.group.conditions[0];
+      } else {
+        condition = this.selectedRule.conditions[0];
+      }
+      return condition.uid == this.condition.uid;
+    },
+    condition: function () {
+      if (this.group) {
+        return this.group.conditions.filter(c => c.uid == this.uid)[0];
+      }
+      return this.selectedRule.conditions.filter(c => c.uid == this.uid)[0];
+    },
     allFields: function () {
       let fields = [];
       for(let field of this.fields) {
@@ -58,26 +160,11 @@ export default {
       }
       return fields;
     },
-    /**
-     * @return {Boolean} global error status
-     */
-    hasErrors: function () {
-      return reduce(this.errors, function(result, value, key) {
-        return (result || value);
-      }, false);
-    },
-    selectedType: {
-      get: function() {
-        return this.rule;
-      },
-      set: function(rule) {
-        this.rule = rule;
-        if (!rule) {
-          this.$set(this.condition, 'type', null);
-        } else {
-          this.condition.type = rule.type;
-        }
+    selectedType: function () {
+      if (!this.condition.type) {
+        return null;
       }
+      return find(this.registeredRules, (rule) => (rule.type == this.condition.type));
     },
     types: function() {
       if (!this.selectedField) {
@@ -92,60 +179,28 @@ export default {
       set: function (field) {
         this.field = field;
         if (!field) {
-          this.selectedType = null;
-          this.$set(this.condition, 'value', null);
-          this.$set(this.condition, 'field', null);
+          this.condition.value = null;
+          this.condition.field = null;
           return;
         }
-        this.$set(this.condition, 'field', field.handle);
+        this.condition.field = field.handle;
       }
     },
-    ...mapState(['fields', 'registeredRules'])
+    ...mapState(['fields', 'registeredRules', 'selectedRule'])
   },
   created() {
     this.selectedField = find(this.allFields, (field) => (field.handle == this.condition.field));
-    this.selectedType = find(this.registeredRules, (rule) => (rule.type == this.condition.type));
-    this.validate();
-  },
-  watch: {
-    hasErrors: function () {
-      this.$emit('error', {index: this.index, error: this.hasErrors});
-    },
-    fields: {
-      handler: function () {
-        let field = find(this.allFields, (field) => this.selectedField ? field.handle == this.selectedField.handle : null);
-        this.selectedField = field;
-        this.validate();
-      },
-      deep: true
-    },
-    condition: {
-      handler: function () {
-        this.validate();
-      },
-      deep: true
-    }
   },
   methods: {
-    validate() {
-      this.errors = {
-        field: !this.condition.field,
-        type: !this.selectedType,
-        value: this.validateValue()
-      };
-    },
-    validateValue() {
-      if (this.selectedType && (this.selectedType.requiresField || this.selectedType.requiredValue) && !this.condition.value) {
-        return true;
-      }
-      return false;
-    },
     changeOperator(){
-      this.$set(this.condition, 'operator', this.condition.operator == 'and' ? 'or' : 'and');
+      this.condition.operator = this.condition.operator == 'and' ? 'or' : 'and';
     },
     negate() {
-      this.$set(this.condition, 'negate', !this.condition.negate);
+      this.condition.negate = !this.condition.negate;
     },
+    capitalize(str) {
+      return capitalize(str);
+    }
   }
 };
 </script>
@@ -153,9 +208,11 @@ export default {
 <style lang="scss">
 @import "~craftcms-sass/mixins";
 
-.form-condition, .form-condition-group {
+.form-condition {
   margin-bottom: 10px;
-  display: flex;
+  .inner {
+    display: flex;
+  }
   &:last-child {
     margin-bottom: 0;
   }

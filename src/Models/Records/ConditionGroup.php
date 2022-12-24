@@ -1,8 +1,8 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models\Records;
+namespace Inspire\Formidable\Models\Records;
 
-use Ryssbowh\Formidable\Models\ConditionGroup as ConditionGroupModel;
+use Inspire\Formidable\Models\ConditionGroup as ConditionGroupModel;
 use craft\db\ActiveRecord;
 
 class ConditionGroup extends ActiveRecord

@@ -1,105 +1,162 @@
 <template>
-  <forms-field v-on="$listeners"
-    :field="field"
-    :errors="errors"
+  <forms-field
+    v-bind="$attrs"
+    :has-autocomplete="false"
   >
-    <template v-slot:extraFields>
-      <div class="field field-label">
-        <div class="heading">
-          <label>{{ t('Label') }}</label>
-        </div>
-        <div class="input ltr">
-          <textarea type="text" :class="'text fullwidth field-label-value'+field.uid" v-model="field.label" rows="1"></textarea>
-          <a href="#" @click.prevent="field.labelHtml = !field.labelHtml">{{ field.labelHtml ? 'Plain' : 'Html' }}</a>
-        </div>
-      </div>
-      <div class="field field-placeholder">
-        <div class="heading">
-          <label>{{ t('Placeholder') }}</label>
-        </div>
-        <div class="input ltr">
-          <input type="text" class="text fullwidth" v-model="field.placeholder">
-        </div>
-      </div>
-      <div class="lightswitch-field field-maxfiles field">
+    <template #extraFields>
+      <div class="lightswitch-field field">
         <div class="heading">
           <label>{{ t('Max files') }}</label>
         </div>
         <div class="input ltr">
-          <input type="nuymber" min="2" class="text fullwidth" v-model="field.maxFiles">
+          <input
+            v-model="selectedField.maxFiles"
+            type="text"
+            min="2"
+            class="text fullwidth"
+          >
         </div>
+        <ul class="errors">
+          <li
+            v-for="error, index in errors.maxFiles"
+            :key="index"
+            class="error"
+          >
+            {{ error }}
+          </li>
+        </ul>
       </div>
-      <div class="field field-extensions" aria-describedby="field-extensions-instructions">
+      <div class="field">
         <div class="heading">
           <label>{{ t('Extensions') }}</label>
         </div>
-        <div id="field-extensions-instructions" class="instructions"><p>{{ t('Extensions allowed (no dot), comma separated. leave empty for all') }}</p>
+        <div class="instructions">
+          <p>{{ t('Extensions allowed (no dot), comma separated. leave empty for all') }}</p>
         </div>
         <div class="input ltr">
-          <input type="text" :class="'text fullwidth' + (errors.extensions ? ' error' : '')" v-model="field.extensions" @input="validateExtensions">
+          <input
+            v-model="selectedField.extensions"
+            type="text"
+            class="text fullwidth"
+          >
         </div>
+        <ul class="errors">
+          <li
+            v-for="error, index in errors.extensions"
+            :key="index"
+            class="error"
+          >
+            {{ error }}
+          </li>
+        </ul>
       </div>
-      <div class="field field-volume">
+      <div class="field">
         <div class="heading">
           <label>{{ t('Volume') }}</label>
         </div>
         <div class="input ltr">
           <div class="select">
-            <select v-model="field.volume" @input="validateVolume" :class="'text ' + (errors.volume ? ' error' : '')">
-              <option v-for="volume in volumes" :key="volume.uid" :value="volume.uid">{{ volume.name }}</option>
+            <select
+              v-model="selectedField.volume"
+              class="text"
+              @input="validateVolume"
+            >
+              <option
+                v-for="volume in volumes"
+                :key="volume.uid"
+                :value="volume.uid"
+              >
+                {{ volume.name }}
+              </option>
             </select>
           </div>
         </div>
+        <ul class="errors">
+          <li
+            v-for="error, index in errors.volume"
+            :key="index"
+            class="error"
+          >
+            {{ error }}
+          </li>
+        </ul>
       </div>
-      <div class="field field-tooltip-label">
+      <div class="field">
         <div class="heading">
-          <label>{{ t('Tooltip label') }}</label>
+          <label>{{ t('Folder') }}</label>
         </div>
         <div class="input ltr">
-          <input type="text" class="text fullwidth" v-model="field.tooltipLabel">
+          <input
+            v-model="selectedField.folder"
+            type="text"
+            class="text fullwidth"
+          >
         </div>
       </div>
-      <div class="field field-tooltip">
-        <div class="heading">
-          <label>{{ t('Tooltip') }}</label>
-        </div>
-        <div class="input ltr">
-          <textarea type="text" :class="'text fullwidth field-tooltip-value'+field.uid" v-model="field.tooltip" rows="1"></textarea>
-        </div>
-      </div>
-      <div class="field field-size">
+      <div class="field">
         <div class="heading">
           <label>{{ t('Max file size (Mb)') }}</label>
         </div>
         <div class="input ltr">
-          <input type="number" min="0" step="0.5" class="text fullwidth" v-model="field.size">
+          <input
+            v-model="selectedField.size"
+            type="text"
+            class="text fullwidth"
+          >
         </div>
+        <ul class="errors">
+          <li
+            v-for="error, index in errors.size"
+            :key="index"
+            class="error"
+          >
+            {{ error }}
+          </li>
+        </ul>
       </div>
     </template>
-    <template v-slot:extraAdvanced>
-      <div class="lightswitch-field field-attachToUserEmail field">
+    <template #extraAdvanced>
+      <div class="lightswitch-field field">
         <div class="heading">
           <label>{{ t('Attach to user email') }}</label>
         </div>
         <div class="input ltr">
-          <div :class="'lightswitch ' + (field.attachToUserEmail ? 'on' : '')" tabindex="0" role="switch" :aria-checked="field.attachToUserEmail">
+          <div
+            :class="'lightswitch ' + (selectedField.attachToUserEmail ? 'on' : '')"
+            tabindex="0"
+            role="switch"
+            :aria-checked="selectedField.attachToUserEmail"
+          >
             <div class="lightswitch-container">
-              <div class="handle"></div>
+              <div class="handle" />
             </div>
-            <input type="hidden" name="attachToUserEmail" v-model="field.attachToUserEmail">
+            <input
+              v-model="selectedField.attachToUserEmail"
+              type="hidden"
+              name="attachToUserEmail"
+            >
           </div>
         </div>
       </div>
-      <div class="lightswitch-field field-attachToAdminEmail field">
+      <div class="lightswitch-field field">
         <div class="heading">
           <label>{{ t('Attach to admin email') }}</label>
         </div>
         <div class="input ltr">
-          <div :class="'lightswitch ' + (field.attachToAdminEmail ? 'on' : '')" tabindex="0" role="switch" :aria-checked="field.attachToAdminEmail">
+          <div
+            :class="'lightswitch ' + (selectedField.attachToAdminEmail ? 'on' : '')"
+            tabindex="0"
+            role="switch"
+            :aria-checked="selectedField.attachToAdminEmail"
+          >
             <div class="lightswitch-container">
-              <div class="handle"></div>
+              <div class="handle" />
             </div>
-            <input type="hidden" name="attachToAdminEmail" v-model="field.attachToAdminEmail">
+            <input
+              v-model="selectedField.attachToAdminEmail"
+              type="hidden"
+              name="attachToAdminEmail"
+            >
           </div>
         </div>
       </div>
@@ -109,91 +166,37 @@
 
 <script>
 import { mapMutations, mapState } from 'vuex';
+import FormsField from '../components/FormsField.vue';
 
 export default {
-  props: {
-    index: Number,
-    field: Object
-  },
+  components: {FormsField},
   data() {
     return {
-      errors: {}
+      volumes: []
     }
   },
   computed: {
-    ...mapState(['volumes'])
-  },
-  watch: {
-    'field.labelHtml': function () {
-      this.toggleRedactor();
-    } 
-  },
-  mounted() {
-    this.$nextTick(() => {
-      Craft.initUiElements(this.$el);
-      let _this = this;
-      $(this.$el).find('.lightswitch').on('change', function(e){
-        let input = $(e.target).find('input');
-        let value = (input.val() == 1);
-        _this.field[input.attr('name')] = value;
-      });
-    });
-    if (this.field.labelHtml) {
-      this.enableLabelRedactor();
-    }
-    this.enableTooltipRedactor();
-  },
-  methods: {
-    enableTooltipRedactor: function () {
-      $R('.field-tooltip-value'+this.field.uid, {
-        callbacks: {
-          changed: (html) => {
-            this.field.tooltip = html;
-          }
-        }
-      });
-    },
-    enableLabelRedactor: function () {
-      $R('.field-label-value'+this.field.uid, {
-        callbacks: {
-          changed: (html) => {
-            this.field.label = html;
-          }
-        }
-      });
-    },
-    toggleRedactor: function() {
-      if (this.field.labelHtml) {
-        this.enableLabelRedactor();
-      } else {
-        $R('.field-label-value'+this.field.uid, 'destroy');
+    errors: function () {
+      if (!this.selectedField.errors) {
+        return {};
       }
+      return this.selectedField.errors;
     },
-    validateVolume() {
-      this.$set(this.errors, 'volume', false);
-      if (!this.field.volume) {
-        this.$set(this.errors, 'volume', true);
-      }
-    },
-    validateExtensions() {
-      if (this.field.extensions == '') {
-        this.$set(this.errors, 'extensions', false);
-        return;
-      }
-      for (let elem of this.field.extensions.split(',')) {
-        if (!elem.match(/^[0-9a-z]+$/)) {
-          this.$set(this.errors, 'extensions', true);
-          return;
-        }
-      }
-      this.$set(this.errors, 'extensions', false);
-    }
+    ...mapState(['selectedField'])
   },
   created() {
-    if (!this.field.id) {
-      this.field.volume = this.volumes[0].uid ?? null;
+    let _this = this;
+    if (typeof window.fileFieldVolumes == 'undefined') {
+      let data = {};
+      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
+      window.fileFieldVolumes = axios.post(Craft.getActionUrl('formidable/cp-utilities/volumes'), data)
+      .catch((error) => {
+        console.log(error);
+      })
     }
-    this.validateVolume();
+    window.fileFieldVolumes.then(function (res) {
+      _this.volumes = res.data.volumes;
+    });
   }
 };
 

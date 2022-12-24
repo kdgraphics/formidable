@@ -1,9 +1,9 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Interfaces;
+namespace Inspire\Formidable\Interfaces;
 
-use Ryssbowh\Formidable\Models\Fields\Group;
-use Ryssbowh\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\Fields\Group;
+use Inspire\Formidable\Models\FormSubmission;
 
 interface FieldInterface
 {   

@@ -1,9 +1,9 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models\Records;
+namespace Inspire\Formidable\Models\Records;
 
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Models\SubmissionValue as SubmissionValueModel;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Models\SubmissionValue as SubmissionValueModel;
 use craft\db\ActiveRecord;
 
 class SubmissionValue extends ActiveRecord

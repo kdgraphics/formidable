@@ -1,9 +1,9 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models;
+namespace Inspire\Formidable\Models;
 
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Models\FormSubmission;
 use craft\base\Model;
 use craft\helpers\StringHelper;
 

@@ -1,8 +1,8 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Jobs;
+namespace Inspire\Formidable\Jobs;
 
-use Ryssbowh\Formidable\Formidable;
+use Inspire\Formidable\Formidable;
 use craft\queue\BaseJob;
 
 class SendAdminEmailJob extends BaseJob

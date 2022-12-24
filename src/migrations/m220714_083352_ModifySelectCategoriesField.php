@@ -1,9 +1,9 @@
 <?php
 
-namespace Ryssbowh\Formidable\migrations;
+namespace Inspire\Formidable\migrations;
 
 use Craft;
-use Ryssbowh\Formidable\Models\Records\Field;
+use Inspire\Formidable\Models\Records\Field;
 use craft\db\Migration;
 
 /**

@@ -1,76 +1,233 @@
 <template>
   <div class="formidable-submissions">
-    <div class="tableview tablepane" v-show="!isChartView">
+    <div
+      v-show="!isChartView"
+      class="tableview tablepane"
+    >
       <table class="data fullwidth">
         <thead>
           <tr>
-            <th class="checkbox-cell selectallcontainer orderable" role="checkbox" tabindex="0" aria-checked="false"><div class="checkbox" @click="toggleSelectAll"></div></th>
-            <th scope="col" data-attribute="form" :class="sort.field == 'form.name' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('form.name')">{{ t('Form') }}</th>
-            <th scope="col" data-attribute="submitted" :class="sort.field == 'dateCreated' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('dateCreated')">{{ t('Submitted') }}</th>
-            <th scope="col" data-attribute="read" :class="sort.field == 'read' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('read')">{{ t('Read') }}</th>
-            <th scope="col" data-attribute="notified" :class="sort.field == 'notified' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('notified')">{{ t('Notified') }}</th>
-            <th scope="col" data-attribute="open">{{ t('View') }}</th>
+            <th
+              class="checkbox-cell selectallcontainer orderable"
+              role="checkbox"
+              tabindex="0"
+              aria-checked="false"
+            >
+              <div
+                class="checkbox"
+                @click="toggleSelectAll"
+              />
+            </th>
+            <th
+              scope="col"
+              data-attribute="form"
+              :class="sort.field == 'form.name' ? ('ordered ' + sort.side) : 'orderable'"
+              @click="setOrdered('form.name')"
+            >
+              {{ t('Form') }}
+            </th>
+            <th
+              scope="col"
+              data-attribute="submitted"
+              :class="sort.field == 'dateCreated' ? ('ordered ' + sort.side) : 'orderable'"
+              @click="setOrdered('dateCreated')"
+            >
+              {{ t('Submitted') }}
+            </th>
+            <th
+              scope="col"
+              data-attribute="read"
+              :class="sort.field == 'read' ? ('ordered ' + sort.side) : 'orderable'"
+              @click="setOrdered('read')"
+            >
+              {{ t('Read') }}
+            </th>
+            <th
+              scope="col"
+              data-attribute="notified"
+              :class="sort.field == 'notified' ? ('ordered ' + sort.side) : 'orderable'"
+              @click="setOrdered('notified')"
+            >
+              {{ t('Notified') }}
+            </th>
+            <th
+              scope="col"
+              data-attribute="open"
+            >
+              {{ t('View') }}
+            </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="submission,index in submissions" :class="{'sel': selected.includes(submission.id), 'unread': !submission.read, trashed: submission.dateDeleted }">
-            <td class="checkbox-cell"><div class="checkbox" title="Select" v-on:click="toggleSelect(submission.id)"></div></td>
-            <td data-title="Form" data-attr="form">{{ submission.form.name }}</td>
-            <td data-title="Submitted" data-attr="submitted">{{ submission.dateCreated }}</td>
-            <td data-title="Read" class="read" data-attr="read">{{ submission.read ? t('Yes') : t('No') }}</td>
-            <td data-title="Notified" data-attr="notified">{{ submission.notified ? t('Yes') : t('No') }}</td>
-            <td data-title="Open" data-attr="open">
-              <a v-on:click.prevent="open(index)" class="icon icon-mask">
+          <tr
+            v-for="submission,index in submissions"
+            :key="index"
+            :class="{'sel': selected.includes(submission.id), 'unread': !submission.read }"
+          >
+            <td class="checkbox-cell">
+              <div
+                class="checkbox"
+                title="Select"
+                @click="toggleSelect(submission.id)"
+              />
+            </td>
+            <td
+              data-title="Form"
+              data-attr="form"
+            >
+              {{ submission.form.name }}
+            </td>
+            <td
+              data-title="Submitted"
+              data-attr="submitted"
+            >
+              {{ submission.dateCreated }}
+            </td>
+            <td
+              data-title="Read"
+              class="read"
+              data-attr="read"
+            >
+              {{ submission.read ? t('Yes') : t('No') }}
+            </td>
+            <td
+              data-title="Notified"
+              data-attr="notified"
+            >
+              {{ submission.notified ? t('Yes') : t('No') }}
+            </td>
+            <td
+              data-title="Open"
+              data-attr="open"
+            >
+              <a
+                @click.prevent="open(index)"
+              >
                 open
               </a>
             </td>
           </tr>
           <tr v-if="submissions.length == 0 && !isFetching">
-            <td colspan="6">{{ t('No submissions found') }}</td>
+            <td colspan="6">
+              {{ t('No submissions found') }}
+            </td>
           </tr>
         </tbody>
       </table>
-      <div class="loader" v-if="isFetching">
+      <div
+        v-if="isFetching"
+        class="loader"
+      >
         <img :src="loaderPath">
       </div>
     </div>
-    <div class="chart-view" v-show="isChartView">
-      <canvas id="formidable-chart-container"></canvas>
+    <div
+      v-show="isChartView"
+      class="chart-view"
+    >
+      <canvas id="formidable-chart-container" />
     </div>
-    <div id="footer" class="flex">
-        <div class="pagination flex" v-if="!isChartView">
-          <div :title="t('First Page')" :class="'page-link page-first ' + (pager.pageCount > 0 && pager.page > 0 ? '' : 'disabled')" @click="pager.pageCount > 0 && pager.page > 0 ? changePage(0) : null">«</div>
-          <div data-icon="leftangle" :title="t('Previous Page')" :class="'page-link ' + (pager.pageCount > 0 && pager.page > 0 ? '' : 'disabled')" @click="pager.pageCount > 0 && pager.page > 0 ? changePage(pager.page - 1) : null"></div>
-          <div v-for="i in pagerRange()" :class="'page-link page-number ' + (pager.page == i ? 'active' : '')" @click="pager.page != i ? changePage(i) : null">{{ i+1 }}</div>
-          <div data-icon="rightangle" :title="t('Next Page')" :class="'page-link ' + (pager.pageCount > 0 && pager.page < pager.pageCount -1 ? '' : 'disabled')" @click="pager.pageCount > 0 && pager.page < pager.pageCount -1 ? changePage(pager.page+1) : null"></div>
-          <div :title="t('Last Page')" :class="'page-link page-last ' + (pager.pageCount > 0 && pager.page < pager.pageCount -1 ? '' : 'disabled')" @click="pager.pageCount > 0 && pager.page < pager.pageCount -1 ? changePage(pager.pageCount-1) : null">»</div>
+    <div
+      id="footer"
+      class="flex"
+    >
+      <div
+        v-if="!isChartView"
+        class="pagination flex"
+      >
+        <div
+          :title="t('First Page')"
+          :class="'page-link page-first ' + (pager.pageCount > 0 && pager.page > 0 ? '' : 'disabled')"
+          @click="pager.pageCount > 0 && pager.page > 0 ? changePage(0) : null"
+        >
+          «
         </div>
-        <div class="totals">{{ pager.totalCount + ' ' + t('submissions') }}</div>
+        <div
+          data-icon="leftangle"
+          :title="t('Previous Page')"
+          :class="'page-link ' + (pager.pageCount > 0 && pager.page > 0 ? '' : 'disabled')"
+          @click="pager.pageCount > 0 && pager.page > 0 ? changePage(pager.page - 1) : null"
+        />
+        <div
+          v-for="i in pagerRange()"
+          :key="i"
+          :class="'page-link page-number ' + (pager.page == i ? 'active' : '')"
+          @click="pager.page != i ? changePage(i) : null"
+        >
+          {{ i+1 }}
+        </div>
+        <div
+          data-icon="rightangle"
+          :title="t('Next Page')"
+          :class="'page-link ' + (pager.pageCount > 0 && pager.page < pager.pageCount -1 ? '' : 'disabled')"
+          @click="pager.pageCount > 0 && pager.page < pager.pageCount -1 ? changePage(pager.page+1) : null"
+        />
+        <div
+          :title="t('Last Page')"
+          :class="'page-link page-last ' + (pager.pageCount > 0 && pager.page < pager.pageCount -1 ? '' : 'disabled')"
+          @click="pager.pageCount > 0 && pager.page < pager.pageCount -1 ? changePage(pager.pageCount-1) : null"
+        >
+          »
+        </div>
+      </div>
+      <div class="totals">
+        {{ pager.totalCount + ' ' + t('submissions') }}
+      </div>
     </div>
-    <div class="modal elementselectormodal" id="submission-modal" style="display:none" ref="modal">
+    <div
+      id="submission-modal"
+      ref="modal"
+      class="modal elementselectormodal"
+      style="display:none"
+    >
       <div class="body has-sidebar">
         <div class="content has-sidebar">
           <div class="sidebar">
-            <div class="heading"><span>{{ t('Details') }}</span></div>
+            <div class="heading">
+              <span>{{ t('Details') }}</span>
+            </div>
             <ul class="sidebar-content">
               <li>{{ t('Created') }}: {{ viewed ? viewed.dateCreated : '' }}</li>
               <li>{{ t('Notified') }}: {{ viewed ? (viewed.notified ? t('Yes') : t('No')) : '' }}</li>
               <li>{{ t('Admin Notified') }}: {{ viewed ? (viewed.adminNotified ? t('Yes') : t('No')) : '' }}</li>
-              <li>{{ t('Form') }}: {{ viewed ? viewed.form.name : ''}}</li>
+              <li>{{ t('Form') }}: {{ viewed ? viewed.form.name : '' }}</li>
             </ul>
           </div>
           <div class="main">
-            <div class="heading"><span>{{ t('Submission') }}</span></div>
-            <ul class="submission">
-              <li :class="{field: true, padded: (value.field ? value.field.group_id != null : false), bold: (value.field ? value.field.type == 'group' : false)}" v-if="viewed" v-for="value in viewed.values">{{ value.field ? value.field.name : '*Field deleted*' }}: <span v-html="value.htmlValue"></span></li>
+            <div class="heading">
+              <span>{{ t('Submission') }}</span>
+            </div>
+            <ul
+              v-if="viewed"
+              class="submission"
+            >
+              <li
+                v-for="value, index in viewed.values"
+                :key="index"
+                :class="{field: true, padded: (value.field ? value.field.group_id != null : false), bold: (value.field ? value.field.type == 'group' : false)}"
+              >
+                {{ value.field ? value.field.name : '*Field deleted*' }}: <span v-html="value.htmlValue" />
+              </li>
             </ul>
           </div>
         </div>
       </div>
       <div class="footer">
         <div class="buttons">
-          <button type="button" class="btn submit" @click="deleteMany([viewed.id]);popup.hide()">{{ t('Delete') }}</button>
-          <button type="button" class="btn" @click="popup.hide()">{{ t('Close') }}</button>
+          <button
+            type="button"
+            class="btn submit"
+            @click="deleteMany([viewed.id]);popup.hide()"
+          >
+            {{ t('Delete') }}
+          </button>
+          <button
+            type="button"
+            class="btn"
+            @click="popup.hide()"
+          >
+            {{ t('Close') }}
+          </button>
         </div>
       </div>
     </div>
@@ -79,23 +236,20 @@
 
 <script>
 import { mapMutations, mapState, mapActions } from 'vuex';
-import axios from 'axios';
 import { pull, range } from 'lodash';
 import Chart from 'chart.js/dist/Chart';
 
 export default {
-  computed: {
-    ...mapState(['filters', 'isChartView', 'submissions', 'selected', 'isFetching'])
-  },
   props: {
-    loaderPath: String
+    loaderPath: {
+      type: String,
+      default: ''
+    }
   },
   data: function () {
     return {
-      chartData: {},
       chart: null,
       chartData: false,
-      pager: {},
       sort: {
         field: 'dateCreated',
         side: 'desc'
@@ -105,8 +259,11 @@ export default {
         form: {},
         values: {}
       },
-      popup: null,
+      popup: null
     }
+  },
+  computed: {
+    ...mapState(['filters', 'isChartView', 'submissions', 'selected', 'isFetching'])
   },
   watch: {
     isChartView: function () {
@@ -206,7 +363,7 @@ export default {
       data.sort = this.sort;
       data.page = this.pager.page;
       this.setIsFetching(true);
-      axios.post(Craft.getCpUrl('formidable/submissions/load'), data)
+      axios.post(Craft.getActionUrl('formidable/cp-submissions/load'), data)
         .then((response) => {
           this.setSubmissions(response.data.submissions);
           this.pager = {
@@ -229,7 +386,7 @@ export default {
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       data.filters = this.filters;
       this.setIsFetching(true);
-      axios.post(Craft.getCpUrl('formidable/submissions/loadAll'), data)
+      axios.post(Craft.getActionUrl('formidable/cp-submissions/load-all'), data)
         .then((response) => {
           this.chartData = true;
           this.updateChart(response.data.data);
@@ -276,9 +433,6 @@ export default {
   }
   tr.unread td.read {
     font-weight: bold;
-  }
-  tr.trashed * {
-    opacity: 0.7
   }
   #footer {
     justify-content: space-between;

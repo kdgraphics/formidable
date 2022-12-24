@@ -1,6 +1,6 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Exceptions;
+namespace Inspire\Formidable\Exceptions;
 
 class FormEmailException extends \Exception
 {

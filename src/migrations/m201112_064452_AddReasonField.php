@@ -1,6 +1,6 @@
 <?php
 
-namespace Ryssbowh\Formidable\migrations;
+namespace Inspire\Formidable\migrations;
 
 use Craft;
 use craft\db\Migration;

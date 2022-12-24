@@ -1,8 +1,8 @@
 <?php
 
-namespace Ryssbowh\Formidable\Events;
+namespace Inspire\Formidable\Events;
 
-use Ryssbowh\Formidable\Services\FormsService;
+use Inspire\Formidable\Services\FormsService;
 use yii\base\Event;
 
 class FormSubmissionEvent extends Event

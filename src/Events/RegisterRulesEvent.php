@@ -1,8 +1,8 @@
 <?php
 
-namespace Ryssbowh\Formidable\Events;
+namespace Inspire\Formidable\Events;
 
-use Ryssbowh\Formidable\Interfaces\RuleInterface;
+use Inspire\Formidable\Interfaces\RuleInterface;
 use yii\base\Event;
 
 class RegisterRulesEvent extends Event

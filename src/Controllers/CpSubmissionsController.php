@@ -1,23 +1,23 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Controllers;
+namespace Inspire\Formidable\Controllers;
 
-use Ryssbowh\Formidable\Assets\SubmissionsAsset;
-use Ryssbowh\Formidable\Models\Records\Submission;
+use Inspire\Formidable\Assets\SubmissionsAsset;
+use Inspire\Formidable\Models\Records\Submission;
 use yii\web\BadRequestHttpException;
 use yii\widgets\LinkPager;
 
 class CpSubmissionsController extends Controller
 {
-	public function actionIndex()
-	{
+    public function actionIndex()
+    {
         $this->requirePermission('manageFormidableSubmissions');
         $this->view->registerAssetBundle(SubmissionsAsset::class);
 
         return $this->renderTemplate('formidable/cp/submissions/index', [
             'forms' => $this->forms()->getAllAsArray()
         ]);
-	}
+    }
 
     public function actionLoad()
     {
@@ -71,7 +71,7 @@ class CpSubmissionsController extends Controller
         return $this->asJson($response);
     }
 
-    public function actionDeletemany()
+    public function actionDeleteMany()
     {
         $this->requirePermission('manageFormidableSubmissions');
         $this->requireAcceptsJson();

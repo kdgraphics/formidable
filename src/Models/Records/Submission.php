@@ -1,8 +1,8 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models\Records;
+namespace Inspire\Formidable\Models\Records;
 
-use Ryssbowh\Formidable\Models\Submission as SubmissionModel;
+use Inspire\Formidable\Models\Submission as SubmissionModel;
 use craft\db\ActiveRecord;
 use craft\db\SoftDeleteTrait;
 

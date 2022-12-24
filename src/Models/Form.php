@@ -1,14 +1,14 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models;
+namespace Inspire\Formidable\Models;
 
-use Ryssbowh\Formidable\Events\FormEvent;
-use Ryssbowh\Formidable\Exceptions\FormException;
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Interfaces\CaptchaInterface;
-use Ryssbowh\Formidable\Interfaces\FieldInterface;
-use Ryssbowh\Formidable\Models\Notification;
-use Ryssbowh\Formidable\Services\FormsService;
+use Inspire\Formidable\Events\FormEvent;
+use Inspire\Formidable\Exceptions\FormException;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Interfaces\CaptchaInterface;
+use Inspire\Formidable\Interfaces\FieldInterface;
+use Inspire\Formidable\Models\Notification;
+use Inspire\Formidable\Services\FormsService;
 use craft\base\Model;
 use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
@@ -23,7 +23,7 @@ class Form extends Model
     public $notify_key;
     public $notifyAdmin_key;
     public $notifySpam_key;
-    public $notifyField;
+    public $notifyField = '';
     public $notifyEmails;
     public $notifySpamEmails;
     public $honeypot = true;
@@ -36,7 +36,7 @@ class Form extends Model
     public $autocomplete = true;
     public $redirect;
     public $class;
-    public $spamCheck;
+    public $spamCheck = '';
     public $method = 'POST';
     public $color = '#000000';
     public $captcha;
@@ -52,15 +52,24 @@ class Form extends Model
     /**
      * @inheritDoc
      */
+    public function init(): void
+    {
+        $this->submitLabel = $this->submitLabel ? $this->submitLabel : \Craft::t('formidable', 'Submit');
+        parent::init();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function defineRules(): array
     {
         return [
-            [['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'notifySpamEmails','redirect', 'class', 'method', 'submitLabel', 'color', 'submitClass', 'notifyAdmin_key', 'notify_key', 'notifySpam_key', 'htmlId', 'spamCheck'], 'string'],
-            [['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'redirect', 'class', 'submitLabel', 'color', 'submitClass'], 'trim'],
+            [['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'notifySpamEmails','redirect', 'class', 'method', 'submitLabel', 'color', 'submitClass', 'notifyAdmin_key', 'notify_key', 'notifySpam_key', 'htmlId', 'spamCheck', 'uid'], 'string'],
+            [['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'redirect', 'class', 'submitLabel', 'color', 'submitClass', 'htmlId'], 'trim'],
             [['id'], 'integer'],
             [['honeypot', 'saveSubmissions', 'saveSpam', 'frontEndValidation', 'obfuscateFieldNames', 'autocomplete'], 'boolean', 'trueValue' => true, 'falseValue' => false],
             [['notifyEmails', 'notifySpamEmails'], 'validateEmails'],
-            ['handle', 'validateHandle'],
+            ['handle', 'validateHandle', 'params' => ['name' => 'handle']],
             ['method', 'in', 'range' => ['GET', 'POST']],
             ['notifyEmails', 'required', 'when' => function($model){
                 return $model->notifyAdmin_key;
@@ -82,17 +91,87 @@ class Form extends Model
             [['name', 'handle', 'method', 'submitLabel'], 'required'],
             [['notify_key', 'notifyAdmin_key'], 'default', 'value' => null, 'when' => function($model,$attribute){
                 return empty($model->$attribute);
-            }]
+            }],
+            [['class', 'submitClass'], 'validateHtmlClasses'],
+            ['htmlId', 'validateHtmlName', 'params' => ['name' => 'id']]
         ];
     }
 
     /**
-     * @inheritDoc
+     * Validate some html classes
+     * 
+     * @param string $attribute
+     * @param array $param
      */
-    public function init(): void
+    public function validateHtmlClasses($attribute, $param, $validator)
     {
-        $this->submitLabel = $this->submitLabel ? $this->submitLabel : \Craft::t('formidable', 'Submit');
-        parent::init();
+        $name = $validator->params['name'] ?? 'class';
+        $classes = explode(' ', $this->$attribute);
+        foreach ($classes as $class) {
+            if (!preg_match('/^[\_\-a-zA-Z][\_\-a-zA-Z0-9]*$/', $class)) {
+                $this->addError($attribute, \Craft::t('formidable', '{class} is not a valid {name}', [
+                    'class' => $class,
+                    'name' => $name
+                ]));
+            }
+        }
+    }
+
+    /**
+     * Validate html name
+     * 
+     * @param string $attribute
+     * @param array $param    
+     * @param Validator $validator
+     */
+    public function validateHtmlName($attribute, $param, $validator)
+    {
+        $name = $validator->params['name'] ?? 'name';
+        if (!preg_match('/^[a-zA-Z][\_\-a-zA-Z0-9:.]*$/', $this->$attribute)) {
+            $this->addError($attribute, \Craft::t('formidable', '{handle} is not a valid {name}', [
+                'handle' => $this->$attribute,
+                'name' => $name
+            ]));
+        }
+    }
+
+    /**
+     * Validate handle
+     * 
+     * @param string $attribute
+     * @param array $param    
+     * @param Validator $validator
+     */
+    public function validateHandle($attribute, $param, $validator)
+    {
+        $this->validateHtmlName($attribute, $param, $validator);
+        $exists = Formidable::$plugin->forms->getByHandle($this->$attribute);
+        if ($exists and $exists->id != $this->id) {
+            $this->addError($attribute, \Craft::t('formidable', '{handle} is already taken', ['handle' => $this->$attribute]));
+        }
+    }
+
+    /**
+     * Validate emails
+     * 
+     * @param object $model
+     * @param string $attribute
+     */
+    public function validateEmails($attribute)
+    {
+        if (!$this->$attribute) {
+            return true;
+        }
+        $emails = array_map('trim', explode(',', trim($this->$attribute)));
+        foreach($emails as $email) {
+            $isEnv = preg_match('/^\$.*$/', $email);
+            if ($isEnv) {
+                $email = \Craft::parseEnv($email);
+            }
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $this->addError($attribute, \Craft::t('formidable', 'Email {email} is not valid', ['email' => $email]));
+            }
+        }
     }
 
     /**
@@ -352,29 +431,6 @@ class Form extends Model
     }
 
     /**
-     * Validate emails
-     * 
-     * @param object $model
-     * @param string $attribute
-     */
-    public function validateEmails($attribute)
-    {
-        if (!$this->$attribute) {
-            return true;
-        }
-        $emails = array_map('trim', explode(',', trim($this->$attribute)));
-        $pass = true;
-        foreach($emails as $email) {
-            $isEnv = preg_match('/^\$[A-Za-z-_]+$/', $email);
-            if (!$isEnv && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $this->addError($attribute, \Craft::t('formidable', 'Email {email} is not valid', ['email' => $email]));
-                $pass = false;
-            }
-        }
-        return $pass;
-    }
-
-    /**
      * Obfuscate a field name
      * 
      * @param  string $name
@@ -397,7 +453,7 @@ class Form extends Model
     public function render(?string $template = null, array $variables = [])
     {
         if (!$template) {
-            $template = 'formidable/forms/form';
+            $template = '_formidable/forms/form';
         }
         $event = new FormEvent([
             'form' => $this,
@@ -423,22 +479,6 @@ class Form extends Model
     public function setHandle(string $handle)
     {
         $this->handle = $handle;
-    }
-
-    /**
-     * Validate handle 
-     * 
-     * @param  Form $model
-     * @param  string $attribute
-     * @return bool
-     */
-    public function validateHandle($model, $attribute)
-    {
-        $exists = Formidable::$plugin->forms->getByHandle($this->handle);
-        if ($exists and !$this->id) {
-            return false;
-        }
-        return true;
     }
 
     /**

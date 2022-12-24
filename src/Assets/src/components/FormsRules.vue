@@ -1,39 +1,75 @@
 <template>
-	<div id="formidable-rules" v-show="activeTab == 'rules'" class="flex">
-    <div class="flex sidebar" id="formidablerules-sidebar">
-      <div id="registered-rules-btn" class="btn menubtn add icon">{{ t('Add rule') }}</div>
+  <div
+    v-show="activeTab == 'rules'"
+    id="formidable-rules"
+    class="flex"
+  >
+    <div
+      id="formidablerules-sidebar"
+      class="flex sidebar"
+    >
+      <div
+        id="registered-rules-btn"
+        class="btn menubtn add icon"
+      >
+        {{ t('Add rule') }}
+      </div>
       <div class="menu">
         <ul>
-          <li><a v-for="registered in registeredRules" :key="registered.type" @click.prevent="addRule(registered.type)" href="#">{{ registered.name }}</a></li>
+          <li>
+            <a
+              v-for="registered in registeredRules"
+              :key="registered.type"
+              href="#"
+              @click.prevent="_addRule(registered.type)"
+            >{{ registered.name }}</a>
+          </li>
         </ul>
       </div>
       <nav class="rules-nav">
         <ul>
-          <li v-for="(rule, index) in rules" :key="'' + form.id + index" :class="{'sel': index == selectedRule}" :data-index="index">
-            <a href="#" @click.prevent="setSelectedRule(index)" class="rule-link">
+          <li
+            v-for="(rule, index) in rules"
+            :key="index"
+            :class="{'sel': selectedRule && rule.uid == selectedRule.uid}"
+          >
+            <a
+              href="#"
+              class="rule-link"
+              @click.prevent="setSelectedRule(rule)"
+            >
               <div class="top">
                 <div class="name">{{ getRuleName(rule) }}</div>
-                <div v-show="changes[index] && !errors[index]" class="red-span">*</div>
-                <div v-show="errors[index]" class="red-span">!</div>
               </div>
               <div class="fields">{{ getRuleSelectedFields(rule.fields) }}</div>
-              <div class="conditions" v-if="countConditions(index) > 0">{{ countConditions(index) }}{{ ' '+t('condition' + (countConditions(index) > 1 ? 's' : '')) }}</div>
+              <div
+                v-if="countConditions(index) > 0"
+                class="conditions"
+              >{{ countConditions(index) }}{{ ' '+t('condition' + (countConditions(index) > 1 ? 's' : '')) }}</div>
             </a>
           </li>
         </ul>
       </nav>
     </div>
     <div id="formidablerules-container">
-      <forms-rule v-for="(rule, index) in rules" v-show="index == selectedRule" v-on:error="onError"
-        :class="rule.type+'-rule form-rule'" 
-        :key="'' + form.id + index"
-        :index="index"
-        :rule="rule"
-        >
-      </forms-rule>
-      <div class="no-rules" v-if="rules.length == 0">{{ t('No rules found') }}</div>
-      <div class="actions" v-show="selectedRule != null">
-        <a class="delete" @click.prevent="deleteRule()">{{ t('Delete') }}</a>
+      <forms-rule
+        v-if="selectedRule"
+        :class="selectedRule.type+'-rule form-rule'"
+      />
+      <div
+        v-if="rules.length == 0"
+        class="no-rules"
+      >
+        {{ t('No rules found') }}
+      </div>
+      <div
+        v-show="selectedRule != null"
+        class="actions"
+      >
+        <a
+          class="delete"
+          @click.prevent="_deleteRule()"
+        >{{ t('Delete') }}</a>&nbsp;
         <a @click.prevent="duplicateRule()">{{ t('Duplicate') }}</a>
       </div>
     </div>
@@ -43,21 +79,23 @@
 <script>
 import { mapMutations, mapState, mapActions } from 'vuex';
 import { isEqual, cloneDeep, reduce, mapValues, merge } from 'lodash';
-import { EventBus } from '../EventBus';
+import { v4 as uuidv4 } from 'uuid';
+import FormsRule from './FormsRule.vue';
 
 export default {
+  components: { FormsRule },
 	props: {
-		registeredRules: Object
+		registeredRules: {
+      type: Object,
+      default: () => {return {};}
+    }
 	},
+  data: function () {
+    return {
+      changes: {}
+    }
+  },
   computed: {
-    /**
-     * @return {Boolean} global error status
-     */
-    hasErrors: function () {
-      return reduce(this.errors, function(result, value, key) {
-        return (result || value);
-      }, false);
-    },
     allFields: function () {
       let fields = [];
       for(let field of this.fields) {
@@ -71,47 +109,12 @@ export default {
       }
       return fields;
     },
-    ...mapState(['activeTab', 'rules', 'form', 'loadedTime', 'fields'])
-  },
-  data: function () {
-    return {
-      /**
-       * @type {Integer}
-       */
-      selectedRule: null,
-      deletedRules: 0,
-      addedRules: 0,
-      /**
-       * @type {Object} Keyed by rule index
-       */
-      errors: {},
-      /**
-       * @type {Object} Keyed by rule index
-       */
-      changes: {}
-    }
+    ...mapState(['activeTab', 'rules', 'form', 'loadedTime', 'fields', 'selectedRule'])
   },
   created() {
     this.setRegisteredRules(this.registeredRules);
-    this.init();
-  },
-  watch: {
-    loadedTime: function() {
-      this.init();
-    },
-    hasErrors: function () {
-      this.rulesHaveErrors(this.hasErrors);
-    }
   },
   methods: {
-    /**
-     * (re)initialise the rules
-     */
-    init () {
-      this.errors = {};
-      this.deletedRules = 0;
-      this.addedRules = 0;
-    },
     getRuleName(rule) {
       if (rule.title) {
         return rule.title + ' (' + rule.name + ')';
@@ -132,48 +135,33 @@ export default {
       }
       return count;
     },
-    addRule(type) {
-      this._addRule(merge({}, this.registeredRules[type]));
+    _addRule(type) {
+      let rule = merge({}, this.registeredRules[type]);
+      rule.id = null;
+      rule.uid = uuidv4();
+      this.addRule(rule);
+      this.setSelectedRule(rule);
     },
     duplicateRule() {
-      let rule = merge({}, this.rules[this.selectedRule]);
+      let rule = merge({}, this.selectedRule);
+      rule.uid = uuidv4();
       rule.conditions = [];
-      for (let i in this.rules[this.selectedRule].conditions) {
-        let condition = merge({}, this.rules[this.selectedRule].conditions[i]);
+      for (let i in this.selectedRule.conditions) {
+        let condition = merge({}, this.selectedRule.conditions[i]);
         rule.conditions.push(condition);
       }
-      this._addRule(rule);
+      this.addRule(rule);
+      this.setSelectedRule(rule);
     },
-  	_addRule(rule) {
-      rule.id = null;
-      let index = this.rules.length;
-      this.rules.push(rule);
-      this.addedRules++;
-      this.selectedRule = index;
-  	},
-  	deleteRule(index) {
-      if (this.rules[this.selectedRule].id) {
-        this.deletedRules++;
+  	_deleteRule() {
+      this.deleteRule(this.selectedRule);
+      if (this.rules.length) {
+        this.setSelectedRule(this.rules[0]);
       } else {
-        this.addedRules--;
+        this.setSelectedRule(null);
       }
-  		this.$delete(this.rules, this.selectedRule);
-      this.$delete(this.errors, this.selectedRule);
-      this.$delete(this.changes, this.selectedRule);
-      this.selectedRule = this.rules.length ? 0 : null;
   	},
-    setSelectedRule(index) {
-      this.selectedRule = index;
-    },
-    onError(data) {
-      this.$set(this.errors, data.index, data.error);
-    },
-    ...mapMutations({
-      setRules: 'setRules',
-      setConditionTypes: 'setConditionTypes',
-      setRegisteredRules: 'setRegisteredRules',
-    }),
-  	...mapActions(['rulesHaveErrors'])
+    ...mapMutations(['setRules', 'setConditionTypes','setRegisteredRules', 'setSelectedRule', 'addRule', 'deleteRule'])
   }
 };
 </script>
@@ -243,24 +231,38 @@ export default {
 #formidablerules-container {
   width: 70%;
   max-height: calc(100vh - 260px);
+  padding: 0 3px;
   margin-bottom: 0 !important;
   overflow-y: auto;
   overflow-x: visible;
   .multiselect {
     min-height: unset;
     border: 1px solid $grey200;
-    box-shadow: inset 0 1px 4px -1px $grey200;
-    background-color: #fbfcfe;
     border-radius: 3px;
+    &.multiselect--active {
+      box-shadow: var(--focus-ring);
+    }
+  }
+  .multiselect__placeholder {
+    margin-bottom: 5px;
+    margin-top: 5px;
+  }
+
+  .multiselect__content-wrapper {
+    top: 38px;
   }
   .multiselect__tags {
     padding-top: 4px;
-    padding-bottom: 4px;
-    min-height: unset;
+    padding-bottom: 0px;
+    min-height: 34px;
+    border: none;
     background-color: unset;
   }
   .multiselect__content {
     font-size: 14px;
+  }
+  .multiselect__select {
+    height: 34px;
   }
   .multiselect__tag {
     background-color: $grey200;

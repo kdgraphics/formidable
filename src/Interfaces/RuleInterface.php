@@ -1,10 +1,10 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Interfaces;
+namespace Inspire\Formidable\Interfaces;
 
-use Ryssbowh\Formidable\Interfaces\FieldInterface;
-use Ryssbowh\Formidable\Models\Form;
-use Ryssbowh\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Interfaces\FieldInterface;
+use Inspire\Formidable\Models\Form;
+use Inspire\Formidable\Models\FormSubmission;
 
 interface RuleInterface
 {

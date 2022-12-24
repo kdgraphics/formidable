@@ -1,22 +1,22 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Services;
+namespace Inspire\Formidable\Services;
 
-use Ryssbowh\Formidable\Events\EmailEvent;
-use Ryssbowh\Formidable\Exceptions\FormEmailException;
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Jobs\SendAdminEmailJob;
-use Ryssbowh\Formidable\Jobs\SendUserEmailJob;
-use Ryssbowh\Formidable\Models\Form;
-use Ryssbowh\Formidable\Models\FormSubmission;
-use Ryssbowh\Formidable\Models\Notification;
-use Ryssbowh\Formidable\Models\Records\Form as FormRecord;
-use Ryssbowh\Formidable\Models\Records\Submission;
-use Ryssbowh\Formidable\Models\Records\SubmissionValue;
-use Ryssbowh\Formidable\Models\Submission as SubmissionModel;
-use Ryssbowh\Formidable\Models\SubmissionValue as SubmissionValueModel;
-use Ryssbowh\Formidable\Providers\SubmissionProvider;
-use Ryssbowh\Formidable\Services\NotificationsService;
+use Inspire\Formidable\Events\EmailEvent;
+use Inspire\Formidable\Exceptions\FormEmailException;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Jobs\SendAdminEmailJob;
+use Inspire\Formidable\Jobs\SendUserEmailJob;
+use Inspire\Formidable\Models\Form;
+use Inspire\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\Notification;
+use Inspire\Formidable\Models\Records\Form as FormRecord;
+use Inspire\Formidable\Models\Records\Submission;
+use Inspire\Formidable\Models\Records\SubmissionValue;
+use Inspire\Formidable\Models\Submission as SubmissionModel;
+use Inspire\Formidable\Models\SubmissionValue as SubmissionValueModel;
+use Inspire\Formidable\Providers\SubmissionProvider;
+use Inspire\Formidable\Services\NotificationsService;
 use craft\base\Component;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;

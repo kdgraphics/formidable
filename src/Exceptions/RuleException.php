@@ -1,10 +1,10 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Exceptions;
+namespace Inspire\Formidable\Exceptions;
 
-use Ryssbowh\Formidable\Interfaces\FieldInterface;
-use Ryssbowh\Formidable\Interfaces\RuleInterface;
-use Ryssbowh\Formidable\Models\Form;
+use Inspire\Formidable\Interfaces\FieldInterface;
+use Inspire\Formidable\Interfaces\RuleInterface;
+use Inspire\Formidable\Models\Form;
 
 class RuleException extends \Exception
 {

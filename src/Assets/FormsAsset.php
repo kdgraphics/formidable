@@ -1,6 +1,6 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Assets;
+namespace Inspire\Formidable\Assets;
 
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
@@ -8,9 +8,9 @@ use craft\redactor\assets\redactor\RedactorAsset;
 
 class FormsAsset extends AssetBundle
 {
-	public function init(): void
+    public function init()
     {
-        $this->sourcePath = __DIR__ . '/dist';
+        $this->sourcePath = __DIR__ . "/dist/js";
 
         $this->depends = [
             CpAsset::class,
@@ -18,11 +18,9 @@ class FormsAsset extends AssetBundle
         ];
 
         $this->js = [
-            'forms.js',
-        ];
-
-        $this->css = [
-            'main.css'
+            'chunk-vendors.js',
+            'chunk-common.js',
+            'forms.js'
         ];
 
         parent::init();

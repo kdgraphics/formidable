@@ -1,24 +1,24 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models\Fields;
+namespace Inspire\Formidable\Models\Fields;
 
 class Hidden extends Text
 {
-	public $default;
+    public $default;
 
-	/**
-	 * inheritDoc
-	 **/
-	public function handle(): string
-	{
-		return 'hidden';
-	}
+    /**
+     * inheritDoc
+     **/
+    public function handle(): string
+    {
+        return 'hidden';
+    }
 
-	/**
-	 * inheritDoc
-	 **/
-	public function friendlyName(): string
-	{
-		return 'Hidden';
-	}
+    /**
+     * inheritDoc
+     **/
+    public function friendlyName(): string
+    {
+        return 'Hidden';
+    }
 }

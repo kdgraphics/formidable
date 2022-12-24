@@ -1,12 +1,12 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models\Rules;
+namespace Inspire\Formidable\Models\Rules;
 
-use Ryssbowh\Formidable\Exceptions\RuleException;
-use Ryssbowh\Formidable\Interfaces\FieldInterface;
-use Ryssbowh\Formidable\Models\FieldTypes\NumberField;
-use Ryssbowh\Formidable\Models\FieldTypes\TextField;
-use Ryssbowh\Formidable\Models\Rule;
+use Inspire\Formidable\Exceptions\RuleException;
+use Inspire\Formidable\Interfaces\FieldInterface;
+use Inspire\Formidable\Models\FieldTypes\NumberField;
+use Inspire\Formidable\Models\FieldTypes\TextField;
+use Inspire\Formidable\Models\Rule;
 
 class EqualTo extends Rule
 {

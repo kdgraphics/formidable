@@ -1,21 +1,21 @@
 <?php
-namespace Ryssbowh\Formidable;
+namespace Inspire\Formidable;
 
 use Craft;
 use Inspire\Emails\Emails;
 use Inspire\Emails\Records\Email as EmailRecord;
-use Ryssbowh\Formidable\Assets\TestAsset;
-use Ryssbowh\Formidable\Captchas\GoogleV2;
-use Ryssbowh\Formidable\Captchas\GoogleV3;
-use Ryssbowh\Formidable\Events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent};
-use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry, Group, Hidden, CheckboxEntry, Date, CheckboxCategory, RadioCategory, RadioEntry};
-use Ryssbowh\Formidable\Models\FormField;
-use Ryssbowh\Formidable\Models\FormSubmission;
-use Ryssbowh\Formidable\Models\Records\Submission;
-use Ryssbowh\Formidable\Models\Rules\{BiggerThan, Contain, EqualTo, Off, On, Required, SameThan, Size, SmallerThan};
-use Ryssbowh\Formidable\Models\Settings;
-use Ryssbowh\Formidable\Services\{CaptchasService, ConditionsService, ConditionGroupsService, CsvExporterService, FieldsService, FormsService, RulesService, SpamService, SubmissionsService};
-use Ryssbowh\Formidable\Twig\TwigForms;
+use Inspire\Formidable\Assets\TestAsset;
+use Inspire\Formidable\Captchas\GoogleV2;
+use Inspire\Formidable\Captchas\GoogleV3;
+use Inspire\Formidable\Events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent};
+use Inspire\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry, Group, Hidden, CheckboxEntry, Date, CheckboxCategory, RadioCategory, RadioEntry};
+use Inspire\Formidable\Models\FormField;
+use Inspire\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\Records\Submission;
+use Inspire\Formidable\Models\Rules\{BiggerThan, Contain, EqualTo, Off, On, Required, SameThan, Size, SmallerThan};
+use Inspire\Formidable\Models\Settings;
+use Inspire\Formidable\Services\{CaptchasService, ConditionsService, ConditionGroupsService, CsvExporterService, FieldsService, FormsService, RulesService, SpamService, SubmissionsService};
+use Inspire\Formidable\Twig\TwigForms;
 use craft\base\Model;
 use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
@@ -35,31 +35,31 @@ class Formidable extends Plugin
 {
     public $controllerNamespace = "Ryssbowh\\Formidable\\Controllers";
 
-    public string $schemaVersion = '6.1.0';
+    public string $schemaVersion = '6.2.0';
 
     public bool $hasCpSettings = true;
 
     public static $plugin;
 
     protected $availableFields = [
-        Text::class,
+        Checkbox::class,
+        CheckboxCategory::class,
+        CheckboxEntry::class,
+        Checkboxes::class,
         Date::class,
         Email::class,
-        Textarea::class,
+        File::class,
+        Group::class,
+        Hidden::class,
         Number::class,
         Radio::class,
-        RadioEntry::class,
         RadioCategory::class,
-        File::class,
-        Hidden::class,
+        RadioEntry::class,
         Select::class,
         SelectCategory::class,
         SelectEntry::class,
-        Checkbox::class,
-        Checkboxes::class,
-        CheckboxEntry::class,
-        CheckboxCategory::class,
-        Group::class
+        Text::class,
+        Textarea::class,
     ];
 
     protected $availableCaptchas = [
@@ -303,37 +303,26 @@ class Formidable extends Plugin
     protected function registerCpRoutes()
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
+            $event->rules = array_merge($event->rules, [
+                'formidable' => 'formidable/cp-formidable'
+            ]);
             if (\Craft::$app->config->getGeneral()->allowAdminChanges) {
                 $event->rules = array_merge($event->rules, [
-                    'formidable' => 'formidable/cp-forms/form',
                     'formidable/forms' => 'formidable/cp-forms/form',
-                    'formidable/forms/get/<id:\d+>' => 'formidable/cp-forms/get',
-                    'formidable/forms/new' => 'formidable/cp-forms/new',
                     'formidable/forms/add' => 'formidable/cp-forms/form',
                     'formidable/forms/add/<tab:config>' => 'formidable/cp-forms/form',
                     'formidable/forms/add/<tab:fields>' => 'formidable/cp-forms/form',
                     'formidable/forms/add/<tab:rules>' => 'formidable/cp-forms/form',
-                    'formidable/forms/save' => 'formidable/cp-forms/save',
                     'formidable/forms/<id:\d+>' => 'formidable/cp-forms/form',
                     'formidable/forms/<id:\d+>/<tab:config>' => 'formidable/cp-forms/form',
                     'formidable/forms/<id:\d+>/<tab:fields>' => 'formidable/cp-forms/form',
                     'formidable/forms/<id:\d+>/<tab:rules>' => 'formidable/cp-forms/form',
-                    'formidable/forms/delete/<id:\d+>' => 'formidable/cp-forms/delete',
-                    'formidable/categories-groups' => 'formidable/cp-categories',
-                    'formidable/entry-sections' => 'formidable/cp-sections'
                 ]);
             }
             $event->rules = array_merge($event->rules, [
                 'formidable/submissions' => 'formidable/cp-submissions',
-                'formidable/submissions/load' => 'formidable/cp-submissions/load',
-                'formidable/submissions/loadAll' => 'formidable/cp-submissions/load-all',
-                'formidable/submissions/set-as-read' => 'formidable/cp-submissions/set-as-read',
-                'formidable/submissions/delete-many' => 'formidable/cp-submissions/deletemany',
                 'formidable/submissions/export' => 'formidable/cp-submissions/export',
-                'formidable/submissions/spam' => 'formidable/cp-spam',
-                'formidable/submissions/spam/load' => 'formidable/cp-spam/load',
-                'formidable/submissions/spam/loadAll' => 'formidable/cp-spam/load-all',
-                'formidable/submissions/spam/delete-many' => 'formidable/cp-spam/deletemany'
+                'formidable/spam' => 'formidable/cp-spam'
             ]);
         });
     }
@@ -363,24 +352,6 @@ class Formidable extends Plugin
         Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $e) {
             Formidable::$plugin->forms->rebuildConfig($e);
         });
-    }
-
-    protected function afterInstall(): void
-    {
-        if (!Emails::$plugin->emails->getByKey('formidable_spam')) {
-            $email = new EmailRecord([
-                'key' => 'formidable_spam',
-                'subject' => 'New spam on {{ siteName }}',
-                'body' => 'A new spam has been caught on {{ form.name }}',
-                'heading' => 'When a spam is caught'
-            ]);
-            $email->save(false);
-        }
-    }
-
-    protected function beforeInstall(): void
-    {
-        \Craft::$app->plugins->installPlugin('inspire-emails');
     }
 
     protected function afterUninstall(): void

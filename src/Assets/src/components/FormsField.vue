@@ -1,16 +1,23 @@
 <template>
-  <div :class="field.type+'-field' + ' formidablefield-container'" ref="field">
+  <div :class="selectedField.type+'-field' + ' formidablefield-container'">
     <slot name="fields">
       <div class="field first">
         <div class="heading">
           <label for="form-active">{{ t('Active') }}</label>
         </div>
         <div class="input ltr">
-          <div id="form-active" :class="{lightswitch:true, on:field.active}">
+          <div
+            id="form-active"
+            :class="{lightswitch:true, on:selectedField.active}"
+          >
             <div class="lightswitch-container">
-              <div class="handle"></div>
+              <div class="handle" />
             </div>
-            <input type="hidden" name="active" v-model="field.active">
+            <input
+              v-model="selectedField.active"
+              type="hidden"
+              name="active"
+            >
           </div>
         </div>
       </div>
@@ -19,69 +26,230 @@
           <label class="required">{{ t('Name') }}</label>
         </div>
         <div class="input ltr">
-          <input type="text" :class="'text fullwidth' + (errors.name ? ' error' : '')" v-model="field.name" v-on:blur="generateHandle" @input="validateName">
+          <input
+            v-model="selectedField.name"
+            type="text"
+            class="text fullwidth"
+          >
         </div>
+        <ul class="errors">
+          <li
+            v-for="error, index in errors.name"
+            :key="index"
+            class="error"
+          >
+            {{ error }}
+          </li>
+        </ul>
       </div>
       <div class="field">
         <div class="heading">
           <label class="required">{{ t('Handle') }}</label>
         </div>
         <div class="input ltr">
-          <input type="text" :class="'text fullwidth' + (errors.handle ? ' error' : '')" v-model="field.handle" @input="validateHandle">
+          <input
+            v-model="selectedField.handle"
+            type="text"
+            class="text fullwidth"
+          >
         </div>
+        <ul class="errors">
+          <li
+            v-for="error, index in errors.handle"
+            :key="index"
+            class="error"
+          >
+            {{ error }}
+          </li>
+        </ul>
       </div>
-      <div class="field field-instructions">
+      <div
+        v-if="hasInstructions"
+        class="field"
+      >
         <div class="heading">
           <label>{{ t('Instructions') }}</label>
         </div>
         <div class="input ltr">
-          <input type="text" class="text fullwidth" v-model="field.instructions">
+          <input
+            v-model="selectedField.instructions"
+            type="text"
+            class="text fullwidth"
+          >
+        </div>
+      </div>
+      <div
+        v-if="hasPlaceholder"
+        class="field"
+      >
+        <div class="heading">
+          <label>{{ t('Placeholder') }}</label>
+        </div>
+        <div class="input ltr">
+          <input
+            v-model="selectedField.placeholder"
+            type="text"
+            class="text fullwidth"
+          >
+        </div>
+      </div>
+      <div
+        v-if="hasLabel"
+        class="field"
+      >
+        <div class="heading">
+          <label>{{ t('Label') }}</label>&nbsp;
+          <a
+            href="#"
+            @click.prevent="selectedField.labelHtml = !selectedField.labelHtml"
+          >
+            {{ selectedField.labelHtml ? 'Plain' : 'Html' }}
+          </a>
+        </div>
+        <div class="input ltr">
+          <textarea
+            v-model="selectedField.label"
+            class="text fullwidth field-label-value"
+            type="text"
+            rows="1"
+          />
+        </div>
+      </div>
+      <div
+        v-if="hasTooltip"
+        class="field"
+      >
+        <div class="heading">
+          <label>{{ t('Tooltip label') }}</label>
+        </div>
+        <div class="input ltr">
+          <input
+            v-model="selectedField.tooltipLabel"
+            type="text"
+            class="text fullwidth"
+          >
+        </div>
+      </div>
+      <div
+        v-if="hasTooltip"
+        class="field field-tooltip"
+      >
+        <div class="heading">
+          <label>{{ t('Tooltip') }}</label>
+        </div>
+        <div class="input ltr">
+          <textarea
+            v-model="selectedField.tooltip"
+            class="text fullwidth field-tooltip-value"
+            type="text"
+            rows="1"
+          />
         </div>
       </div>
     </slot>
-    <slot name="extraFields"></slot>
+    <slot name="extraFields" />
     <slot name="advanced">
       <div class="advanced">
-        <div class="header" @click="showAdvanced = !showAdvanced" :class="{'closed': !showAdvanced}">{{ t('Advanced') }}</div>
-        <div class="content" v-show="showAdvanced">
-          <div class="field field-fieldClass">
+        <div class="header">
+          {{ t('Advanced') }}
+        </div>
+        <div class="content">
+          <div
+            v-if="hasFieldClass"
+            class="field"
+          >
             <div class="heading">
               <label>{{ t('Field class') }}</label>
             </div>
             <div class="input ltr">
-              <input type="text" :class="'text fullwidth' + (errors.fieldClass ? ' error' : '')" v-model="field.fieldClass" @input="validateAlnum('fieldClass')">
+              <input
+                v-model="selectedField.fieldClass"
+                type="text"
+                class="text fullwidth"
+              >
             </div>
+            <ul class="errors">
+              <li
+                v-for="error, index in errors.fieldClass"
+                :key="index"
+                class="error"
+              >
+                {{ error }}
+              </li>
+            </ul>
           </div>
-          <div class="field field-containerClass">
+          <div
+            v-if="hasContainerClass"
+            class="field"
+          >
             <div class="heading">
               <label>{{ t('Container class') }}</label>
             </div>
             <div class="input ltr">
-              <input type="text" :class="'text fullwidth' + (errors.containerClass ? ' error' : '')" v-model="field.containerClass" @input="validateAlnum('containerClass')">
+              <input
+                v-model="selectedField.containerClass"
+                type="text"
+                class="text fullwidth"
+              >
             </div>
+            <ul class="errors">
+              <li
+                v-for="error, index in errors.containerClass"
+                :key="index"
+                class="error"
+              >
+                {{ error }}
+              </li>
+            </ul>
           </div>
-          <div class="field field-labelClass">
+          <div
+            v-if="hasLabel"
+            class="field"
+          >
             <div class="heading">
               <label>{{ t('Label class') }}</label>
             </div>
             <div class="input ltr">
-              <input type="text" :class="'text fullwidth' + (errors.labelClass ? ' error' : '')" v-model="field.labelClass" @input="validateAlnum('labelClass')">
+              <input
+                v-model="selectedField.labelClass"
+                type="text"
+                class="text fullwidth"
+              >
             </div>
+            <ul class="errors">
+              <li
+                v-for="error, index in errors.labelClass"
+                :key="index"
+                class="error"
+              >
+                {{ error }}
+              </li>
+            </ul>
           </div>
-          <div class="field">
+          <div
+            v-if="hasAutocomplete"
+            class="field first"
+          >
             <div class="heading">
               <label for="form-active">{{ t('Autocomplete') }}</label>
             </div>
             <div class="input ltr">
-              <div id="form-autocomplete" :class="{lightswitch:true, on:field.autocomplete}">
+              <div
+                id="form-autocomplete"
+                :class="{lightswitch:true, on:selectedField.autocomplete}"
+              >
                 <div class="lightswitch-container">
-                  <div class="handle"></div>
+                  <div class="handle" />
                 </div>
-                <input type="hidden" name="autocomplete" v-model="field.autocomplete">
+                <input
+                  v-model="selectedField.autocomplete"
+                  type="hidden"
+                  name="autocomplete"
+                >
               </div>
             </div>
           </div>
-          <slot name="extraAdvanced"></slot>
+          <slot name="extraAdvanced" />
         </div>
       </div>
     </slot>
@@ -96,85 +264,98 @@ import slugify from 'slugify';
 
 export default {
   props: {
-    field: Object,
-    errors: Object
-  },
-  data: function() {
-    return {
-      showAdvanced: false
+    hasLabel: {
+      type: Boolean,
+      default: true
+    },
+    hasPlaceholder: {
+      type: Boolean,
+      default: true
+    },
+    hasTooltip: {
+      type: Boolean,
+      default: true
+    },
+    hasInstructions: {
+      type: Boolean,
+      default: true
+    },
+    hasAutocomplete: {
+      type: Boolean,
+      default: true
+    },
+    hasFieldClass: {
+      type: Boolean,
+      default: true
+    },
+    hasContainerClass: {
+      type: Boolean,
+      default: true
     }
   },
-  created() {
-    this.validateName();
-    this.validateHandle();
+  computed: {
+    errors: function () {
+      if (!this.selectedField.errors) {
+        return {};
+      }
+      return this.selectedField.errors;
+    },
+    ...mapState(['fields', 'selectedField'])
+  },
+  watch: {
+    'selectedField.name': function () {
+      this.slugifyHandle();
+    },
+    'selectedField.labelHtml': function () {
+      if (this.selectedField) {
+        this.toggleRedactor();
+      }
+    }
   },
   mounted() {
-    Craft.initUiElements(this.$refs.field);
+    Craft.initUiElements(this.$el);
     let _this = this;
     $(this.$el).find('.lightswitch').on('change', function(e){
       let input = $(e.target).find('input');
       let value = input.val() == 1;
-      _this.field[input.attr('name')] = value;
+      _this.selectedField[input.attr('name')] = value;
     });
-  },
-  computed: {
-    otherFieldHandles: function () {
-      let _this = this;
-      return this.allFields.filter((field) => field.uid != this.field.uid).map((field) => field.handle);
-    },
-    hasErrors: function () {
-      return reduce(this.errors, function(result, value, key) {
-        return (result || value);
-      }, false);
-    },
-    allFields: function () {
-      let fields = [];
-      for(let field of this.fields) {
-        fields.push(field);
-        if (field.type == 'group') {
-          for(let subfield of field.fields) {
-            fields.push(subfield);
-          }
-        }
-      }
-      return fields;
-    },
-    ...mapState(['fields'])
+    this.toggleRedactor();
+    if (this.hasTooltip) {
+      this.enableTooltipRedactor();
+    }
   },
   methods: {
-    validateName() {
-      let error = (this.field.name.trim() == '');
-      this.$set(this.errors, 'name', error);
+    enableLabelRedactor: function () {
+      $R('.field-label-value', {
+        callbacks: {
+          changed: (html) => {
+            this.selectedField.label = html;
+          }
+        }
+      });
     },
-    generateHandle() {
-      if (this.field.handle) {
-        return;
-      }
-      this.$set(this.field, 'handle', slugify(this.field.name, {lower: true}));
-      this.validateHandle();
-    },
-    validateHandle() {
-      let error = (!this.field.handle || !this.isAlnum('handle') || this.otherFieldHandles.includes(this.field.handle));
-      this.$set(this.errors, 'handle', error);
-    },
-    isAlnum(field) {
-      return this.field[field].match(/^[0-9a-zA-Z-_\s]*$/);
-    },
-    validateAlnum(field) {
-      if (!this.isAlnum(field)) {
-        this.$set(this.errors, field, true);
+    toggleRedactor: function() {
+      if (this.selectedField.labelHtml) {
+        this.enableLabelRedactor();
       } else {
-        this.$set(this.errors, field, false);
+        $R('.field-label-value', 'destroy');
       }
-    }
-  },
-  watch: {
-    hasErrors: function () {
-      this.$emit('error', {uid: this.field.uid, error: this.hasErrors});
     },
-    otherFieldHandles: function () {
-      this.validateHandle();
-    }
+    enableTooltipRedactor: function () {
+      $R('.field-tooltip-value', {
+        callbacks: {
+          changed: (html) => {
+            this.selectedField.tooltip = html;
+          }
+        }
+      });
+    },
+    slugifyHandle(){
+      if (this.selectedField && !this.selectedField.id) {
+        this.selectedField.handle = slugify(this.selectedField.name ?? '', {lower: true});
+      }
+    },
   }
 };
 </script>
@@ -182,6 +363,8 @@ export default {
 @import "~craftcms-sass/mixins";
 
 .formidablefield-container {
+  max-height: calc(100vh - 280px);
+  overflow-y: auto;
   display:flex;
   flex-wrap: wrap;
   width: 100%;
@@ -190,9 +373,28 @@ export default {
     margin-top: 0;
     &:nth-child(2n) {
       margin-left: 10px;
+      padding-right: 3px;
     }
     &:nth-child(2n+1) {
       margin-right: 10px;
+      padding-left: 3px;
+    }
+  }
+  .redactor-toolbar, .redactor-styles {
+    padding: 6px 9px !important;
+  }
+  .redactor-in:focus-visible {
+    border: none !important;
+    box-shadow: none;
+  }
+  .redactor-box.redactor-focus {
+    border-color: $blue700 !important;
+    box-shadow: 0 0 0 2px rgba(18,127,191,.5);
+  }
+  .redactor-toolbar {
+    a.re-button-icon {
+      padding: 6px 14px 5px;
+      font-size: 14px;
     }
   }
   .advanced {
@@ -201,13 +403,8 @@ export default {
       box-shadow: none;
       border-radius: 0;
       padding: 5px 10px;
-      cursor: pointer;
       border-top-right-radius: 5px;
       border-top-left-radius: 5px;
-      &.closed {
-        border-bottom-right-radius: 5px;
-        border-bottom-left-radius: 5px;
-      }
     }
     .content {
       padding: 10px;
@@ -217,6 +414,9 @@ export default {
       border-bottom-left-radius: 5px;
       display:flex;
       flex-wrap: wrap;
+    }
+    .field:nth-last-child(2) {
+      margin-bottom: 0;
     }
   }
 }

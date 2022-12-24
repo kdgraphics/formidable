@@ -1,9 +1,6 @@
-import Vuex from 'vuex';
-import Vue from 'vue';
+import { createStore } from 'vuex';
 
-Vue.use(Vuex);
-
-export default new Vuex.Store({
+export const store = createStore({
   state: {
     selected: [],
     isChartView: false,
@@ -28,8 +25,8 @@ export default new Vuex.Store({
       state.forms = value;
     },
     setTimezone(state, value) {
-      Vue.set(state.filters.dateFrom, 'timezone', value);
-      Vue.set(state.filters.dateTo, 'timezone', value);
+      state.filters.dateFrom.timezone = value;
+      state.filters.dateTo.timezone = value;
     },
     setSelected (state, value) {
       state.selected = value;
@@ -38,37 +35,28 @@ export default new Vuex.Store({
       state.isChartView = value;
     },
     setDateTo(state, value) {
-      Vue.set(state.filters.dateTo, 'date', value);
+      state.filters.dateTo.date = value;
     },
     setDateFrom(state, value) {
-      Vue.set(state.filters.dateFrom, 'date', value);
+      state.filters.dateFrom.date = value;
     },
     setTrashed(state, value) {
-      Vue.set(state.filters, 'trashed', value);
+      state.filters.trashed = value;
     },
     setIP(state, value) {
-      Vue.set(state.filters, 'ip', value.target.value);
+      state.filters.ip = value;
     },
     addForm(state, value) {
-      let forms = state.filters.forms;
-      forms.push(value);
-      Vue.set(state.filters, 'forms', forms);
+      state.filters.forms.push(value);
     },
     removeForm(state, value) {
-      let index = state.filters.forms.indexOf(value);
-      Vue.delete(state.filters.forms, index);
+      state.filters.forms = state.filters.forms.filter(f => f != value);
     },
     setSpams(state, value) {
       state.spams = value;
     },
     deleteMany(state, ids) {
-      let sub;
-      for (let index in state.spams) {
-        sub = state.spams[index];
-        if (ids.includes(sub.id)) {
-          Vue.delete(state.spams, index);
-        }
-      }
+      state.spams = state.spams.filter(s => !ids.includes(s.id));
       state.selected = [];
     }
   },
@@ -78,7 +66,7 @@ export default new Vuex.Store({
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       data.ids = ids;
       return new Promise((resolve, reject) => {
-        axios.post(Craft.getCpUrl('formidable/submissions/spam/delete-many'), data)
+        axios.post(Craft.getCpUrl('formidable/cp-spam/delete-many'), data)
           .then((response) => {
             commit('deleteMany', ids);
             Craft.cp.displayNotice(response.data.message);

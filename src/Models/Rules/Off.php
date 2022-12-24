@@ -1,11 +1,11 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models\Rules;
+namespace Inspire\Formidable\Models\Rules;
 
-use Ryssbowh\Formidable\Exceptions\RuleException;
-use Ryssbowh\Formidable\Interfaces\FieldInterface;
-use Ryssbowh\Formidable\Models\FieldTypes\BooleanField;
-use Ryssbowh\Formidable\Models\Rule;
+use Inspire\Formidable\Exceptions\RuleException;
+use Inspire\Formidable\Interfaces\FieldInterface;
+use Inspire\Formidable\Models\FieldTypes\BooleanField;
+use Inspire\Formidable\Models\Rule;
 
 class Off extends Rule
 {

@@ -1,8 +1,8 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models\FieldTypes;
+namespace Inspire\Formidable\Models\FieldTypes;
 
-use Ryssbowh\Formidable\Models\FieldType;
+use Inspire\Formidable\Models\FieldType;
 
 class NumberField extends FieldType
 {

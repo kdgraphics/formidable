@@ -1,25 +1,15 @@
-import Vue from 'vue';
+import { createApp } from 'vue';
 
 import FormsSpam from './components/FormsSpam.vue';
 import FormsSpamToolbar from './components/FormsSpamToolbar.vue';
-import SpamStore from './store/SpamStore';
-import VueConfirmDialog from 'vue-confirm-dialog';
+import { store } from './store/SpamStore';
+import { Functions } from './functions';
 
-Vue.mixin({
-  methods: {
-    t: (str, params) => {
-      return Craft.t('formidable', str, params);
-    }
-  }
-});
+const app = createApp();
 
-Vue.use(VueConfirmDialog);
+app.use(Functions);
+app.use(store);
+app.component('forms-spam', FormsSpam);
+app.component('forms-spam-toolbar', FormsSpamToolbar);
 
-new Vue({
-  el: '#main',
-  store: SpamStore,
-  components: {
-    FormsSpam,
-    FormsSpamToolbar
-  }
-});
+app.mount('#main');

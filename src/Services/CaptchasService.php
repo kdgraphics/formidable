@@ -1,9 +1,9 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Services;
+namespace Inspire\Formidable\Services;
 
-use Ryssbowh\Formidable\Events\RegisterCaptchasEvent;
-use Ryssbowh\Formidable\Interfaces\CaptchaInterface;
+use Inspire\Formidable\Events\RegisterCaptchasEvent;
+use Inspire\Formidable\Interfaces\CaptchaInterface;
 use craft\base\Component;
 
 class CaptchasService extends Component

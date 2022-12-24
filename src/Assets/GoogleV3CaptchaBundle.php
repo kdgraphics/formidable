@@ -1,6 +1,6 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Assets;
+namespace Inspire\Formidable\Assets;
 
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
@@ -8,9 +8,9 @@ use craft\redactor\assets\redactor\RedactorAsset;
 
 class GoogleV3CaptchaBundle extends AssetBundle
 {
-	public function init(): void
+    public function init()
     {
-        $this->sourcePath = __DIR__ . '/dist';
+        $this->sourcePath = __DIR__ . '/src';
 
         $this->js = [
             'captcha.js',

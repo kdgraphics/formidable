@@ -1,20 +1,20 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Services;
+namespace Inspire\Formidable\Services;
 
-use Ryssbowh\Formidable\Events\RegisterRulesEvent;
-use Ryssbowh\Formidable\Events\RuleEvent;
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Interfaces\RuleInterface;
-use Ryssbowh\Formidable\Models\Condition;
-use Ryssbowh\Formidable\Models\ConditionGroup;
-use Ryssbowh\Formidable\Models\Form;
-use Ryssbowh\Formidable\Models\FormSubmission;
-use Ryssbowh\Formidable\Models\Records\Condition as ConditionRecord;
-use Ryssbowh\Formidable\Models\Records\ConditionGroup as ConditionGroupRecord;
-use Ryssbowh\Formidable\Models\Records\Form as FormRecord;
-use Ryssbowh\Formidable\Models\Records\Rule as RuleRecord;
-use Ryssbowh\Formidable\Models\Rule;
+use Inspire\Formidable\Events\RegisterRulesEvent;
+use Inspire\Formidable\Events\RuleEvent;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Interfaces\RuleInterface;
+use Inspire\Formidable\Models\Condition;
+use Inspire\Formidable\Models\ConditionGroup;
+use Inspire\Formidable\Models\Form;
+use Inspire\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\Records\Condition as ConditionRecord;
+use Inspire\Formidable\Models\Records\ConditionGroup as ConditionGroupRecord;
+use Inspire\Formidable\Models\Records\Form as FormRecord;
+use Inspire\Formidable\Models\Records\Rule as RuleRecord;
+use Inspire\Formidable\Models\Rule;
 use craft\base\Component;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
@@ -125,9 +125,10 @@ class RulesService extends Component
      * Validate some rules data
      * 
      * @param  array $rulesData
+     * @param  Form  $form
      * @return array
      */
-    public function populateFromData(array $rulesData)
+    public function populateFromData(array $rulesData, Form $form)
     {
         $rules = [];
         foreach ($rulesData as $index => $data) {
@@ -137,6 +138,7 @@ class RulesService extends Component
                 $rule = $this->getRegistered($data['type']);
             }
             $rule->setAttributes($data);
+            $rule->form = $form;
             $rule->conditions = Formidable::$plugin->conditions->populateFromData($data['conditions']);
             $rule->conditionGroups = Formidable::$plugin->conditionGroups->populateFromData($data['conditionGroups']);
             $rules[$index] = $rule;

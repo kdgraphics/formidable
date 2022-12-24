@@ -1,119 +1,74 @@
 <template>
-  <forms-field v-on="$listeners"
-    :field="field"
-    :errors="errors"
+  <forms-field
+    :has-placeholder="false"
   >
-    <template v-slot:extraFields>
-    	<div class="field field-label">
-        <div class="heading">
-          <label>{{ t('Label') }}</label>
-        </div>
-        <div class="input ltr">
-          <textarea type="text" :class="'text fullwidth field-label-value'+field.uid" v-model="field.label" rows="1"></textarea>
-          <a href="#" @click.prevent="field.labelHtml = !field.labelHtml">{{ field.labelHtml ? 'Plain' : 'Html' }}</a>
-        </div>
-      </div>
-      <div class="field field-tooltip-label">
-        <div class="heading">
-          <label>{{ t('Tooltip label') }}</label>
-        </div>
-        <div class="input ltr">
-          <input type="text" class="text fullwidth" v-model="field.tooltipLabel">
-        </div>
-      </div>
-      <div class="field field-tooltip">
-        <div class="heading">
-          <label>{{ t('Tooltip') }}</label>
-        </div>
-        <div class="input ltr">
-          <textarea type="text" :class="'text fullwidth field-tooltip-value'+field.uid" v-model="field.tooltip" rows="1"></textarea>
-        </div>
-      </div>
-      <field-choices
-        :field="field"
+    <template #extraFields>
+      <choices
         :default="''"
-        :errors="errors"
-      ></field-choices>
+      />
     </template>
-    <template v-slot:extraAdvanced>
-      <div class="field field-choiceContainerClass">
+    <template #extraAdvanced>
+      <div class="field">
         <div class="heading">
           <label>{{ t('Choice container class') }}</label>
         </div>
         <div class="input ltr">
-          <input type="text" :class="'text fullwidth' + (errors.choiceContainerClass ? ' error' : '')" v-model="field.choiceContainerClass" @input="validateAlnum('choiceContainerClass')">
+          <input
+            v-model="selectedField.choiceContainerClass"
+            type="text"
+            class="text fullwidth"
+          >
         </div>
+        <ul class="errors">
+          <li
+            v-for="error, index in errors.choiceContainerClass"
+            :key="index"
+            class="error"
+          >
+            {{ error }}
+          </li>
+        </ul>
       </div>
-      <div class="field field-choiceLabelClass">
+      <div class="field">
         <div class="heading">
           <label>{{ t('Choice label class') }}</label>
         </div>
         <div class="input ltr">
-          <input type="text" :class="'text fullwidth' + (errors.choiceLabelClass ? ' error' : '')" v-model="field.choiceLabelClass" @input="validateAlnum('choiceLabelClass')">
+          <input
+            v-model="selectedField.choiceLabelClass"
+            type="text"
+            class="text fullwidth"
+          >
         </div>
+        <ul class="errors">
+          <li
+            v-for="error, index in errors.choiceLabelClass"
+            :key="index"
+            class="error"
+          >
+            {{ error }}
+          </li>
+        </ul>
       </div>
     </template>
   </forms-field>
 </template>
 
 <script>
+import { mapState } from 'vuex';
+import FormsField from '../components/FormsField.vue';
+import Choices from './Choices.vue';
+
 export default {
-  props: {
-    index: Number,
-    field: Object
-  },
-  data() {
-    return {
-      errors: {}
-    }
-  },
-  watch: {
-    'field.labelHtml': function () {
-      this.toggleRedactor();
-    } 
-  },
-  mounted() {
-    if (this.field.labelHtml) {
-      this.enableLabelRedactor();
-    }
-    this.enableTooltipRedactor();
-  },
-  methods: {
-    isAlnum(field) {
-      return this.field[field].match(/^[0-9a-zA-Z-_]*$/);
-    },
-    validateAlnum(field) {
-      if (!this.isAlnum(field)) {
-        this.$set(this.errors, field, true);
-      } else {
-        this.$set(this.errors, field, false);
+  components: {FormsField, Choices},
+  computed: {
+    errors: function () {
+      if (!this.selectedField.errors) {
+        return {};
       }
+      return this.selectedField.errors;
     },
-    enableTooltipRedactor: function () {
-      $R('.field-tooltip-value'+this.field.uid, {
-        callbacks: {
-          changed: (html) => {
-            this.field.tooltip = html;
-          }
-        }
-      });
-    },
-    enableLabelRedactor: function () {
-      $R('.field-label-value'+this.field.uid, {
-        callbacks: {
-          changed: (html) => {
-            this.field.label = html;
-          }
-        }
-      });
-    },
-    toggleRedactor: function() {
-      if (this.field.labelHtml) {
-        this.enableLabelRedactor();
-      } else {
-        $R('.field-label-value'+this.field.uid, 'destroy');
-      }
-    }
+    ...mapState(['selectedField']),
   }
 };
 </script>

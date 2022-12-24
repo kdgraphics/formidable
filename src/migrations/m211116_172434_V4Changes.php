@@ -1,11 +1,11 @@
 <?php
 
-namespace Ryssbowh\Formidable\migrations;
+namespace Inspire\Formidable\migrations;
 
 use Craft;
-use Ryssbowh\Formidable\Models\Records\Field;
-use Ryssbowh\Formidable\Models\Records\Submission;
-use Ryssbowh\Formidable\Models\Records\SubmissionValue;
+use Inspire\Formidable\Models\Records\Field;
+use Inspire\Formidable\Models\Records\Submission;
+use Inspire\Formidable\Models\Records\SubmissionValue;
 use craft\db\Migration;
 use craft\db\Query;
 

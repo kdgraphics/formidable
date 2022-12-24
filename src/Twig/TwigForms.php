@@ -1,8 +1,8 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Twig;
+namespace Inspire\Formidable\Twig;
 
-use Ryssbowh\Formidable\Formidable;
+use Inspire\Formidable\Formidable;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 

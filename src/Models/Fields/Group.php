@@ -1,13 +1,13 @@
-<?php 
+<?php
 
-namespace Ryssbowh\Formidable\Models\Fields;
+namespace Inspire\Formidable\Models\Fields;
 
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Interfaces\FieldInterface;
-use Ryssbowh\Formidable\Models\Field;
-use Ryssbowh\Formidable\Models\FieldTypes\NullField;
-use Ryssbowh\Formidable\Models\Form;
-use Ryssbowh\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Interfaces\FieldInterface;
+use Inspire\Formidable\Models\Field;
+use Inspire\Formidable\Models\FieldTypes\NullField;
+use Inspire\Formidable\Models\Form;
+use Inspire\Formidable\Models\FormSubmission;
 
 class Group extends Field
 {

@@ -1,10 +1,10 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models\Records;
+namespace Inspire\Formidable\Models\Records;
 
-use Ryssbowh\Formidable\Exceptions\FormException;
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Interfaces\FieldInterface;
+use Inspire\Formidable\Exceptions\FormException;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Interfaces\FieldInterface;
 use craft\db\ActiveRecord;
 
 class Field extends ActiveRecord

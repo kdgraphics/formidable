@@ -1,9 +1,6 @@
-import Vuex from 'vuex';
-import Vue from 'vue';
+import { createStore } from 'vuex';
 
-Vue.use(Vuex);
-
-export default new Vuex.Store({
+export const store = createStore({
   state: {
     selected: [],
     isChartView: false,
@@ -13,7 +10,7 @@ export default new Vuex.Store({
     filters: {
       forms: [],
       trashed: false,
-      read: null,
+      read: -1,
       search: null,
       dateFrom: {
         date: null,
@@ -33,8 +30,8 @@ export default new Vuex.Store({
       state.isFetching = value;
     },
     setTimezone(state, value) {
-      Vue.set(state.filters.dateFrom, 'timezone', value);
-      Vue.set(state.filters.dateTo, 'timezone', value);
+      state.filters.dateFrom.timezone = value;
+      state.filters.dateTo.timezone = value;
     },
     setSelected (state, value) {
       state.selected = value;
@@ -43,28 +40,25 @@ export default new Vuex.Store({
       state.isChartView = value;
     },
     setDateTo(state, value) {
-      Vue.set(state.filters.dateTo, 'date', value);
+      state.filters.dateTo.date = value;
     },
     setDateFrom(state, value) {
-      Vue.set(state.filters.dateFrom, 'date', value);
+      state.filters.dateFrom.date = value;
     },
     setTrashed(state, value) {
-      Vue.set(state.filters, 'trashed', value);
+      state.filters.trashed = value;
     },
     setRead(state, value) {
-      Vue.set(state.filters, 'read', value);
+      state.filters.read = value;
     },
     setSearch(state, value) {
-      Vue.set(state.filters, 'search', value);
+      state.filters.search = value;
     },
     addForm(state, value) {
-      let forms = state.filters.forms;
-      forms.push(value);
-      Vue.set(state.filters, 'forms', forms);
+      state.filters.forms.push(value);
     },
     removeForm(state, value) {
-      let index = state.filters.forms.indexOf(value);
-      Vue.delete(state.filters.forms, index);
+      state.filters.forms = state.filters.forms.filter(f => f != value);
     },
     setSubmissions(state, value) {
       state.submissions = value;
@@ -74,18 +68,12 @@ export default new Vuex.Store({
       for (let index in state.submissions) {
         sub = state.submissions[index];
         if (ids.includes(sub.id)) {
-          Vue.set(state.submissions[index], 'read', 1);
+          state.submissions[index].read = 1;
         }
       }
     },
     deleteMany(state, ids) {
-      let sub;
-      for (let index in state.submissions) {
-        sub = state.submissions[index];
-        if (ids.includes(sub.id)) {
-          Vue.delete(state.submissions, index);
-        }
-      }
+      state.submissions = state.submissions.filter(s => !ids.includes(s.id));
       state.selected = [];
     }
   },
@@ -95,7 +83,7 @@ export default new Vuex.Store({
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       data.ids = ids;
       return new Promise((resolve, reject) => {
-        axios.post(Craft.getCpUrl('formidable/submissions/delete-many'), data)
+        axios.post(Craft.getActionUrl('formidable/cp-submissions/delete-many'), data)
           .then((response) => {
             commit('deleteMany', ids);
             Craft.cp.displayNotice(response.data.message);
@@ -115,7 +103,7 @@ export default new Vuex.Store({
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       data.ids = ids;
       return new Promise((resolve, reject) => {
-        axios.post(Craft.getCpUrl('formidable/submissions/set-as-read'), data)
+        axios.post(Craft.getActionUrl('formidable/cp-submissions/set-as-read'), data)
           .then((response) => {
             commit('markAsRead', ids);
             resolve(response);

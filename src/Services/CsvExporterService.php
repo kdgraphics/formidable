@@ -1,9 +1,9 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Services;
+namespace Inspire\Formidable\Services;
 
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Models\Records\SubmissionValue;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Models\Records\SubmissionValue;
 use craft\base\Component;
 use craft\helpers\ArrayHelper;
 

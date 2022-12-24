@@ -1,12 +1,12 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models;
+namespace Inspire\Formidable\Models;
 
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Interfaces\FieldInterface;
-use Ryssbowh\Formidable\Interfaces\RuleInterface;
-use Ryssbowh\Formidable\Models\Form;
-use Ryssbowh\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Interfaces\FieldInterface;
+use Inspire\Formidable\Interfaces\RuleInterface;
+use Inspire\Formidable\Models\Form;
+use Inspire\Formidable\Models\FormSubmission;
 use craft\base\Model;
 use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
@@ -33,6 +33,7 @@ abstract class Rule extends Model implements RuleInterface
     public $dateUpdated;
     public $uid;
 
+    protected $_form;
     protected $applies;
 
     public function init(): void
@@ -48,12 +49,19 @@ abstract class Rule extends Model implements RuleInterface
     public function defineRules(): array
     {
         return [
-            [['message', 'value', 'title'], 'string'],
+            [['message', 'value', 'title', 'uid'], 'string'],
             ['type', function () {
                 if (!Formidable::$plugin->rules->getRegistered($this->type)) {
                     $this->addError('type', \Craft::t('formidable', '{type} is not a valid rule type', ['type' => $this->type]));
                 }
             }],
+            ['value', function () {
+                $type = Formidable::$plugin->rules->getRegistered($this->type);
+                if ($type and ($type->requiresValue or $type->requiresField) and !$this->value) {
+                    $this->addError('value', \Craft::t('formidable', 'Value is required'));
+                }
+            }, 'skipOnEmpty' => false],
+            ['fields', 'required'],
             ['fields', 'each', 'rule' => ['string']],
             ['messages', 'each', 'rule' => ['string']]
         ];
@@ -103,13 +111,26 @@ abstract class Rule extends Model implements RuleInterface
     }
 
     /**
-     * Get rule's form
+     * Get form model
      * 
-     * @return Form
+     * @return ?Form
      */
-    public function getForm(): Form
+    public function getForm(): ?Form
     {
-        return Formidable::$plugin->forms->getById($this->form_id);
+        if ($this->_form === null) {
+            $this->_form = Formidable::$plugin->forms->getById($this->form_id);
+        }
+        return $this->_form;
+    }
+
+    /**
+     * Set form model
+     * 
+     * @param Form $form
+     */
+    public function setForm(Form $form)
+    {
+        $this->_form = $form;
     }
 
     /**

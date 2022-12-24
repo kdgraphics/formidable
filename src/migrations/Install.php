@@ -1,6 +1,6 @@
 <?php
 
-namespace Ryssbowh\Formidable\migrations;
+namespace Inspire\Formidable\migrations;
 
 use Craft; 
 use craft\db\Migration;
@@ -40,20 +40,6 @@ class Install extends Migration
             'captcha' => $this->string(255),
             'submitLabel' => $this->string(255),
             'submitClass' => $this->string(255),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
-        $this->createTable('{{%formidable_notifications}}', [
-            'id' => $this->primaryKey(),
-            'name' => $this->string(255),
-            'method' => $this->string(255)->notNull(),
-            'template' => $this->string(255),
-            'html' => $this->text(),
-            'sentFrom' => $this->string(255)->notNull(),
-            'sentFromName' => $this->string(255)->notNull(),
-            'subject' => $this->string(255)->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -147,20 +133,6 @@ class Install extends Migration
             'negate' => $this->boolean(false),
             'operator' => $this->string(5),
             'value' => $this->string(255),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
-        ]);
-
-        $this->createTable('{{%formidable_emails}}', [
-            'id' => $this->primaryKey(),
-            'submission_id' => $this->integer(11),
-            'spam_id' => $this->integer(11),
-            'emails' => $this->string(255),
-            'sent' => $this->dateTime(),
-            'sentFrom' => $this->string(255),
-            'subject' => $this->text(),
-            'type' => $this->string(10),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()

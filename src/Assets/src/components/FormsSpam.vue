@@ -1,70 +1,216 @@
 <template>
   <div class="formidable-spam">
-    <div class="tableview tablepane" v-show="!isChartView">
+    <div
+      v-show="!isChartView"
+      class="tableview tablepane"
+    >
       <table class="data fullwidth">
         <thead>
           <tr>
-            <th class="checkbox-cell selectallcontainer orderable" role="checkbox" tabindex="0" aria-checked="false"><div class="checkbox" @click="toggleSelectAll"></div></th>
-            <th scope="col" data-attribute="form" :class="sort.field == 'form.name' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('form.name')">{{ t('Form') }}</th>
-            <th scope="col" data-attribute="ip">{{ t('IP') }}</th>
-            <th scope="col" data-attribute="submitted" :class="sort.field == 'dateCreated' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('dateCreated')">{{ t('Submitted') }}</th>
-            <th scope="col" data-attribute="open">{{ t('View') }}</th>
+            <th
+              class="checkbox-cell selectallcontainer orderable"
+              role="checkbox"
+              tabindex="0"
+              aria-checked="false"
+            >
+              <div
+                class="checkbox"
+                @click="toggleSelectAll"
+              />
+            </th>
+            <th
+              scope="col"
+              data-attribute="form"
+              :class="sort.field == 'form.name' ? ('ordered ' + sort.side) : 'orderable'"
+              @click="setOrdered('form.name')"
+            >
+              {{ t('Form') }}
+            </th>
+            <th
+              scope="col"
+              data-attribute="ip"
+            >
+              {{ t('IP') }}
+            </th>
+            <th
+              scope="col"
+              data-attribute="submitted"
+              :class="sort.field == 'dateCreated' ? ('ordered ' + sort.side) : 'orderable'"
+              @click="setOrdered('dateCreated')"
+            >
+              {{ t('Submitted') }}
+            </th>
+            <th
+              scope="col"
+              data-attribute="open"
+            >
+              {{ t('View') }}
+            </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="spam,index in spams" :class="{'sel': selected.includes(spam.id), 'unread': !spam.read }">
-            <td class="checkbox-cell"><div class="checkbox" title="Select" v-on:click="toggleSelect(spam.id)"></div></td>
-            <td data-title="Form" data-attr="form">{{ spam.form.name }}</td>
-            <td data-title="IP" data-attr="ip">{{ spam.ip }}</td>
-            <td data-title="Submitted" data-attr="submitted">{{ spam.dateCreated }}</td>
-            <td data-title="Open" data-attr="open"><span v-on:click="open(index)" class="icon icon-mask categories"><span data-icon="categories"></span></span></td>
+          <tr
+            v-for="spam,index in spams"
+            :key="index"
+            :class="{'sel': selected.includes(spam.id), 'unread': !spam.read }"
+          >
+            <td class="checkbox-cell">
+              <div
+                class="checkbox"
+                title="Select"
+                @click="toggleSelect(spam.id)"
+              />
+            </td>
+            <td
+              data-title="Form"
+              data-attr="form"
+            >
+              {{ spam.form.name }}
+            </td>
+            <td
+              data-title="IP"
+              data-attr="ip"
+            >
+              {{ spam.ip }}
+            </td>
+            <td
+              data-title="Submitted"
+              data-attr="submitted"
+            >
+              {{ spam.dateCreated }}
+            </td>
+            <td
+              data-title="Open"
+              data-attr="open"
+            >
+              <a
+                @click.prevent="open(index)"
+              >
+                open
+              </a>
+            </td>
           </tr>
           <tr v-if="spams.length == 0">
-            <td colspan="6">{{ t('No spam found') }}</td>
+            <td colspan="6">
+              {{ t('No spam found') }}
+            </td>
           </tr>
         </tbody>
       </table>
-      <div class="loader" v-if="isFetching">
+      <div
+        v-if="isFetching"
+        class="loader"
+      >
         <img :src="loaderPath">
       </div>
     </div>
-    <div class="chart-view" v-show="isChartView">
-      <canvas id="formidable-chart-container"></canvas>
+    <div
+      v-show="isChartView"
+      class="chart-view"
+    >
+      <canvas id="formidable-chart-container" />
     </div>
-    <div id="footer" class="flex">
-        <div class="pagination flex" v-if="!isChartView">
-          <div :title="t('First Page')" :class="'page-link page-first ' + (pager.pageCount > 0 && pager.page > 0 ? '' : 'disabled')" @click="pager.pageCount > 0 && pager.page > 0 ? changePage(0) : null">«</div>
-          <div data-icon="leftangle" :title="t('Previous Page')" :class="'page-link ' + (pager.pageCount > 0 && pager.page > 0 ? '' : 'disabled')" @click="pager.pageCount > 0 && pager.page > 0 ? changePage(pager.page - 1) : null"></div>
-          <div v-for="i in pagerRange()" :class="'page-link page-number ' + (pager.page == i ? 'active' : '')" @click="pager.page != i ? changePage(i) : null">{{ i+1 }}</div>
-          <div data-icon="rightangle" :title="t('Next Page')" :class="'page-link ' + (pager.pageCount > 0 && pager.page < pager.pageCount -1 ? '' : 'disabled')" @click="pager.pageCount > 0 && pager.page < pager.pageCount -1 ? changePage(pager.page+1) : null"></div>
-          <div :title="t('Last Page')" :class="'page-link page-last ' + (pager.pageCount > 0 && pager.page < pager.pageCount -1 ? '' : 'disabled')" @click="pager.pageCount > 0 && pager.page < pager.pageCount -1 ? changePage(pager.pageCount-1) : null">»</div>
+    <div
+      id="footer"
+      class="flex"
+    >
+      <div
+        v-if="!isChartView"
+        class="pagination flex"
+      >
+        <div
+          :title="t('First Page')"
+          :class="'page-link page-first ' + (pager.pageCount > 0 && pager.page > 0 ? '' : 'disabled')"
+          @click="pager.pageCount > 0 && pager.page > 0 ? changePage(0) : null"
+        >
+          «
         </div>
-        <div class="totals">{{ pager.totalCount + ' ' + t('spam') }}</div>
+        <div
+          data-icon="leftangle"
+          :title="t('Previous Page')"
+          :class="'page-link ' + (pager.pageCount > 0 && pager.page > 0 ? '' : 'disabled')"
+          @click="pager.pageCount > 0 && pager.page > 0 ? changePage(pager.page - 1) : null"
+        />
+        <div
+          v-for="i in pagerRange()"
+          :key="i"
+          :class="'page-link page-number ' + (pager.page == i ? 'active' : '')"
+          @click="pager.page != i ? changePage(i) : null"
+        >
+          {{ i+1 }}
+        </div>
+        <div
+          data-icon="rightangle"
+          :title="t('Next Page')"
+          :class="'page-link ' + (pager.pageCount > 0 && pager.page < pager.pageCount -1 ? '' : 'disabled')"
+          @click="pager.pageCount > 0 && pager.page < pager.pageCount -1 ? changePage(pager.page+1) : null"
+        />
+        <div
+          :title="t('Last Page')"
+          :class="'page-link page-last ' + (pager.pageCount > 0 && pager.page < pager.pageCount -1 ? '' : 'disabled')"
+          @click="pager.pageCount > 0 && pager.page < pager.pageCount -1 ? changePage(pager.pageCount-1) : null"
+        >
+          »
+        </div>
+      </div>
+      <div class="totals">
+        {{ pager.totalCount + ' ' + t('spam') }}
+      </div>
     </div>
-    <div class="modal elementselectormodal" id="spam-modal" style="display:none" ref="modal">
+    <div
+      id="spam-modal"
+      ref="modal"
+      class="modal elementselectormodal"
+      style="display:none"
+    >
       <div class="body has-sidebar">
         <div class="content has-sidebar">
           <div class="sidebar">
-            <div class="heading"><span>{{ t('Details') }}</span></div>
+            <div class="heading">
+              <span>{{ t('Details') }}</span>
+            </div>
             <ul class="sidebar-content">
               <li>{{ t('Created') }}: {{ viewed ? viewed.dateCreated : '' }}</li>
               <li>{{ t('IP') }}: {{ viewed.ip }}</li>
-              <li>{{ t('Form') }}: {{ viewed ? viewed.form.name : ''}}</li>
-              <li>{{ t('Reason') }}: {{ viewed ? viewed.reason : ''}}</li>
+              <li>{{ t('Form') }}: {{ viewed ? viewed.form.name : '' }}</li>
+              <li>{{ t('Reason') }}: {{ viewed ? viewed.reason : '' }}</li>
             </ul>
           </div>
           <div class="main">
-            <div class="heading"><span>{{ t('Spam') }}</span></div>
-            <ul class="spam">
-              <li class="field" v-if="viewed" v-for="value, field in viewed.values">{{ field }}: <span v-html="value"></span></li>
+            <div class="heading">
+              <span>{{ t('Spam') }}</span>
+            </div>
+            <ul
+              v-if="viewed"
+              class="spam"
+            >
+              <li
+                v-for="value, field in viewed.values"
+                :key="field"
+                class="field"
+              >
+                {{ field }}: <span v-html="value" />
+              </li>
             </ul>
           </div>
         </div>
       </div>
       <div class="footer">
         <div class="buttons">
-          <button type="button" class="btn submit" @click="deleteMany([viewed.id]);popup.hide()">{{ t('Delete') }}</button>
-          <button type="button" class="btn" @click="popup.hide()">{{ t('Close') }}</button>
+          <button
+            type="button"
+            class="btn submit"
+            @click="deleteMany([viewed.id]);popup.hide()"
+          >
+            {{ t('Delete') }}
+          </button>
+          <button
+            type="button"
+            class="btn"
+            @click="popup.hide()"
+          >
+            {{ t('Close') }}
+          </button>
         </div>
       </div>
     </div>
@@ -73,23 +219,20 @@
 
 <script>
 import { mapMutations, mapState, mapActions } from 'vuex';
-import axios from 'axios';
 import { pull, range } from 'lodash';
 import Chart from 'chart.js/dist/Chart';
 
 export default {
-  computed: {
-    ...mapState(['filters', 'isChartView', 'spams', 'selected'])
-  },
   props: {
-    loaderPath: String
+    loaderPath: {
+      type: String,
+      default: ''
+    }
   },
   data: function () {
     return {
-      chartData: {},
       chart: null,
       chartData: false,
-      pager: {},
       isFetching: false,
       sort: {
         field: 'dateCreated',
@@ -102,6 +245,9 @@ export default {
       },
       popup: null
     }
+  },
+  computed: {
+    ...mapState(['filters', 'isChartView', 'spams', 'selected'])
   },
   watch: {
     isChartView: function () {
@@ -198,7 +344,7 @@ export default {
       data.sort = this.sort;
       data.page = this.pager.page;
       this.isFetching = true;
-      axios.post(Craft.getCpUrl('formidable/submissions/spam/load'), data)
+      axios.post(Craft.getActionUrl('formidable/cp-spam/load'), data)
         .then((response) => {
           this.setSpams(response.data.spams);
           this.pager = {
@@ -220,7 +366,7 @@ export default {
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       data.filters = this.filters;
       this.isFetching = true;
-      axios.post(Craft.getCpUrl('formidable/submissions/spam/loadAll'), data)
+      axios.post(Craft.getActionUrl('formidable/cp-spam/load-all'), data)
         .then((response) => {
           this.chartData = true;
           this.updateChart(response.data.data);

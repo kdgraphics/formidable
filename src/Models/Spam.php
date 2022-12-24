@@ -1,9 +1,9 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models;
+namespace Inspire\Formidable\Models;
 
-use Ryssbowh\Formidable\Exceptions\FormException;
-use Ryssbowh\Formidable\Formidable;
+use Inspire\Formidable\Exceptions\FormException;
+use Inspire\Formidable\Formidable;
 use craft\base\Model;
 
 class Spam extends Model

@@ -1,16 +1,16 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Services;
+namespace Inspire\Formidable\Services;
 
-use Ryssbowh\Formidable\Events\FieldEvent;
-use Ryssbowh\Formidable\Events\FormEvent;
-use Ryssbowh\Formidable\Events\RegisterFieldsEvent;
-use Ryssbowh\Formidable\Exceptions\FormException;
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Interfaces\FieldInterface;
-use Ryssbowh\Formidable\Models\Form;
-use Ryssbowh\Formidable\Models\Records\Field as FieldRecord;
-use Ryssbowh\Formidable\Models\Records\Form as FormRecord;
+use Inspire\Formidable\Events\FieldEvent;
+use Inspire\Formidable\Events\FormEvent;
+use Inspire\Formidable\Events\RegisterFieldsEvent;
+use Inspire\Formidable\Exceptions\FormException;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Interfaces\FieldInterface;
+use Inspire\Formidable\Models\Form;
+use Inspire\Formidable\Models\Records\Field as FieldRecord;
+use Inspire\Formidable\Models\Records\Form as FormRecord;
 use craft\base\Component;
 use craft\events\ConfigEvent;
 use craft\helpers\ArrayHelper;
@@ -102,10 +102,11 @@ class FieldsService extends Component
     /**
      * Populate an array of fields data into field instances
      * 
-     * @param  array  $fieldsData
+     * @param  array $fieldsData
+     * @param  Form  $form
      * @return array
      */
-    public function populateFromData(array $fieldsData): array
+    public function populateFromData(array $fieldsData, Form $form): array
     {
         $fields = [];
         foreach ($fieldsData as $index => $data) {
@@ -125,13 +126,13 @@ class FieldsService extends Component
                     }
                     $field2->setAttributes($fieldData);
                     $field2->group = $field;
-                    $field2->validate();
+                    $field2->form = $form;
                     $groupFields[] = $field2;
                 }
                 $field->fields = $groupFields;
             }
             $field->setAttributes($data);
-            $field->validate();
+            $field->form = $form;
             $fields[$index] = $field;
         }
         return $fields;

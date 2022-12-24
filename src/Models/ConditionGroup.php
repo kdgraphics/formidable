@@ -1,9 +1,9 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models;
+namespace Inspire\Formidable\Models;
 
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Models\FormSubmission;
 use craft\base\Model;
 use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
@@ -43,6 +43,7 @@ class ConditionGroup extends Model
                 return true;
             }
         }
+        return false;
     }
 
     public function defineRules(): array

@@ -1,9 +1,9 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models\Records;
+namespace Inspire\Formidable\Models\Records;
 
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Interfaces\RuleInterface;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Interfaces\RuleInterface;
 use craft\db\ActiveRecord;
 
 class Rule extends ActiveRecord

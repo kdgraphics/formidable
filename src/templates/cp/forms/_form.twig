@@ -22,7 +22,6 @@
         :form-edited="{{ form }}"
         :all-emails="{{ emails ? emails|json_encode : '{}' }}"
         :all-captchas="{{ captchas ? captchas|json_encode : '{}' }}"
-        :all-volumes="{{ volumes ? volumes|json_encode : '{}' }}"
     ></forms-config>
     <forms-fields
         :registered-fields="{{ registeredFields|json_encode }}"
@@ -31,5 +30,4 @@
     <forms-rules
         :registered-rules="{{ registeredRules ? registeredRules|json_encode : '{}' }}"
     ></forms-rules>
-    <confirm-dialog></confirm-dialog>
 {% endblock %}

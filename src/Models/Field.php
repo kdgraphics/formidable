@@ -1,14 +1,14 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models;
+namespace Inspire\Formidable\Models;
 
-use Ryssbowh\Formidable\Events\FieldEvent;
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Interfaces\FieldInterface;
-use Ryssbowh\Formidable\Interfaces\FieldTypeInterface;
-use Ryssbowh\Formidable\Models\FieldTypes\TextField;
-use Ryssbowh\Formidable\Models\Fields\Group;
-use Ryssbowh\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Events\FieldEvent;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Interfaces\FieldInterface;
+use Inspire\Formidable\Interfaces\FieldTypeInterface;
+use Inspire\Formidable\Models\FieldTypes\TextField;
+use Inspire\Formidable\Models\Fields\Group;
+use Inspire\Formidable\Models\FormSubmission;
 use craft\base\Model;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
@@ -41,12 +41,13 @@ abstract class Field extends Model implements FieldInterface
     protected $_value;
     protected $_frontName;
     protected $_group;
+    protected $_form;
     protected $options;
 
     protected $rootAttributes = ['id', 'active', 'name', 'handle', 'order', 'form_id', 'options', 'dateCreated', 'dateUpdated', 'uid', 'fieldClass', 'containerClass', 'labelClass', 'instructions', 'type', 'friendlyName', 'validRules', 'value', 'group_id'];
 
     /**
-     * inheritDoc
+     * @inheritDoc
      **/
     public function init(): void
     {
@@ -58,6 +59,58 @@ abstract class Field extends Model implements FieldInterface
 
     /**
      * @inheritDoc
+     **/
+    public function defineRules(): array
+    {
+        return array_merge($this->getExtraCpRules(), [
+            [['id', 'order'], 'integer'],
+            [['active', 'autocomplete'], 'boolean', 'trueValue' => true, 'falseValue' => false],
+            [['name', 'handle'], 'required'],
+            [['name', 'fieldClass', 'containerClass', 'instructions', 'labelClass', 'handle', 'uid'], 'string'],
+            [['name', 'fieldClass', 'containerClass', 'instructions', 'labelClass', 'handle'], 'trim'],
+            [['fieldClass', 'containerClass', 'labelClass'], 'validateHtmlClasses'],
+            ['handle', 'validateHandle']
+        ]);
+    }
+
+    /**
+     * Validate some html classes
+     * 
+     * @param string $attribute
+     * @param array $param    
+     * @param Validator $validator
+     */
+    public function validateHtmlClasses($attribute, $param, $validator)
+    {
+        $classes = explode(' ', $this->$attribute);
+        foreach ($classes as $class) {
+            if (!preg_match('/^[\_\-a-zA-Z][\_\-a-zA-Z0-9]*$/', $class)) {
+                $this->addError($attribute, \Craft::t('formidable', '{class} is not a valid class', ['class' => $class]));
+            }
+        }
+    }
+
+    /**
+     * Validate handle
+     * 
+     * @param string $attribute
+     * @param array $param    
+     * @param Validator $validator
+     */
+    public function validateHandle($attribute, $param, $validator)
+    {
+        if (!preg_match('/^[a-zA-Z][\_\-a-zA-Z0-9:.]*$/', $this->$attribute)) {
+            $this->addError($attribute, \Craft::t('formidable', '{handle} is not a valid handle', ['class' => $this->$attribute]));
+        }
+        foreach ($this->form->fields as $field) {
+            if ($field->handle == $this->handle and $field->uid != $this->uid) {
+                $this->addError($attribute, \Craft::t('formidable', '{handle} is already taken in this form', ['handle' => $this->$attribute]));
+            }
+        }
+    }
+
+    /**
+     * @inheritDoc
      */
     public function fields(): array
     {
@@ -65,7 +118,7 @@ abstract class Field extends Model implements FieldInterface
     }
 
     /**
-     * inheritDoc
+     * @inheritDoc
      **/
     public function getGroup(): ?Group
     {
@@ -79,7 +132,7 @@ abstract class Field extends Model implements FieldInterface
     }
 
     /**
-     * inheritDoc
+     * @inheritDoc
      **/
     public function setGroup(Group $group)
     {
@@ -87,7 +140,7 @@ abstract class Field extends Model implements FieldInterface
     }
 
     /**
-     * inheritDoc
+     * @inheritDoc
      **/
     public function getValue()
     {
@@ -95,7 +148,7 @@ abstract class Field extends Model implements FieldInterface
     }
 
     /**
-     * inheritDoc
+     * @inheritDoc
      **/
     public function setValue($value)
     {
@@ -103,7 +156,7 @@ abstract class Field extends Model implements FieldInterface
     }
 
     /**
-     * inheritDoc
+     * @inheritDoc
      **/
     public function fieldType(): FieldTypeInterface
     {
@@ -111,21 +164,7 @@ abstract class Field extends Model implements FieldInterface
     }
 
     /**
-     * inheritDoc
-     **/
-    public function defineRules(): array
-    {
-        return array_merge($this->getExtraCpRules(), [
-            [['id', 'order'], 'integer'],
-            [['active', 'autocomplete'], 'boolean', 'trueValue' => true, 'falseValue' => false],
-            [['name', 'handle'], 'required'],
-            [['name', 'fieldClass', 'containerClass', 'instructions', 'labelClass', 'handle'], 'string'],
-            [['name', 'fieldClass', 'containerClass', 'instructions', 'labelClass', 'handle'], 'trim']
-        ]);
-    }
-
-    /**
-     * inheritDoc
+     * @inheritDoc
      **/
     public function frontendTemplate(): string
     {
@@ -139,7 +178,20 @@ abstract class Field extends Model implements FieldInterface
      */
     public function getForm(): ?Form
     {
-        return Formidable::$plugin->forms->getById($this->form_id);
+        if ($this->_form === null) {
+            $this->_form = Formidable::$plugin->forms->getById($this->form_id);
+        }
+        return $this->_form;
+    }
+
+    /**
+     * Set form model
+     * 
+     * @param Form $form
+     */
+    public function setForm(Form $form)
+    {
+        $this->_form = $form;
     }
 
     /**
@@ -158,7 +210,7 @@ abstract class Field extends Model implements FieldInterface
     /**
      * Unique id for this field
      * 
-     * @param  Form $form
+     * @param  Form   $form
      * @return string
      */
     public function generateId(Form $form): string

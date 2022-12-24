@@ -1,9 +1,9 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models;
+namespace Inspire\Formidable\Models;
 
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Interfaces\FieldTypeInterface;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Interfaces\FieldTypeInterface;
 use craft\base\Model;
 
 abstract class FieldType extends Model implements FieldTypeInterface

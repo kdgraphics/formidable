@@ -1,16 +1,16 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Services;
+namespace Inspire\Formidable\Services;
 
-use Ryssbowh\Formidable\Events\SpamEvent;
-use Ryssbowh\Formidable\Exceptions\FormEmailException;
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Jobs\SendSpamEmailJob;
-use Ryssbowh\Formidable\Models\Form;
-use Ryssbowh\Formidable\Models\FormSubmission;
-use Ryssbowh\Formidable\Models\Records\Spam;
-use Ryssbowh\Formidable\Models\Spam as SpamModel;
-use Ryssbowh\Formidable\Providers\SpamProvider;
+use Inspire\Formidable\Events\SpamEvent;
+use Inspire\Formidable\Exceptions\FormEmailException;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Jobs\SendSpamEmailJob;
+use Inspire\Formidable\Models\Form;
+use Inspire\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\Records\Spam;
+use Inspire\Formidable\Models\Spam as SpamModel;
+use Inspire\Formidable\Providers\SpamProvider;
 use craft\base\Component;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Queue;

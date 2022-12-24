@@ -1,6 +1,6 @@
 <?php
 
-namespace Ryssbowh\Formidable\Events;
+namespace Inspire\Formidable\Events;
 
 use yii\base\Event;
 

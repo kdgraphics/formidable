@@ -1,17 +1,16 @@
 <?php
-namespace Ryssbowh\Formidable\Services;
+namespace Inspire\Formidable\Services;
 
 use Inspire\SpamCheck\SpamCheck;
-use Ryssbowh\Formidable\Events\FormEvent;
-use Ryssbowh\Formidable\Events\FormSubmissionEvent;
-use Ryssbowh\Formidable\Events\HookAssetsEvent;
-use Ryssbowh\Formidable\Events\SpamEvent;
-use Ryssbowh\Formidable\Events\SubmissionEvent;
-use Ryssbowh\Formidable\Exceptions\FormException;
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Models\Form as FormModel;
-use Ryssbowh\Formidable\Models\FormSubmission;
-use Ryssbowh\Formidable\Models\Records\Form as FormRecord;
+use Inspire\Formidable\Events\FormEvent;
+use Inspire\Formidable\Events\FormSubmissionEvent;
+use Inspire\Formidable\Events\SpamEvent;
+use Inspire\Formidable\Events\SubmissionEvent;
+use Inspire\Formidable\Exceptions\FormException;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Models\Form as FormModel;
+use Inspire\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\Records\Form as FormRecord;
 use craft\base\Component;
 use craft\events\ConfigEvent;
 use craft\events\RebuildConfigEvent;
@@ -41,7 +40,7 @@ class FormsService extends Component
 
     const CONFIG_KEY = 'formidable.forms';
 
-    const FRONT_JS_FILE = __DIR__ . '/../Assets/dist/validation.js';
+    const FRONT_JS_FILE = __DIR__ . '/../Assets/src/validation.js';
 
     const SPAM = 1;
     const VALID = 2;
@@ -68,21 +67,6 @@ class FormsService extends Component
      * @var boolean
      */
     protected $frontJsRegistered = false;
-
-    /**
-     * Get all the registered assets. triggers the event for other plugins to register assets
-     * 
-     * @return array
-     */
-    public function getRegisteredAssets(): array
-    {
-        if ($this->fieldsAssets == null) {
-            $event = new HookAssetsEvent;
-            $this->trigger(self::EVENT_HOOK_ASSETS, $event); 
-            $this->fieldsAssets = $event->getAssets();
-        }
-        return $this->fieldsAssets;
-    }
 
     /**
      * Get all forms
@@ -259,7 +243,7 @@ class FormsService extends Component
                 $rule->message = $ruleData['message'];
                 $rule->messages = $ruleData['messages'] ?? '{}';
                 $rule->value = $ruleData['value'];
-                $rule->fields = $ruleData['fields'];
+                $rule->fields = $ruleData['fields'] ?? [];
                 $rule->save(false);
                 $ruleIds[] = $rule->id;
 

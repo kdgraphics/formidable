@@ -1,13 +1,13 @@
-<?php 
+<?php
 
-namespace Ryssbowh\Formidable\Controllers;
+namespace Inspire\Formidable\Controllers;
 
-use Ryssbowh\Formidable\Assets\FormsAsset;
-use Ryssbowh\Formidable\Exceptions\FormEmailException;
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Models\Form;
-use Ryssbowh\Formidable\Models\FormSubmission;
-use Ryssbowh\Formidable\Services\FormsService;
+use Inspire\Formidable\Assets\FormsAsset;
+use Inspire\Formidable\Exceptions\FormEmailException;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Models\Form;
+use Inspire\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Services\FormsService;
 use craft\helpers\ArrayHelper;
 use yii\helpers\Url;
 use yii\web\BadRequestHttpException;

@@ -1,8 +1,8 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models;
+namespace Inspire\Formidable\Models;
 
-use Ryssbowh\Formidable\Formidable;
+use Inspire\Formidable\Formidable;
 use craft\base\Model;
 
 class Submission extends Model

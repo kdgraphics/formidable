@@ -1,113 +1,114 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Models\Fields;
+namespace Inspire\Formidable\Models\Fields;
 
-use Ryssbowh\Formidable\Models\Field;
-use Ryssbowh\Formidable\Models\FieldTypes\ArrayField;
-use Ryssbowh\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\Field;
+use Inspire\Formidable\Models\FieldTypes\ArrayField;
+use Inspire\Formidable\Models\FormSubmission;
 use craft\elements\Category;
 
 class CheckboxCategory extends Field
 {
-	protected $fieldTypeClass = ArrayField::class;
+    protected $fieldTypeClass = ArrayField::class;
 
-	public $label;
-	public $groups = [];
-	public $labelHtml = false;
-	public $tooltip;
-	public $tooltipLabel;
-	public $choiceContainerClass;
-	public $choiceLabelClass;
+    public $label;
+    public $groups = [];
+    public $labelHtml = false;
+    public $tooltip;
+    public $tooltipLabel;
+    public $choiceContainerClass;
+    public $choiceLabelClass;
 
-	/**
-	 * inheritDoc
-	 **/
-	public function handle(): string
-	{
-		return 'checkbox_category';
-	}
+    /**
+     * inheritDoc
+     **/
+    public function handle(): string
+    {
+        return 'checkbox-category';
+    }
 
-	/**
-	 * inheritDoc
-	 **/
-	public function friendlyName(): string
-	{
-		return 'Checkbox Category';
-	}
+    /**
+     * inheritDoc
+     **/
+    public function friendlyName(): string
+    {
+        return 'Checkbox Category';
+    }
 
-	/**
-	 * inheritDoc
-	 **/
-	public function getExtraCpRules(): array
-	{
-		return [
-			[['label', 'tooltip', 'tooltipLabel', 'choiceContainerClass', 'choiceLabelClass'], 'string'],
-			[['label', 'tooltip', 'tooltipLabel', 'choiceContainerClass', 'choiceLabelClass'], 'trim'],
-			[['labelHtml'], 'boolean', 'trueValue' => true, 'falseValue' => false],
-			['groups', 'safe']
-		];
-	}
+    /**
+     * inheritDoc
+     **/
+    public function getExtraCpRules(): array
+    {
+        return [
+            [['label', 'tooltip', 'tooltipLabel', 'choiceContainerClass', 'choiceLabelClass'], 'string'],
+            [['label', 'tooltip', 'tooltipLabel', 'choiceContainerClass', 'choiceLabelClass'], 'trim'],
+            [['labelHtml'], 'boolean', 'trueValue' => true, 'falseValue' => false],
+            ['groups', 'required'],
+            [['choiceLabelClass', 'choiceContainerClass'], 'validateHtmlClasses']
+        ];
+    }
 
-	/**
-	 * inheritDoc
-	 */
-	public function getFrontEndRules(FormSubmission $submission): array
-	{
-		return [
-			[$this->handle, 'each', 'rule' => ['integer']]
-		];
-	}
+    /**
+     * inheritDoc
+     */
+    public function getFrontEndRules(FormSubmission $submission): array
+    {
+        return [
+            [$this->handle, 'each', 'rule' => ['integer']]
+        ];
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public static function getHtmlValue($value): string
-	{
-		if (!$value) {
-			return '';
-		}
-		if (!is_array($value)) {
-			$value = [$value];
-		}
-		$categories = Category::find()->id($value)->all();
-		$html = [];
-		foreach ($categories as $category) {
-			$html[] = '<a target="_blank" href="'.$category->getCpEditUrl().'">'.$category->title.'</a>';
-		}
-		return implode('<br/>', $html);
-	}
+    /**
+     * @inheritDoc
+     */
+    public static function getHtmlValue($value): string
+    {
+        if (!$value) {
+            return '';
+        }
+        if (!is_array($value)) {
+            $value = [$value];
+        }
+        $categories = Category::find()->id($value)->all();
+        $html = [];
+        foreach ($categories as $category) {
+            $html[] = '<a target="_blank" href="'.$category->getCpEditUrl().'">'.$category->title.'</a>';
+        }
+        return implode('<br/>', $html);
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public static function getStringValue($value): string
-	{
-		if (!$value) {
-			return '';
-		}
-		if (!is_array($value)) {
-			$value = [$value];
-		}
-		$categories = Category::find()->id($value)->all();
-		$string = [];
-		foreach ($categories as $category) {
-			$string[] = $category->title;
-		}
-		return implode(', ', $string);
-	}
+    /**
+     * @inheritDoc
+     */
+    public static function getStringValue($value): string
+    {
+        if (!$value) {
+            return '';
+        }
+        if (!is_array($value)) {
+            $value = [$value];
+        }
+        $categories = Category::find()->id($value)->all();
+        $string = [];
+        foreach ($categories as $category) {
+            $string[] = $category->title;
+        }
+        return implode(', ', $string);
+    }
 
-	/**
-	 * Load all categories from the selected group
-	 * 
-	 * @return array
-	 */
-	public function getCategories(): array
-	{
-		$categories = Category::find()->group($this->groups)->all();
-		$out = [];
-		foreach ($categories as $category) {
-			$out[$category->id] = $category->title;
-		}
-		return $out;
-	}
+    /**
+     * Load all categories from the selected group
+     * 
+     * @return array
+     */
+    public function getCategories(): array
+    {
+        $categories = Category::find()->group($this->groups)->all();
+        $out = [];
+        foreach ($categories as $category) {
+            $out[$category->id] = $category->title;
+        }
+        return $out;
+    }
 }

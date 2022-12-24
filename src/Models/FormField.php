@@ -1,10 +1,10 @@
 <?php
 
-namespace Ryssbowh\Formidable\Models;
+namespace Inspire\Formidable\Models;
 
-use Ryssbowh\Formidable\Exceptions\FormException;
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Models\TemplateForm;
+use Inspire\Formidable\Exceptions\FormException;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Models\TemplateForm;
 use craft\base\ElementInterface;
 use craft\base\Field;
 use yii\db\Schema;

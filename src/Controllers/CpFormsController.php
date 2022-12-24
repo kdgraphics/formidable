@@ -1,13 +1,12 @@
 <?php
-namespace Ryssbowh\Formidable\Controllers;
+namespace Inspire\Formidable\Controllers;
 
 use Inspire\Emails\Emails;
-use Ryssbowh\Formidable\Assets\FormAsset;
-use Ryssbowh\Formidable\Assets\FormsAsset;
-use Ryssbowh\Formidable\Assets\HookAsset;
-use Ryssbowh\Formidable\Models\Condition;
-use Ryssbowh\Formidable\Models\Form;
-use Ryssbowh\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Assets\FormAsset;
+use Inspire\Formidable\Assets\FormsAsset;
+use Inspire\Formidable\Models\Condition;
+use Inspire\Formidable\Models\Form;
+use Inspire\Formidable\Models\FormSubmission;
 use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
 use yii\web\BadRequestHttpException;
@@ -24,10 +23,6 @@ class CpFormsController extends Controller
             $template = 'edit';
         }
 
-        $this->view->registerAssetBundle(HookAsset::class);
-        foreach ($this->forms()->getRegisteredAssets() as $asset) {
-            $this->view->registerAssetBundle($asset);
-        }
         $this->view->registerAssetBundle(FormsAsset::class);
 
         $this->renderTemplate('formidable/cp/forms/'.$template, [
@@ -39,19 +34,16 @@ class CpFormsController extends Controller
             }, Emails::$plugin->emails->all()),
             'captchas' => $this->captchas()->getAllAsArray(),
             'registeredFields' => $this->fields()->getAllRegistered(),
-            'registeredRules' => $this->rules()->getAllRegistered(),
-            'volumes' => array_map(function($volume) {
-                return ['uid' => $volume->uid, 'name' => $volume->name];
-            }, \Craft::$app->volumes->getAllVolumes())
+            'registeredRules' => $this->rules()->getAllRegistered()
         ]);
     }
 
-    public function actionGet(int $id)
+    public function actionGet()
     {
         $this->requirePermission('manageFormidableForms');
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-
+        $id = $this->request->getRequiredParam('id');
         $form = $this->forms()->getById($id);
 
         if (!$form) {
@@ -102,8 +94,8 @@ class CpFormsController extends Controller
             ]);
         }
 
-        $form->fields = $this->fields()->populateFromData($fieldsData);
-        $form->rules = $this->rules()->populateFromData($rulesData);
+        $form->fields = $this->fields()->populateFromData($fieldsData, $form);
+        $form->rules = $this->rules()->populateFromData($rulesData, $form);
         $form->validate();
 
         $success = false;
@@ -127,11 +119,12 @@ class CpFormsController extends Controller
         ]);    
     }
 
-    public function actionDelete(int $id)
+    public function actionDelete()
     {
         $this->requirePermission('manageFormidableForms');
         $this->requirePostRequest();
         $this->requireAcceptsJson();
+        $id = $this->request->getRequiredParam('id');
         $form = $this->forms()->getById($id);
         if (!$form) {
             throw new BadRequestHttpException(\Craft::t('formidable', "Form with id {id} doesn't exist", ['id' => $id]));

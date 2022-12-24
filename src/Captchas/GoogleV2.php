@@ -1,12 +1,12 @@
 <?php 
 
-namespace Ryssbowh\Formidable\Captchas;
+namespace Inspire\Formidable\Captchas;
 
-use Ryssbowh\Formidable\Assets\GoogleV2CaptchaBundle;
-use Ryssbowh\Formidable\Formidable;
-use Ryssbowh\Formidable\Interfaces\CaptchaInterface;
-use Ryssbowh\Formidable\Models\Form;
-use Ryssbowh\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Assets\GoogleV2CaptchaBundle;
+use Inspire\Formidable\Formidable;
+use Inspire\Formidable\Interfaces\CaptchaInterface;
+use Inspire\Formidable\Models\Form;
+use Inspire\Formidable\Models\FormSubmission;
 use craft\helpers\StringHelper;
 use craft\web\View;
 
