@@ -37,7 +37,7 @@ class Formidable extends Plugin
 {
     public $controllerNamespace = "Inspire\\Formidable\\Controllers";
 
-    public string $schemaVersion = '6.2.0';
+    public string $schemaVersion = '7.0.0';
 
     public bool $hasCpSettings = true;
 
