@@ -7,7 +7,7 @@ Display them easily in the front end with templates.
 
 # Changelog
 
-### 6.2.0
+### 7.0.0
 - Migrated to Vue 3
 - Error handling in cp is handled by PHP rather than Js
 - Added some cp fields validations
@@ -15,6 +15,13 @@ Display them easily in the front end with templates.
 - Removed the ability to register fields by other plugins
 - Replaced cp urls by action urls
 - Reorganised cp nav
+- Changed namespace
+
+### Breaking changes
+- The Craft fields of types Form must be resaved as the namespaces have changed
+- Twig global `formidable` has been removed, use `craft.formidable` instead. Examples :
+  - `{% set form = craft.formidable.getFormByHandle('contact-us') %}`
+  - `{% do craft.formidable.captchas.getRegistered('googleV3').register() %}`
 
 ### 6.1.4
 - Fixed error with group hasErrors() function

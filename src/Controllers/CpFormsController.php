@@ -25,13 +25,22 @@ class CpFormsController extends Controller
 
         $this->view->registerAssetBundle(FormsAsset::class);
 
+        $emailsInstalled = \Craft::$app->plugins->isPluginEnabled('inspire-emails');
+        $spamCheckInstalled = \Craft::$app->plugins->isPluginEnabled('spam-check');
+        if (!$emailsInstalled) {
+            \Craft::$app->session->setError(\Craft::t('formidable', 'The Emails plugin is not installed'));
+        }
+        if (!$spamCheckInstalled) {
+            \Craft::$app->session->setError(\Craft::t('formidable', 'The Spam check plugin is not installed'));
+        }
+
         $this->renderTemplate('formidable/cp/forms/'.$template, [
             'tab' => $tab,
             'form' => $id ?? 0,
             'forms' => $this->forms()->getAllAsArray(),
-            'emails' => array_map(function ($email) {
+            'emails' => $emailsInstalled ? array_map(function ($email) {
                 return $email->toArray();
-            }, Emails::$plugin->emails->all()),
+            }, Emails::$plugin->emails->all()) : [],
             'captchas' => $this->captchas()->getAllAsArray(),
             'registeredFields' => $this->fields()->getAllRegistered(),
             'registeredRules' => $this->rules()->getAllRegistered()

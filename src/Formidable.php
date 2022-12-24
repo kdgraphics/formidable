@@ -1,4 +1,5 @@
 <?php
+
 namespace Inspire\Formidable;
 
 use Craft;
@@ -15,7 +16,7 @@ use Inspire\Formidable\Models\Records\Submission;
 use Inspire\Formidable\Models\Rules\{BiggerThan, Contain, EqualTo, Off, On, Required, SameThan, Size, SmallerThan};
 use Inspire\Formidable\Models\Settings;
 use Inspire\Formidable\Services\{CaptchasService, ConditionsService, ConditionGroupsService, CsvExporterService, FieldsService, FormsService, RulesService, SpamService, SubmissionsService};
-use Inspire\Formidable\Twig\TwigForms;
+use Inspire\Formidable\Twig\Forms;
 use craft\base\Model;
 use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
@@ -28,12 +29,13 @@ use craft\services\UserPermissions;
 use craft\web\UrlManager;
 use craft\web\View;
 use craft\web\twig\variables\Cp;
+use craft\web\twig\variables\CraftVariable;
 use yii\base\Event;
 use yii\log\Logger;
 
 class Formidable extends Plugin
 {
-    public $controllerNamespace = "Ryssbowh\\Formidable\\Controllers";
+    public $controllerNamespace = "Inspire\\Formidable\\Controllers";
 
     public string $schemaVersion = '6.2.0';
 
@@ -92,7 +94,7 @@ class Formidable extends Plugin
         $this->registerFields();
         $this->registerCaptchas();
         $this->registerRules();
-        $this->registerTwigExtension();
+        $this->registerTwig();
         $this->registerFrontTemplates();
         $this->registerCraftField();
         $this->registerGc();
@@ -183,28 +185,38 @@ class Formidable extends Plugin
         if ($request->isCpRequest) {
             $_this = $this;
             Event::on(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS,
-                function(RegisterCpNavItemsEvent $event) use ($_this){
+                function(RegisterCpNavItemsEvent $event) use ($_this) {
+                    $hasNav = false;
                     if (\Craft::$app->user->checkPermission('manageFormidableSubmissions')) {
-                        $event->navItems[] = [
-                            'url' => 'formidable/submissions',
-                            'label' => \Craft::t('formidable', 'Form Submissions'),
-                            'subnav' => [
-                                'formidable-submissions' => [
-                                    'url' => 'formidable/submissions',
-                                    'label' => \Craft::t('formidable', 'Submissions'),
-                                ],
-                                'formidable-spam' => [
-                                    'url' => 'formidable/submissions/spam',
-                                    'label' => \Craft::t('formidable', 'Spam'),
-                                ]
-                            ]
-                        ];
+                        $hasNav = true;
                     }
                     if (\Craft::$app->config->getGeneral()->allowAdminChanges and \Craft::$app->user->checkPermission('manageFormidableForms')) {
-                        $event->navItems[] = [
-                            'url' => 'formidable/forms',
-                            'label' => \Craft::t('formidable', 'Forms')
+                        $hasNav = true;
+                    }
+                    if ($hasNav) {
+                        $nav = [
+                            'url' => 'formidable',
+                            'label' => \Craft::t('formidable', 'Forms'),
+                            'icon' => $this->cpNavIconPath(),
+                            'subnav' => []
                         ];
+                        if (\Craft::$app->user->checkPermission('manageFormidableSubmissions')) {
+                            $nav['subnav']['formidable-submissions'] = [
+                                'url' => 'formidable/submissions',
+                                'label' => \Craft::t('formidable', 'Submissions'),
+                            ];
+                            $nav['subnav']['formidable-spam'] = [
+                                'url' => 'formidable/spam',
+                                'label' => \Craft::t('formidable', 'Spam'),
+                            ];
+                        }
+                        if (\Craft::$app->config->getGeneral()->allowAdminChanges and \Craft::$app->user->checkPermission('manageFormidableForms')) {
+                            $nav['subnav']['formidable-forms'] = [
+                                'url' => 'formidable/forms',
+                                'label' => \Craft::t('formidable', 'Forms')
+                            ];
+                        }
+                        $event->navItems[] = $nav;
                     }
                 }
             );
@@ -235,9 +247,11 @@ class Formidable extends Plugin
     /**
      * Registers twig extensions
      */
-    protected function registerTwigExtension()
+    protected function registerTwig()
     {
-        Craft::$app->view->registerTwigExtension(new TwigForms);
+        Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, function(Event $e) {
+            $e->sender->set('formidable', Forms::class);
+        });
     }
 
     /**
