@@ -3,7 +3,7 @@
 namespace Inspire\Formidable\Services;
 
 use Inspire\Formidable\Formidable;
-use Inspire\Formidable\Models\Records\SubmissionValue;
+use Inspire\Formidable\records\SubmissionValueRecord;
 use craft\base\Component;
 use craft\helpers\ArrayHelper;
 
@@ -63,7 +63,7 @@ class CsvExporterService extends Component
 				$submission->adminNotified ? 'Yes' : 'No',
 			];
 			foreach ($fields as $field) {
-				$line[] = $submission->getValue($field->handle, 'csv');
+				$line[] = (string)$submission->getValue($field->handle);
 			}
 			fputcsv($fp, $line, ',');
 		}
@@ -84,7 +84,7 @@ class CsvExporterService extends Component
 		$values = (new \yii\db\Query())
 		    ->select('field_id')
 		    ->where(['is not', 'field_id', null])
-		    ->from(SubmissionValue::tableName());
+		    ->from(SubmissionValueRecord::tableName());
 		if ($query->where) {
 			$where = $query->where;
 			$where[1] = 'submission_id';

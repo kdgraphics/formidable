@@ -7,6 +7,7 @@ export const store = createStore({
     isFetching: false,
     forms: {},
     submissions: [],
+    chartData: null,
     filters: {
       forms: [],
       trashed: false,
@@ -20,7 +21,12 @@ export const store = createStore({
         date: null,
         timezone: null
       }
-    }
+    },
+    sort: {
+      field: 'dateCreated',
+      side: 'desc'
+    },
+    pager: {}
   },
   mutations: {
     setForms (state, value) {
@@ -28,6 +34,12 @@ export const store = createStore({
     },
     setIsFetching (state, value) {
       state.isFetching = value;
+    },
+    setPager (state, value) {
+      state.pager = value;
+    },
+    setChartData (state, value) {
+      state.chartData = value;
     },
     setTimezone(state, value) {
       state.filters.dateFrom.timezone = value;
@@ -119,6 +131,47 @@ export const store = createStore({
         .then((response) => {
           Craft.cp.displayNotice(response.data.message);
         })
+    },
+    fetch ({commit, state}) {
+      let data = {};
+      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
+      data.filters = state.filters;
+      data.sort = state.sort;
+      data.page = state.pager.page;
+      commit('setIsFetching', true);
+      axios.post(Craft.getActionUrl('formidable/cp-submissions/load'), data)
+        .then((response) => {
+          commit('setSubmissions', response.data.submissions);
+          commit('setPager', {
+            count: response.data.count,
+            totalCount: response.data.totalCount,
+            page: response.data.page,
+            pageCount: response.data.pageCount,
+          });
+        })
+        .catch((error) => {
+          Craft.cp.displayError('There\'s been a problem loading the submissions');
+          console.log(error);
+        })
+        .finally(() => {
+          commit('setIsFetching', false);
+        });
+    },
+    fetchAll({commit, state}) {
+      let data = {};
+      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
+      data.filters = state.filters;
+      commit('setIsFetching', true);
+      axios.post(Craft.getActionUrl('formidable/cp-submissions/load-all'), data)
+        .then((response) => {
+          commit('setChartData', response.data.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          commit('setIsFetching', false);
+        });
     },
   }
 });

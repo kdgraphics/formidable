@@ -8,15 +8,13 @@ use Inspire\Formidable\Interfaces\FieldInterface;
 use Inspire\Formidable\Interfaces\FieldTypeInterface;
 use Inspire\Formidable\Models\FieldTypes\TextField;
 use Inspire\Formidable\Models\Fields\Group;
-use Inspire\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\FormPosted;
 use craft\base\Model;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
 
 abstract class Field extends Model implements FieldInterface
 {
-    const EVENT_RENDER = 'render';
-
     protected $fieldTypeClass = TextField::class;
 
     public $id;
@@ -42,9 +40,6 @@ abstract class Field extends Model implements FieldInterface
     protected $_frontName;
     protected $_group;
     protected $_form;
-    protected $options;
-
-    protected $rootAttributes = ['id', 'active', 'name', 'handle', 'order', 'form_id', 'options', 'dateCreated', 'dateUpdated', 'uid', 'fieldClass', 'containerClass', 'labelClass', 'instructions', 'type', 'friendlyName', 'validRules', 'value', 'group_id'];
 
     /**
      * @inheritDoc
@@ -60,9 +55,17 @@ abstract class Field extends Model implements FieldInterface
     /**
      * @inheritDoc
      **/
+    public function defineOptions(): array
+    {
+        return [];
+    }
+
+    /**
+     * @inheritDoc
+     **/
     public function defineRules(): array
     {
-        return array_merge($this->getExtraCpRules(), [
+        return [
             [['id', 'order'], 'integer'],
             [['active', 'autocomplete'], 'boolean', 'trueValue' => true, 'falseValue' => false],
             [['name', 'handle'], 'required'],
@@ -70,7 +73,7 @@ abstract class Field extends Model implements FieldInterface
             [['name', 'fieldClass', 'containerClass', 'instructions', 'labelClass', 'handle'], 'trim'],
             [['fieldClass', 'containerClass', 'labelClass'], 'validateHtmlClasses'],
             ['handle', 'validateHandle']
-        ]);
+        ];
     }
 
     /**
@@ -107,6 +110,9 @@ abstract class Field extends Model implements FieldInterface
                 $this->addError($attribute, \Craft::t('formidable', '{handle} is already taken in this form', ['handle' => $this->$attribute]));
             }
         }
+        if (!$this->form->obfuscateFieldNames and in_array($this->$attribute, $this->reservedHandles())) {
+            $this->addError($attribute, \Craft::t('formidable', '{handle} is a reserved handle', ['handle' => $this->$attribute]));
+        }
     }
 
     /**
@@ -134,9 +140,10 @@ abstract class Field extends Model implements FieldInterface
     /**
      * @inheritDoc
      **/
-    public function setGroup(Group $group)
+    public function setGroup(?Group $group)
     {
         $this->_group = $group;
+        $this->group_id = $group ? $group->id : null;
     }
 
     /**
@@ -195,46 +202,37 @@ abstract class Field extends Model implements FieldInterface
     }
 
     /**
+     * Unique id for this field
+     * 
+     * @return string
+     */
+    public function generateId(): string
+    {
+        return $this->form->generateId() . '-field-' . $this->handle;
+    }
+
+    /**
      * Extract all options in object
      * 
      * @param string $value
      */
     public function setOptions(string $value)
     {
-        $this->options = Json::decode($value, true);
-        foreach($this->options as $name => $value) {
-            $this->$name = $value;
-        }
+        $this->setAttributes(Json::decode($value));
     }
 
     /**
-     * Unique id for this field
+     * Rebuild options in array
      * 
-     * @param  Form   $form
-     * @return string
+     * @return array
      */
-    public function generateId(Form $form): string
+    public function getOptions(): array
     {
-        return $form->handle.'-field-'.$this->handle;
-    }
-
-    /**
-     * Rebuild options in json/array
-     * 
-     * @param  bool|boolean $asJson
-     * @return string|array
-     */
-    public function rebuildOptions(bool $asJson = false)
-    {
-        $keys = array_diff(array_keys($this->attributes), $this->rootAttributes);
-        $this->options = [];
-        foreach ($keys as $key) {
-            $this->options[$key] = $this->$key;
+        $options = [];
+        foreach ($this->defineOptions() as $key) {
+            $options[$key] = $this->$key;
         }
-        if (!$asJson) {
-            return $this->options;
-        }
-        return json_encode($this->options);
+        return $options;
     }
 
     /**
@@ -267,7 +265,7 @@ abstract class Field extends Model implements FieldInterface
             'labelClass' => $this->labelClass,
             'instructions' => $this->instructions,
             'type' => $this->handle(),
-            'options' => $this->rebuildOptions(true),
+            'options' => $this->options,
             'uid' => $this->uid ?? StringHelper::UUID()
         ];
     }
@@ -275,56 +273,40 @@ abstract class Field extends Model implements FieldInterface
     /**
      * @inheritDoc
      */
-    public function afterSubmissionValidated(FormSubmission $submission)
+    public function afterSubmissionValidated(FormPosted $posted)
     {
     }
 
     /**
      * @inheritDoc
      */
-    public function beforeSubmissionValidated(FormSubmission $submission)
+    public function beforeSubmissionValidated(FormPosted $posted)
     {
     }
 
     /**
      * @inheritDoc
      */
-    public static function getHtmlValue($value): string
+    public static function getHtmlValue(?FieldInterface $field, $value, bool $isOwn = true): string
+    {
+        return static::getStringValue($field, $value, $isOwn);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function getStringValue(?FieldInterface $field, $value, bool $isOwn = true): string
     {
         return (string)$value;
     }
 
     /**
-     * @inheritDoc
-     */
-    public static function getStringValue($value): string
-    {
-        return (string)$value;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getCsvValue($value): string
-    {
-        return static::getStringValue($value);
-    }
-
-    /**
-     * Javascript to define this field
+     * Get the handles reserved by the system
      * 
-     * @return string
+     * @return array
      */
-    public function frontJs(Form $form): string
+    protected function reservedHandles(): array
     {
-        return "new formidable.field({
-            name: '".addslashes($this->name)."',
-            handle: '{$this->handle}',
-            frontName: '{$this->frontName}',
-            valueType: '{$this->fieldType()->jsType()}',
-            type: '" . $this->handle() . "',
-            id: '{$this->generateId($form)}',
-            formId: '{$form->generateId()}'
-        })";
+        return ['id', 'action', 'spam_reason', 'form', 'errors', \Craft::$app->config->general->csrfTokenName];
     }
 }

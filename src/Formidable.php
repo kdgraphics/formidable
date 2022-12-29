@@ -6,16 +6,13 @@ use Craft;
 use Inspire\Emails\Emails;
 use Inspire\Emails\Records\Email as EmailRecord;
 use Inspire\Formidable\Assets\TestAsset;
-use Inspire\Formidable\Captchas\GoogleV2;
-use Inspire\Formidable\Captchas\GoogleV3;
+use Inspire\Formidable\Captchas\{GoogleV2, GoogleV3};
 use Inspire\Formidable\Events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent};
-use Inspire\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry, Group, Hidden, CheckboxEntry, Date, CheckboxCategory, RadioCategory, RadioEntry};
+use Inspire\Formidable\Models\Fields\{Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, Group, Hidden, Date};
 use Inspire\Formidable\Models\FormField;
-use Inspire\Formidable\Models\FormSubmission;
-use Inspire\Formidable\Models\Records\Submission;
 use Inspire\Formidable\Models\Rules\{BiggerThan, Contain, EqualTo, Off, On, Required, SameThan, Size, SmallerThan};
 use Inspire\Formidable\Models\Settings;
-use Inspire\Formidable\Services\{CaptchasService, ConditionsService, ConditionGroupsService, CsvExporterService, FieldsService, FormsService, RulesService, SpamService, SubmissionsService};
+use Inspire\Formidable\Services\{CaptchasService, ConditionsService, ConditionGroupsService, CsvExporterService, FieldsService, FormsService, RulesService, SpamService, SubmissionsService, AssetsService};
 use Inspire\Formidable\Twig\Forms;
 use craft\base\Model;
 use craft\base\Plugin;
@@ -45,8 +42,6 @@ class Formidable extends Plugin
 
     protected $availableFields = [
         Checkbox::class,
-        CheckboxCategory::class,
-        CheckboxEntry::class,
         Checkboxes::class,
         Date::class,
         Email::class,
@@ -55,11 +50,7 @@ class Formidable extends Plugin
         Hidden::class,
         Number::class,
         Radio::class,
-        RadioCategory::class,
-        RadioEntry::class,
         Select::class,
-        SelectCategory::class,
-        SelectEntry::class,
         Text::class,
         Textarea::class,
     ];
@@ -268,7 +259,8 @@ class Formidable extends Plugin
             'captchas' => CaptchasService::class,
             'rules' => RulesService::class,
             'conditions' => ConditionsService::class,
-            'conditionGroups' => ConditionGroupsService::class
+            'conditionGroups' => ConditionGroupsService::class,
+            'assets' => AssetsService::class
     	]);
     }
 
@@ -359,9 +351,9 @@ class Formidable extends Plugin
     protected function registerProjectConfig()
     {
         Craft::$app->projectConfig
-            ->onAdd(FormsService::CONFIG_KEY.'.{uid}',              [$this->forms,           'handleChanged'])
-            ->onUpdate(FormsService::CONFIG_KEY.'.{uid}',           [$this->forms,           'handleChanged'])
-            ->onRemove(FormsService::CONFIG_KEY.'.{uid}',           [$this->forms,           'handleDeleted']);
+            ->onAdd(FormsService::CONFIG_KEY.'.{uid}',    [$this->forms, 'handleChanged'])
+            ->onUpdate(FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleChanged'])
+            ->onRemove(FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleDeleted']);
 
         Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $e) {
             Formidable::$plugin->forms->rebuildConfig($e);

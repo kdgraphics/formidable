@@ -6,7 +6,7 @@ use Inspire\Formidable\Formidable;
 use Inspire\Formidable\Interfaces\FieldInterface;
 use Inspire\Formidable\Interfaces\RuleInterface;
 use Inspire\Formidable\Models\Form;
-use Inspire\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\FormPosted;
 use craft\base\Model;
 use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
@@ -173,7 +173,7 @@ abstract class Rule extends Model implements RuleInterface
     /**
      * @inheritDoc
      */
-    public function appliesTo(FormSubmission $submission): bool
+    public function appliesTo(FormPosted $posted): bool
     {
         if (!is_null($this->applies)) {
             return $this->applies;
@@ -184,7 +184,7 @@ abstract class Rule extends Model implements RuleInterface
             $conditionnables = array_merge($this->conditions, $this->conditionGroups);
             $result = true;
             foreach ($conditionnables as $conditionnable) {
-                $result = $conditionnable->appliesTo($submission, $result);
+                $result = $conditionnable->appliesTo($posted, $result);
             }
             $this->applies = $result;
         }
@@ -194,21 +194,21 @@ abstract class Rule extends Model implements RuleInterface
     /**
      * @inheritDoc
      */
-    public function validateRule(string $fieldName, FormSubmission $submission)
+    public function validateRule(string $fieldName, FormPosted $posted)
     {
-        if (!$this->appliesTo($submission)) {
+        if (!$this->appliesTo($posted)) {
             return;
         }
-        $field = $submission->getForm()->getField($fieldName);
+        $field = $posted->form->getField($fieldName);
         if ($this->requiresValue) {
-            $result = $this->check($field, $submission->{$fieldName} ?? null, $this->value);
+            $result = $this->check($field, $posted->{$fieldName} ?? null, $this->value);
         } else if ($this->requiresField) {
-            $result = $this->check($field, $submission->{$fieldName} ?? null, $submission->{$this->value});
+            $result = $this->check($field, $posted->{$fieldName} ?? null, $posted->{$this->value});
         } else {
-            $result = $this->check($field, $submission->{$fieldName} ?? null);
+            $result = $this->check($field, $posted->{$fieldName} ?? null);
         }
         if (!$result) {
-            $submission->addError($fieldName, $this->i18Message($field, $submission->{$fieldName}));
+            $posted->addError($fieldName, $this->i18Message($field, $posted->{$fieldName}));
         }
     }
 
@@ -221,12 +221,12 @@ abstract class Rule extends Model implements RuleInterface
      */
     public function i18Message(FieldInterface $field, $value): string
     {
-        if (isset($this->messages->{$field->handle})) {
-            $message = \Craft::t('site', $this->messages->{$field->handle});
+        if ($this->messages[$field->handle] ?? '') {
+            $message = \Craft::t('site', $this->messages[$field->handle]);
         } else {
             $message = \Craft::t('site', $this->message);
         }
-        $message = str_replace('{value}', $field::getStringValue($value), $message);
+        $message = str_replace('{value}', $field::getStringValue($field, $value), $message);
         $matches = [];
         preg_match_all("/{field\.([\w\-_]+)}/", $message, $matches);
         foreach ($matches[1] ?? [] as $match) {
@@ -238,21 +238,5 @@ abstract class Rule extends Model implements RuleInterface
             $message = str_replace("{rule.$match}", $this->$match, $message);
         }
         return ucfirst($message);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function frontJs(): string
-    {
-        return "new formidable.formRule({
-            type: '{$this->handle()}',
-            value: '{$this->value}',
-            message: '".addslashes(\Craft::t('site', $this->message))."',
-            messages: JSON.parse('".addslashes(json_encode(array_map(function($message){return \Craft::t('site', $message);}, (array)$this->messages)))."'),
-            fields: [".implode(',',array_map(function($field){return "'".$field."'";}, $this->fields))."],
-            conditions: [" . implode(',', array_map(function($condition) {return $condition->frontJs();}, $this->conditions)) . "],
-            conditionGroups: [" . implode(',', array_map(function($group) {return $group->frontJs();}, $this->conditionGroups)) . "]
-        })";
     }
 }

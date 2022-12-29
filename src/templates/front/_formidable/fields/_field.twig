@@ -1,6 +1,8 @@
 {% set container_class = (container_class ?? '') ~ (field.containerClass ? (' ' ~ field.containerClass) : '') %}
+{% set errors = posted.errors[field.handle] ?? [] %}
+{% set old_value = posted[field.handle] ?? field.value %}
 
-<div class="{{ container_class }} field" id="{{ field.generateId(form) }}">
+<div class="{{ container_class }} field" id="{{ field.generateId }}">
 	{% block before_field %}
 	{% endblock %}
 	{% block label %}

@@ -111,29 +111,6 @@
         </div>
         <div class="lightswitch-field field">
           <div class="heading">
-            <label for="form-frontEndValidation">{{ t('Enable front-end validation') }}</label>
-          </div>
-          <div class="input ltr">
-            <div
-              id="form-frontEndValidation"
-              :class="{lightswitch:true, on:form.frontEndValidation}"
-              tabindex="0"
-              role="switch"
-              :aria-checked="form.frontEndValidation"
-            >
-              <div class="lightswitch-container">
-                <div class="handle" />
-              </div>
-              <input
-                v-model="form.frontEndValidation"
-                type="hidden"
-                name="frontEndValidation"
-              >
-            </div>
-          </div>
-        </div>
-        <div class="lightswitch-field field">
-          <div class="heading">
             <label for="form-saveSubmissions">{{ t('Save submissions') }}</label>
           </div>
           <div class="input ltr">

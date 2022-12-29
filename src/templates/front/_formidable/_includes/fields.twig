@@ -1,0 +1,9 @@
+{% set fields_class = fields_class ?? 'fields' %}
+
+<div class="{{ fields_class }}">
+	{% for field in form.activeRootFields %}
+		{% include "_formidable/fields/field" with {
+			field: field
+		} %}
+	{% endfor %}
+</div>

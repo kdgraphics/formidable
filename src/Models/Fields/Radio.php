@@ -2,12 +2,11 @@
 
 namespace Inspire\Formidable\Models\Fields;
 
-class Radio extends Select
-{
-    public $choiceContainerClass;
-    public $choiceLabelClass;
-    public $default;
+use Inspire\Formidable\Models\FormPosted;
+use Inspire\Formidable\traits\FieldOptions;
 
+class Radio extends Checkboxes
+{
     /**
      * inheritDoc
      **/
@@ -19,28 +18,19 @@ class Radio extends Select
     /**
      * inheritDoc
      **/
-    public function getValue()
-    {
-        return $this->_value ?? $this->default;
-    }
-
-    /**
-     * inheritDoc
-     **/
     public function friendlyName(): string
     {
         return 'Radio';
     }
-    
+
     /**
      * inheritDoc
-     **/
-    public function getExtraCpRules(): array
+     */
+    public function getFrontEndRules(FormPosted $posted): array
     {
-        $rules = parent::getExtraCpRules();
-        $rules[] = [['choiceLabelClass', 'choiceContainerClass'], 'string'];
-        $rules[] = [['choiceLabelClass', 'choiceContainerClass'], 'trim'];
-        $rules[] = [['choiceLabelClass', 'choiceContainerClass'], 'validateHtmlClasses'];
-        return $rules;
+        return [
+            [$this->handle, 'default', 'value' => []],
+            [$this->handle, 'in', 'range' => array_keys($this->availableOptions)]
+        ];
     }
 }

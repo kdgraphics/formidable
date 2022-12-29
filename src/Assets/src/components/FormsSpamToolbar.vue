@@ -172,11 +172,10 @@ export default {
     $('.formidable-submissions-toolbar .datepicker')
       .datepicker(Craft.datepickerOptions)
       .on('change', function(e) {
-        let input = this;
         $(this).parent().parent().find('.clear-btn').on('click', function(){
-          _this.name == 'dateFrom' ? _this.setDateFrom(null) : _this.setDateTo(null);
+          this.name == 'dateFrom' ? _this.setDateFrom(null) : _this.setDateTo(null);
         });
-        _this.name == 'dateFrom' ? _this.setDateFrom(this.value) : _this.setDateTo(this.value);
+        this.name == 'dateFrom' ? _this.setDateFrom(this.value) : _this.setDateTo(this.value);
       });
   },
   methods: {

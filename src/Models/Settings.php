@@ -4,6 +4,8 @@ namespace Inspire\Formidable\Models;
 
 use Craft;
 use craft\base\Model;
+use craft\helpers\Json;
+use yii\base\InvalidArgumentException;
 
 class Settings extends Model
 {
@@ -13,6 +15,8 @@ class Settings extends Model
     public $deleteSubmissionsThreshold = '';
     public $deleteSpamThreshold = 30;
     public $useQueue = false;
+    public $spamFrequency = 10;
+    public $honeypotCss = '{"position": "absolute", "left": "-100000px", "overflow": "hidden"}';
 
     /**
      * @return array
@@ -20,10 +24,17 @@ class Settings extends Model
     public function defineRules(): array
     {
         return [
-            [['siteKey', 'secretKey', 'deleteSpamThreshold', 'deleteSubmissionsThreshold'], 'string'],
-            [['acceptableScore'], 'number'],
-            [['acceptableScore'], 'required'],
-            [['useQueue'], 'boolean']
+            [['siteKey', 'secretKey', 'deleteSpamThreshold', 'deleteSubmissionsThreshold', 'honeypotCss'], 'string'],
+            [['acceptableScore', 'spamFrequency'], 'number'],
+            [['acceptableScore', 'honeypotCss'], 'required'],
+            [['useQueue'], 'boolean'],
+            ['honeypotCss', function () {
+                try {
+                    Json::decode($this->honeypotCss);
+                } catch (InvalidArgumentException $e) {
+                    $this->addError('honeypotCss', \Craft::t('formidable', 'This is not a valid JSON string'));
+                }
+            }, 'skipOnEmpty' => false]
         ];
     }
 }

@@ -3,7 +3,7 @@
 namespace Inspire\Formidable\Models\Fields;
 
 use Inspire\Formidable\Models\Field;
-use Inspire\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\FormPosted;
 
 class Text extends Field
 {
@@ -39,21 +39,29 @@ class Text extends Field
     }
 
     /**
+     * @inheritDoc
+     **/
+    public function defineOptions(): array
+    {
+        return ['placeholder', 'label', 'default', 'labelHtml', 'tooltip', 'tooltipLabel'];
+    }
+
+    /**
      * inheritDoc
      **/
-    public function getExtraCpRules(): array
+    public function defineRules(): array
     {
-        return [
+        return array_merge(parent::defineRules(), [
             [['placeholder','label', 'default', 'tooltip', 'tooltipLabel'], 'string'],
             [['placeholder','label', 'default', 'tooltip', 'tooltipLabel'], 'trim'],
             ['labelHtml', 'boolean', 'trueValue' => true, 'falseValue' => false]
-        ];
+        ]);
     }
 
     /**
      * inheritDoc
      */
-    public function getFrontEndRules(FormSubmission $submission): array
+    public function getFrontEndRules(FormPosted $posted): array
     {
         return [
             [$this->handle, 'string'], 

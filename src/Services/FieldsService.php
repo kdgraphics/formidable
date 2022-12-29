@@ -9,8 +9,8 @@ use Inspire\Formidable\Exceptions\FormException;
 use Inspire\Formidable\Formidable;
 use Inspire\Formidable\Interfaces\FieldInterface;
 use Inspire\Formidable\Models\Form;
-use Inspire\Formidable\Models\Records\Field as FieldRecord;
-use Inspire\Formidable\Models\Records\Form as FormRecord;
+use Inspire\Formidable\records\FieldRecord;
+use Inspire\Formidable\records\FormRecord;
 use craft\base\Component;
 use craft\events\ConfigEvent;
 use craft\helpers\ArrayHelper;
@@ -106,7 +106,7 @@ class FieldsService extends Component
      * @param  Form  $form
      * @return array
      */
-    public function populateFromData(array $fieldsData, Form $form): array
+    public function populateFromData(array $fieldsData, Form $form, ?FieldInterface $group = null): array
     {
         $fields = [];
         foreach ($fieldsData as $index => $data) {
@@ -115,24 +115,12 @@ class FieldsService extends Component
             } else {
                 $field = clone $this->getRegistered($data['type']);
             }
-            if ($data['type'] == 'group') {
-                $groupFields = [];
-                foreach ($data['fields'] ?? [] as $fieldData) {
-                    $fieldData['group_id'] = null;
-                    if (isset($fieldData['id']) and is_numeric($fieldData['id'])) {
-                        $field2 = $this->getById($fieldData['id']);
-                    } else {
-                        $field2 = clone $this->getRegistered($fieldData['type']);
-                    }
-                    $field2->setAttributes($fieldData);
-                    $field2->group = $field;
-                    $field2->form = $form;
-                    $groupFields[] = $field2;
-                }
-                $field->fields = $groupFields;
-            }
             $field->setAttributes($data);
+            $field->group = $group;
             $field->form = $form;
+            if ($data['type'] == 'group') {
+                $field->fields = $this->populateFromData($data['fields'], $form, $field);
+            }
             $fields[$index] = $field;
         }
         return $fields;

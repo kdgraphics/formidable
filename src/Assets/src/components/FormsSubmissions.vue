@@ -170,7 +170,10 @@
           »
         </div>
       </div>
-      <div class="totals">
+      <div
+        v-if="!isChartView"
+        class="totals"
+      >
         {{ pager.totalCount + ' ' + t('submissions') }}
       </div>
     </div>
@@ -249,12 +252,6 @@ export default {
   data: function () {
     return {
       chart: null,
-      chartData: false,
-      sort: {
-        field: 'dateCreated',
-        side: 'desc'
-      },
-      pager: {},
       viewed: {
         form: {},
         values: {}
@@ -263,9 +260,14 @@ export default {
     }
   },
   computed: {
-    ...mapState(['filters', 'isChartView', 'submissions', 'selected', 'isFetching'])
+    ...mapState(['filters', 'isChartView', 'submissions', 'selected', 'isFetching', 'chartData', 'sort', 'pager', 'isFetching'])
   },
   watch: {
+    chartData: function () {
+      this.chart.data.labels = this.chartData.labels;
+      this.chart.data.datasets = this.chartData.data;
+      this.chart.update();
+    },
     isChartView: function () {
       if (this.isChartView && !this.chartData) {
         this.fetchAll();
@@ -332,74 +334,29 @@ export default {
       }
     },
     changePage(page) {
-      this.$set(this.pager, 'page', page);
+      this.pager.page = page;
       this.fetch();
     },
     pagerRange() {
       return range(this.pager.pageCount);
     },
-    updateChart: function(data) {
-      this.chart.data.labels = data.labels;
-      this.chart.data.datasets = data.data;
-      this.chart.update();
-    },
     toggleSelect: function (id) {
       if (this.selected.includes(id)) {
         let index = this.selected.indexOf(id);
-        this.$delete(this.selected, index);
+        delete this.selected[index];
       } else {
         this.selected.push(id);
       }
       this.setSelected(this.selected);
     },
     setOrdered: function (field) {
-      this.$set(this.sort, 'field', field);
-      this.$set(this.sort, 'side', this.sort.side == 'desc' ? 'asc' : 'desc');
+      this.sort.field = field;
+      this.sort.side = this.sort.side == 'desc' ? 'asc' : 'desc';
+      this.fetch();
     },
-    fetch: function() {
-      let data = {};
-      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
-      data.filters = this.filters;
-      data.sort = this.sort;
-      data.page = this.pager.page;
-      this.setIsFetching(true);
-      axios.post(Craft.getActionUrl('formidable/cp-submissions/load'), data)
-        .then((response) => {
-          this.setSubmissions(response.data.submissions);
-          this.pager = {
-            count: response.data.count,
-            totalCount: response.data.totalCount,
-            page: response.data.page,
-            pageCount: response.data.pageCount,
-          };
-        })
-        .catch((error) => {
-          Craft.cp.displayError('There\'s been a problem loading the submissions');
-          console.log(error);
-        })
-        .finally(() => {
-          this.setIsFetching(false);
-        });
-    },
-    fetchAll: function() {
-      let data = {};
-      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
-      data.filters = this.filters;
-      this.setIsFetching(true);
-      axios.post(Craft.getActionUrl('formidable/cp-submissions/load-all'), data)
-        .then((response) => {
-          this.chartData = true;
-          this.updateChart(response.data.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        })
-        .finally(() => {
-          this.setIsFetching(false);
-        });
-    },
-    ...mapMutations(['setSelected', 'setSort', 'setSubmissions', 'setIsFetching']),
-    ...mapActions(['markAsRead', 'deleteMany'])
+    
+    ...mapMutations(['setSelected']),
+    ...mapActions(['markAsRead', 'deleteMany', 'fetch', 'fetchAll'])
   }
 };
 

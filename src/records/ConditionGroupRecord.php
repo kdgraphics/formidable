@@ -1,11 +1,11 @@
 <?php 
 
-namespace Inspire\Formidable\Models\Records;
+namespace Inspire\Formidable\records;
 
-use Inspire\Formidable\Models\ConditionGroup as ConditionGroupModel;
+use Inspire\Formidable\Models\ConditionGroup;
 use craft\db\ActiveRecord;
 
-class ConditionGroup extends ActiveRecord
+class ConditionGroupRecord extends ActiveRecord
 {
 	public static function tableName()
 	{
@@ -19,7 +19,7 @@ class ConditionGroup extends ActiveRecord
 	 */
 	public function getConditions()
 	{
-		return $this->hasMany(Condition::className(), ['conditiongroup_id' => 'id']);
+		return $this->hasMany(ConditionRecord::className(), ['conditiongroup_id' => 'id']);
 	}
 
 	/**
@@ -29,12 +29,12 @@ class ConditionGroup extends ActiveRecord
 	 */
 	public function getRule()
 	{
-		return $this->hasOne(Rule::className(), ['rule_id' => 'id']);
+		return $this->hasOne(RuleRecord::className(), ['rule_id' => 'id']);
 	}
 
 	public function toModel()
 	{
-		$model = new ConditionGroupModel($this->getAttributes());
+		$model = new ConditionGroup($this->getAttributes());
 		$model->conditions = array_map(function ($condition) {
 			return $condition->toModel();
 		}, $this->conditions);

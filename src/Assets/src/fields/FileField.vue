@@ -4,51 +4,17 @@
     :has-autocomplete="false"
   >
     <template #extraFields>
-      <div class="lightswitch-field field">
-        <div class="heading">
-          <label>{{ t('Max files') }}</label>
-        </div>
-        <div class="input ltr">
-          <input
-            v-model="selectedField.maxFiles"
-            type="text"
-            min="2"
-            class="text fullwidth"
-          >
-        </div>
-        <ul class="errors">
-          <li
-            v-for="error, index in errors.maxFiles"
-            :key="index"
-            class="error"
-          >
-            {{ error }}
-          </li>
-        </ul>
-      </div>
       <div class="field">
         <div class="heading">
-          <label>{{ t('Extensions') }}</label>
-        </div>
-        <div class="instructions">
-          <p>{{ t('Extensions allowed (no dot), comma separated. leave empty for all') }}</p>
+          <label>{{ t('Accepts') }}</label>
         </div>
         <div class="input ltr">
           <input
-            v-model="selectedField.extensions"
+            v-model="selectedField.accepts"
             type="text"
             class="text fullwidth"
           >
         </div>
-        <ul class="errors">
-          <li
-            v-for="error, index in errors.extensions"
-            :key="index"
-            class="error"
-          >
-            {{ error }}
-          </li>
-        </ul>
       </div>
       <div class="field">
         <div class="heading">
@@ -95,24 +61,23 @@
       </div>
       <div class="field">
         <div class="heading">
-          <label>{{ t('Max file size (Mb)') }}</label>
+          <label for="form-multiple">{{ t('Multiple') }}</label>
         </div>
         <div class="input ltr">
-          <input
-            v-model="selectedField.size"
-            type="text"
-            class="text fullwidth"
+          <div
+            id="form-multiple"
+            :class="{lightswitch:true, on:selectedField.multiple}"
           >
+            <div class="lightswitch-container">
+              <div class="handle" />
+            </div>
+            <input
+              v-model="selectedField.multiple"
+              type="hidden"
+              name="multiple"
+            >
+          </div>
         </div>
-        <ul class="errors">
-          <li
-            v-for="error, index in errors.size"
-            :key="index"
-            class="error"
-          >
-            {{ error }}
-          </li>
-        </ul>
       </div>
     </template>
     <template #extraAdvanced>

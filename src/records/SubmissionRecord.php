@@ -1,12 +1,12 @@
 <?php 
 
-namespace Inspire\Formidable\Models\Records;
+namespace Inspire\Formidable\records;
 
-use Inspire\Formidable\Models\Submission as SubmissionModel;
+use Inspire\Formidable\Models\Submission;
 use craft\db\ActiveRecord;
 use craft\db\SoftDeleteTrait;
 
-class Submission extends ActiveRecord
+class SubmissionRecord extends ActiveRecord
 {	
 	use SoftDeleteTrait;
 	
@@ -17,12 +17,14 @@ class Submission extends ActiveRecord
 
 	public function toModel()
 	{
-		return new SubmissionModel($this->getAttributes());
+		$sub = new Submission;
+		$sub->setAttributes($this->getAttributes());
+		return $sub;
 	}
 
 	public function getForm()
 	{
-		return $this->hasOne(Form::className(), ['id' => 'form_id']);
+		return $this->hasOne(FormRecord::className(), ['id' => 'form_id']);
 	}
 
 	public function getDateCreated()

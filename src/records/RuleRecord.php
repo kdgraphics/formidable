@@ -1,12 +1,13 @@
 <?php 
 
-namespace Inspire\Formidable\Models\Records;
+namespace Inspire\Formidable\records;
 
 use Inspire\Formidable\Formidable;
 use Inspire\Formidable\Interfaces\RuleInterface;
 use craft\db\ActiveRecord;
+use craft\helpers\Json;
 
-class Rule extends ActiveRecord
+class RuleRecord extends ActiveRecord
 {	
 	public static function tableName()
 	{
@@ -21,8 +22,8 @@ class Rule extends ActiveRecord
 	{
 		$model = Formidable::$plugin->rules->getRegistered($this->type);
 		$model = new $model($this->getAttributes());
-		$model->fields = json_decode($this->fields, true);
-		$model->messages = json_decode($this->messages ? $this->messages : '{}');
+		$model->fields = Json::decode($this->fields);
+		$model->messages = Json::decode($this->messages ? $this->messages : '[]');
 		$model->conditions = array_map(function ($condition) {
 			return $condition->toModel();
 		}, $this->conditions);
@@ -39,7 +40,7 @@ class Rule extends ActiveRecord
 	 */
 	public function getConditions() 
 	{
-		return $this->hasMany(Condition::className(), ['rule_id' => 'id']);
+		return $this->hasMany(ConditionRecord::className(), ['rule_id' => 'id']);
 	}
 
 	/**
@@ -49,6 +50,6 @@ class Rule extends ActiveRecord
 	 */
 	public function getConditionGroups()
 	{
-		return $this->hasMany(ConditionGroup::className(), ['rule_id' => 'id']);
+		return $this->hasMany(ConditionGroupRecord::className(), ['rule_id' => 'id']);
 	}
 }

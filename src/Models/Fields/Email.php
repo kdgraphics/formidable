@@ -2,7 +2,8 @@
 
 namespace Inspire\Formidable\Models\Fields;
 
-use Inspire\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Interfaces\FieldInterface;
+use Inspire\Formidable\Models\FormPosted;
 
 class Email extends Text
 {
@@ -25,9 +26,9 @@ class Email extends Text
     /**
      * inheritDoc
      */
-    public function getFrontEndRules(FormSubmission $submission): array
+    public function getFrontEndRules(FormPosted $posted): array
     {
-        $rules = parent::getFrontEndRules($submission);
+        $rules = parent::getFrontEndRules($posted);
         $rules[] = [$this->handle, 'email'];
         return $rules;
     }
@@ -35,7 +36,7 @@ class Email extends Text
     /**
      * inheritDoc
      */
-    public static function getHtmlValue($value): string
+    public static function getHtmlValue(?FieldInterface $field, $value, bool $isOwn = true): string
     {
         return '<a href="mailto:'.$value.'">'.$value.'</a>';
     }

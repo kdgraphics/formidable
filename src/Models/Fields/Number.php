@@ -4,11 +4,12 @@ namespace Inspire\Formidable\Models\Fields;
 
 use Inspire\Formidable\Models\Field;
 use Inspire\Formidable\Models\FieldTypes\NumberField;
-use Inspire\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\FormPosted;
 
 class Number extends Text
 {
     protected $fieldTypeClass = NumberField::class;
+
     public $step;
     public $min;
     public $max;
@@ -30,9 +31,17 @@ class Number extends Text
     }
 
     /**
+     * @inheritDoc
+     **/
+    public function defineOptions(): array
+    {
+        return array_merge(parent::defineOptions(), ['step', 'min', 'max']);
+    }
+
+    /**
      * inheritDoc
      */
-    public function getFrontEndRules(FormSubmission $submission): array
+    public function getFrontEndRules(FormPosted $posted): array
     {
         $rules = [[$this->handle, 'number']];
         if ($this->min !== null and $this->min !== '') {
@@ -47,8 +56,10 @@ class Number extends Text
     /**
      * inheritDoc
      */
-    public function getExtraCpRules(): array
+    public function defineRules(): array
     {
-        return array_merge(parent::getExtraCpRules(), [[['step', 'min', 'max'], 'number']]);
+        return array_merge(parent::defineRules(), [
+            [['step', 'min', 'max'], 'number']
+        ]);
     }
 }

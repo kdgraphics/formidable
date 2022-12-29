@@ -6,7 +6,6 @@ use Inspire\Formidable\Assets\FormAsset;
 use Inspire\Formidable\Assets\FormsAsset;
 use Inspire\Formidable\Models\Condition;
 use Inspire\Formidable\Models\Form;
-use Inspire\Formidable\Models\FormSubmission;
 use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
 use yii\web\BadRequestHttpException;

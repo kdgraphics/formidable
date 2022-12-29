@@ -3,7 +3,7 @@
 namespace Inspire\Formidable\Models;
 
 use Inspire\Formidable\Formidable;
-use Inspire\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\FormPosted;
 use craft\base\Model;
 use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
@@ -79,11 +79,11 @@ class ConditionGroup extends Model
         ];
     }
 
-    public function appliesTo(FormSubmission $submission, bool $result)
+    public function appliesTo(FormPosted $posted, bool $result)
     {
         $thisResult = true;
         foreach ($this->conditions as $condition) {
-            $thisResult = $condition->appliesTo($submission, $thisResult);
+            $thisResult = $condition->appliesTo($posted, $thisResult);
         }
         if ($this->negate) {
             $thisResult = !$thisResult;
@@ -92,14 +92,5 @@ class ConditionGroup extends Model
             return ($thisResult and $result);
         }
         return ($thisResult or $result);
-    }
-
-    public function frontJs(): string
-    {
-        return "new formidable.conditionGroup({
-            conditions: [" . implode(',', array_map(function($condition) {return $condition->frontJs();}, $this->conditions)) . "],
-            operator: '{$this->operator}',
-            negate: '{$this->negate}',
-        })";
     }
 }

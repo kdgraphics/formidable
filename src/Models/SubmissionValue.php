@@ -5,6 +5,7 @@ namespace Inspire\Formidable\Models;
 use Inspire\Formidable\Formidable;
 use Inspire\Formidable\Interfaces\FieldInterface;
 use craft\base\Model;
+use craft\helpers\Json;
 
 class SubmissionValue extends Model
 {
@@ -46,36 +47,45 @@ class SubmissionValue extends Model
 	}
 
 	/**
-	 * Get a value for a specific style
+	 * Get a string representation of value
 	 * 
-	 * @param  string $style
-	 * @return mixed
+	 * @return string
 	 */
-	public function getValue(string $style = 'raw')
+	public function asString(): string
 	{
-		if ($style == 'raw') {
-			return $this->rawValue();
+		if ($field = $this->field) {
+			return $field::getStringValue($field, $this->asRaw());
 		}
-		if (!$field = $this->field) {
-			if (!$field = Formidable::$plugin->fields->getRegistered($this->type)) {
-				return $this->rawValue();
-			}
+		if ($field = Formidable::$plugin->fields->getRegistered($this->type)) {
+			return $field::getStringValue($field, $this->asRaw(), false);
 		}
-		$method = 'get' . ucfirst($style) . 'Value';
-		if (method_exists($field, $method)) {
-			return $field->$method($this->rawValue());
-		}
-		return $this->rawValue();
+		return $this->value ?: '';
 	}
 
 	/**
-	 * Get raw value as saved in database
+	 * Get a html representation of value
+	 * 
+	 * @return string
+	 */
+	public function asHtml(): string
+	{
+		if ($field = $this->field) {
+			return $field::getHtmlValue($field, $this->asRaw());
+		}
+		if ($field = Formidable::$plugin->fields->getRegistered($this->type)) {
+			return $field::getHtmlValue($field, $this->asRaw(), false);
+		}
+		return $this->value ?: '';
+	}
+
+	/**
+	 * Get raw value as saved in database (decoded)
 	 * 
 	 * @return mixed
 	 */
-	public function rawValue()
+	public function asRaw()
 	{
-		return json_decode($this->value, true);
+		return Json::decode($this->value);
 	}
 
 	/**
@@ -85,14 +95,18 @@ class SubmissionValue extends Model
 	{
 		$array = parent::toArray($fields, $expand, $recursive);
 		$array['field'] = $this->field;
-		$array['rawValue'] = $this->getValue();
-		$array['stringValue'] = $this->getValue('string');
-		$array['htmlValue'] = $this->getValue('html');
+		$array['rawValue'] = $this->asRaw();
+		$array['stringValue'] = $this->asString();
+		$array['htmlValue'] = $this->asHtml();
 		return $array;
 	}
 
+	/**
+	 * Get a string representation of the value
+	 * @return string
+	 */
 	public function __toString()
 	{
-		return $this->rawValue();
+		return $this->asString();
 	}
 }

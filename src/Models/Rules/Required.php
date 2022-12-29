@@ -59,30 +59,12 @@ class Required extends Rule
 	{
 		switch (get_class($field->fieldType())) {
 			case ArrayField::class:
-				return (is_array($value) and sizeof($value) > 0);
 			case FileField::class:
-				return true;
+				return !empty($value);
 			case TextField::class:
 			case NumberField::class:
 				return strlen(trim($value)) > 0;
 		}
 		throw RuleException::typeNotValid($this, get_class($field->fieldType()));
-	}
-
-	/**
-	 * inheritDoc
-	 */
-	public function checkJs(): string
-	{
-		return "function (field, value, against) {
-			switch (field.valueType) {
-				case 'text':
-				case 'number':
-				case 'file':
-				case 'array':
-					return (value !== null && value.length > 0);
-			}
-			throw 'Field type '+field.valueType+' can\'t be checked for a required rule';
-		}";
 	}
 }

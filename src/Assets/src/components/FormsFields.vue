@@ -73,8 +73,6 @@ import { isEqual, cloneDeep, reduce, mapValues, get, filter, merge } from 'lodas
 import { v4 as uuidv4 } from 'uuid';
 import Draggable from 'vuedraggable';
 import FormsFieldItem from './FormsFieldItem.vue';
-import CheckboxCategoryField from '../fields/CheckboxCategoryField';
-import CheckboxEntryField from '../fields/CheckboxEntryField';
 import CheckboxesField from '../fields/CheckboxesField';
 import CheckboxField from '../fields/CheckboxField';
 import DateField from '../fields/DateField';
@@ -83,17 +81,13 @@ import FileField from '../fields/FileField';
 import GroupField from '../fields/GroupField';
 import HiddenField from '../fields/HiddenField';
 import NumberField from '../fields/NumberField';
-import RadioCategoryField from '../fields/RadioCategoryField';
-import RadioEntryField from '../fields/RadioEntryField';
 import RadioField from '../fields/RadioField';
-import SelectCategoryField from '../fields/SelectCategoryField';
-import SelectEntryField from '../fields/SelectEntryField';
 import SelectField from '../fields/SelectField';
 import TextareaField from '../fields/TextareaField';
 import TextField from '../fields/TextField';
 
 export default {
-  components: {Draggable, FormsFieldItem, CheckboxCategoryField, CheckboxEntryField, CheckboxField, CheckboxesField, DateField, FileField, GroupField, HiddenField, NumberField, RadioCategoryField, RadioEntryField, RadioField, SelectCategoryField, SelectEntryField, SelectField, TextareaField, TextField, EmailField},
+  components: {Draggable, FormsFieldItem, CheckboxField, CheckboxesField, DateField, FileField, GroupField, HiddenField, NumberField, RadioField, SelectField, TextareaField, TextField, EmailField},
   props: {
     registeredFields: {
       type: Object,

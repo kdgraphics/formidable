@@ -35,6 +35,19 @@
     forms.textField({
         type: 'number',
         min: 1,
+        label: 'Frequency amount after which a check on the spammer database is considered as spam'|t('formidable'),
+        instructions: 'See website for more details about frequency : https://www.stopforumspam.com/usage'|t('formidable'),
+        name: 'spamFrequency',
+        value: settings.spamFrequency,
+        errors: settings.getErrors('spamFrequency'),
+        size: 30
+    })
+}}
+
+{{
+    forms.textField({
+        type: 'number',
+        min: 1,
         label: 'Automatically delete submissions older than'|t('formidable'),
         name: 'deleteSubmissionsThreshold',
         value: settings.deleteSubmissionsThreshold,
@@ -60,7 +73,18 @@
 {{
     forms.lightswitchField({
         label: 'Use the queue for emailing'|t('formidable'),
+        instructions: "This will ignored if the submissions/spams aren't saved on forms"|t('formidable'),
         name: 'useQueue',
         on: settings.useQueue
+    })
+}}
+
+{{
+    forms.textField({
+        type: 'text',
+        label: 'Css to hide the honeypot. Must be a valid json'|t('formidable'),
+        name: 'honeypotCss',
+        value: settings.honeypotCss,
+        errors: settings.getErrors('honeypotCss'),
     })
 }}

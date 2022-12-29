@@ -2,8 +2,6 @@
 
 namespace Inspire\Formidable\Models\Fields;
 
-use Inspire\Formidable\Models\FormSubmission;
-
 class Textarea extends Text
 {
     public $rows;
@@ -25,12 +23,20 @@ class Textarea extends Text
     }
 
     /**
+     * @inheritDoc
+     **/
+    public function defineOptions(): array
+    {
+        return array_merge(parent::defineOptions(), ['rows']);
+    }
+
+    /**
      * inheritDoc
      **/
-    public function getExtraCpRules(): array
+    public function defineRules(): array
     {
-        $rules = parent::getExtraCpRules();
-        $rules[] = ['rows', 'number'];
-        return $rules;
+        return array_merge(parent::defineRules(), [
+            ['rows', 'number']
+        ]);
     }
 }

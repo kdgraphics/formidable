@@ -7,7 +7,7 @@ use Inspire\Formidable\Interfaces\FieldInterface;
 use Inspire\Formidable\Models\Field;
 use Inspire\Formidable\Models\FieldTypes\NullField;
 use Inspire\Formidable\Models\Form;
-use Inspire\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\FormPosted;
 
 class Group extends Field
 {
@@ -19,6 +19,38 @@ class Group extends Field
     public $tooltipLabel;
 
     protected $_fields;
+
+    /**
+     * inheritDoc
+     **/
+    public function handle(): string
+    {
+        return 'group';
+    }
+
+    /**
+     * inheritDoc
+     **/
+    public function getValue()
+    {
+        return '';
+    }
+
+    /**
+     * inheritDoc
+     **/
+    public function friendlyName(): string
+    {
+        return 'Group';
+    }
+
+    /**
+     * @inheritDoc
+     **/
+    public function defineOptions(): array
+    {
+        return ['label', 'labelHtml', 'tooltip', 'tooltipLabel'];
+    }
 
     /**
      * @inheritDoc
@@ -68,51 +100,9 @@ class Group extends Field
     }
 
     /**
-     * Javascript to define this field
-     * 
-     * @return string
-     */
-    public function frontJs(Form $form): string
-    {
-        return "new formidable.field({
-            name: '".addslashes($this->name)."',
-            handle: '{$this->handle}',
-            valueType: '{$this->fieldType()->jsType()}',
-            type: '{$this->handle()}',
-            id: '{$this->generateId($form)}',
-            formId: '{$form->generateId()}',
-            fieldNames: ['" . implode('\',\'', $this->fieldHandles) . "'],
-        })";
-    }
-
-    /**
      * inheritDoc
      **/
-    public function handle(): string
-    {
-        return 'group';
-    }
-
-    /**
-     * inheritDoc
-     **/
-    public function getValue()
-    {
-        return '';
-    }
-
-    /**
-     * inheritDoc
-     **/
-    public function friendlyName(): string
-    {
-        return 'Group';
-    }
-
-    /**
-     * inheritDoc
-     **/
-    public function getFrontEndRules(FormSubmission $submission): array
+    public function getFrontEndRules(FormPosted $posted): array
     {
         return [];
     }
@@ -180,29 +170,13 @@ class Group extends Field
     /**
      * inheritDoc
      **/
-    public function getExtraCpRules(): array
+    public function defineRules(): array
     {
-        return [
+        return array_merge(parent::defineRules(), [
             [['label', 'tooltip', 'tooltipLabel'], 'string'],
             [['label', 'tooltip', 'tooltipLabel'], 'trim'],
             [['labelHtml'], 'boolean', 'trueValue' => true, 'falseValue' => false]
-        ];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getStringValue($value): string
-    {
-        return '';
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getHtmlValue($value): string
-    {
-        return self::getStringValue($value);
+        ]);
     }
 
     /**

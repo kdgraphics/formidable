@@ -171,9 +171,10 @@
       </div>
       <div class="input ltr">
         <input
-          v-model="selectedRule.messages[field.handle]"
           class="text fullwidth"
           :placeholder="selectedRule.message"
+          :value="selectedRule.messages[field.handle] ?? ''"
+          @keyup="changeMessage(field.handle, $event)"
         >
       </div>
     </div>
@@ -225,6 +226,12 @@ export default {
     ...mapState(['fields', 'selectedRule']),
   },
   methods: {
+    changeMessage(field, event) {
+      if (Array.isArray(this.selectedRule.messages)) {
+        this.selectedRule.messages = {};
+      }
+      this.selectedRule.messages[field] = event.target.value;
+    },
     addCondition() {
       this.selectedRule.conditions.push(this._newCondition());
     },

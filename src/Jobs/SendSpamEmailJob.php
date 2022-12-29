@@ -8,21 +8,17 @@ use craft\queue\BaseJob;
 class SendSpamEmailJob extends BaseJob
 {
     /**
-     * @var Spam
+     * @var int
      */
-    public $spam;
-
-    /**
-     * @var array
-     */
-    public $formSubmission;
+    public $spamId;
 
     /**
      * @inheritdoc
      */
     public function execute($queue): void
     {
-        Formidable::$plugin->spam->sendEmail($this->spam, $this->formSubmission);
+        $spam = Formidable::$plugin->spam->getById($this->spamId);
+        Formidable::$plugin->spam->sendEmail($spam);
     }
 
     /**

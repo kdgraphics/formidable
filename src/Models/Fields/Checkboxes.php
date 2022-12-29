@@ -1,14 +1,27 @@
-<?php
+<?php 
 
 namespace Inspire\Formidable\Models\Fields;
 
+use Inspire\Formidable\Models\Field;
 use Inspire\Formidable\Models\FieldTypes\ArrayField;
-use Inspire\Formidable\Models\FormSubmission;
+use Inspire\Formidable\traits\FieldOptions;
 
-class Checkboxes extends Radio
+class Checkboxes extends Field
 {
+    use FieldOptions {
+        FieldOptions::defineRules as defineOptionsRules;
+        FieldOptions::defineOptions as defineOptionsOptions;
+    }
+
     protected $fieldTypeClass = ArrayField::class;
-    
+
+    public $label;
+    public $labelHtml = false;
+    public $tooltip;
+    public $tooltipLabel;
+    public $optionContainerClass;
+    public $optionLabelClass;
+
     /**
      * inheritDoc
      **/
@@ -26,43 +39,27 @@ class Checkboxes extends Radio
     }
 
     /**
-     * inheritDoc
-     */
-    public function getFrontEndRules(FormSubmission $submission): array
-    {
-        return [
-            [$this->handle, function ($attribute, $params, $validator) use ($submission) {
-                if (!is_array($submission->$attribute)) {
-                    $this->addError($attribute, \Craft::t('formidable', 'Value is invalid'));
-                }
-            }],
-            [$this->handle, 'default', 'value' => []],
-            [$this->handle, 'each', 'rule' => ['in', 'range' => $this->allValues()]]
-        ];
-    }
-
-    /**
-     * inheritDoc
-     */
-    public function afterSubmissionValidated(FormSubmission $submission)
-    {
-        $rawValue = $submission->{$this->handle};
-        if (!$rawValue) {
-            return;
-        }
-        $choices = $this->buildChoices();
-        $selected = [];
-        foreach ($rawValue as $value) {
-            $selected[] = $choices[$value];
-        }
-        $submission->{$this->handle} = $selected;
-    }
-
-    /**
      * @inheritDoc
-     */
-    public static function getStringValue($value): string
+     **/
+    public function defineOptions(): array
     {
-        return is_array($value) ? implode(', ', $value) : (string)$value;
+        return array_merge($this->defineOptionsOptions(), ['label', 'labelHtml', 'tooltip', 'tooltipLabel', 'optionLabelClass', 'optionContainerClass']);
+    }
+
+    /**
+     * inheritDoc
+     **/
+    public function defineRules(): array
+    {
+        return array_merge(
+            parent::defineRules(),
+            $this->defineOptionsRules(),
+            [
+                [['label', 'tooltip', 'tooltipLabel', 'optionLabelClass', 'optionContainerClass'], 'string'],
+                [['label', 'tooltip', 'tooltipLabel', 'optionLabelClass', 'optionContainerClass'], 'trim'],
+                [['labelHtml'], 'boolean', 'trueValue' => true, 'falseValue' => false],
+                [['optionLabelClass', 'optionContainerClass'], 'validateHtmlClasses'],
+            ]
+        );
     }
 }

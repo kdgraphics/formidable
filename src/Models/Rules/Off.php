@@ -58,20 +58,6 @@ class Off extends Rule
 			case BooleanField::class:
 				return empty($value);
 		}
-		throw RuleException::typeNotValid($rule, get_class($field->fieldType()));
-	}
-
-	/**
-	 * inheritDoc
-	 */
-	public function checkJs(): string
-	{
-		return "function (field, value, against) {
-			switch (field.valueType) {
-				case 'boolean':
-					return value === false;
-			}
-			throw 'Field type '+field.valueType+' can\'t be checked for a off rule';
-		}";
+		throw RuleException::typeNotValid($this, get_class($field->fieldType()));
 	}
 }

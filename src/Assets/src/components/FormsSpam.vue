@@ -153,7 +153,10 @@
           »
         </div>
       </div>
-      <div class="totals">
+      <div
+        v-if="!isChartView"
+        class="totals"
+      >
         {{ pager.totalCount + ' ' + t('spam') }}
       </div>
     </div>
@@ -172,7 +175,9 @@
             <ul class="sidebar-content">
               <li>{{ t('Created') }}: {{ viewed ? viewed.dateCreated : '' }}</li>
               <li>{{ t('IP') }}: {{ viewed.ip }}</li>
+              <li>{{ t('User agent') }}: {{ viewed.userAgent }}</li>
               <li>{{ t('Form') }}: {{ viewed ? viewed.form.name : '' }}</li>
+              <li>{{ t('Notified') }}: {{ viewed ? (viewed.notified ? t('Yes') : t('No') ) : '' }}</li>
               <li>{{ t('Reason') }}: {{ viewed ? viewed.reason : '' }}</li>
             </ul>
           </div>
@@ -189,7 +194,7 @@
                 :key="field"
                 class="field"
               >
-                {{ field }}: <span v-html="value" />
+                {{ value.field ? value.field.name : '*Field deleted*' }}: <span v-html="value.htmlValue" />
               </li>
             </ul>
           </div>
@@ -232,13 +237,6 @@ export default {
   data: function () {
     return {
       chart: null,
-      chartData: false,
-      isFetching: false,
-      sort: {
-        field: 'dateCreated',
-        side: 'desc'
-      },
-      pager: {},
       viewed: {
         form: {},
         values: {}
@@ -247,9 +245,14 @@ export default {
     }
   },
   computed: {
-    ...mapState(['filters', 'isChartView', 'spams', 'selected'])
+    ...mapState(['filters', 'isChartView', 'spams', 'selected', 'chartData', 'sort', 'pager', 'isFetching'])
   },
   watch: {
+    chartData: function () {
+      this.chart.data.labels = this.chartData.labels;
+      this.chart.data.datasets = this.chartData.data;
+      this.chart.update();
+    },
     isChartView: function () {
       if (this.isChartView && !this.chartData) {
         this.fetchAll();
@@ -267,7 +270,6 @@ export default {
     },
     filters: {
       handler: function() {
-        this.chartData = false;
         if (this.isChartView) {
           this.fetchAll();
         } else {
@@ -313,73 +315,28 @@ export default {
       }
     },
     changePage(page) {
-      this.$set(this.pager, 'page', page);
+      this.pager.page = page;
       this.fetch();
     },
     pagerRange() {
       return range(this.pager.pageCount);
     },
-    updateChart: function(data) {
-      this.chart.data.labels = data.labels;
-      this.chart.data.datasets = data.data;
-      this.chart.update();
-    },
     toggleSelect: function (id) {
       if (this.selected.includes(id)) {
         let index = this.selected.indexOf(id);
-        this.$delete(this.selected, index);
+        delete this.selected[index];
       } else {
         this.selected.push(id);
       }
       this.setSelected(this.selected);
     },
     setOrdered: function (field) {
-      this.$set(this.sort, 'field', field);
-      this.$set(this.sort, 'side', this.sort.side == 'desc' ? 'asc' : 'desc');
+      this.sort.field = field;
+      this.sort.side = this.sort.side == 'desc' ? 'asc' : 'desc';
+      this.fetch();
     },
-    fetch: function() {
-      let data = {};
-      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
-      data.filters = this.filters;
-      data.sort = this.sort;
-      data.page = this.pager.page;
-      this.isFetching = true;
-      axios.post(Craft.getActionUrl('formidable/cp-spam/load'), data)
-        .then((response) => {
-          this.setSpams(response.data.spams);
-          this.pager = {
-            count: response.data.count,
-            totalCount: response.data.totalCount,
-            page: response.data.page,
-            pageCount: response.data.pageCount,
-          };
-        })
-        .catch((error) => {
-          console.log(error);
-        })
-        .finally(() => {
-          this.isFetching = false;
-        });
-    },
-    fetchAll: function() {
-      let data = {};
-      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
-      data.filters = this.filters;
-      this.isFetching = true;
-      axios.post(Craft.getActionUrl('formidable/cp-spam/load-all'), data)
-        .then((response) => {
-          this.chartData = true;
-          this.updateChart(response.data.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        })
-        .finally(() => {
-          this.isFetching = false;
-        });
-    },
-    ...mapMutations(['setSelected', 'setSort', 'setSpams']),
-    ...mapActions(['deleteMany'])
+    ...mapMutations(['setSelected']),
+    ...mapActions(['deleteMany', 'fetch', 'fetchAll'])
   }
 };
 

@@ -8,18 +8,19 @@ use Inspire\Formidable\Formidable;
 use Inspire\Formidable\Jobs\SendAdminEmailJob;
 use Inspire\Formidable\Jobs\SendUserEmailJob;
 use Inspire\Formidable\Models\Form;
-use Inspire\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\FormPosted;
 use Inspire\Formidable\Models\Notification;
-use Inspire\Formidable\Models\Records\Form as FormRecord;
-use Inspire\Formidable\Models\Records\Submission;
-use Inspire\Formidable\Models\Records\SubmissionValue;
-use Inspire\Formidable\Models\Submission as SubmissionModel;
-use Inspire\Formidable\Models\SubmissionValue as SubmissionValueModel;
+use Inspire\Formidable\records\FormRecord;
+use Inspire\Formidable\records\SubmissionRecord;
+use Inspire\Formidable\records\SubmissionValueRecord;
+use Inspire\Formidable\Models\Submission;
+use Inspire\Formidable\Models\SubmissionValue;
 use Inspire\Formidable\Providers\SubmissionProvider;
 use Inspire\Formidable\Services\NotificationsService;
 use craft\base\Component;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Json;
 use craft\helpers\Queue;
 use craft\mail\Message;
 use yii\base\Event;
@@ -31,31 +32,38 @@ class SubmissionsService extends Component
 	const EVENT_BEFORE_SEND_ADMIN_EMAIL = 'before-send-admin-email';
 
 	/**
-	 * Creates a submission from a form submission
+	 * Creates a submission from a posted form
 	 * 
-	 * @param  Form           $form
-	 * @param  FormSubmission $formSubmission
-	 * @return ?SubmissionModel
+	 * @param  FormPosted $posted
+	 * @return ?Submission
 	 */
-	public function create(Form $form, FormSubmission $formSubmission): ?SubmissionModel
+	public function create(FormPosted $posted): ?Submission
 	{
-		$submission = new SubmissionModel([
-			'form_id' => $form->id
+		$submission = new Submission([
+			'form' => $posted->form
 		]);
 		$values = [];
-		foreach ($form->fields as $field) {
-			$values[] = new SubmissionValueModel([
+		foreach ($posted->form->fields as $field) {
+			$values[] = new SubmissionValue([
 				'field_id' => $field->id,
-				'value' => json_encode($formSubmission->{$field->handle}),
+				'value' => Json::encode($posted->{$field->handle}),
 				'type' => $field->handle()
 			]);
 		}
 		$submission->values = $values;
-		if ($form->saveSubmissions) {
+		if ($posted->form->saveSubmissions) {
 			$this->saveSubmission($submission);
 		}
-		$this->_sendUserEmail($form, $submission);
-		$this->_sendAdminEmail($form, $submission);
+		try {
+			$this->_sendUserEmail($submission);
+		} catch (FormEmailException $e) {
+			\Craft::$app->errorHandler->logException($e);
+		}
+		try {
+			$this->_sendAdminEmail($submission);
+		} catch (FormEmailException $e) {
+			\Craft::$app->errorHandler->logException($e);
+		}
 		return $submission;
 	}
 
@@ -63,45 +71,41 @@ class SubmissionsService extends Component
      * Get submission model by id
      * 
      * @param  int $id
-     * @return ?SubmissionModel
+     * @return ?Submission
      */
-	public function getById(int $id): ?SubmissionModel
+	public function getById(int $id): ?Submission
 	{
-		$record = Submission::find()->where(['id' => $id])->one();
+		$record = SubmissionRecord::find()->where(['id' => $id])->one();
 		return $record ? $record->toModel() : null;
 	}
 
 	/**
 	 * Get all values for a submission
 	 * 
-	 * @param  SubmissionModel $submission
+	 * @param  Submission $submission
 	 * @return array
 	 */
-	public function getValuesForSubmission(SubmissionModel $submission): array
+	public function getValuesForSubmission(Submission $submission): array
 	{
 		return array_map(function ($sub) {
 			return $sub->toModel();
-		}, SubmissionValue::find()->where(['submission_id' => $submission->id])->all());
+		}, SubmissionValueRecord::find()->where(['submission_id' => $submission->id])->all());
 	}
 
 	/**
 	 * Saves a submission
 	 * 
-	 * @param  SubmissionModel $submission
+	 * @param  Submission $submission
 	 */
-	public function saveSubmission(SubmissionModel $submission)
+	public function saveSubmission(Submission $submission)
 	{
-		$record = $submission->id ? $this->getRecordById($submission->id) : new Submission;
-		foreach ($submission->attributes as $name => $value) {
-			$record->$name = $value;
-		}
+		$record = $submission->id ? $this->getRecordById($submission->id) : new SubmissionRecord;
+		$record->setAttributes($submission->getAttributes(['form_id', 'read', 'adminNotified', 'notified']), false);
 		$record->save(false);
 		$submission->setAttributes($record->attributes);
 		foreach ($submission->values as $value) {
-			$record = $value->id ? $this->getValueRecordById($value->id) : new SubmissionValue;
-			foreach ($value->attributes as $name => $value2) {
-				$record->$name = $value2;
-			}
+			$record = $value->id ? $this->getValueRecordById($value->id) : new SubmissionValueRecord;
+			$record->setAttributes($value->getAttributes(['type', 'field_id', 'value']), false);
 			$record->submission_id = $submission->id;
 			$record->save(false);
 			$value->setAttributes($record->attributes);
@@ -112,22 +116,22 @@ class SubmissionsService extends Component
      * Get submission record by id
      * 
      * @param  int $id
-     * @return Submission
+     * @return SubmissionRecord
      */
-	public function getRecordById(int $id): Submission
+	public function getRecordById(int $id): SubmissionRecord
 	{
-		return Submission::find()->where(['id' => $id])->one() ?? new Submission;
+		return SubmissionRecord::find()->where(['id' => $id])->one() ?? new SubmissionRecord;
 	}
 
 	/**
      * Get submission value record by id
      * 
      * @param  int $id
-     * @return SubmissionValue
+     * @return SubmissionValueRecord
      */
-	public function getValueRecordById(int $id): SubmissionValue
+	public function getValueRecordById(int $id): SubmissionValueRecord
 	{
-		return SubmissionValue::find()->where(['id' => $id])->one() ?? new SubmissionValue;
+		return SubmissionValueRecord::find()->where(['id' => $id])->one() ?? new SubmissionValueRecord;
 	}
 
 	/**
@@ -137,7 +141,7 @@ class SubmissionsService extends Component
 	 */
 	public function countUnread(): int
 	{
-		return Submission::find()
+		return SubmissionRecord::find()
     		->where(['read' => 0])
     		->count();
 	}
@@ -150,7 +154,7 @@ class SubmissionsService extends Component
 	 */
 	public function delete(int $id): bool
 	{
-		if ($submission = Submission::findOne(['id' => $id])) {
+		if ($submission = SubmissionRecord::findOne(['id' => $id])) {
 			if ($submission->dateDeleted) {
 				return $submission->delete();
 			}
@@ -164,16 +168,24 @@ class SubmissionsService extends Component
 	 */
 	public function runGc()
 	{
+		if (\Craft::$app->gc->deleteAllTrashed) {
+			$threshold = \Craft::$app->config->general->softDeleteDuration;
+			$date = (new \DateTime)->sub(new \DateInterval('PT' . $threshold . 'S'));
+			SubmissionRecord::deleteAll(['<', 'dateDeleted', $date->format('Y-m-d H:i:s')]);
+		}
 		$threshold = Formidable::$plugin->settings->deleteSubmissionsThreshold;
 		if (!$threshold) {
 			return;
 		}
 		$date = (new \DateTime)->sub(new \DateInterval('P' . $threshold . 'D'));
-		Submission::deleteAll(['<', 'dateCreated', $date->format('Y-m-d H:i:s')]);
+		$submissions = SubmissionRecord::find()->where(['<', 'dateCreated', $date->format('Y-m-d H:i:s')])->all();
+		foreach ($submissions as $submission) {
+			$submission->softDelete();
+		}
 	}
 
 	/**
-	 * Delete many submissions bt ids
+	 * Delete many submissions by ids
 	 * 
 	 * @param  array  $ids
 	 */
@@ -193,7 +205,7 @@ class SubmissionsService extends Component
 	 */
 	public function setManyAsRead(array $ids): bool
 	{	
-		$submissions = Submission::find()->where(['id' => $ids])->all();
+		$submissions = SubmissionRecord::find()->where(['id' => $ids])->all();
 		foreach ($submissions as $sub) {
 			$sub->read = 1;
 			$sub->save(false);
@@ -207,7 +219,7 @@ class SubmissionsService extends Component
 	 */
 	public function exportAll(): ?string
 	{
-		$query = Submission::find();
+		$query = SubmissionRecord::find();
 		return Formidable::$plugin->csvExporter->exportFromQuery($query);
 	}
 
@@ -218,7 +230,7 @@ class SubmissionsService extends Component
 	 */
 	public function exportAsCsv(array $ids): ?string
 	{
-		$query = Submission::find()->where(['in', 'id', $ids]);
+		$query = SubmissionRecord::find()->where(['in', 'id', $ids]);
 		return Formidable::$plugin->csvExporter->exportFromQuery($query);
 	}
 
@@ -296,57 +308,30 @@ class SubmissionsService extends Component
 	}
 
 	/**
-	 * Trigger email event to allow other plugin to modify the email
-	 * 
-	 * @param  Message         $email
-	 * @param  SubmissionModel $submission
-	 * @return EmailEvent
-	 */
-	public function sendBeforeUserEmailEvent(Message $email, SubmissionModel $submission): EmailEvent
-	{
-		$event = new EmailEvent([
-			'email' => $email,
-			'form' => $submission->form,
-			'submission' => $submission
-		]);
-		$this->trigger(self::EVENT_BEFORE_SEND_USER_EMAIL, $event);
-		return $event;
-	}
-
-	/**
-	 * Trigger email event to allow other plugin to modify the email
-	 * 
-	 * @param  Message         $email
-	 * @param  SubmissionModel $submission
-	 * @return EmailEvent
-	 */
-	public function sendBeforeAdminEmailEvent(Message $email, SubmissionModel $submission): EmailEvent
-	{
-		$event = new EmailEvent([
-			'email' => $email,
-			'form' => $submission->form,
-			'submission' => $submission
-		]);
-		$this->trigger(self::EVENT_BEFORE_SEND_ADMIN_EMAIL, $event);
-		return $event;
-	}
-
-	/**
 	 * Send user email now
 	 * 
-	 * @param  SubmissionModel $submission
+	 * @param  Submission $submission
 	 * @return bool
 	 */
-	public function sendUserEmail(SubmissionModel $submission, bool $throwException = true): bool
+	public function sendUserEmail(Submission $submission): bool
 	{
-		$recipient = $submission->getValue($submission->form->notifyField);
+		$recipient = $submission->getValue($submission->form->notifyField)->asString();
+		$form = $submission->form;
+		if (!filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
+			throw new FormEmailException(\Craft::t('formidable', "Can't notify user for form {form} : Value {value} for field {field} is not a valid email", ['form' => $form->name, 'value' => $recipient, 'field' => $form->notifyField]));
+		}
 		$email = \Craft::$app->getMailer()
             ->composeFromKey($submission->form->notify_key, [
                 'submission' => $submission,
-                'form' => $submission->form
+                'form' => $form
             ])->setTo($recipient);
         $this->attachSubmissionFiles($email, $submission, 'user');
-		$event = $this->sendBeforeUserEmailEvent($email, $submission);
+		$event = new EmailEvent([
+			'email' => $email,
+			'form' => $form,
+			'submission' => $submission
+		]);
+		$this->trigger(self::EVENT_BEFORE_SEND_USER_EMAIL, $event);
         if (!$event->isValid) {
             return false;
         }
@@ -358,16 +343,16 @@ class SubmissionsService extends Component
             }
             return true;
         }
-        throw new FormEmailException("Unable to send user email");
+        throw new FormEmailException("Unable to send the user email for submission " . $submission->id);
 	}
 
 	/**
 	 * Send admin email now
 	 * 
-	 * @param  SubmissionModel $submission
+	 * @param  Submission $submission
 	 * @return bool
 	 */
-	public function sendAdminEmail(SubmissionModel $submission): bool
+	public function sendAdminEmail(Submission $submission): bool
 	{
 		$emails = [];
         foreach (explode(',', trim($submission->form->notifyEmails)) as $address) {
@@ -383,7 +368,12 @@ class SubmissionsService extends Component
                 'form' => $submission->form
             ])->setTo($emails);
         $this->attachSubmissionFiles($email, $submission, 'admin');
-        $event = $this->sendBeforeAdminEmailEvent($email, $submission);
+        $event = new EmailEvent([
+			'email' => $email,
+			'form' => $submission->form,
+			'submission' => $submission
+		]);
+		$this->trigger(self::EVENT_BEFORE_SEND_ADMIN_EMAIL, $event);
         if (!$event->isValid) {
             return false;
         }
@@ -395,18 +385,59 @@ class SubmissionsService extends Component
             }
             return true;
         }
-        throw new FormEmailException("Unable to send admin email");
+        throw new FormEmailException("Unable to send the admin email for submission " . $submission->id);
+	}
+
+	/**
+	 * Sends the user notification email
+	 * 
+	 * @param  Submission $submission
+	 * @return bool
+	 */
+	protected function _sendUserEmail(Submission $submission): bool
+	{
+		$form = $submission->form;
+		if (!$submission->form->notify_key) {
+			return false;
+		}
+		if ($submission->id and Formidable::$plugin->settings->useQueue) {
+			Queue::push(new SendUserEmailJob([
+				'submissionId' => $submission->id
+			]));
+			return true;
+		}
+		return $this->sendUserEmail($submission);
+	}
+
+	/**
+	 * Sends the user notification email(s)
+	 * 
+	 * @param  Submission $submission
+	 * @return bool
+	 */
+	protected function _sendAdminEmail(Submission $submission): bool
+	{
+		if (!$submission->form->notifyAdmin_key) {
+			return false;
+		}
+		if ($submission->id and Formidable::$plugin->settings->useQueue) {
+			Queue::push(new SendAdminEmailJob([
+				'submissionId' => $submission->id
+			]));
+			return true;
+		}
+		return $this->sendAdminEmail($submission);
 	}
 
 	/**
 	 * Attach submission files to an email if they were marked as such on the form config
 	 * $type must be 'user' or 'admin'
 	 * 
-	 * @param Message         $email
-	 * @param SubmissionModel $submission
-	 * @param string          $type
+	 * @param Message   $email
+	 * @param Submission $submission
+	 * @param string     $type
 	 */
-	protected function attachSubmissionFiles(Message $email, SubmissionModel $submission, string $type)
+	protected function attachSubmissionFiles(Message $email, Submission $submission, string $type)
     {
         $fileFields = $submission->form->getFieldsByType('file');
         $assets = [];
@@ -456,62 +487,15 @@ class SubmissionsService extends Component
 				$query->orderBy([FormRecord::tableName() . '.' . $elems[1] => $sort['side'] == 'asc' ? SORT_ASC : SORT_DESC]);
 			}]);
 		} else {
-			$provider->query->orderBy([Submission::tableName() . '.' . $sort['field'] => $sort['side'] == 'asc' ? SORT_ASC : SORT_DESC]);
+			$provider->query->orderBy([SubmissionRecord::tableName() . '.' . $sort['field'] => $sort['side'] == 'asc' ? SORT_ASC : SORT_DESC]);
 		}
 		if ($filters['search']) {
 			$search = '%' . preg_replace('/\s+/', '%', $filters['search']) . '%';
-			$provider->query->leftJoin(SubmissionValue::tableName(), SubmissionValue::tableName() . '.submission_id = ' . Submission::tableName() . '.id')
-				->andWhere(['LIKE', SubmissionValue::tableName() . '.value', $search, false]);
+			$provider->query->leftJoin(SubmissionValueRecord::tableName(), SubmissionValueRecord::tableName() . '.submission_id = ' . SubmissionRecord::tableName() . '.id')
+				->andWhere(['LIKE', SubmissionValueRecord::tableName() . '.value', $search, false]);
 		}
 		// dd($provider->query->createCommand()->getRawSql());
         return $provider;
-	}
-
-	/**
-	 * Sends the user notification email
-	 * 
-	 * @param  Form             $form
-	 * @param  SubmissionModel $submission
-	 * @return bool
-	 */
-	protected function _sendUserEmail(Form $form, SubmissionModel $submission): bool
-	{
-		if (!$form->notify_key) {
-			return false;
-		}
-		if (!filter_var($submission->getValue($form->notifyField), FILTER_VALIDATE_EMAIL)) {
-			Formidable::log("Can't notify user for form {$form->handle} : Value {$submission->getValue($form->notifyField)} for field {$form->notifyField} is not a valid email");
- 			return false;
-		}
-
-		if (Formidable::$plugin->settings->useQueue) {
-			Queue::push(new SendUserEmailJob([
-				'submission' => $submission
-			]));
-			return true;
-		}
-		return $this->sendUserEmail($submission);
-	}
-
-	/**
-	 * Sends the user notification email(s)
-	 * 
-	 * @param  Form             $form
-	 * @param  ?SubmissionModel $submission
-	 * @return bool
-	 */
-	protected function _sendAdminEmail(Form $form, SubmissionModel $submission): bool
-	{
-		if (!$form->notifyAdmin_key) {
-			return false;
-		}
-		if (Formidable::$plugin->settings->useQueue) {
-			Queue::push(new SendAdminEmailJob([
-				'submission' => $submission
-			]));
-			return true;
-		}
-		return $this->sendAdminEmail($submission);
 	}
 
 	/**

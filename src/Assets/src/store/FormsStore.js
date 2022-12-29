@@ -260,6 +260,11 @@ export const store = createStore({
       commit('setFields', data.fields);
       commit('setRules', data.rules);
       commit('setLoadedTime', data.loaded);
+      if (data.resetOriginals ?? true) {
+        commit('setOriginalForm', state.form);
+        commit('setOriginalFields', state.fields);
+        commit('setOriginalRules', state.rules);
+      }
       if (state.selectedField) {
         let field;
         let found;
@@ -292,11 +297,6 @@ export const store = createStore({
         } else {
           commit('setSelectedRule', null);
         }
-      }
-      if (data.resetOriginals ?? true) {
-        commit('setOriginalForm', data.form);
-        commit('setOriginalFields', data.fields);
-        commit('setOriginalRules', data.rules);
       }
     },
     setHistory({}, parts) {

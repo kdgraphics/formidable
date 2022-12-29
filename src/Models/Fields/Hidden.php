@@ -2,9 +2,20 @@
 
 namespace Inspire\Formidable\Models\Fields;
 
-class Hidden extends Text
+use Inspire\Formidable\Models\Field;
+use Inspire\Formidable\Models\FormPosted;
+
+class Hidden extends Field
 {
     public $default;
+
+    /**
+     * @inheritDoc
+     **/
+    public function defineOptions(): array
+    {
+        return ['default'];
+    }
 
     /**
      * inheritDoc
@@ -20,5 +31,13 @@ class Hidden extends Text
     public function friendlyName(): string
     {
         return 'Hidden';
+    }
+
+    /**
+     * inheritDoc
+     */
+    public function getFrontEndRules(FormPosted $posted): array
+    {
+        return [];
     }
 }

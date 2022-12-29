@@ -6,19 +6,22 @@ use Inspire\Formidable\Assets\FormsAsset;
 use Inspire\Formidable\Exceptions\FormEmailException;
 use Inspire\Formidable\Formidable;
 use Inspire\Formidable\Models\Form;
-use Inspire\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\FormPosted;
+use Inspire\Formidable\Models\Submission;
 use Inspire\Formidable\Services\FormsService;
 use craft\helpers\ArrayHelper;
+use craft\web\UploadedFile;
 use yii\helpers\Url;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 
 class FormsController extends Controller
 {
-    protected array|int|bool$allowAnonymous = self::ALLOW_ANONYMOUS_LIVE;
+    protected array|int|bool $allowAnonymous = self::ALLOW_ANONYMOUS_LIVE;
 
-    public function actionSubmit(int $id)
+    public function actionSubmit()
     {
+        $id = $this->request->getRequiredParam('id');
         $form = $this->forms()->getById($id);
         if (!$form) {
             throw new HttpException(404);
@@ -26,57 +29,56 @@ class FormsController extends Controller
         if ($form->method == 'POST') {
             $this->requirePostRequest();
         }
+        
+        list($result, $posted, $submission) = $this->forms()->submit($form);
 
-        try {
-            $result = $this->forms()->submit($form);
-        } catch (FormEmailException $e) {
-            $this->response->setStatusCode(500);
-            return $this->asJson([
-                'errors' => [
-                    '_emailing' => [\Craft::t('formidable', "Your submission is saved but there's been a problem while sending out emails. We have been informed of the problem")]
-                ]
-            ]);
+        if ($result === FormsService::STATUS_INVALID or $result === FormsService::STATUS_SPAM) {
+            return $this->onUnvalidSubmission($posted);
         }
-
-        if ($result === FormsService::INVALID or $result === FormsService::SPAM) {
-            return $this->onUnvalidForm($form);
-        }
-        return $this->onValidSubmission($form);
+        return $this->onValidSubmission($submission);
     }
 
-    protected function onValidSubmission(Form $form)
+    public function actionUploadAssets()
     {
-        $this->forms()->getSessionOldInput($form->handle);
-        if ($this->request()->isAjax) {
-            return $this->asJson([
-                'success' => $this->forms()->getSessionSuccess($form->handle)
-            ]);
-        }
-        return $this->redirectAfterValidSubmission($form);
-    }
-
-    protected function onUnvalidForm(Form $form)
-    {
-        if ($this->request()->isAjax) {
-            $response = [
-                'errors' => $this->forms()->getSessionErrors($form->handle)
+        $this->requireAcceptsJson();
+        $volumeUid = $this->request->getRequiredParam('volumeUid');
+        $folder = $this->request->getParam('folder');
+        $files = UploadedFile::getInstancesByName('files');
+        $data = [];
+        foreach ($files as $file) {
+            $asset = Formidable::$plugin->assets->uploadToVolume($file, $volumeUid, $folder);
+            $data[] = [
+                'id' => $asset->id,
+                'url' => $asset->url,
+                'kind' => $asset->kind,
+                'title' => $asset->title
             ];
-            $this->response->setStatusCode(422, 'Validation errors');
-            return $this->asJson($response);
         }
-        return $this->redirect($this->request()->getReferrer());
+        return $this->asJson($data);
     }
 
-    protected function redirectAfterValidSubmission(Form $form)
+    protected function onValidSubmission(Submission $submission)
     {
-        if ($form->redirect) {
-            return $this->redirect($form->redirect);
+        if ($this->request()->acceptsJson) {
+            return $this->asJson([
+                'submission' => $submission->id,
+                'redirect' => $submission->form->redirect
+            ]);
         }
-        $referer = parse_url($this->request()->getReferrer());
-        $params = explode('&', $referer['query'] ?? '');
-        if (!in_array('success=1', $params)) {
-            $params[] = 'success=1';
+        if ($submission->form->redirect) {
+            return $this->redirect($submission->form->redirect);
         }
-        return $this->redirect(( $referer['scheme'] ?? 'http') . '://' . $referer['host'] . ($referer['path'] ?? '') . '?' . implode('&', $params));
+        return null;
+    }
+
+    protected function onUnvalidSubmission(FormPosted $posted)
+    {
+        $this->response->setStatusCode(400, 'Validation errors');
+        if ($this->request()->acceptsJson) {
+            return $this->asJson([
+                'errors' => $posted->errors
+            ]);
+        }
+        return null;
     }
 }

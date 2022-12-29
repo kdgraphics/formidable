@@ -3,7 +3,7 @@
 namespace Inspire\Formidable\migrations;
 
 use Craft;
-use Inspire\Formidable\Models\Records\Field;
+use Inspire\Formidable\records\FieldRecord;
 use craft\db\Migration;
 
 /**
@@ -16,7 +16,7 @@ class m220714_083352_ModifySelectCategoriesField extends Migration
      */
     public function safeUp()
     {
-        $fields = Field::find()->where(['type' => 'select_category'])->all();
+        $fields = FieldRecord::find()->where(['type' => 'select_category'])->all();
         foreach ($fields as $field) {
             $options = json_decode($field->options, true);
             if (isset($options['category'])) {

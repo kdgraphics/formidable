@@ -13,7 +13,7 @@ class GoogleV3CaptchaBundle extends AssetBundle
         $this->sourcePath = __DIR__ . '/src';
 
         $this->js = [
-            'captcha.js',
+            'captchaV3.js',
         ];
 
         parent::init();

@@ -17,9 +17,10 @@ use craft\mail\Message;
 class Form extends Model
 {
     const EVENT_RENDER = 'render';
+
     public $id;
-    public $name;
-    public $handle;
+    public $name = '';
+    public $handle = '';
     public $notify_key;
     public $notifyAdmin_key;
     public $notifySpam_key;
@@ -30,7 +31,6 @@ class Form extends Model
     public $htmlId;
     public $honeypotField = 'website';
     public $saveSubmissions = true;
-    public $frontEndValidation = true;
     public $saveSpam = true;
     public $obfuscateFieldNames = true;
     public $autocomplete = true;
@@ -67,7 +67,7 @@ class Form extends Model
             [['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'notifySpamEmails','redirect', 'class', 'method', 'submitLabel', 'color', 'submitClass', 'notifyAdmin_key', 'notify_key', 'notifySpam_key', 'htmlId', 'spamCheck', 'uid'], 'string'],
             [['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'redirect', 'class', 'submitLabel', 'color', 'submitClass', 'htmlId'], 'trim'],
             [['id'], 'integer'],
-            [['honeypot', 'saveSubmissions', 'saveSpam', 'frontEndValidation', 'obfuscateFieldNames', 'autocomplete'], 'boolean', 'trueValue' => true, 'falseValue' => false],
+            [['honeypot', 'saveSubmissions', 'saveSpam', 'obfuscateFieldNames', 'autocomplete'], 'boolean', 'trueValue' => true, 'falseValue' => false],
             [['notifyEmails', 'notifySpamEmails'], 'validateEmails'],
             ['handle', 'validateHandle', 'params' => ['name' => 'handle']],
             ['method', 'in', 'range' => ['GET', 'POST']],
@@ -207,26 +207,6 @@ class Form extends Model
             }
         }
         return false;
-    }
-
-    /**
-     * Get the session errors
-     * 
-     * @return array
-     */
-    public function getSessionErrors(): ?array
-    {
-        return Formidable::$plugin->forms->getSessionErrors($this->handle);
-    }
-
-    /**
-     * Get the previous input by user
-     * 
-     * @return array
-     */
-    public function getOldInput(): ?array
-    {
-        return Formidable::$plugin->forms->getSessionOldInput($this->handle);
     }
 
     /**
@@ -410,7 +390,6 @@ class Form extends Model
             'honeypotField' => $this->honeypotField,
             'saveSubmissions' => $this->saveSubmissions,
             'saveSpam' => $this->saveSpam,
-            'frontEndValidation' => $this->frontEndValidation,
             'redirect' => $this->redirect,
             'class' => $this->class,
             'spamCheck' => $this->spamCheck,
@@ -456,29 +435,15 @@ class Form extends Model
             $template = '_formidable/forms/form';
         }
         $event = new FormEvent([
-            'form' => $this,
-            'errors' => $this->getSessionErrors(),
-            'oldInput' => $this->getOldInput()
+            'form' => $this
         ]);
         $this->trigger(self::EVENT_RENDER, $event);
+        $posted = Formidable::$plugin->forms->getLatestPosted($this);
         $variables = array_merge($variables, [
             'form' => $this,
-            'fields' => $this->activeRootFields,
-            'errors' => $event->errors,
-            'oldInput' => $event->oldInput
+            'posted' => $posted
         ]);
         return \Craft::$app->getView()->renderTemplate($template, $variables);
-    }
-
-    /**
-     * Handle setter, can be used by twig when trying to display two times
-     * the same form on the same page, one of them will need to change handle
-     * 
-     * @param string $handle
-     */
-    public function setHandle(string $handle)
-    {
-        $this->handle = $handle;
     }
 
     /**
@@ -492,60 +457,5 @@ class Form extends Model
             return $this->htmlId;
         }
         return 'formidable_'.str_replace('-', '_', $this->handle);
-    }
-
-    /**
-     * Front javascript
-     * 
-     * @return string
-     */
-    public function getFrontJs(): string
-    {
-        Formidable::$plugin->forms->enableFrontJs();
-        $js = "
-document.addEventListener('DOMContentLoaded', (event) => {
-    formidable.forms['{$this->generateId()}'] = new formidable.form ({
-        id: '{$this->generateId()}',
-        rules: [";
-        foreach ($this->getRules() as $rule) {
-            $js .= $rule->frontJs().",
-            ";
-        }
-        $js .= "],
-        fields: {
-        ";
-        foreach ($this->getActiveFields() as $field) {
-            $js .= "'".$field->handle . '\': ' . $field->frontJs($this) . ',
-            ';
-        }
-        $js .= "
-        }
-    });
-});
-";
-        if ($this->frontEndValidation) {
-            $js .= <<<JS
-document.addEventListener('DOMContentLoaded', (event) => {
-    document.getElementById('{$this->generateId()}').addEventListener('submit', function(e){
-        if (!formidable.validateForm(this, e)) {
-            e.preventDefault();
-        }
-    });
-});
-JS;
-        }
-        if ($this->honeypot) {
-            $js .= <<<JS
-document.addEventListener('DOMContentLoaded', (event) => {
-    var css = {position: 'absolute', left: '-100000px', overflow: 'hidden'};
-    var elem = document.getElementById('{$this->generateId()}').querySelector('[id={$this->handle}-field-{$this->honeypotField}]');
-    for (var property in css) {
-        elem.style[property] = css[property];
-    }
-});
-JS;
-        }
-        
-        return $js;
     }
 }

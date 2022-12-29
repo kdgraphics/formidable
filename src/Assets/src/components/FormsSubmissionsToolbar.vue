@@ -232,7 +232,6 @@ export default {
     $('.formidable-submissions-toolbar .datepicker')
       .datepicker(Craft.datepickerOptions)
       .on('change', function(e) {
-        let input = this;
         $(this).parent().parent().find('.clear-btn').on('click', () => {
           this.name == 'dateFrom' ? _this.setDateFrom(null) : _this.setDateTo(null);
         });

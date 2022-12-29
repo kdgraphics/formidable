@@ -1,62 +1,62 @@
 <template>
-  <div class="field choices">
+  <div class="field custom-options">
     <div class="heading">
-      <label>{{ t('Choices') }}<a
-        class="add-choice"
+      <label>{{ t('Custom options') }}<a
+        class="add-option"
         href="#"
-        @click.prevent="addChoice('', '')"
+        @click.prevent="addOption('', '')"
       >{{ t('Add') }}</a></label>
     </div>
     <div class="list text">
       <ul>
         <li
-          v-for="(choice, index) in selectedField.choices"
+          v-for="(option, index) in selectedField.customOptions"
           :key="index"
-          class="choice"
+          class="option"
         >
-          <div class="move-choice">
+          <div class="move-option">
             <div
               v-if="index != 0"
               class="up"
-              @click="moveChoice(index,index-1)"
+              @click="moveOption(index,index-1)"
             />
             <div
-              v-if="index != (selectedField.choices.length-1)"
+              v-if="index != (selectedField.customOptions.length-1)"
               class="down"
-              @click="moveChoice(index,index+1)"
+              @click="moveOption(index,index+1)"
             />
           </div>
           <input
-            v-model="selectedField.choices[index].value"
-            class="value choice-elem"
+            v-model="selectedField.customOptions[index].value"
+            class="value option-elem"
             :placeholder="t('Value')"
-            :required="selectedField.choices.length == 1"
-            :class="(countValues(index) > 1 || selectedField.choices[index].value.trim() !== selectedField.choices[index].value) ? 'error' : ''"
+            :required="selectedField.customOptions.length == 1"
+            :class="(countOptions(index) > 1 || selectedField.customOptions[index].value.trim() !== selectedField.customOptions[index].value) ? 'error' : ''"
             @input="validate"
           >
           <input
-            v-model="selectedField.choices[index].label"
-            class="label choice-elem"
+            v-model="selectedField.customOptions[index].label"
+            class="label option-elem"
             :placeholder="t('Label')"
-            :required="selectedField.choices.length == 1"
-            :class="selectedField.choices.length == 1 && !selectedField.choices[index].label ? 'error' : ''"
+            :required="selectedField.customOptions.length == 1"
+            :class="selectedField.customOptions.length == 1 && !selectedField.customOptions[index].label ? 'error' : ''"
             @input="validate"
           >
           <div class="delete-container">
             <a
-              class="delete-choice"
-              @click.prevent="deleteChoice(index)"
+              class="delete-option"
+              @click.prevent="deleteOption(index)"
             >{{ t('Delete') }}</a>
           </div>
         </li>
       </ul>
     </div>
     <ul
-      v-if="selectedField.errors && selectedField.errors.choices"
+      v-if="selectedField.errors && selectedField.errors.customOptions"
       class="errors"
     >
       <li
-        v-for="error, index in selectedField.errors.choices"
+        v-for="error, index in selectedField.errors.customOptions"
         :key="index"
         class="error"
       >
@@ -80,18 +80,17 @@ export default {
     ...mapState(['selectedField']),
   },
   created() {
-    if (!this.selectedField.choices) {
-      this.selectedField.choices = [];
-      this.addChoice('', this.default);
+    if (!this.selectedField.customOptions.length) {
+      this.addOption('', this.default);
     }
     this.validate();
   },
   methods: {
-    countValues(index) {
+    countOptions(index) {
       let count = 0;
-      let source = this.selectedField.choices[index];
-      for (let choice of this.selectedField.choices) {
-        if (choice.value == source.value) {
+      let source = this.selectedField.customOptions[index];
+      for (let option of this.selectedField.customOptions) {
+        if (option.value == source.value) {
           count++;
         }
       }
@@ -100,32 +99,32 @@ export default {
     validate() {
       let error = false;
       let value;
-      for (let index in this.selectedField.choices) {
-        value = this.selectedField.choices[index].value;
+      for (let index in this.selectedField.customOptions) {
+        value = this.selectedField.customOptions[index].value;
         if (value.trim() !== value) {
           error = true;
           break;
         }
-        if (this.countValues(index) > 1) {
+        if (this.countOptions(index) > 1) {
           error = true;
           break;
         }
       }
     },
-    addChoice(value = '', label = '') {
-      this.selectedField.choices.push({value:value, label:label});
+    addOption(value = '', label = '') {
+      this.selectedField.customOptions.push({value:value, label:label});
       this.validate();
     },
-    deleteChoice(id) {
-      if (this.selectedField.choices.length == 1) {
+    deleteOption(id) {
+      if (this.selectedField.customOptions.length == 1) {
         return;
       }
-      this.selectedField.choices = this.selectedField.choices.filter((choice, id2) => {
+      this.selectedField.customOptions = this.selectedField.customOptions.filter((option, id2) => {
         return id != id2;
       });
     },
-    moveChoice(from, to) {
-      this.selectedField.choices.splice(to, 0, this.selectedField.choices.splice(from, 1)[0]);
+    moveOption(from, to) {
+      this.selectedField.customOptions.splice(to, 0, this.selectedField.customOptions.splice(from, 1)[0]);
     }
   }
 };
@@ -134,7 +133,7 @@ export default {
 @import "~craftcms-sass/mixins";
 
 .formidablefield-container {
-  .choices {
+  .custom-options {
     width: 100% !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
@@ -146,14 +145,14 @@ export default {
         border: 1px solid $red400;
       }
     }
-    .add-choice {
+    .add-option {
       display: inline-block;
       margin-left: 10px;
       font-weight: normal;
     }
     .list {
       li:nth-child(1) {
-        .delete-choice {
+        .delete-option {
           display:none;
         }
       }
@@ -163,10 +162,10 @@ export default {
       width: 60px;
       line-height: 30px;
     }
-    .choice {
+    .option {
       display: flex;
     }
-    .move-choice {
+    .move-option {
       padding-top: 10px;
       width: 25px;
       .up,.down {

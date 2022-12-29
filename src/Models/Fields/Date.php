@@ -2,8 +2,6 @@
 
 namespace Inspire\Formidable\Models\Fields;
 
-use Inspire\Formidable\Models\FormSubmission;
-
 class Date extends Text
 {
     public $format = 'd/m/Y';
@@ -32,18 +30,26 @@ class Date extends Text
     }
 
     /**
+     * @inheritDoc
+     **/
+    public function defineOptions(): array
+    {
+        return array_merge(parent::defineOptions(), ['format', 'disableMobile', 'enableTime', 'enableSeconds', 'maxDate', 'minDate', 'minuteIncrement', 'noCalendar']);
+    }
+
+    /**
      * inheritDoc
      **/
-    public function getExtraCpRules(): array
+    public function defineRules(): array
     {
-        return array_merge(parent::getExtraCpRules(), [
+        return array_merge(parent::defineRules(), [
             [['format', 'maxDate', 'minDate'], 'string'],
             [['format', 'maxDate', 'minDate'], 'trim'],
             ['minuteIncrement', 'integer'],
             [['disableMobile', 'enableTime', 'enableSeconds', 'noCalendar'], 'boolean', 'trueValue' => true, 'falseValue' => false],
         ]);
     }
-
+    
     public function getDatepickerOptions()
     {
         return [

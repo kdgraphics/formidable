@@ -3,9 +3,22 @@
 	{% set name = form.obfuscateFieldName(form.honeypotField) %}
 {% endif %}
 
-<div class="{{ honeypot_class }}" id="{{ form.handle }}-field-{{ form.honeypotField }}">
+{% set id = form.generateId ~ '-field-' ~ form.honeypotField %}
+{% set css = craft.formidable.settings.honeypotCss %}
+
+<div class="{{ honeypot_class }}" id="{{ id }}">
 	<label>{{ form.honeypotField }}</label>
 	<div class="instructions"></div>
 	<input name="{{ name }}" type="text" autocomplete="new-password">
 	<div class="errors"></div>
 </div>
+
+{% js %}
+	document.addEventListener('DOMContentLoaded', (event) => {
+	    var css = {{ css|raw }};
+	    var elem = document.getElementById('{{ id }}');
+	    for (var property in css) {
+	        elem.style[property] = css[property];
+	    }
+	});
+{% endjs %}

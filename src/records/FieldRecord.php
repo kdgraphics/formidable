@@ -1,13 +1,13 @@
 <?php 
 
-namespace Inspire\Formidable\Models\Records;
+namespace Inspire\Formidable\records;
 
 use Inspire\Formidable\Exceptions\FormException;
 use Inspire\Formidable\Formidable;
 use Inspire\Formidable\Interfaces\FieldInterface;
 use craft\db\ActiveRecord;
 
-class Field extends ActiveRecord
+class FieldRecord extends ActiveRecord
 {	
 	public static function tableName()
 	{

@@ -13,7 +13,7 @@ class CpUtilitiesController extends Controller
         
         $groups = [];
         foreach (\Craft::$app->categories->getAllGroups() as $group) {
-            $groups[$group->handle] = $group->name;
+            $groups[$group->uid] = $group->name;
         }
 
         return $this->asJson([

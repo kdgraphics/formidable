@@ -3,7 +3,6 @@
 namespace Inspire\Formidable\Controllers;
 
 use Inspire\Formidable\Assets\SubmissionsAsset;
-use Inspire\Formidable\Models\Records\Submission;
 use yii\web\BadRequestHttpException;
 use yii\widgets\LinkPager;
 

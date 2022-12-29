@@ -1,28 +1,15 @@
-{% set container_class = (container_class ?? '') ~ (field.containerClass ? (' ' ~ field.containerClass) : '') %}
+{% extends "_formidable/fields/_field" %}
 
-<div class="{{ container_class }} group-{{ field.handle }}" id="{{ field.generateId(form) }}">
-    {% block before_field %}
-    {% endblock %}
-    {% block label %}
-        {% include "_formidable/_includes/label" %}
-    {% endblock %}
-    {% block tooltip %}
-        {% include "_formidable/_includes/tooltip" %}
-    {% endblock %}
-    {% block inner %}
-        {% if field.fields|length %}
-            <div class="fields">
-                {% for subfield in field.fields %}
-                    {% set error = errors[subfield.handle] is defined ? errors[subfield.handle] : false %}
-                    {% set old_value = oldInput[subfield.handle] ?? subfield.value %}
-                    {% include "_formidable/fields/field" with {field: subfield} %}
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endblock %}
-    {% block errors %}
-        {% include "_formidable/_includes/errors" %}
-    {% endblock %}
-    {% block after_field %}
-    {% endblock %}
-</div>
+{% set group_fields_class = (group_fields_class ?? 'fields') ~ (field.fieldClass ? (' ' ~ field.fieldClass) : '') %}
+
+{% block inner %}
+    {% if field.fields|length %}
+        <div class="{{ group_fields_class }}">
+            {% for subfield in field.fields %}
+                {% include "_formidable/fields/field" with {
+                    field: subfield
+                } %}
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

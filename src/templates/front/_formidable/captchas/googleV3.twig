@@ -1,18 +1,15 @@
-<div class="captcha-field">
-	<input type="text" name="_recaptcha_response">
-</div>
+{% set id = form.generateId() %}
+
+<input type="hidden" name="_recaptcha_response" id="{{ id }}">
 
 {% if site_key is empty %}
-	{{ 'The site key was not set for the Forms plugin, Please visit the settings page to add this key'|t('formidable') }}
+	{{ 'The site key was not set for the Forms plugin, Please visit the settings page to add the key'|t('formidable') }}
 {% else %}
-  	{% set action = action|default('contact') %}
-	
 	{% js %}
 		document.addEventListener("DOMContentLoaded", function() {
 			googleV3Captcha.init('{{ site_key }}');
-			document.getElementById('{{ form.generateId() }}').querySelector('.captcha-field').style.display = "none";
 			grecaptcha.ready(function () {
-				googleV3Captcha.retrieveCaptcha('{{ form.generateId() }}', '{{ action }}');
+				googleV3Captcha.setFormCaptcha('{{ form.generateId() }}', 'submit');
 			});
 		});
 	{% endjs %}

@@ -9,7 +9,7 @@
         </div>
         <div class="input ltr">
           <div
-            class="lightswitch on"
+            class="lightswitch {{ selectedField.default ? 'on' : '' }}"
             tabindex="0"
             role="switch"
             :aria-checked="selectedField.default"

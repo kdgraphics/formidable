@@ -15,7 +15,6 @@ class Submission extends Model
 	public $dateCreated;
 	public $dateUpdated;
 	public $dateDeleted;
-	public $uid;
 
 	protected $_values;
 	protected $_form;
@@ -26,7 +25,7 @@ class Submission extends Model
 	public function defineRules(): array
 	{
 		return [
-			[['id', 'form_id', 'read', 'notified', 'adminNotified', 'dateUpdated', 'dateCreated', 'dateDeleted', 'uid', 'values'], 'safe']
+			[['id', 'form_id', 'read', 'notified', 'adminNotified', 'dateUpdated', 'dateCreated', 'dateDeleted', 'values'], 'safe']
 		];
 	}
 
@@ -67,22 +66,28 @@ class Submission extends Model
 	}
 
 	/**
+	 * Set form
+	 * 
+	 * @param Form $form
+	 */
+	public function setForm(Form $form)
+	{
+		$this->_form = $form;
+		$this->form_id = $form->id;
+	}
+
+	/**
 	 * Get a value styled for a field handle
 	 * 
 	 * @param  string $fieldHandle
-	 * @param  string|null $style the style for the value, null for the value's default
-	 * @return mixed
+	 * @return ?SubmissionValue
 	 */
-	public function getValue(string $fieldHandle, string $style = 'raw')
+	public function getValue(string $fieldHandle): ?SubmissionValue
 	{
-		$value = array_values(array_filter($this->values, function ($value) use ($fieldHandle) {
+		return array_values(array_filter($this->values, function ($value) use ($fieldHandle) {
 			$field = $value->field;
 			return ($field and $field->handle == $fieldHandle);
 		}))[0] ?? null;
-		if (!$value) {
-			return null;
-		}
-		return $value->getValue($style);
 	}
 
 	/**
