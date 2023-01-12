@@ -7,6 +7,11 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.1.5
+- Added export all button on submissions
+- All forms now enabled by default on submissions/spams sections filters
+- Added extra button to unselect all forms in the submissions/spams sections filter
+
 ### 6.1.4
 - Fixed error with group hasErrors() function
 

@@ -85,7 +85,7 @@ import Chart from 'chart.js/dist/Chart';
 
 export default {
   computed: {
-    ...mapState(['filters', 'isChartView', 'submissions', 'selected', 'isFetching'])
+    ...mapState(['filters', 'sort', 'isChartView', 'submissions', 'selected', 'isFetching'])
   },
   props: {
     loaderPath: String
@@ -96,10 +96,6 @@ export default {
       chart: null,
       chartData: false,
       pager: {},
-      sort: {
-        field: 'dateCreated',
-        side: 'desc'
-      },
       pager: {},
       viewed: {
         form: {},

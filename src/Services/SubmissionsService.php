@@ -202,24 +202,25 @@ class SubmissionsService extends Component
 	}
 
 	/**
-	 * Export all submissions as csv
+	 * Export submissions ids as csv
+	 * @param  array  $ids
 	 * @return ?string
 	 */
-	public function exportAll(): ?string
+	public function exportIdsAsCsv(array $ids): ?string
 	{
-		$query = Submission::find();
+		$query = Submission::find()->where(['in', 'id', $ids]);
 		return Formidable::$plugin->csvExporter->exportFromQuery($query);
 	}
 
 	/**
-	 * Export submissions as csv
-	 * @param  array  $ids
+	 * Export submissions as csv according to some filters
+	 * @param  array  $filters
 	 * @return ?string
 	 */
-	public function exportAsCsv(array $ids): ?string
+	public function exportAllAsCsv(array $filters, array $sort): ?string
 	{
-		$query = Submission::find()->where(['in', 'id', $ids]);
-		return Formidable::$plugin->csvExporter->exportFromQuery($query);
+		$provider = $this->filteredDataProvider($filters, $sort);
+		return Formidable::$plugin->csvExporter->exportFromQuery($provider->query);
 	}
 
 	/**
@@ -437,10 +438,10 @@ class SubmissionsService extends Component
 		$provider = new SubmissionProvider(['trashed' => $filters['trashed'] ?? false]);
 		
 		if (isset($filters['forms']) and is_array($filters['forms'])) {
-			$provider->query->andWhere(['form_id' => $filters['forms']]);
+			$provider->query->andWhere(['formidable_submissions.form_id' => $filters['forms']]);
 		}
 		if (isset($filters['read']) and $filters['read'] !== -1) {
-			$provider->query->andWhere(['read' => $filters['read']]);
+			$provider->query->andWhere(['formidable_submissions.read' => $filters['read']]);
 		}
 		if (isset($filters['dateFrom']['date']) and $filters['dateFrom']['date']) {
 			$date = $this->parseDateFilter($filters['dateFrom']);

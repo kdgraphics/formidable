@@ -34,7 +34,8 @@
       </button>
       <div class="menu">
         <ul class="padded">
-          <li><a href="#" v-on:click="selectAllForms">{{ t('All') }}</a></li>
+          <li><a href="#" v-on:click.prevent="selectAllForms"><i>{{ t('All') }}</i></a></li>
+          <li><a href="#" v-on:click.prevent="unselectAllForms"><i>{{ t('Unselect all') }}</i></a></li>
           <li v-for="title, id in allForms"><a href="#" :class="filters.forms.includes(id) ? 'sel' : ''" v-on:click="toggleForm(id)">{{ title }}</a></li>
         </ul>
       </div>
@@ -59,6 +60,7 @@
       <input class="text" name="search" placeholder="Search" size="10" autocomplete="off" :disabled="isFetching" v-on:keyup="search">
     </div>
     <button class="btn" @click="setIsChartView(!isChartView)">{{ isChartView ? t('Table view') : t('Chart view')}}</button>
+    <button class="btn" @click="exportAll()">{{ t('Export all')}}</button>
     <div v-show="selected.length">
       <button type="button" class="btn menubtn" data-icon="settings">
       </button>
@@ -87,7 +89,7 @@ export default {
     this.setForms(this.allForms);
     this.setTimezone(this.timezone);
     if (this.allForms) {
-      this.addForm(keys(this.allForms)[0]);
+      this.selectAllForms();
     }
   },
   computed: {
@@ -121,6 +123,9 @@ export default {
         }
       }
     },
+    unselectAllForms: function () {
+      this.filters.forms = [];
+    },
     search: function (e) {
       if (this.timer) {
         clearTimeout(this.timer);
@@ -145,6 +150,10 @@ export default {
     },
     exportToCSV: function () {
       window.open(Craft.getCpUrl('formidable/submissions/export?ids='+this.selected.join(',')));
+    },
+    exportAll: function () {
+      console.log(this.sort);
+      window.open(Craft.getCpUrl('formidable/submissions/export-all?filters='+JSON.stringify(this.filters)+'&sort='+JSON.stringify(this.sort)));
     },
     ...mapMutations(['setTimezone', 'setForms', 'setPager', 'setTrashed', 'setRead', 'setDateTo', 'setDateFrom', 'addForm', 'removeForm', 'setIsChartView', 'deleteSelected', 'setSearch']),
     ...mapActions(['markSelectedAsRead', 'deleteSelection'])

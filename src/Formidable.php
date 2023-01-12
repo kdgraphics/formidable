@@ -330,6 +330,7 @@ class Formidable extends Plugin
                 'formidable/submissions/set-as-read' => 'formidable/cp-submissions/set-as-read',
                 'formidable/submissions/delete-many' => 'formidable/cp-submissions/deletemany',
                 'formidable/submissions/export' => 'formidable/cp-submissions/export',
+                'formidable/submissions/export-all' => 'formidable/cp-submissions/export-all',
                 'formidable/submissions/spam' => 'formidable/cp-spam',
                 'formidable/submissions/spam/load' => 'formidable/cp-spam/load',
                 'formidable/submissions/spam/loadAll' => 'formidable/cp-spam/load-all',
