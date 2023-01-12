@@ -3,9 +3,11 @@
 namespace Ryssbowh\Formidable\Services;
 
 use Ryssbowh\Formidable\Formidable;
+use Ryssbowh\Formidable\Models\Records\Submission;
 use Ryssbowh\Formidable\Models\Records\SubmissionValue;
 use craft\base\Component;
 use craft\helpers\ArrayHelper;
+use craft\helpers\StringHelper;
 
 class CsvExporterService extends Component
 {
@@ -84,11 +86,10 @@ class CsvExporterService extends Component
 		$values = (new \yii\db\Query())
 		    ->select('field_id')
 		    ->where(['is not', 'field_id', null])
-		    ->from(SubmissionValue::tableName());
+		    ->from(SubmissionValue::tableName())
+		    ->leftJoin(Submission::tableName(), Submission::tableName() . '.id = ' . SubmissionValue::tableName().' .submission_id');
 		if ($query->where) {
-			$where = $query->where;
-			$where[1] = 'submission_id';
-			$values->andWhere($where);
+			$values->andWhere($query->where);
 		}
 		$values = $values->distinct()->all();
 		return array_map(function ($value) {

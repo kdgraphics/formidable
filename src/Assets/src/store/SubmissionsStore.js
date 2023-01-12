@@ -10,6 +10,10 @@ export default new Vuex.Store({
     isFetching: false,
     forms: {},
     submissions: [],
+    sort: {
+      field: 'dateCreated',
+      side: 'desc'
+    },
     filters: {
       forms: [],
       trashed: false,

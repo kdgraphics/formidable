@@ -5,6 +5,11 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.6.2
+- Added export all button on submissions
+- All forms now enabled by default on submissions/spams sections filters
+- Added extra button to unselect all forms in the submissions/spams sections filter
+
 ### 5.6.1
 - Fixed an error when filtering on submissions with both a date and a search
 

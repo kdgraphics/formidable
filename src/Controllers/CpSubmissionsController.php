@@ -4,6 +4,7 @@ namespace Ryssbowh\Formidable\Controllers;
 
 use Ryssbowh\Formidable\Assets\SubmissionsAsset;
 use Ryssbowh\Formidable\Models\Records\Submission;
+use craft\helpers\Json;
 use yii\web\BadRequestHttpException;
 use yii\widgets\LinkPager;
 
@@ -94,7 +95,18 @@ class CpSubmissionsController extends Controller
     {
         $this->requirePermission('manageFormidableSubmissions');
         $ids = explode(',', $this->request()->getRequiredParam('ids'));
-        $data = $this->submissions()->exportAsCsv($ids);
+        $data = $this->submissions()->exportIdsAsCsv($ids);
+        return \Craft::$app->getResponse()->sendContentAsFile($data, 'submissions.csv', [
+            'mimeType' => 'text/csv'
+        ]);
+    }
+
+    public function actionExportAll()
+    {
+        $this->requirePermission('manageFormidableSubmissions');
+        $filters = Json::decode($this->request()->getRequiredParam('filters'));
+        $sort = Json::decode($this->request()->getRequiredParam('sort'));
+        $data = $this->submissions()->exportAllAsCsv($filters, $sort);
         return \Craft::$app->getResponse()->sendContentAsFile($data, 'submissions.csv', [
             'mimeType' => 'text/csv'
         ]);

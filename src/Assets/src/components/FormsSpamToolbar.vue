@@ -20,7 +20,8 @@
       </button>
       <div class="menu">
         <ul class="padded">
-          <li><a href="#" v-on:click="selectAllForms">{{ t('All') }}</a></li>
+          <li><a href="#" v-on:click.prevent="selectAllForms"><i>{{ t('All') }}</i></a></li>
+          <li><a href="#" v-on:click.prevent="unselectAllForms"><i>{{ t('Unselect all') }}</i></a></li>
           <li v-for="title, id in allForms"><a href="#" :class="filters.forms.includes(id) ? 'sel' : ''" v-on:click="toggleForm(id)">{{ title }}</a></li>
         </ul>
       </div>
@@ -73,7 +74,7 @@ export default {
     this.setForms(this.allForms);
     this.setTimezone(this.timezone);
     if (this.allForms) {
-      this.addForm(keys(this.allForms)[0]);
+      this.selectAllForms();
     }
   },
   computed: {
@@ -100,8 +101,10 @@ export default {
         this.addForm(id);
       }
     },
-    selectAllForms: function (e) {
-      e.preventDefault();
+    unselectAllForms: function () {
+      this.filters.forms = [];
+    },
+    selectAllForms: function () {
       for (let i in this.allForms) {
         if (!this.filters.forms.includes(i)) {
           this.addForm(i);
