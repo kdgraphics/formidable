@@ -11,6 +11,7 @@
 	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
 	{% if field.min != '' %}min="{{ field.min }}"{% endif %}
 	{% if field.max != '' %}max="{{ field.max }}"{% endif %}
+	{% if field.step != '' %}step="{{ field.step }}"{% endif %}
 	{% if not field.autocomplete %}autocomplete="off"{% endif %}
 	>
 {% endblock %}

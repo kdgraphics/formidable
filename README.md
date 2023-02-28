@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.1.6
+- Fixed missing step attributes on number fields
+
 ### 6.1.5
 - Added export all button on submissions
 - All forms now enabled by default on submissions/spams sections filters
