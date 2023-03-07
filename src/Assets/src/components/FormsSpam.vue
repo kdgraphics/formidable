@@ -17,7 +17,11 @@
             <td data-title="Form" data-attr="form">{{ spam.form.name }}</td>
             <td data-title="IP" data-attr="ip">{{ spam.ip }}</td>
             <td data-title="Submitted" data-attr="submitted">{{ spam.dateCreated }}</td>
-            <td data-title="Open" data-attr="open"><span v-on:click="open(index)" class="icon icon-mask categories"><span data-icon="categories"></span></span></td>
+            <td data-title="Open" data-attr="open">
+              <a v-on:click.prevent="open(index)" class="icon icon-mask">
+                open
+              </a>
+            </td>
           </tr>
           <tr v-if="spams.length == 0">
             <td colspan="6">{{ t('No spam found') }}</td>

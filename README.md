@@ -7,6 +7,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.1.7
+- Fixed issue where spam email wouldn't be sent
+- Fixed date filter not working on spam
+
 ### 6.1.6
 - Fixed missing step attributes on number fields
 
