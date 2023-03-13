@@ -5,6 +5,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 5.6.3
+- Allow exporting a single submission
+
 ### 5.6.2
 - Added export all button on submissions
 - All forms now enabled by default on submissions/spams sections filters

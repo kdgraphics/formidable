@@ -68,7 +68,7 @@
         <ul class="padded">
           <li><a href="#" v-on:click="markSelectedAsRead">{{ t('Mark as read') }}</a></li>
           <li><a href="#" v-on:click="deleteSelection">{{ t('Delete') }}</a></li>
-          <li><a href="#" v-if="filters.forms.length == 1" v-on:click="exportToCSV">{{ t('Export') }}</a></li>
+          <li><a href="#" v-if="filters.forms.length == 1 || selected.length == 1" v-on:click="exportToCSV">{{ t('Export') }}</a></li>
         </ul>
       </div>
     </div>
@@ -152,7 +152,6 @@ export default {
       window.open(Craft.getCpUrl('formidable/submissions/export?ids='+this.selected.join(',')));
     },
     exportAll: function () {
-      console.log(this.sort);
       window.open(Craft.getCpUrl('formidable/submissions/export-all?filters='+JSON.stringify(this.filters)+'&sort='+JSON.stringify(this.sort)));
     },
     ...mapMutations(['setTimezone', 'setForms', 'setPager', 'setTrashed', 'setRead', 'setDateTo', 'setDateFrom', 'addForm', 'removeForm', 'setIsChartView', 'deleteSelected', 'setSearch']),
