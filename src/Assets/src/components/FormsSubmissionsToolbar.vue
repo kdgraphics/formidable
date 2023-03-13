@@ -68,7 +68,7 @@
         <ul class="padded">
           <li><a href="#" v-on:click="markSelectedAsRead">{{ t('Mark as read') }}</a></li>
           <li><a href="#" v-on:click="deleteSelection">{{ t('Delete') }}</a></li>
-          <li><a href="#" v-if="filters.forms.length == 1" v-on:click="exportToCSV">{{ t('Export') }}</a></li>
+          <li><a href="#" v-if="filters.forms.length == 1 || selected.length == 1" v-on:click="exportToCSV">{{ t('Export') }}</a></li>
         </ul>
       </div>
     </div>
