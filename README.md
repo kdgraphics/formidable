@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.1.9
+- Fixed issue with undefined variable $success in `CpFormsController`
+
 ### 6.1.8
 - Allow exporting a single submission
 

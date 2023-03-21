@@ -97,7 +97,7 @@ class CpFormsController extends Controller
 
         if ($form->dateUpdated && $form->dateUpdated->getTimestamp() > $loaded) {
             return $this->asJson([
-                'false' => $success,
+                'success' => false,
                 'message' => \Craft::t('formidable', 'This form has been updated since you last loaded it, please reload the page')
             ]);
         }
