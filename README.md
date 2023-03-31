@@ -7,6 +7,8 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### Version 7 is under development but not ready/published. See branch v6 for latest Craft 4 version.
+
 ### 7.0.0
 - Migrated to Vue 3
 - Error handling in cp is handled by PHP rather than Js
