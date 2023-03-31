@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.1.11
+- Fixed bug where assets couldn't be attached to emails
+
 ### 6.1.10
 - Fixed issue with template prefix in some fields
 

@@ -421,7 +421,7 @@ class SubmissionsService extends Component
             $assets = array_merge($assets, $field::getAssets($submission->getValue($field->handle)));
         }
         foreach ($assets as $asset) {
-            $path = \Craft::getAlias($asset->volume->path . '/' . $asset->getPath($asset->getFilename(true)));
+            $path = \Craft::getAlias($asset->fs->path . '/' . $asset->getPath($asset->getFilename(true)));
             $email->attach($path);
         }
     }
