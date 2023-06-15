@@ -309,6 +309,13 @@ export default {
   align-items: flex-start;
   justify-content: space-between;
   max-height: calc(100vh - 250px);
+  .actions a{
+    display: inline-block;
+    border: 1px solid var(--light-sel-color);
+    border-radius: var(--medium-border-radius);
+    padding: 0.35em 0.7em;
+    margin-left: 0.25em;
+  }
 }
 
 .formidablefield-container {

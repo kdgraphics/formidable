@@ -289,5 +289,15 @@ export default {
   .rule-message {
     margin-bottom: 10px !important;
   }
+  .form-rule{
+    margin-bottom: 10px;
+  }
+  .actions a{
+    display: inline-block;
+    border: 1px solid var(--light-sel-color);
+    border-radius: var(--medium-border-radius);
+    padding: 0.35em 0.7em;
+    margin-left: 0.25em;
+  }
 }
 </style>

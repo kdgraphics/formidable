@@ -7,6 +7,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.1.12
+- Fixed empty value issue for element selects
+- Fixed buttons style to make them more visible
+
 ### 6.1.11
 - Fixed bug where assets couldn't be attached to emails
 
