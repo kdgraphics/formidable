@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.1.13
+- Fixed wrong action called to retrieve captcha google v3
+
 ### 6.1.12
 - Fixed empty value issue for element selects
 - Fixed buttons style to make them more visible

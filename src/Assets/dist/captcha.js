@@ -14,7 +14,7 @@ window.googleV3Captcha = {
 	retrieveCaptcha: function (formId, action) {
 		var _this = this;
 		grecaptcha.ready(function() {
-		    _this.getCaptcha(formId).then(function (token) {
+		    _this.getCaptcha(action).then(function (token) {
 		        document.getElementById(formId).querySelector("[name=_recaptcha_response]").value = token;
 		    });
 		});
