@@ -155,10 +155,10 @@ class File extends Field
 	 */
 	public static function getHtmlValue($value): string
 	{
-		if (!$value) {
-			return '';
-		}
-		$assets = Asset::find()->id($value)->all();
+        if (!$ids = self::validatedIDs($value)) {
+            return '';
+        }
+		$assets = Asset::find()->id($ids)->all();
 		$html = [];
 		foreach ($assets as $asset) {
 			$html[] = '<a target="_blank" href="'.$asset->getCpEditUrl().'">'.$asset->filename.'</a>';
@@ -168,7 +168,10 @@ class File extends Field
 
 	public static function getAssets($value): array
 	{
-		return Asset::find()->id($value)->all();
+        if (!$ids = self::validatedIDs($value)) {
+            return '';
+        }
+		return Asset::find()->id($ids)->all();
 	}
 
 	/**

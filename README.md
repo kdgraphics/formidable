@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.1.14
+- We had values like `[""]` in the db that broke the element queries, added `validatedIDs()` helper
+
 ### 6.1.13
 - Fixed wrong action called to retrieve captcha google v3
 

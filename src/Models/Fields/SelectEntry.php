@@ -66,13 +66,10 @@ class SelectEntry extends Field
      */
     public static function getStringValue($value): string
     {
-        if (!$value) {
+        if (!$ids = self::validatedIDs($value)) {
             return '';
         }
-        if (!is_array($value)) {
-            $value = [$value];
-        }
-        $entries = Entry::find()->id($value)->all();
+        $entries = Entry::find()->id($ids)->all();
         $string = [];
         foreach ($entries as $entry) {
             $string[] = $entry->title;
@@ -85,13 +82,10 @@ class SelectEntry extends Field
      */
     public static function getHtmlValue($value): string
     {
-        if (!$value) {
+        if (!$ids = self::validatedIDs($value)) {
             return '';
         }
-        if (!is_array($value)) {
-            $value = [$value];
-        }
-        $entries = Entry::find()->id($value)->all();
+        $entries = Entry::find()->id($ids)->all();
         $html = [];
         foreach ($entries as $entry) {
             $html[] = '<a target="_blank" href="'.$entry->getCpEditUrl().'">'.$entry->title.'</a>';

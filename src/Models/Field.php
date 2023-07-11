@@ -275,4 +275,29 @@ abstract class Field extends Model implements FieldInterface
             formId: '{$form->generateId()}'
         })";
     }
+
+    /**
+     * We had values like [""] in the db that broke the element queries
+     *
+     * @param mixed $values
+     * @return array|null
+     */
+    public static function validatedIDs($values): ?array
+    {
+        if (!$values) {
+            return null;
+        }
+
+        if (!is_array($values)) {
+            $values = [$values];
+        }
+
+        foreach ($values as $key => $value) {
+            if (!is_numeric($value)) {
+                unset($values[$key]);
+            }
+        }
+
+        return $values;
+    }
 }

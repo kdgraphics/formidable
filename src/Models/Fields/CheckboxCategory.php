@@ -63,13 +63,10 @@ class CheckboxCategory extends Field
 	 */
 	public static function getHtmlValue($value): string
 	{
-		if (!$value) {
-			return '';
-		}
-		if (!is_array($value)) {
-			$value = [$value];
-		}
-		$categories = Category::find()->id($value)->all();
+        if (!$ids = self::validatedIDs($value)) {
+            return '';
+        }
+        $categories = Category::find()->id($ids)->all();
 		$html = [];
 		foreach ($categories as $category) {
 			$html[] = '<a target="_blank" href="'.$category->getCpEditUrl().'">'.$category->title.'</a>';
@@ -82,13 +79,10 @@ class CheckboxCategory extends Field
 	 */
 	public static function getStringValue($value): string
 	{
-		if (!$value) {
-			return '';
-		}
-		if (!is_array($value)) {
-			$value = [$value];
-		}
-		$categories = Category::find()->id($value)->all();
+        if (!$ids = self::validatedIDs($value)) {
+            return '';
+        }
+		$categories = Category::find()->id($ids)->all();
 		$string = [];
 		foreach ($categories as $category) {
 			$string[] = $category->title;

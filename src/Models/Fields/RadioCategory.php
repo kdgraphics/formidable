@@ -61,10 +61,10 @@ class RadioCategory extends Field
 	 */
 	public static function getHtmlValue($value): string
 	{
-		if (!$value) {
-			return '';
-		}
-		$category = Category::find()->id($value)->one();
+        if (!$ids = self::validatedIDs($value)) {
+            return '';
+        }
+        $category = Category::find()->id($ids)->one();
 		if ($category) {
 			return '<a target="_blank" href="'.$category->getCpEditUrl().'">'.$category->title.'</a>'; 
 		}
@@ -76,10 +76,10 @@ class RadioCategory extends Field
 	 */
 	public static function getStringValue($value): string
 	{
-		if (!$value) {
-			return '';
-		}
-		$category = Category::find()->id($value)->one();
+        if (!$ids = self::validatedIDs($value)) {
+            return '';
+        }
+		$category = Category::find()->id($ids)->one();
 		if ($category) {
 			return $category->title;
 		}

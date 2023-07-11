@@ -61,10 +61,10 @@ class RadioEntry extends Field
 	 */
 	public static function getHtmlValue($value): string
 	{
-		if (!$value) {
-			return '';
-		}
-		$entry = Entry::find()->id($value)->one();
+        if (!$ids = self::validatedIDs($value)) {
+            return '';
+        }
+        $entry = Entry::find()->id($ids)->one();
 		if ($entry) {
 			return '<a target="_blank" href="'.$entry->getCpEditUrl().'">'.$entry->title.'</a>'; 
 		}
@@ -76,10 +76,10 @@ class RadioEntry extends Field
 	 */
 	public static function getStringValue($value): string
 	{
-		if (!$value) {
-			return '';
-		}
-		$entry = Entry::find()->id($value)->one();
+        if (!$ids = self::validatedIDs($value)) {
+            return '';
+        }
+		$entry = Entry::find()->id($ids)->one();
 		if ($entry) {
 			return $entry->title;
 		}
