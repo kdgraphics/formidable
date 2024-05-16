@@ -35,7 +35,7 @@ class Formidable extends Plugin
 {
     public $controllerNamespace = "Ryssbowh\\Formidable\\Controllers";
 
-    public string $schemaVersion = '6.1.0';
+    public string $schemaVersion = '6.1.1';
 
     public bool $hasCpSettings = true;
 
@@ -164,8 +164,8 @@ class Formidable extends Plugin
     }
 
     /**
-     * Log a specific form message 
-     * 
+     * Log a specific form message
+     *
      * @param $message [description]
      * @param $level   [description]
      */

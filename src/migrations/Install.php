@@ -2,7 +2,7 @@
 
 namespace Ryssbowh\Formidable\migrations;
 
-use Craft; 
+use Craft;
 use craft\db\Migration;
 
 /**
@@ -81,6 +81,7 @@ class Install extends Migration
         $this->createTable('{{%formidable_submissions}}', [
             'id' => $this->primaryKey(),
             'form_id' => $this->integer(11)->notNull(),
+            'siteId' => $this->integer(11)->notNull(),
             'read' => $this->boolean()->defaultValue(false),
             'adminNotified' => $this->boolean()->defaultValue(false),
             'notified' => $this->boolean()->defaultValue(false),

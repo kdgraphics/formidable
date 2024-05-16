@@ -40,7 +40,8 @@ class SubmissionsService extends Component
     public function create(Form $form, FormSubmission $formSubmission): ?SubmissionModel
     {
         $submission = new SubmissionModel([
-            'form_id' => $form->id
+            'form_id' => $form->id,
+            'siteId' => \Craft::$app->getSites()->currentSite->id,
         ]);
         $values = [];
         foreach ($form->fields as $field) {

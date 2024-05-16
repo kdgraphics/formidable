@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Ryssbowh\Formidable\Models;
 
@@ -9,6 +9,7 @@ class Submission extends Model
 {
 	public $id;
 	public $form_id;
+	public $siteId;
 	public $read = false;
 	public $notified = false;
 	public $adminNotified = false;
@@ -26,13 +27,13 @@ class Submission extends Model
 	public function defineRules(): array
 	{
 		return [
-			[['id', 'form_id', 'read', 'notified', 'adminNotified', 'dateUpdated', 'dateCreated', 'dateDeleted', 'uid', 'values'], 'safe']
+			[['id', 'form_id', 'siteId', 'read', 'notified', 'adminNotified', 'dateUpdated', 'dateCreated', 'dateDeleted', 'uid', 'values'], 'safe']
 		];
 	}
 
 	/**
 	 * Values setter
-	 * 
+	 *
 	 * @param array $values
 	 */
 	public function setValues(array $values)
@@ -42,7 +43,7 @@ class Submission extends Model
 
 	/**
 	 * Get values
-	 * 
+	 *
 	 * @return array
 	 */
 	public function getValues(): array
@@ -55,7 +56,7 @@ class Submission extends Model
 
 	/**
 	 * Get Form
-	 * 
+	 *
 	 * @return ?Form
 	 */
 	public function getForm(): ?Form
@@ -68,7 +69,7 @@ class Submission extends Model
 
 	/**
 	 * Get a value styled for a field handle
-	 * 
+	 *
 	 * @param  string $fieldHandle
 	 * @param  string|null $style the style for the value, null for the value's default
 	 * @return mixed
@@ -87,7 +88,7 @@ class Submission extends Model
 
 	/**
 	 * Get a value model by id
-	 * 
+	 *
 	 * @param  int    $id
 	 * @return ?SubmissionValue
 	 */
