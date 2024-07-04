@@ -19,9 +19,9 @@
         }
     ],
     "require": {
-        "craftcms/cms": "^4.0",
-        "inspire/emails": "^3.0",
-        "inspire/spam-check": "^2.0"
+        "craftcms/cms": "^5.0",
+        "inspire/emails": "^4.0",
+        "inspire/spam-check": "^3.0"
     },
     "autoload": {
         "psr-4": {
