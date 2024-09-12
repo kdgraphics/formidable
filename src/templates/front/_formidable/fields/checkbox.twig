@@ -1,22 +1,27 @@
 {% set field_class = (field_class ?? '') ~ (field.fieldClass ? (' ' ~ field.fieldClass) : '') %}
 {% set container_class = (container_class ?? '') ~ (field.containerClass ? (' ' ~ field.containerClass) : '') %}
+{% set label_class = (label_class ?? '') ~ (field.labelClass ? (' ' ~ field.labelClass) : '') %}
 
 <div class="{{ container_class }} field" id="{{ field.generateId(form) }}">
 	{% block before_field %}
 	{% endblock %}
 	{% block inner %}
-		<input type="hidden" name="{{ field.frontName }}" value="0">
-		<input type="checkbox"
-		id="{{ field.generateId(form) }}-input"
-		name="{{ field.frontName }}"
-		class="{{ field_class }}{% if error %} is-invalid{% endif %}" 
-		value="1"
-		{% if old_value %}checked="checked"{% endif %}
-		{% if not field.autocomplete %}autocomplete="off"{% endif %}
-		>
-	{% endblock %}
-	{% block label %}
-		{% include "_formidable/_includes/label" %}
+		<div class="form-check">
+			<input type="hidden" name="{{ field.frontName }}" value="0">
+			<input type="checkbox"
+				   id="{{ field.generateId(form) }}-input"
+				   name="{{ field.frontName }}"
+				   class="form-check-input {{ field_class }}{% if error %} is-invalid{% endif %}"
+				   value="1"
+				   {% if old_value %}checked="checked"{% endif %}
+					{% if not field.autocomplete %}autocomplete="off"{% endif %}
+			>
+			{% if field.label %}
+				<label for="{{ field.generateId(form) }}-input" class="form-check-label {{ label_class }}">
+					{{ field.label|raw }}
+				</label>
+			{% endif %}
+		</div>
 	{% endblock %}
 	{% block tooltip %}
 		{% include "_formidable/_includes/tooltip" %}

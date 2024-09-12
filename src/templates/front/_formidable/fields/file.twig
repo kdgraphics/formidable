@@ -6,7 +6,7 @@
 	<input type="file"
 	id="{{ field.generateId(form) }}-input"
 	name="{{ field.frontName }}{% if field.maxFiles != 1 or field.maxFiles > 1 %}[]{% endif %}"
-	class="{{ field_class }}{% if error %} is-invalid{% endif %}" 
+	class="form-control {{ field_class }}{% if error %} is-invalid{% endif %}"
 	{% if field.extensions %}accept="{{ field.getHtmlExtensions() }}"{% endif %}
 	{% if not field.autocomplete %}autocomplete="off"{% endif %}
 	{% if field.maxFiles != 1 or field.maxFiles > 1 %}multiple{% endif %}

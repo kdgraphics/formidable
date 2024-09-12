@@ -6,17 +6,17 @@
 
 {% block inner %}
 	{% for id, title in field.categories %}
-		<div class="{{ field_choice_container_class }}">
+		<div class="form-check {{ field_choice_container_class }}">
 			<input
-				type="checkbox"
-				value="{{ id }}"
-				id="{{ field.generateId(form) }}-{{ id }}"
-				name="{{ field.frontName }}[]"
-				class="{{ field_class }}{% if error %} is-invalid{% endif %}"
-				{% if old_value and (id in old_value) %}checked="checked"{% endif %}
-				{% if not field.autocomplete %}autocomplete="off"{% endif %}
+					type="checkbox"
+					value="{{ id }}"
+					id="{{ field.generateId(form) }}-{{ id }}"
+					name="{{ field.frontName }}[]"
+					class="form-check-input {{ field_class }}{% if error %} is-invalid{% endif %}"
+					{% if old_value and (id in old_value) %}checked="checked"{% endif %}
+					{% if not field.autocomplete %}autocomplete="off"{% endif %}
 			>
-			<label class="{{ field_choice_label_class }}" for="{{ field.generateId(form) }}-{{ id }}">{{ title }}</label>
+			<label class="form-check-label {{ field_choice_label_class }}" for="{{ field.generateId(form) }}-{{ id }}">{{ title }}</label>
 		</div>
 	{% endfor %}
 {% endblock %}

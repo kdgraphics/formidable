@@ -6,17 +6,17 @@
 
 {% block inner %}
 	{% for entry in field.allEntries %}
-		<div class="{{ field_choice_container_class }}">
+		<div class="form-check {{ field_choice_container_class }}">
 			<input
 				type="radio"
 				value="{{ entry.id }}"
 				id="{{ field.generateId(form) }}-{{ entry.id }}"
 				name="{{ field.frontName }}"
-				class="{{ field_class }}{% if error %} is-invalid{% endif %}"
+				class="form-check-input {{ field_class }}{% if error %} is-invalid{% endif %}"
 				{% if old_value and (entry.id == old_value) %}checked="checked"{% endif %}
 				{% if not field.autocomplete %}autocomplete="off"{% endif %}
 			>
-			<label class="{{ field_choice_label_class }}" for="{{ field.generateId(form) }}-{{ entry.id }}">{{ entry.title }}</label>
+			<label class="form-check-label {{ field_choice_label_class }}" for="{{ field.generateId(form) }}-{{ entry.id }}">{{ entry.title }}</label>
 		</div>
 	{% endfor %}
 {% endblock %}
