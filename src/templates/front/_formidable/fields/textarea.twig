@@ -3,12 +3,9 @@
 {% set field_class = (field_class ?? '') ~ (field.fieldClass ? (' ' ~ field.fieldClass) : '') %}
 
 {% block inner %}
-	<textarea
-	id="{{ field.generateId(form) }}-input"
-	name="{{ field.frontName }}"
-	class="form-control {{ field_class }}{% if error %} is-invalid{% endif %}"
+	<textarea id="{{ field.generateId(form) }}-input" name="{{ field.frontName }}" class="form-control {{ field_class }}{% if error %} is-invalid{% endif %}"
 	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
 	{% if field.rows %}rows="{{ field.rows }}"{% endif %}
 	{% if not field.autocomplete %}autocomplete="off"{% endif %}
-	>{{ old_value }}</textarea>
+	style="height: {{ field.rows ? 39 + field.rows * 20 : '100px' }};">{{ old_value }}</textarea>
 {% endblock %}
