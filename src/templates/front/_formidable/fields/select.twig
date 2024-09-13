@@ -1,4 +1,4 @@
-{% extends "_formidable/fields/_floatingfield" %}
+{% extends 'gdpr' in field.handle|lower ? "_formidable/fields/_gdprfield" : "_formidable/fields/_floatingfield" %}
 
 {% set field_class = (field_class ?? '') ~ (field.fieldClass ? (' ' ~ field.fieldClass) : '') %}
 
