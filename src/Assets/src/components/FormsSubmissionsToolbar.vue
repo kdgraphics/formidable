@@ -99,8 +99,8 @@ export default {
       default: false,
     },
     allSites: {
-      type: Array,
-      default: []
+      type: Object,
+      default: {}
     },
   },
   created: function(){
