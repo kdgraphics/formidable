@@ -33,8 +33,24 @@
         {{ t("Select site") }}
       </button>
       <div class="menu">
-        <ul class="padded">
-          <li></li>
+        <ul id="siteFilter" class="padded">
+          <template v-if="isGrouped">
+            <li v-for="(group, groupIndex) in allSites" :key="groupIndex" class="group">
+              <div class="group-label">
+                <strong>{{ groupIndex }}</strong>
+              </div>
+              <ul>
+                <li v-for="(value, id) in group" :key="id" @click="handleClick(id)">
+                  <a href="#">{{ value }}</a>
+                </li>
+              </ul>
+            </li>
+          </template>
+          <template v-else>
+            <li v-for="(value, id) in allSites" :key="id" @click="handleClick(id)">
+              <a href="#">{{ value }}</a>
+            </li>
+          </template>
         </ul>
       </div>
     </div>
@@ -121,6 +137,9 @@ export default {
       set(value) {
         this.$emit('update:isMultiSite', value ? '1' : '0');
       }
+    },
+    isGrouped() {
+      return Object.values(this.allSites).some(value => typeof value === 'object')
     }
   },
   mounted () {
@@ -187,5 +206,10 @@ export default {
     ...mapActions(['markSelectedAsRead', 'deleteSelection'])
   }
 };
-
 </script>
+
+<style scoped>
+  #siteFilter li .group-label {
+    padding: 5px 0px;
+  }
+</style>
