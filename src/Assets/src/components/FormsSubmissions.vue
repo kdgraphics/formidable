@@ -6,6 +6,7 @@
           <tr>
             <th class="checkbox-cell selectallcontainer orderable" role="checkbox" tabindex="0" aria-checked="false"><div class="checkbox" @click="toggleSelectAll"></div></th>
             <th scope="col" data-attribute="form" :class="sort.field == 'form.name' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('form.name')">{{ t('Form') }}</th>
+            <th v-if="isMultiSite" scope="col" data-attribute="form" :class="sort.field == 'siteId' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('siteId')">{{ t('Site') }}</th>
             <th scope="col" data-attribute="submitted" :class="sort.field == 'dateCreated' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('dateCreated')">{{ t('Submitted') }}</th>
             <th scope="col" data-attribute="read" :class="sort.field == 'read' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('read')">{{ t('Read') }}</th>
             <th scope="col" data-attribute="notified" :class="sort.field == 'notified' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('notified')">{{ t('Notified') }}</th>
@@ -16,6 +17,7 @@
           <tr v-for="submission,index in submissions" :class="{'sel': selected.includes(submission.id), 'unread': !submission.read, trashed: submission.dateDeleted }">
             <td class="checkbox-cell"><div class="checkbox" title="Select" v-on:click="toggleSelect(submission.id)"></div></td>
             <td data-title="Form" data-attr="form">{{ submission.form.name }}</td>
+            <td data-title="Site" data-attr="site">{{ submission.siteId }}</td>
             <td data-title="Submitted" data-attr="submitted">{{ submission.dateCreated }}</td>
             <td data-title="Read" class="read" data-attr="read">{{ submission.read ? t('Yes') : t('No') }}</td>
             <td data-title="Notified" data-attr="notified">{{ submission.notified ? t('Yes') : t('No') }}</td>
@@ -88,7 +90,11 @@ export default {
     ...mapState(['filters', 'sort', 'isChartView', 'submissions', 'selected', 'isFetching'])
   },
   props: {
-    loaderPath: String
+    loaderPath: String,
+    isMultiSite: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: function () {
     return {

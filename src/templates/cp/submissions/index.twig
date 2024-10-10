@@ -11,11 +11,13 @@
     <forms-submissions-toolbar
     	:all-forms="{{ forms|json_encode }}"
     	:timezone="'{{ craft.app.getTimeZone() }}'"
+        :is-multi-site="'{{ craft.app.isMultiSite }}'"
     ></forms-submissions-toolbar>
 {% endblock %}
 
 {% block content %}
     <forms-submissions
         :loader-path="'{{ loaderPath }}'"
+        :is-multi-site="'{{ craft.app.isMultiSite }}'"
     ></forms-submissions>
 {% endblock %}

@@ -28,6 +28,16 @@
         </ul>
       </div>
     </div>
+    <div v-if="isMultiSite">
+      <button type="button" class="btn menubtn statusmenubtn">
+        {{ t("Select site") }}
+      </button>
+      <div class="menu">
+        <ul class="padded">
+          <li></li>
+        </ul>
+      </div>
+    </div>
     <div>
       <button type="button" class="btn menubtn statusmenubtn">
         {{ t("Select form(s)") }}
@@ -83,7 +93,15 @@ import { keys, remove } from 'lodash';
 export default {
   props: {
     allForms: Object,
-    timezone: String
+    timezone: String,
+    isMultiSite: {
+      type: Boolean,
+      default: false,
+    },
+    site: {
+      type: Array,
+      default: []
+    },
   },
   created: function(){
     this.setForms(this.allForms);
