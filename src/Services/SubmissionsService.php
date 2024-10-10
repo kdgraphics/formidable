@@ -484,6 +484,9 @@ class SubmissionsService extends Component
             $provider->query->leftJoin(SubmissionValue::tableName(), SubmissionValue::tableName() . '.submission_id = ' . Submission::tableName() . '.id')
                 ->andWhere(['LIKE', SubmissionValue::tableName() . '.value', $search, false]);
         }
+        if (isset($filters['siteId']) and $filters['siteId']) {
+            $provider->query->andWhere(['formidable_submissions.siteId' => $filters['siteId']]);
+        }
         // dd($provider->query->createCommand()->getRawSql());
         return $provider;
     }
