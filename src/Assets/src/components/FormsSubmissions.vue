@@ -6,7 +6,7 @@
           <tr>
             <th class="checkbox-cell selectallcontainer orderable" role="checkbox" tabindex="0" aria-checked="false"><div class="checkbox" @click="toggleSelectAll"></div></th>
             <th scope="col" data-attribute="form" :class="sort.field == 'form.name' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('form.name')">{{ t('Form') }}</th>
-            <th v-if="isMultiSite" scope="col" data-attribute="form" :class="sort.field == 'siteId' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('siteId')">{{ t('Site') }}</th>
+            <th v-if="isMultiSiteBoolean" scope="col" data-attribute="form" :class="sort.field == 'siteId' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('siteId')">{{ t('Site') }}</th>
             <th scope="col" data-attribute="submitted" :class="sort.field == 'dateCreated' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('dateCreated')">{{ t('Submitted') }}</th>
             <th scope="col" data-attribute="read" :class="sort.field == 'read' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('read')">{{ t('Read') }}</th>
             <th scope="col" data-attribute="notified" :class="sort.field == 'notified' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('notified')">{{ t('Notified') }}</th>
@@ -86,13 +86,10 @@ import { pull, range } from 'lodash';
 import Chart from 'chart.js/dist/Chart';
 
 export default {
-  computed: {
-    ...mapState(['filters', 'sort', 'isChartView', 'submissions', 'selected', 'isFetching'])
-  },
   props: {
     loaderPath: String,
     isMultiSite: {
-      type: Boolean,
+      type: [Boolean, String],
       default: false,
     },
   },
@@ -108,6 +105,17 @@ export default {
         values: {}
       },
       popup: null,
+    }
+  },
+  computed: {
+    ...mapState(['filters', 'sort', 'isChartView', 'submissions', 'selected', 'isFetching']),
+    isMultiSiteBoolean: {
+      get() {
+        return this.isMultiSite === '1' || this.isMultiSite === true;
+      },
+      set(value) {
+        this.$emit('update:isMultiSite', value ? '1' : '0');
+      }
     }
   },
   watch: {

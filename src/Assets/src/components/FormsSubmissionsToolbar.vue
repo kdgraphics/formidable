@@ -28,7 +28,7 @@
         </ul>
       </div>
     </div>
-    <div v-if="isMultiSite">
+    <div v-if="isMultiSiteBoolean">
       <button type="button" class="btn menubtn statusmenubtn">
         {{ t("Select site") }}
       </button>
@@ -95,10 +95,10 @@ export default {
     allForms: Object,
     timezone: String,
     isMultiSite: {
-      type: Boolean,
+      type: [Boolean, String],
       default: false,
     },
-    site: {
+    allSites: {
       type: Array,
       default: []
     },
@@ -111,7 +111,15 @@ export default {
     }
   },
   computed: {
-    ...mapState(['sort', 'filters', 'selected', 'isChartView', 'submissions', 'isFetching'])
+    ...mapState(['sort', 'filters', 'selected', 'isChartView', 'submissions', 'isFetching']),
+    isMultiSiteBoolean: {
+      get() {
+        return this.isMultiSite === '1' || this.isMultiSite === true;
+      },
+      set(value) {
+        this.$emit('update:isMultiSite', value ? '1' : '0');
+      }
+    }
   },
   mounted () {
     Craft.initUiElements(this.$refs.container);
