@@ -40,15 +40,15 @@
                 <strong>{{ groupIndex }}</strong>
               </div>
               <ul>
-                <li v-for="(value, id) in group" :key="id" @click="handleClick(id)">
-                  <a href="#">{{ value }}</a>
+                <li v-for="(value, id) in group" :key="id">
+                  <a href="#" @click="handleSiteClick(id)">{{ value }}</a>
                 </li>
               </ul>
             </li>
           </template>
           <template v-else>
-            <li v-for="(value, id) in allSites" :key="id" @click="handleClick(id)">
-              <a href="#">{{ value }}</a>
+            <li v-for="(value, id) in allSites" :key="id">
+              <a href="#" @click="handleSiteClick(id)">{{ value }}</a>
             </li>
           </template>
         </ul>
@@ -120,8 +120,6 @@ export default {
     },
   },
   created: function(){
-    console.log(this.allSites)
-
     this.setForms(this.allForms);
     this.setTimezone(this.timezone);
     if (this.allForms) {
@@ -202,7 +200,10 @@ export default {
       console.log(this.sort);
       window.open(Craft.getCpUrl('formidable/submissions/export-all?filters='+JSON.stringify(this.filters)+'&sort='+JSON.stringify(this.sort)));
     },
-    ...mapMutations(['setTimezone', 'setForms', 'setPager', 'setTrashed', 'setRead', 'setDateTo', 'setDateFrom', 'addForm', 'removeForm', 'setIsChartView', 'deleteSelected', 'setSearch']),
+    handleSiteClick(id) {
+      this.setSelectedSite(id)
+    },
+    ...mapMutations(['setTimezone', 'setForms', 'setPager', 'setTrashed', 'setRead', 'setDateTo', 'setDateFrom', 'addForm', 'removeForm', 'setIsChartView', 'deleteSelected', 'setSearch', 'setSelectedSite']),
     ...mapActions(['markSelectedAsRead', 'deleteSelection'])
   }
 };
