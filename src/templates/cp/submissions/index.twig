@@ -10,6 +10,7 @@
 {% block toolbar %}
     <forms-submissions-toolbar
     	:all-forms="{{ forms|json_encode }}"
+    	:all-sites="{{ sites|json_encode }}"
     	:timezone="'{{ craft.app.getTimeZone() }}'"
     ></forms-submissions-toolbar>
 {% endblock %}

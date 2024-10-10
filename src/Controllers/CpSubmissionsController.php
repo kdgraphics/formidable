@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Ryssbowh\Formidable\Controllers;
 
@@ -16,7 +16,8 @@ class CpSubmissionsController extends Controller
         $this->view->registerAssetBundle(SubmissionsAsset::class);
 
         return $this->renderTemplate('formidable/cp/submissions/index', [
-            'forms' => $this->forms()->getAllAsArray()
+            'forms' => $this->forms()->getAllAsArray(),
+            'sites' => $this->submissions()->getSites(),
         ]);
 	}
 
@@ -62,7 +63,7 @@ class CpSubmissionsController extends Controller
         $this->requirePermission('manageFormidableSubmissions');
         $this->requireAcceptsJson();
         $this->requirePostRequest();
-        
+
         $ids = $this->request()->getRequiredParam('ids');
         $this->submissions()->setManyAsRead($ids);
         $response = [

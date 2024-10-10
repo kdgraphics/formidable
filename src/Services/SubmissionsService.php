@@ -2,6 +2,7 @@
 
 namespace Ryssbowh\Formidable\Services;
 
+use Craft;
 use Ryssbowh\Formidable\Events\EmailEvent;
 use Ryssbowh\Formidable\Exceptions\FormEmailException;
 use Ryssbowh\Formidable\Formidable;
@@ -31,6 +32,24 @@ class SubmissionsService extends Component
     public const EVENT_BEFORE_SEND_ADMIN_EMAIL = 'before-send-admin-email';
 
     /**
+     * @return array
+     */
+    public function getSites(): array
+    {
+        $return = [];
+
+        $groups = Craft::$app->getSites()->getAllGroups();
+        foreach ($groups as $group) {
+            $sites = Craft::$app->getSites()->getEditableSitesByGroupId($group->id);
+            foreach ($sites as $site) {
+                $return[$group->getName()][$site->id] = $site->name;
+            }
+        }
+
+        return $return;
+    }
+
+    /**
      * Creates a submission from a form submission
      *
      * @param  Form           $form
@@ -41,7 +60,7 @@ class SubmissionsService extends Component
     {
         $submission = new SubmissionModel([
             'form_id' => $form->id,
-            'siteId' => \Craft::$app->getSites()->currentSite->id,
+            'siteId' => Craft::$app->getSites()->getCurrentSite()->id,
         ]);
         $values = [];
         foreach ($form->fields as $field) {

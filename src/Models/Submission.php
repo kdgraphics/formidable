@@ -10,6 +10,7 @@ class Submission extends Model
 	public $id;
 	public $form_id;
 	public $siteId;
+	public $siteName = null;
 	public $read = false;
 	public $notified = false;
 	public $adminNotified = false;
@@ -51,6 +52,7 @@ class Submission extends Model
 		if ($this->_values === null) {
 			$this->_values = Formidable::$plugin->submissions->getValuesForSubmission($this);
 		}
+
 		return $this->_values;
 	}
 
@@ -80,9 +82,11 @@ class Submission extends Model
 			$field = $value->field;
 			return ($field and $field->handle == $fieldHandle);
 		}))[0] ?? null;
+
 		if (!$value) {
 			return null;
 		}
+
 		return $value->getValue($style);
 	}
 
@@ -113,9 +117,11 @@ class Submission extends Model
 	public function toArray(array $fields = [], array $expand = [], $recursive = true)
 	{
 		$array = parent::toArray($fields, $expand, $recursive);
+
 		if ($this->dateCreated instanceof \DateTime) {
 			$array['dateCreated'] = $this->dateCreated->format('d/m/Y H:i');
 		}
+
 		return $array;
 	}
 }
