@@ -104,6 +104,8 @@ export default {
     },
   },
   created: function(){
+    console.log(this.allSites)
+
     this.setForms(this.allForms);
     this.setTimezone(this.timezone);
     if (this.allForms) {
