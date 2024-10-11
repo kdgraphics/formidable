@@ -40,14 +40,14 @@
                 <strong>{{ groupIndex }}</strong>
               </div>
               <ul>
-                <li v-for="(value, id) in group" :key="id">
+                <li v-for="(value, id) in group" :key="id" :class="filters.siteId == id ? 'selected' : ''">
                   <a href="#" @click="handleSiteClick(id)">{{ value }}</a>
                 </li>
               </ul>
             </li>
           </template>
           <template v-else>
-            <li v-for="(value, id) in allSites" :key="id">
+            <li v-for="(value, id) in allSites" :key="id" :class="filters.siteId == id ? 'selected' : ''">
               <a href="#" @click="handleSiteClick(id)">{{ value }}</a>
             </li>
           </template>
@@ -212,5 +212,11 @@ export default {
 <style scoped>
   #siteFilter li .group-label {
     padding: 5px 0px;
+  }
+
+  #siteFilter li.selected a {
+    cursor: not-allowed;
+    background-color: #606d7b;
+    color: #fff;
   }
 </style>
