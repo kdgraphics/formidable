@@ -140,9 +140,7 @@ export default {
       return Object.values(this.allSites).some(value => typeof value === 'object')
     }
   },
-  mounted () {
-    console.log('isMultiSite', this.isMultiSite)
-    
+  mounted () {    
     Craft.initUiElements(this.$refs.container);
     let _this = this;
     $('.formidable-submissions-toolbar .datepicker')

@@ -17,7 +17,7 @@
           <tr v-for="submission,index in submissions" :class="{'sel': selected.includes(submission.id), 'unread': !submission.read, trashed: submission.dateDeleted }">
             <td class="checkbox-cell"><div class="checkbox" title="Select" v-on:click="toggleSelect(submission.id)"></div></td>
             <td data-title="Form" data-attr="form">{{ submission.form.name }}</td>
-            <td data-title="Site" data-attr="site">{{ submission.siteName }}</td>
+            <td v-if="isMultiSiteBoolean" data-title="Site" data-attr="site">{{ submission.siteName }}</td>
             <td data-title="Submitted" data-attr="submitted">{{ submission.dateCreated }}</td>
             <td data-title="Read" class="read" data-attr="read">{{ submission.read ? t('Yes') : t('No') }}</td>
             <td data-title="Notified" data-attr="notified">{{ submission.notified ? t('Yes') : t('No') }}</td>
