@@ -30,7 +30,7 @@
     </div>
     <div v-if="isMultiSiteBoolean">
       <button type="button" class="btn menubtn statusmenubtn">
-        {{ t("Select site") }}
+        {{ selectedSite ? selectedSite : t("Select site") }}
       </button>
       <div class="menu">
         <ul id="siteFilter" class="padded">
@@ -41,14 +41,14 @@
               </div>
               <ul>
                 <li v-for="(value, id) in group" :key="id" :class="filters.siteId == id ? 'selected' : ''">
-                  <a href="#" @click="handleSiteClick(id)">{{ value }}</a>
+                  <a href="#" @click="handleSiteClick(id, value)">{{ value }}</a>
                 </li>
               </ul>
             </li>
           </template>
           <template v-else>
             <li v-for="(value, id) in allSites" :key="id" :class="filters.siteId == id ? 'selected' : ''">
-              <a href="#" @click="handleSiteClick(id)">{{ value }}</a>
+              <a href="#" @click="handleSiteClick(id, value)">{{ value }}</a>
             </li>
           </template>
         </ul>
@@ -118,6 +118,11 @@ export default {
       type: Object,
       default: {}
     },
+  },
+  data: function () {
+    return {
+      selectedSite: ''
+    }
   },
   created: function(){
     this.setForms(this.allForms);
@@ -200,8 +205,9 @@ export default {
       console.log(this.sort);
       window.open(Craft.getCpUrl('formidable/submissions/export-all?filters='+JSON.stringify(this.filters)+'&sort='+JSON.stringify(this.sort)));
     },
-    handleSiteClick(id) {
+    handleSiteClick(id, name) {
       this.setSelectedSite(id)
+      this.selectedSite = name
     },
     ...mapMutations(['setTimezone', 'setForms', 'setPager', 'setTrashed', 'setRead', 'setDateTo', 'setDateFrom', 'addForm', 'removeForm', 'setIsChartView', 'deleteSelected', 'setSearch', 'setSelectedSite']),
     ...mapActions(['markSelectedAsRead', 'deleteSelection'])
