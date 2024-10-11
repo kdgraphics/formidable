@@ -35,6 +35,9 @@
       <div class="menu">
         <ul id="siteFilter" class="padded">
           <template v-if="isGrouped">
+            <li :class="selectedSite === '' ? 'selected' : ''">
+              <a href="#" @click="handleSiteClick(undefined, '')">All</a>
+            </li>
             <li v-for="(group, groupIndex) in allSites" :key="groupIndex" class="group">
               <div class="group-label">
                 <strong>{{ groupIndex }}</strong>
@@ -44,17 +47,14 @@
                   <a href="#" @click="handleSiteClick(id, value)">{{ value }}</a>
                 </li>
               </ul>
-              <li :class="selectedSite === '' ? 'selected' : ''">
-                <a href="#" @click="handleSiteClick(undefined, '')">All</a>
-              </li>
             </li>
           </template>
           <template v-else>
-            <li v-for="(value, id) in allSites" :key="id" :class="filters.siteId == id ? 'selected' : ''">
-              <a href="#" @click="handleSiteClick(id, value)">{{ value }}</a>
-            </li>
             <li :class="selectedSite === '' ? 'selected' : ''">
               <a href="#" @click="handleSiteClick(undefined, '')">All</a>
+            </li>
+            <li v-for="(value, id) in allSites" :key="id" :class="filters.siteId == id ? 'selected' : ''">
+              <a href="#" @click="handleSiteClick(id, value)">{{ value }}</a>
             </li>
           </template>
         </ul>
