@@ -141,6 +141,8 @@ export default {
     }
   },
   mounted () {
+    console.log('isMultiSite', this.isMultiSite)
+    
     Craft.initUiElements(this.$refs.container);
     let _this = this;
     $('.formidable-submissions-toolbar .datepicker')
