@@ -6,7 +6,7 @@
           <tr>
             <th class="checkbox-cell selectallcontainer orderable" role="checkbox" tabindex="0" aria-checked="false"><div class="checkbox" @click="toggleSelectAll"></div></th>
             <th scope="col" data-attribute="form" :class="sort.field == 'form.name' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('form.name')">{{ t('Form') }}</th>
-            <th v-if="isMultiSiteBoolean" scope="col" data-attribute="site" class="ordered" v-on:click="setOrdered('siteName')">{{ t('Site') }}</th>
+            <th v-if="isMultiSiteBoolean" scope="col" data-attribute="site" class="ordered">{{ t('Site') }}</th>
             <th scope="col" data-attribute="submitted" :class="sort.field == 'dateCreated' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('dateCreated')">{{ t('Submitted') }}</th>
             <th scope="col" data-attribute="read" :class="sort.field == 'read' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('read')">{{ t('Read') }}</th>
             <th scope="col" data-attribute="notified" :class="sort.field == 'notified' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('notified')">{{ t('Notified') }}</th>
