@@ -44,11 +44,17 @@
                   <a href="#" @click="handleSiteClick(id, value)">{{ value }}</a>
                 </li>
               </ul>
+              <li :class="selectedSite === '' ? 'selected' : ''">
+                <a href="#" @click="handleSiteClick(undefined, '')">All</a>
+              </li>
             </li>
           </template>
           <template v-else>
             <li v-for="(value, id) in allSites" :key="id" :class="filters.siteId == id ? 'selected' : ''">
               <a href="#" @click="handleSiteClick(id, value)">{{ value }}</a>
+            </li>
+            <li :class="selectedSite === '' ? 'selected' : ''">
+              <a href="#" @click="handleSiteClick(undefined, '')">All</a>
             </li>
           </template>
         </ul>
