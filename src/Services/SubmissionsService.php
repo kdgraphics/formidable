@@ -113,6 +113,11 @@ class SubmissionsService extends Component
     {
         $record = $submission->id ? $this->getRecordById($submission->id) : new Submission();
         foreach ($submission->attributes as $name => $value) {
+            // there is no db field for siteName
+            if ($name === 'siteName') {
+                continue;
+            }
+
             $record->$name = $value;
         }
         $record->save(false);

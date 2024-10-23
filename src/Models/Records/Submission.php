@@ -20,8 +20,10 @@ class Submission extends ActiveRecord
 	{
         $return = new SubmissionModel($this->getAttributes());
 
-        if ($return->siteId and empty($return->siteName)) {
-            $site = Craft::$app->getSites()->getSiteById($return->siteId);
+        if ($return->siteId
+            and empty($return->siteName)
+            and $site = Craft::$app->getSites()->getSiteById($return->siteId)
+        ) {
             $return->siteName = $site->name;
         }
 

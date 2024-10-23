@@ -7,6 +7,12 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.2.1
+- Fixed bug for siteName
+
+### 6.2.0
+- Introducing first real multi-site support for collecting which site a form was submitted from
+
 ### 6.1.14
 - We had values like `[""]` in the db that broke the element queries, added `validatedIDs()` helper
 
