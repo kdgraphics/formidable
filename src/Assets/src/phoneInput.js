@@ -8,6 +8,20 @@ document.addEventListener("DOMContentLoaded", function() {
                 "formidable/assets/dist/utils.js",
             separateDialCode: true,
             initialCountry: "auto",
+            geoIpLookup: function(success, failure) {
+                fetch("https://ipwho.is")
+                    .then(function(res) {
+                        console.log(res);
+                        return res.json();
+                    })
+                    .then(function(data) {
+                        console.log(data);
+                        success(data.country_code);
+                    })
+                    .catch(function() {
+                        failure();
+                    });
+            },
         });
 
         // Add class
