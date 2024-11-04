@@ -10,18 +10,11 @@ document.addEventListener("DOMContentLoaded", function() {
             initialCountry: "auto",
             geoIpLookup: function(success, failure) {
                 fetch("https://ipwho.is")
-                    .then(function(res) {
-                        console.log(res);
-                        return res.json();
-                    })
-                    .then(function(data) {
-                        console.log(data);
-                        success(data.country_code);
-                    })
-                    .catch(function() {
-                        failure();
-                    });
+                    .then((resp) => resp.json())
+                    .then((data) => success(data.country_code))
+                    .catch(() => failure("gb"));
             },
+            preferredCountries: ["gb"],
         });
 
         // Add class
