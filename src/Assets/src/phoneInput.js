@@ -1,16 +1,14 @@
 document.addEventListener("DOMContentLoaded", function() {
     const phoneInputs = document.querySelectorAll('input[type="tel"]');
 
-    // Cookies: Country Code GET
-    function getCountryFromCookie() {
-        const match = document.cookie.match(/\bformidable_countryCode=([^;]*)/);
-
-        return match ? match[1] : null;
+    // Local Storage: Country Code GET
+    function getStoredCountry() {
+        return localStorage.getItem("formidableCountryCode");
     }
 
-    // Cookies: Country Code STORE
-    function setCountryCookie(countryCode) {
-        document.cookie = `bformidable_countryCode=${countryCode};path=/;max-age=2592000`;
+    // Local Storage: Country Code STORE
+    function setStoredCountry(countryCode) {
+        localStorage.setItem("formidableCountryCode", countryCode);
     }
 
     phoneInputs.forEach((input) => {
@@ -21,8 +19,8 @@ document.addEventListener("DOMContentLoaded", function() {
             separateDialCode: true,
             initialCountry: "auto",
             geoIpLookup: function(success, failure) {
-                // Check cookie
-                const countryCode = getCountryFromCookie();
+                // Check local storage
+                const countryCode = getStoredCountry();
 
                 if (countryCode) {
                     success(countryCode);
@@ -30,14 +28,14 @@ document.addEventListener("DOMContentLoaded", function() {
                     return true;
                 }
 
-                // If no cookie, do API call
+                // If no country stored, do API call
                 fetch("https://ipwho.is")
                     .then((resp) => resp.json())
                     .then((data) => {
                         const countryCode = data.country_code.toLowerCase();
 
-                        // Store country in cookie and set
-                        setCountryCookie(countryCode);
+                        // Store country in local storage and set
+                        setStoredCountry(countryCode);
                         success(data.country_code);
                     })
                     .catch(() => failure("gb"));
