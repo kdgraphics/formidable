@@ -30,6 +30,7 @@ use craft\web\View;
 use craft\web\twig\variables\Cp;
 use yii\base\Event;
 use yii\log\Logger;
+use Ryssbowh\Formidable\Assets\PhoneInputAsset;
 
 class Formidable extends Plugin
 {
@@ -97,6 +98,10 @@ class Formidable extends Plugin
         $this->registerFrontTemplates();
         $this->registerCraftField();
         $this->registerGc();
+
+        if(Craft::$app->request->isSiteRequest) {
+            Craft::$app->view->registerAssetBundle(PhoneInputAsset::class);
+        }
     }
 
     /**
