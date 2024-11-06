@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Ryssbowh\Formidable\Services;
 
@@ -13,7 +13,7 @@ class CsvExporterService extends Component
 {
 	/**
 	 * Export submissions as csv using a query
-	 * 
+	 *
 	 * @param  Query $query
 	 * @return ?string
 	 */
@@ -23,11 +23,20 @@ class CsvExporterService extends Component
 			return null;
 		}
 
-		$fields = $this->resolveCsvFields($query);
-		$headers = [\Craft::t('formidable','Form'), \Craft::t('formidable','Status'), \Craft::t('formidable','Date created'), \Craft::t('formidable','User notified'), \Craft::t('formidable','Admin notified')];
+		$headers = [
+            \Craft::t('formidable','Form'),
+            \Craft::t('formidable','Site'),
+            \Craft::t('formidable','Status'),
+            \Craft::t('formidable','Date created'),
+            \Craft::t('formidable','User notified'),
+            \Craft::t('formidable','Admin notified')
+        ];
+
+        $fields = $this->resolveCsvFields($query);
 		$names = array_map(function ($field) {
 			return $field->name;
 		}, $fields);
+
 		$fp = fopen("php://temp", 'w');
 		fputcsv($fp, array_merge($headers, $names), ',');
 
@@ -48,7 +57,7 @@ class CsvExporterService extends Component
 
 	/**
 	 * Export a batch of submissions and write csv in stream
-	 * 
+	 *
 	 * @param  stream $fp
 	 * @param  array  $submissions
 	 * @param  array  $fields
@@ -57,16 +66,20 @@ class CsvExporterService extends Component
 	{
 		foreach ($submissions as $submission) {
 			$submission = $submission->toModel();
+
 			$line = [
 				$submission->form->name,
+				$submission->siteName,
 				$submission->read ? 'Read': 'Unread',
 				$submission->dateCreated->format('d/m/Y'),
 				$submission->notified ? 'Yes' : 'No',
 				$submission->adminNotified ? 'Yes' : 'No',
 			];
+
 			foreach ($fields as $field) {
 				$line[] = $submission->getValue($field->handle, 'csv');
 			}
+
 			fputcsv($fp, $line, ',');
 		}
 	}
@@ -77,7 +90,7 @@ class CsvExporterService extends Component
 	 * will be the same for all the forms, just some csv lines
 	 * will have some blanks, as they don't have values for fields
 	 * that belong to other forms.
-	 * 
+	 *
 	 * @param $query
 	 * @return array
 	 */
@@ -88,10 +101,13 @@ class CsvExporterService extends Component
 		    ->where(['is not', 'field_id', null])
 		    ->from(SubmissionValue::tableName())
 		    ->leftJoin(Submission::tableName(), Submission::tableName() . '.id = ' . SubmissionValue::tableName().' .submission_id');
+
 		if ($query->where) {
 			$values->andWhere($query->where);
 		}
+
 		$values = $values->distinct()->all();
+
 		return array_map(function ($value) {
 			return Formidable::$plugin->fields->getById($value['field_id']);
 		}, $values);

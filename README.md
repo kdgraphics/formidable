@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.2.2
+- Added siteName to export
+
 ### 6.2.1
 - Fixed bug for siteName
 
