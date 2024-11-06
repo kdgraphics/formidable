@@ -19,6 +19,10 @@ class FormValidationAsset extends AssetBundle
             'dist/formValidation.js'
         ];
 
+        $this->css = [
+            'src/css/formValidation.css'
+        ];
+
         parent::init();
     }
 }
