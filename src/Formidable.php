@@ -31,6 +31,7 @@ use craft\web\twig\variables\Cp;
 use yii\base\Event;
 use yii\log\Logger;
 use Ryssbowh\Formidable\Assets\PhoneInputAsset;
+use Ryssbowh\Formidable\Assets\FormValidationAsset;
 
 class Formidable extends Plugin
 {
@@ -101,6 +102,7 @@ class Formidable extends Plugin
 
         if(Craft::$app->request->isSiteRequest) {
             Craft::$app->view->registerAssetBundle(PhoneInputAsset::class);
+            Craft::$app->view->registerAssetBundle(FormValidationAsset::class);
         }
     }
 

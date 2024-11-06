@@ -16,13 +16,13 @@ class PhoneInputAsset extends AssetBundle
         ];
 
         $this->js = [
-            'PhoneNumber 24.6.0/js/intlTelInput.min.js',
+            'PhoneNumber-24.6.0/js/intlTelInput.min.js',
             'dist/utils.js',
             'dist/phoneInput.js'
         ];
 
         $this->css = [
-            'PhoneNumber 24.6.0/css/intlTelInput.min.css'
+            'PhoneNumber-24.6.0/css/intlTelInput.min.css'
         ];
 
         parent::init();

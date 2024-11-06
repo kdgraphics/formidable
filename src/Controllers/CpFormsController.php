@@ -28,6 +28,7 @@ class CpFormsController extends Controller
         foreach ($this->forms()->getRegisteredAssets() as $asset) {
             $this->view->registerAssetBundle($asset);
         }
+
         $this->view->registerAssetBundle(FormsAsset::class);
 
         $this->renderTemplate('formidable/cp/forms/'.$template, [

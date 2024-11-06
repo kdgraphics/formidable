@@ -13,8 +13,13 @@ const config = {
         phoneInput: path.join(__dirname, "src/Assets/src", "phoneInput.js"),
         utils: path.join(
             __dirname,
-            "src/Assets/PhoneNumber 24.6.0/js",
+            "src/Assets/PhoneNumber-24.6.0/js",
             "utils.js"
+        ),
+        formValidation: path.join(
+            __dirname,
+            "src/Assets/src",
+            "formValidation.js"
         ),
     },
     mode: env,
