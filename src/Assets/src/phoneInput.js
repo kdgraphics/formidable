@@ -15,7 +15,8 @@ document.addEventListener("DOMContentLoaded", function() {
         const iti = window.intlTelInput(input, {
             loadUtilsOnInit: input.dataset.utilsScript,
             initialCountry: "auto",
-            separateDialCode: true,
+            separateDialCode: false,
+            nationalMode: false,
             autoPlaceholder: "aggressive",
             geoIpLookup: function(success, failure) {
                 // Check local storage
@@ -51,14 +52,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 input.classList.add("is-invalid");
                 console.log(input.value);
-
-                console.log("error");
             } else {
                 input.classList.remove("is-invalid");
 
                 input.value = iti.getNumber();
-
-                console.log("success");
             }
         });
 
