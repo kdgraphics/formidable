@@ -13,11 +13,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
     phoneInputs.forEach((input) => {
         const iti = window.intlTelInput(input, {
-            loadUtilsOnInit:
-                input.dataset.loadUtilsOnInit ||
-                "formidable/assets/dist/utils.js",
-            separateDialCode: true,
+            loadUtilsOnInit: input.dataset.utilsScript,
             initialCountry: "auto",
+            separateDialCode: true,
+            autoPlaceholder: "aggressive",
             geoIpLookup: function(success, failure) {
                 // Check local storage
                 const countryCode = getStoredCountry();
@@ -40,7 +39,6 @@ document.addEventListener("DOMContentLoaded", function() {
                     })
                     .catch(() => failure("gb"));
             },
-            preferredCountries: ["gb"],
         });
 
         // Add class
@@ -52,6 +50,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 e.preventDefault();
 
                 input.classList.add("is-invalid");
+                console.log(input.value);
 
                 console.log("error");
             } else {
@@ -68,6 +67,13 @@ document.addEventListener("DOMContentLoaded", function() {
             if (iti.isValidNumber()) {
                 input.value = iti.getNumber();
             }
+        });
+
+        input.addEventListener("open:countrydropdown", function() {
+            document.querySelectorAll(".iti__search-input").forEach((e) => {
+                e.classList.add("form-control");
+                e.placeholder = "Enter country code";
+            });
         });
     });
 });
