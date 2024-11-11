@@ -51,7 +51,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 e.preventDefault();
 
                 input.classList.add("is-invalid");
-                console.log(input.value);
             } else {
                 input.classList.remove("is-invalid");
 

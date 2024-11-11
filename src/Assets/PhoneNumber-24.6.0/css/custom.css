@@ -1,11 +1,1 @@
-.iti {
-    width: 100%;
-}
-
-.iti__selected-dial-code,
-.iti__country-name,
-.iti__dial-code {
-    font-size: 1rem;
-    font-weight: 600;
-    line-height: 1.2;
-}
+.iti{width:100%}.iti__country-name,.iti__dial-code,.iti__selected-dial-code{font-size:1rem;font-weight:600;line-height:1.2}

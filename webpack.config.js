@@ -26,6 +26,21 @@ const config = {
     output: {
         path: path.join(__dirname, "src/Assets/dist"),
     },
+    optimization: {
+        minimize: env === "production",
+        minimizer:
+            env === "production"
+                ? [
+                      new (require("uglifyjs-webpack-plugin"))({
+                          uglifyOptions: {
+                              compress: {
+                                  drop_console: true,
+                              },
+                          },
+                      }),
+                  ]
+                : [],
+    },
     module: {
         rules: [
             {
