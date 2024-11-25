@@ -7,15 +7,20 @@
 {% set selectedSubnavItem = 'formidable-submissions' %}
 {% set loaderPath = craft.app.view.assetManager.getPublishedUrl('@Ryssbowh/Formidable/Assets/images/loading.gif', true) %}
 
+{% set isMultiSite = craft.app.isMultiSite %}
+
 {% block toolbar %}
     <forms-submissions-toolbar
     	:all-forms="{{ forms|json_encode }}"
+    	:all-sites="{{ sites|json_encode }}"
     	:timezone="'{{ craft.app.getTimeZone() }}'"
+        :is-multi-site="'{{ isMultiSite ? '1' : '0' }}'"
     ></forms-submissions-toolbar>
 {% endblock %}
 
 {% block content %}
     <forms-submissions
         :loader-path="'{{ loaderPath }}'"
+        :is-multi-site="'{{ isMultiSite ? '1' : '0' }}'"
     ></forms-submissions>
 {% endblock %}

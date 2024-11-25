@@ -91,6 +91,9 @@ export default new Vuex.Store({
         }
       }
       state.selected = [];
+    },
+    setSelectedSite(state, id) {
+      Vue.set(state.filters, 'siteId', id);
     }
   },
   actions: {

@@ -8,65 +8,91 @@ Display them easily in the front end with templates.
 # Changelog
 
 ### 6.5
-- Enabled `Floating Labels`
+
+-   Enabled `Floating Labels`
+
+### 6.2.1
+
+-   Fixed bug for siteName
+
+### 6.2.0
+
+-   Introducing first real multi-site support for collecting which site a form was submitted from
 
 ### 6.1.14
-- We had values like `[""]` in the db that broke the element queries, added `validatedIDs()` helper
+
+-   We had values like `[""]` in the db that broke the element queries, added `validatedIDs()` helper
 
 ### 6.1.13
-- Fixed wrong action called to retrieve captcha google v3
+
+-   Fixed wrong action called to retrieve captcha google v3
 
 ### 6.1.12
-- Fixed empty value issue for element selects
-- Fixed buttons style to make them more visible
+
+-   Fixed empty value issue for element selects
+-   Fixed buttons style to make them more visible
 
 ### 6.1.11
-- Fixed bug where assets couldn't be attached to emails
+
+-   Fixed bug where assets couldn't be attached to emails
 
 ### 6.1.10
-- Fixed issue with template prefix in some fields
+
+-   Fixed issue with template prefix in some fields
 
 ### 6.1.9
-- Fixed issue with undefined variable $success in `CpFormsController`
+
+-   Fixed issue with undefined variable \$success in `CpFormsController`
 
 ### 6.1.8
-- Allow exporting a single submission
+
+-   Allow exporting a single submission
 
 ### 6.1.7
-- Fixed issue where spam email wouldn't be sent
-- Fixed date filter not working on spam
+
+-   Fixed issue where spam email wouldn't be sent
+-   Fixed date filter not working on spam
 
 ### 6.1.6
-- Fixed missing step attributes on number fields
+
+-   Fixed missing step attributes on number fields
 
 ### 6.1.5
-- Added export all button on submissions
-- All forms now enabled by default on submissions/spams sections filters
-- Added extra button to unselect all forms in the submissions/spams sections filter
+
+-   Added export all button on submissions
+-   All forms now enabled by default on submissions/spams sections filters
+-   Added extra button to unselect all forms in the submissions/spams sections filter
 
 ### 6.1.4
-- Fixed error with group hasErrors() function
+
+-   Fixed error with group hasErrors() function
 
 ### 6.1.3
-- Added captcha register methods so they can be used manually without a formidable form : `{% do formidable.captchas.getRegistered('googleV3').register() %}`
+
+-   Added captcha register methods so they can be used manually without a formidable form : `{% do formidable.captchas.getRegistered('googleV3').register() %}`
 
 ### 6.1.2
-- Fixed an error when filtering on submissions with both a date and a search
+
+-   Fixed an error when filtering on submissions with both a date and a search
 
 ### 6.1.1
-- Fixed typing error
+
+-   Fixed typing error
 
 ### 6.1.0
-- Added the option to skip the queue for email sending, and send emails instantly. By default queue won't be used
-- Added `FormEmailException` thrown when an email fails to send
-- Removed file field "multiple" and replaced by "maxFiles"
+
+-   Added the option to skip the queue for email sending, and send emails instantly. By default queue won't be used
+-   Added `FormEmailException` thrown when an email fails to send
+-   Removed file field "multiple" and replaced by "maxFiles"
 
 ### 6.0.1
-- Fixed multiple files missing multiple attribute
+
+-   Fixed multiple files missing multiple attribute
 
 ### 6.0.0
-- Craft 4 changes
-- Changed templates prefix from formidable to \_formidable
+
+-   Craft 4 changes
+-   Changed templates prefix from formidable to \_formidable
 
 # V4 breaking changes
 
@@ -82,22 +108,25 @@ Submission and how to access their values have been changed, particulary importa
 
 The way fields are rendered haven been changed. You can set variables in your custom form templates to control classes :
 
-- form_class
-- submit_class
-- submit_container_class
-- honeypot_class
-- fields_class
+-   form_class
+-   submit_class
+-   submit_container_class
+-   honeypot_class
+-   fields_class
 
 And fields templates can now be overriden by creating the template `formidable/fields/field` which should look like this at minimum :
+
 ```
 {% include field.frontEndTemplate() %}
 ```
+
 You can then set some variables to control the classes :
-- container_class
-- field_class
-- label_class
-- field_choice_container_class (for checkboxes, radio)
-- field_choice_label_class (for checkboxes, radio)
+
+-   container_class
+-   field_class
+-   label_class
+-   field_choice_container_class (for checkboxes, radio)
+-   field_choice_label_class (for checkboxes, radio)
 
 # Forms
 
@@ -136,6 +165,7 @@ if your field's handle is the same as one of the default field, it will replace 
 ### Vue component
 
 To add the corresponding field Vue components, respond to the event `FormsService::EVENT_HOOK_ASSETS` and add an `AssetBundle` class to it, linking to a javascript file.
+
 ```
 Event::on(
     FormsService::class,
@@ -147,6 +177,7 @@ Event::on(
 ```
 
 The javascript file will then register the component into the `formFields` js variable :
+
 ```
 import TestField from './fields/TestField';
 
@@ -165,8 +196,9 @@ This will use the default template for forms, you can render it with your own te
 
 Each field has a default template too, if you want to override it :
 
-- Create the template in your theme, in the folder `themeName/templates/formidable/`. Example if you want to override the text field template you'd write the template `themeName/templates/formidable/fields/text.twig`
-- Or if you are writing a custom form template you would include it by doing so :
+-   Create the template in your theme, in the folder `themeName/templates/formidable/`. Example if you want to override the text field template you'd write the template `themeName/templates/formidable/fields/text.twig`
+-   Or if you are writing a custom form template you would include it by doing so :
+
 ```
 {% for field in fields %}
 	{% set error = errors[field.name] is defined ? errors[field.name] : false %}
@@ -184,6 +216,7 @@ So you will need a cron every minute to be able to send emails, calling `queue/r
 
 The plugin comes with a Google captcha V3 by default.
 You can add other captchas by responding to the event :
+
 ```
 Event::on(CaptchasService::class, CaptchasService::EVENT_REGISTER_CAPTCHAS, function (RegisterCaptchasEvent $event) {
     $event->addCaptcha(new $captcha);
@@ -195,6 +228,7 @@ Event::on(CaptchasService::class, CaptchasService::EVENT_REGISTER_CAPTCHAS, func
 Examples :
 
 Email events
+
 ```
 Event::on(SubmissionsService::class, SubmissionsService::EVENT_BEFORE_SEND_USER_EMAIL, function ($e) {
     $submission = $e->submission; //Submission object
@@ -210,7 +244,9 @@ Event::on(SubmissionsService::class, SubmissionsService::EVENT_BEFORE_SEND_ADMIN
     $e->isValid = false; //This will stop the email being sent
 });
 ```
+
 Other events :
+
 ```
 FormsService::EVENT_BEFORE_VALIDATING_SUBMISSION //At this stage we know it's not a spam
 FormsService::EVENT_ON_VALID_SUBMISSION
@@ -221,8 +257,9 @@ FormsService::EVENT_ON_SPAM_SUBMISSION
 # Obfuscation
 
 Field names can automatically be obfuscated, giving them an unreadable name. It should help with spam, but there are a few disadvantages :
-- Browsers auto populate will stop working
-- If the user session expires, he/she will be unable to post and will have to reload.
+
+-   Browsers auto populate will stop working
+-   If the user session expires, he/she will be unable to post and will have to reload.
 
 # Submissions
 

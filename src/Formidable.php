@@ -8,7 +8,7 @@ use Ryssbowh\Formidable\Assets\TestAsset;
 use Ryssbowh\Formidable\Captchas\GoogleV2;
 use Ryssbowh\Formidable\Captchas\GoogleV3;
 use Ryssbowh\Formidable\Events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent};
-use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry, Group, Hidden, CheckboxEntry, Date, CheckboxCategory, RadioCategory, RadioEntry};
+use Ryssbowh\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry, Group, Hidden, CheckboxEntry, Date, CheckboxCategory, RadioCategory, RadioEntry, PhoneNumber};
 use Ryssbowh\Formidable\Models\FormField;
 use Ryssbowh\Formidable\Models\FormSubmission;
 use Ryssbowh\Formidable\Models\Records\Submission;
@@ -30,6 +30,8 @@ use craft\web\View;
 use craft\web\twig\variables\Cp;
 use yii\base\Event;
 use yii\log\Logger;
+use Ryssbowh\Formidable\Assets\PhoneInputAsset;
+use Ryssbowh\Formidable\Assets\FormValidationAsset;
 
 class Formidable extends Plugin
 {
@@ -59,7 +61,8 @@ class Formidable extends Plugin
         Checkboxes::class,
         CheckboxEntry::class,
         CheckboxCategory::class,
-        Group::class
+        Group::class,
+        PhoneNumber::class,
     ];
 
     protected $availableCaptchas = [
@@ -96,6 +99,11 @@ class Formidable extends Plugin
         $this->registerFrontTemplates();
         $this->registerCraftField();
         $this->registerGc();
+
+        if(Craft::$app->request->isSiteRequest) {
+            Craft::$app->view->registerAssetBundle(PhoneInputAsset::class);
+            Craft::$app->view->registerAssetBundle(FormValidationAsset::class);
+        }
     }
 
     /**

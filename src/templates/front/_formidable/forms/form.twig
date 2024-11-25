@@ -9,6 +9,8 @@
 {% set fields_class = fields_class ?? 'fields' %}
 {% set captcha_container_class = captcha_container_class ?? 'captcha-field' %}
 
+{% do view.registerAssetBundle("Ryssbowh\\Formidable\\Assets\\FormValidationAsset") %}
+
 {% block before_form %}{% endblock %}
 
 <form id="{{ form.generateId() }}" action="{{ currentSite.getBaseUrl() }}formidable/submit/{{ form.id }}" method="{{ form.method }}" class="form-{{ form.handle }} {{ form_class }}{% if form.frontEndValidation %} js-validate{% endif %} formidable" enctype="multipart/form-data"{% if not form.autocomplete %} autocomplete="off"{% endif %}>

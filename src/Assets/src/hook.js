@@ -16,6 +16,7 @@ import CheckboxEntryField from './fields/CheckboxEntryField';
 import CheckboxCategoryField from './fields/CheckboxCategoryField';
 import RadioCategoryField from './fields/RadioCategoryField';
 import RadioEntryField from './fields/RadioEntryField';
+import PhoneNumberField from './fields/PhoneNumberField';
 
 window.formFields = {
 	text: TextField,
@@ -32,6 +33,7 @@ window.formFields = {
 	checkboxes: CheckboxesField,
 	checkbox_entry: CheckboxEntryField,
     checkbox_category: CheckboxCategoryField,
+	phone_number: PhoneNumberField,
     radio_category: RadioCategoryField,
     radio_entry: RadioEntryField,
     group: Group,
