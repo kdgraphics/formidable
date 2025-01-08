@@ -18,6 +18,10 @@ document.addEventListener("DOMContentLoaded", function() {
             separateDialCode: false,
             nationalMode: false,
             autoPlaceholder: "aggressive",
+            customPlaceholder: (
+                selectedCountryPlaceholder,
+                selectedCountryData
+            ) => "+" + selectedCountryData.dialCode,
             geoIpLookup: function(success, failure) {
                 // Check local storage
                 const countryCode = getStoredCountry();
