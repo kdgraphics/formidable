@@ -427,9 +427,54 @@ export default {
         pagerRange() {
             return range(this.pager.pageCount);
         },
+        generateRandomColor() {
+            const distinctColors = [
+                "#FF6384",
+                "#36A2EB",
+                "#4BC0C0",
+                "#FF9F40",
+                "#9966FF",
+                "#FFCD56",
+                "#26A69A",
+                "#EC407A",
+                "#7E57C2",
+                "#5C6BC0",
+                "#42A5F5",
+                "#66BB6A",
+                "#FFA726",
+                "#78909C",
+                "#8D6E63",
+                "#E91E63",
+                "#673AB7",
+                "#3F51B5",
+                "#2196F3",
+                "#00BCD4",
+                "#009688",
+                "#4CAF50",
+                "#8BC34A",
+                "#CDDC39",
+                "#FFEB3B",
+                "#FFC107",
+                "#FF9800",
+                "#795548",
+                "#607D8B",
+                "#F44336",
+            ];
+
+            return distinctColors[
+                Math.floor(Math.random() * distinctColors.length)
+            ];
+        },
         updateChart: function(data) {
             this.chart.data.labels = data.labels;
+
+            data.data.forEach((dataset) => {
+                dataset.borderColor = this.generateRandomColor();
+                dataset.backgroundColor = "transparent";
+            });
+
             this.chart.data.datasets = data.data;
+
             this.chart.update();
         },
         toggleSelect: function(id) {
