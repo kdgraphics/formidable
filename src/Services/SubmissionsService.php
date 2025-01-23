@@ -175,11 +175,12 @@ class SubmissionsService extends Component
      */
     public function delete(int $id): bool
     {
-        if ($submission = Submission::findOne(['id' => $id])) {
-            if ($submission->dateDeleted) {
+        if ($submission = Submission::find()->where(['id' => $id])->one()) {
+            if (empty($submission->dateDeleted)) {
+                return $submission->softDelete();
+            } else {
                 return $submission->delete();
             }
-            return $submission->softDelete();
         }
         return false;
     }
