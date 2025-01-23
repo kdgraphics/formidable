@@ -82,13 +82,16 @@ class CpSubmissionsController extends Controller
         $ids = $this->request()->getRequiredParam('ids');
         $this->submissions()->deleteMany($ids);
         $message = \Craft::t('formidable', 'Submissions deleted');
+
         if (sizeof($ids) == 1) {
             $message = \Craft::t('formidable', 'Submission deleted');
         }
+
         $response = [
             'success' => true,
             'message' => $message
         ];
+        
         return $this->asJson($response);
     }
 

@@ -11,32 +11,16 @@
                     class="icon"
                     data-icon="trash"
                 ></span>
-                {{
-                    t(
-                        filters.trashed === -1
-                            ? t("All")
-                            : filters.trashed === false
-                            ? t("Not trashed")
-                            : t("Trashed")
-                    )
-                }}
+                {{ t(filters.trashed === true ? t("Trashed") : t("Received")) }}
             </button>
             <div class="menu">
                 <ul class="padded">
                     <li>
                         <a
                             href="#"
-                            :class="filters.trashed === -1 ? 'sel' : ''"
-                            v-on:click="setTrashed(-1)"
-                            ><span class="status"></span>{{ t("All") }}</a
-                        >
-                    </li>
-                    <li>
-                        <a
-                            href="#"
                             :class="filters.trashed === false ? 'sel' : ''"
                             v-on:click="setTrashed(false)"
-                            >{{ t("Not trashed") }}</a
+                            >{{ t("Received") }}</a
                         >
                     </li>
                     <li>
@@ -231,7 +215,9 @@
                     </li>
                     <li>
                         <a href="#" v-on:click="deleteSelection">{{
-                            t("Delete")
+                            filters.trashed
+                                ? t("Delete permanently")
+                                : t("Delete")
                         }}</a>
                     </li>
                     <li>
