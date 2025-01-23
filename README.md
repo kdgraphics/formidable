@@ -7,6 +7,12 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.5.3
+- 
+- Fixed permanent delete
+- Colorful graphs
+- Minor UI tweaks
+
 ### 6.5
 
 -   Enabled `Floating Labels`
