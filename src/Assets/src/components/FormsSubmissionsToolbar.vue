@@ -215,7 +215,9 @@
                     </li>
                     <li>
                         <a href="#" v-on:click="deleteSelection">{{
-                            t("Delete")
+                            filters.trashed
+                                ? t("Delete permanently")
+                                : t("Delete")
                         }}</a>
                     </li>
                     <li>
