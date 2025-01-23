@@ -11,7 +11,7 @@
                     class="icon"
                     data-icon="trash"
                 ></span>
-                {{ t(filters.trashed === true ? t("Trashed") : t("Live")) }}
+                {{ t(filters.trashed === true ? t("Trashed") : t("Received")) }}
             </button>
             <div class="menu">
                 <ul class="padded">
@@ -20,7 +20,7 @@
                             href="#"
                             :class="filters.trashed === false ? 'sel' : ''"
                             v-on:click="setTrashed(false)"
-                            >{{ t("Live") }}</a
+                            >{{ t("Received") }}</a
                         >
                     </li>
                     <li>
