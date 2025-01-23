@@ -7,6 +7,11 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.2.9
+- Fixed permanent delete
+- Colorful graphs
+- Minor UI tweaks
+
 ### 6.2.1
 - Fixed bug for siteName
 
