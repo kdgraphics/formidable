@@ -427,49 +427,39 @@ export default {
         pagerRange() {
             return range(this.pager.pageCount);
         },
-        generateRandomColor() {
+        getDistinctColors(index) {
             const distinctColors = [
-                "#FF6384",
-                "#36A2EB",
-                "#4BC0C0",
-                "#FF9F40",
-                "#9966FF",
-                "#FFCD56",
-                "#26A69A",
-                "#EC407A",
-                "#7E57C2",
-                "#5C6BC0",
-                "#42A5F5",
-                "#66BB6A",
-                "#FFA726",
-                "#78909C",
-                "#8D6E63",
-                "#E91E63",
-                "#673AB7",
-                "#3F51B5",
-                "#2196F3",
-                "#00BCD4",
-                "#009688",
-                "#4CAF50",
-                "#8BC34A",
-                "#CDDC39",
-                "#FFEB3B",
-                "#FFC107",
-                "#FF9800",
-                "#795548",
-                "#607D8B",
-                "#F44336",
+                "#e6194b",
+                "#3cb44b",
+                "#ffe119",
+                "#4363d8",
+                "#f58231",
+                "#911eb4",
+                "#46f0f0",
+                "#f032e6",
+                "#bcf60c",
+                "#fabebe",
+                "#008080",
+                "#e6beff",
+                "#9a6324",
+                "#fffac8",
+                "#800000",
+                "#aaffc3",
+                "#808000",
+                "#ffd8b1",
+                "#000075",
+                "#808080",
+                "#ffffff",
+                "#000000",
             ];
 
-            return distinctColors[
-                Math.floor(Math.random() * distinctColors.length)
-            ];
+            return distinctColors[index % distinctColors.length];
         },
         updateChart: function(data) {
             this.chart.data.labels = data.labels;
 
-            data.data.forEach((dataset) => {
-                dataset.borderColor = this.generateRandomColor();
+            data.data.forEach((dataset, index) => {
+                dataset.borderColor = this.getDistinctColors(index);
                 dataset.backgroundColor = "transparent";
             });
 
