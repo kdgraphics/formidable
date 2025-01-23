@@ -120,11 +120,11 @@
                             </a>
                         </td>
                     </tr>
-                    <tr v-if="submissions.length == 0 && !isFetching">
-                        <td colspan="6">{{ t("No submissions found") }}</td>
-                    </tr>
                 </tbody>
             </table>
+            <div class="is-empty" v-if="submissions.length == 0 && !isFetching">
+                <p>{{ t("No submissions found") }}</p>
+            </div>
             <div class="loader" v-if="isFetching">
                 <img :src="loaderPath" />
             </div>
@@ -587,5 +587,14 @@ export default {
 
 .orderable {
     padding-left: 15px !important;
+}
+
+.is-empty {
+    padding-top: 20px;
+    padding-bottom: 20px;
+
+    p {
+        text-align: center;
+    }
 }
 </style>

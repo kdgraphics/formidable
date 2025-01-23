@@ -108,7 +108,6 @@ export default new Vuex.Store({
             let data = {};
             data[Craft.csrfTokenName] = Craft.csrfTokenValue;
             data.ids = ids;
-            data.permanent = state.filters.trashed === true;
 
             return new Promise((resolve, reject) => {
                 axios
