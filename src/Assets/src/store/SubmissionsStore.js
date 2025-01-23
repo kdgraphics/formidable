@@ -108,6 +108,7 @@ export default new Vuex.Store({
             let data = {};
             data[Craft.csrfTokenName] = Craft.csrfTokenValue;
             data.ids = ids;
+            data.permanent = state.filters.trashed === true;
 
             return new Promise((resolve, reject) => {
                 axios
@@ -118,11 +119,13 @@ export default new Vuex.Store({
                     .then((response) => {
                         commit("deleteMany", ids);
 
+                        let page = state.filters.trashed ? state.pager.page : 0;
+
                         let fetchData = {
                             [Craft.csrfTokenName]: Craft.csrfTokenValue,
                             filters: state.filters,
                             sort: state.sort,
-                            page: 0,
+                            page: page,
                         };
 
                         return axios.post(
