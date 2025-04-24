@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\Models;
 
@@ -9,12 +9,15 @@ class Submission extends Model
 {
 	public $id;
 	public $form_id;
+	public $siteId;
+	public $siteName = null;
 	public $read = false;
 	public $notified = false;
 	public $adminNotified = false;
 	public $dateCreated;
 	public $dateUpdated;
 	public $dateDeleted;
+	public $uid;
 
 	protected $_values;
 	protected $_form;
@@ -25,13 +28,13 @@ class Submission extends Model
 	public function defineRules(): array
 	{
 		return [
-			[['id', 'form_id', 'read', 'notified', 'adminNotified', 'dateUpdated', 'dateCreated', 'dateDeleted', 'values'], 'safe']
+			[['id', 'form_id', 'siteId', 'read', 'notified', 'adminNotified', 'dateUpdated', 'dateCreated', 'dateDeleted', 'uid', 'values'], 'safe']
 		];
 	}
 
 	/**
 	 * Values setter
-	 * 
+	 *
 	 * @param array $values
 	 */
 	public function setValues(array $values)
@@ -41,7 +44,7 @@ class Submission extends Model
 
 	/**
 	 * Get values
-	 * 
+	 *
 	 * @return array
 	 */
 	public function getValues(): array
@@ -49,12 +52,13 @@ class Submission extends Model
 		if ($this->_values === null) {
 			$this->_values = Formidable::$plugin->submissions->getValuesForSubmission($this);
 		}
+
 		return $this->_values;
 	}
 
 	/**
 	 * Get Form
-	 * 
+	 *
 	 * @return ?Form
 	 */
 	public function getForm(): ?Form
@@ -66,33 +70,29 @@ class Submission extends Model
 	}
 
 	/**
-	 * Set form
-	 * 
-	 * @param Form $form
-	 */
-	public function setForm(Form $form)
-	{
-		$this->_form = $form;
-		$this->form_id = $form->id;
-	}
-
-	/**
 	 * Get a value styled for a field handle
-	 * 
+	 *
 	 * @param  string $fieldHandle
-	 * @return ?SubmissionValue
+	 * @param  string|null $style the style for the value, null for the value's default
+	 * @return mixed
 	 */
-	public function getValue(string $fieldHandle): ?SubmissionValue
+	public function getValue(string $fieldHandle, string $style = 'raw')
 	{
-		return array_values(array_filter($this->values, function ($value) use ($fieldHandle) {
+		$value = array_values(array_filter($this->values, function ($value) use ($fieldHandle) {
 			$field = $value->field;
 			return ($field and $field->handle == $fieldHandle);
 		}))[0] ?? null;
+
+		if (!$value) {
+			return null;
+		}
+
+		return $value->getValue($style);
 	}
 
 	/**
 	 * Get a value model by id
-	 * 
+	 *
 	 * @param  int    $id
 	 * @return ?SubmissionValue
 	 */
@@ -117,9 +117,11 @@ class Submission extends Model
 	public function toArray(array $fields = [], array $expand = [], $recursive = true)
 	{
 		$array = parent::toArray($fields, $expand, $recursive);
+
 		if ($this->dateCreated instanceof \DateTime) {
 			$array['dateCreated'] = $this->dateCreated->format('d/m/Y H:i');
 		}
+
 		return $array;
 	}
 }

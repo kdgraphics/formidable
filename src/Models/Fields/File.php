@@ -1,158 +1,219 @@
-<?php
+<?php 
 
 namespace Inspire\Formidable\Models\Fields;
 
-use Inspire\Formidable\Interfaces\FieldInterface;
 use Inspire\Formidable\Interfaces\FieldTypeInterface;
 use Inspire\Formidable\Models\Field;
+use Inspire\Formidable\Models\FieldTypes\ArrayField;
 use Inspire\Formidable\Models\FieldTypes\FileField;
-use Inspire\Formidable\Models\FormPosted;
+use Inspire\Formidable\Models\FormSubmission;
 use craft\elements\Asset;
 use craft\web\UploadedFile;
 use yii\web\BadRequestHttpException;
 
 class File extends Field
 {
-    protected $fieldTypeClass = FileField::class;
+	protected $fieldTypeClass = FileField::class;
 
-    public $label;
-    public $volume;
-    public $folder;
-    public $accepts;
-    public $labelHtml = false;
-    public $attachToUserEmail = false;
-    public $attachToAdminEmail = false;
-    public $tooltip;
-    public $tooltipLabel;
-    public $multiple = false;
+	public $label;
+	public $volume;
+	public $extensions;
+	public $labelHtml = false;
+	public $maxFiles = 1;
+	public $attachToUserEmail = false;
+	public $attachToAdminEmail = false;
+	public $size = 2; //Max file size in Mb
+	public $tooltip;
+	public $tooltipLabel;
 
-    /**
-     * inheritDoc
-     **/
-    public function handle(): string
-    {
-        return 'file';
-    }
+	/**
+	 * inheritDoc
+	 **/
+	public function handle(): string
+	{
+		return 'file';
+	}
 
-    /**
-     * inheritDoc
-     **/
-    public function friendlyName(): string
-    {
-        return 'File';
-    }
+	/**
+	 * inheritDoc
+	 **/
+	public function friendlyName(): string
+	{
+		return 'File';
+	}
 
-    /**
-     * @inheritDoc
-     **/
-    public function defineOptions(): array
-    {
-        return ['label', 'labelHtml', 'multiple', 'tooltip', 'tooltipLabel', 'volume', 'folder', 'accepts', 'attachToAdminEmail', 'attachToUserEmail'];
-    }
+	/**
+	 * inheritDoc
+	 **/
+	public function fieldType(): FieldTypeInterface
+	{
+		if ($this->maxFiles != 1) {
+			$this->fieldTypeClass = ArrayField::class;
+		}
+		return $this->fieldTypeClass::getInstance();
+	}
 
-    /**
-     * inheritDoc
-     **/
-    public function defineRules(): array
-    {
-        return array_merge(parent::defineRules(), [
-            [['label', 'volume', 'tooltip', 'tooltipLabel', 'folder', 'accepts'], 'string'],
-            [['label', 'volume', 'tooltip', 'tooltipLabel', 'folder'], 'trim'],
-            ['volume', 'required'],
-            [['labelHtml', 'attachToUserEmail', 'attachToAdminEmail', 'multiple'], 'boolean', 'trueValue' => true, 'falseValue' => false],
-        ]);
-    }
+	/**
+	 * inheritDoc
+	 **/
+	public function getExtraCpRules(): array
+	{
+		return [
+			[['label', 'volume', 'tooltip', 'tooltipLabel'], 'string'],
+			[['label', 'volume', 'tooltip', 'tooltipLabel'], 'trim'],
+			['extensions', 'validateExtensions'],
+			['size', 'double'],
+			['maxFiles', 'integer'],
+			[['labelHtml', 'attachToUserEmail', 'attachToAdminEmail'], 'boolean', 'trueValue' => true, 'falseValue' => false],
+		];
+	}
 
-    /**
-     * inheritDoc
-     */
-    public function getFrontEndRules(FormPosted $posted): array
-    {
-        $allowedExtensions = \Craft::$app->getConfig()->getGeneral()->allowedFileExtensions;
-        $rules = [
-            [$this->handle, 'file', 'extensions' => $allowedExtensions, 'checkExtensionByMimeType' => false, 'maxFiles' => $this->multiple ? 0 : 1], 
-        ];
-        return $rules;
-    }
+	/**
+	 * Validate extensions
+	 * 
+	 * @param string $attribute
+	 * @param array $params
+	 * @param  $validator
+	 */
+	public function validateExtensions($attribute, $params, $validator)
+	{
+		$extensions = explode(',', $this->extensions);
+		foreach ($extensions as $ext) {
+			if (!ctype_alnum($ext)) {
+				$this->addError('extensions', \Craft::t('formidable', 'Invalid extension {ext}', ['ext' => $ext]));
+			}
+		}
+	}
 
-    /**
-     * Upload files before validation
-     * 
-     * @param  FormPosted $posted
-     */
-    public function beforeSubmissionValidated(FormPosted $posted)
-    {
-        $posted->{$this->handle} = array_merge($posted->{$this->handle} ?? [], UploadedFile::getInstancesByName($this->frontName));
-    }
+	/**
+	 * inheritDoc
+	 */
+	public function getFrontEndRules(FormSubmission $submission): array
+	{
+		$allowedExtensions = \Craft::$app->getConfig()->getGeneral()->allowedFileExtensions;
+		$rules = [
+			[$this->handle, 'file', 'extensions' => $allowedExtensions, 'maxFiles' => (int)$this->maxFiles, 'checkExtensionByMimeType' => false], 
+		];
+		if ($this->extensions) {
+			$rules[0]['extensions'] = $this->extensions;
+		}
+		if ($this->size) {
+			$rules[0]['maxSize'] = $this->size * 1024 * 1024;	
+		}
+		return $rules;
+	}
 
-    /**
-     * Move file to proper volume after validation
-     * 
-     * @param  FormPosted $submission
-     */
-    public function afterSubmissionValidated(FormPosted $posted)
-    {
-        if (!$posted->{$this->handle}) {
-            $posted->{$this->handle} = [];
-            return;
-        }
-        $value = [];
-        foreach ($posted->{$this->handle} as $file) {
-            if ($file instanceof UploadedFile) {
-                $asset = Formidable::$plugin->assets->uploadToVolume($file, $this->volume, $this->folder);
-                $value[] = $asset->id;
-            } else {
-                $value[] = $file;
-            }
-        }
-        $posted->{$this->handle} = $value;
-    }
+	/**
+	 * Upload files before validation
+	 * 
+	 * @param  FormSubmission $submission
+	 */
+	public function beforeSubmissionValidated(FormSubmission $submission)
+	{
+		if ($this->maxFiles != 1) {
+			$submission->{$this->handle} = UploadedFile::getInstancesByName($this->frontName);
+		} else {
+			$submission->{$this->handle} = UploadedFile::getInstanceByName($this->frontName);
+		}
+	}
 
-    /**
-     * Adds a dot on every extension
-     * 
-     * @return string
-     */
-    public function getHtmlExtensions(): string
-    {
-        return implode(',', array_map(function($ext){
-            return '.'.$ext;
-        }, explode(',', $this->extensions)));
-    }
+	/**
+	 * Move file to proper volume after validation
+	 * 
+	 * @param  FormSubmission $submission
+	 */
+	public function afterSubmissionValidated(FormSubmission $submission)
+	{
+		if (!$submission->{$this->handle}) {
+			$submission->{$this->handle} = [];
+			return;
+		} else {
+			$files = is_array($submission->{$this->handle}) ? $submission->{$this->handle} : [$submission->{$this->handle}];
+		}
+		$value = [];
+		foreach ($files as $file) {
+			$asset = $this->uploadToVolume($file);
+			$value[] = $asset->id;
+		}
+		$submission->{$this->handle} = $value;
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public static function getHtmlValue(?FieldInterface $field, $value, bool $isOwn = true): string
-    {
-        if (!$value) {
+	/**
+	 * Adds a dot on every extension
+	 * 
+	 * @return string
+	 */
+	public function getHtmlExtensions(): string
+	{
+		return implode(',', array_map(function($ext){
+			return '.'.$ext;
+		}, explode(',', $this->extensions)));
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getHtmlValue($value): string
+	{
+        if (!$ids = self::validatedIDs($value)) {
             return '';
         }
-        $assets = Asset::find()->id($value)->all();
-        $html = [];
-        foreach ($assets as $asset) {
-            $html[] = '<a target="_blank" href="'.$asset->getCpEditUrl().'">'.$asset->filename.'</a>';
-        }
-        return implode('<br/>', $html);
-    }
+		$assets = Asset::find()->id($ids)->all();
+		$html = [];
+		foreach ($assets as $asset) {
+			$html[] = '<a target="_blank" href="'.$asset->getCpEditUrl().'">'.$asset->filename.'</a>';
+		}
+		return implode('<br/>', $html);
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public static function getStringValue(?FieldInterface $field, $value, bool $isOwn = true): string
-    {
-        if (!$value) {
+	public static function getAssets($value): array
+	{
+        if (!$ids = self::validatedIDs($value)) {
             return '';
         }
-        $string = [];
-        foreach ($value as $file) {
-            if ($file instanceof UploadedFile) {
-                $string[] = $file->name;
-            } else {
-                $asset = Asset::find()->id($file)->one();
-                $string[] = $asset->filename;
-            }
+		return Asset::find()->id($ids)->all();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getStringValue($value): string
+	{
+		if (!$value) {
+			return '';
+		}
+		$assets = self::getAssets($value);
+		$string = [];
+		foreach ($assets as $asset) {
+			$string[] = $asset->filename;
+		}
+		return implode(', ', $string);
+	}
+
+	/**
+	 * Upload a file to a volume as an asset
+	 * 
+	 * @param  UploadedFile $file
+	 * @return Asset
+	 */
+	protected function uploadToVolume(UploadedFile $file): Asset
+	{
+		$volume = \Craft::$app->volumes->getVolumeByUid($this->volume);
+		$assets = \Craft::$app->getAssets();
+        $folder = $assets->getRootFolderByVolumeId($volume->id);
+        if (!$folder) {
+            throw new BadRequestHttpException(\Craft::t('formidable', 'The target folder provided for uploading is not valid'));
         }
-        return implode(', ', $string);
-    }
+        $asset = new Asset();
+        $asset->setScenario(Asset::SCENARIO_CREATE);
+        $asset->tempFilePath = $file->tempName;
+        $asset->filename = $file->name;
+        $asset->newFolderId = $folder->id;
+        $asset->volumeId = $folder->volumeId;
+        $asset->avoidFilenameConflicts = true;
+        if (!\Craft::$app->getElements()->saveElement($asset)) {
+        	throw new BadRequestHttpException(\Craft::t('formidable', 'Unable to upload the asset to volume ' . $volume->name));
+        }
+        return $asset;
+	}
 }

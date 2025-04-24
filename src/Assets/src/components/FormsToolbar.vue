@@ -1,43 +1,9 @@
 <template>
-  <div
-    id="forms-toolbar"
-    class="flex flex-grow"
-  >
-    <button
-      v-if="!isAdding"
-      :disabled="isLoading"
-      href="#"
-      class="btn icon add"
-      @click.prevent="_new"
-    >
-      {{ t('New') }}
-    </button>
-    <button
-      v-if="!isAdding"
-      href="#"
-      class="btn delete icon"
-      :disabled="isLoading"
-      @click.prevent="_delete"
-    >
-      {{ t('Delete') }}
-    </button>
-    <button
-      v-if="!isAdding"
-      :disabled="isLoading"
-      href="#"
-      class="btn save"
-      @click.prevent="_duplicate"
-    >
-      {{ t('Duplicate') }}
-    </button>
-    <button
-      :disabled="isLoading"
-      href="#"
-      class="btn save submit"
-      @click.prevent="saveForm"
-    >
-      {{ t('Save') }}
-    </button>
+  <div id="forms-toolbar" class="flex flex-grow">
+    <button v-if="!isAdding" :disabled="isLoading" href="#" class="btn icon add" @click.prevent="_new">{{ t('New') }}</button>
+    <button href="#" class="btn delete icon" v-if="!isAdding" :disabled="isLoading" @click.prevent="_delete">{{ t('Delete') }}</button>
+    <button v-if="!isAdding" :disabled="isLoading" href="#" class="btn save" @click.prevent="_duplicate">{{ t('Duplicate') }}</button>
+    <button :disabled="isLoading || hasErrors" href="#" class="btn save submit" @click.prevent="saveForm">{{ t('Save') }}</button>
   </div>
 </template>
 
@@ -46,13 +12,13 @@ import { mapMutations, mapState, mapActions } from 'vuex';
 
 export default {
   computed: {
-    ...mapState(['isAdding', 'isLoading']),
+  	...mapState(['hasErrors', 'isAdding', 'isLoading']),
   },
   created() {
     let _this = this;
     window.addEventListener('keydown', (event) => {
       if ((event.ctrlKey || event.metaKey) && event.key === 's') {
-        if (!this.isLoading) {
+        if (!this.isLoading && !this.hasErrors) {
           event.preventDefault();
           _this.saveForm(event);
         }
@@ -61,19 +27,46 @@ export default {
   },
   methods: {
     _delete() {
-      if (confirm(this.t('This will also delete all submissions for this form, Confirm deletion ?'))) {
-        this.deleteForm();
-      }
+      this.$confirm({
+        message: this.t('This will also delete all submissions for this form, Confirm deletion ?'),
+        button: {
+          no: this.t('No'),
+          yes: this.t('Yes')
+        },
+        callback: confirm => {
+          if (confirm) {
+            this.deleteForm();
+          }
+        }
+      });
     },
     _new() {
-      if (confirm(this.t('You will loose unsaved changes, continue anyway ?'))) {
-        this.newForm();
-      }
+      this.$confirm({
+        message: this.t('You will loose unsaved changes, continue anyway ?'),
+        button: {
+          no: this.t('No'),
+          yes: this.t('Yes')
+        },
+        callback: confirm => {
+          if (confirm) {
+            this.newForm();
+          }
+        }
+      })
     },
     _duplicate() {
-      if (confirm(this.t('You will loose unsaved changes, continue anyway ?'))) {
-        this.duplicateForm();
-      }
+      this.$confirm({
+        message: this.t('You will loose unsaved changes, continue anyway ?'),
+        button: {
+          no: this.t('No'),
+          yes: this.t('Yes')
+        },
+        callback: confirm => {
+          if (confirm) {
+            this.duplicateForm();
+          }
+        }
+      })
     },
     ...mapActions(['saveForm', 'newForm', 'deleteForm', 'duplicateForm'])
   }
@@ -82,12 +75,9 @@ export default {
 
 <style lang="scss" scoped>
 #forms-toolbar {
-  justify-content: end;
+   justify-content: end;
   :disabled {
     opacity: 0.5
-  }
-  .btn.delete:before {
-    margin-top: -5px;
   }
 }
 </style>

@@ -60,11 +60,28 @@ class Size extends Rule
 	{
 		switch (get_class($field->fieldType())) {
 			case ArrayField::class:
-			case FileField::class:
 				return sizeof($value) === (int)$against;
+			case FileField::class:
+				return true;
 			case TextField::class:
 				return strlen($value) === (int)$against;
 		}
-		throw RuleException::typeNotValid($this, get_class($field->fieldType()));
+		throw RuleException::typeNotValid($rule, get_class($field->fieldType()));
+	}
+
+	/**
+	 * inheritDoc
+	 */
+	public function checkJs(): string
+	{
+		return "function (field, value, against) {
+			switch (field.valueType) {
+				case 'text':
+				case 'file':
+				case 'array':
+					return (value !== null && value.length === Number(against));
+			}
+			throw 'Field type '+field.valueType+' can\'t be checked for a size rule';
+		}";
 	}
 }

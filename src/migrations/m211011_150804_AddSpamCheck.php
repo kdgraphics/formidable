@@ -15,7 +15,9 @@ class m211011_150804_AddSpamCheck extends Migration
      */
     public function safeUp()
     {
-        $this->addColumn('{{%formidable_forms}}', 'spamCheck', $this->string(255)->after('class')->defaultValue(''));
+        try {
+            $this->addColumn('{{%formidable_forms}}', 'spamCheck', $this->string(255)->after('class')->defaultValue(''));
+        } catch (\Exception $e) {}
     }
 
     /**

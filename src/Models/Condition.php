@@ -3,7 +3,7 @@
 namespace Inspire\Formidable\Models;
 
 use Inspire\Formidable\Formidable;
-use Inspire\Formidable\Models\FormPosted;
+use Inspire\Formidable\Models\FormSubmission;
 use craft\base\Model;
 use craft\helpers\StringHelper;
 
@@ -56,16 +56,16 @@ class Condition extends Model
         ];
     }
 
-    public function appliesTo(FormPosted $posted, bool $result)
+    public function appliesTo(FormSubmission $submission, bool $result)
     {
         $rule = Formidable::$plugin->rules->getRegistered($this->type);
-        $field = $posted->getForm()->getField($this->field);
+        $field = $submission->getForm()->getField($this->field);
         if ($rule->requiresValue) {
-            $thisResult = $rule->check($field, $posted->{$this->field} ?? null, $this->value);
+            $thisResult = $rule->check($field, $submission->{$this->field} ?? null, $this->value);
         } else if ($rule->requiresField) {
-            $thisResult = $rule->check($field, $posted->{$this->field} ?? null, $posted->{$this->value});
+            $thisResult = $rule->check($field, $submission->{$this->field} ?? null, $submission->{$this->value});
         } else {
-            $thisResult = $rule->check($field, $posted->{$this->field} ?? null);
+            $thisResult = $rule->check($field, $submission->{$this->field} ?? null);
         }
         if ($this->negate) {
             $thisResult = !$thisResult;
@@ -74,5 +74,16 @@ class Condition extends Model
             return ($thisResult and $result);
         }
         return ($thisResult or $result);
+    }
+
+    public function frontJs(): string
+    {
+        return "new formidable.condition({
+            type: '{$this->type}',
+            field: '{$this->field}',
+            operator: '{$this->operator}',
+            negate: " . ($this->negate ? 'true' : 'false') . ",
+            value: '{$this->value}'
+        })";
     }
 }

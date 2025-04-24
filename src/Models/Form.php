@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\Models;
 
@@ -17,26 +17,26 @@ use craft\mail\Message;
 class Form extends Model
 {
     const EVENT_RENDER = 'render';
-
     public $id;
-    public $name = '';
-    public $handle = '';
+    public $name;
+    public $handle;
     public $notify_key;
     public $notifyAdmin_key;
     public $notifySpam_key;
-    public $notifyField = '';
+    public $notifyField;
     public $notifyEmails;
     public $notifySpamEmails;
     public $honeypot = true;
     public $htmlId;
     public $honeypotField = 'website';
     public $saveSubmissions = true;
+    public $frontEndValidation = true;
     public $saveSpam = true;
     public $obfuscateFieldNames = true;
     public $autocomplete = true;
     public $redirect;
     public $class;
-    public $spamCheck = '';
+    public $spamCheck;
     public $method = 'POST';
     public $color = '#000000';
     public $captcha;
@@ -52,24 +52,15 @@ class Form extends Model
     /**
      * @inheritDoc
      */
-    public function init(): void
-    {
-        $this->submitLabel = $this->submitLabel ? $this->submitLabel : \Craft::t('formidable', 'Submit');
-        parent::init();
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function defineRules(): array
     {
         return [
-            [['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'notifySpamEmails','redirect', 'class', 'method', 'submitLabel', 'color', 'submitClass', 'notifyAdmin_key', 'notify_key', 'notifySpam_key', 'htmlId', 'spamCheck', 'uid'], 'string'],
-            [['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'redirect', 'class', 'submitLabel', 'color', 'submitClass', 'htmlId'], 'trim'],
+            [['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'notifySpamEmails','redirect', 'class', 'method', 'submitLabel', 'color', 'submitClass', 'notifyAdmin_key', 'notify_key', 'notifySpam_key', 'htmlId', 'spamCheck'], 'string'],
+            [['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'redirect', 'class', 'submitLabel', 'color', 'submitClass'], 'trim'],
             [['id'], 'integer'],
-            [['honeypot', 'saveSubmissions', 'saveSpam', 'obfuscateFieldNames', 'autocomplete'], 'boolean', 'trueValue' => true, 'falseValue' => false],
+            [['honeypot', 'saveSubmissions', 'saveSpam', 'frontEndValidation', 'obfuscateFieldNames', 'autocomplete'], 'boolean', 'trueValue' => true, 'falseValue' => false],
             [['notifyEmails', 'notifySpamEmails'], 'validateEmails'],
-            ['handle', 'validateHandle', 'params' => ['name' => 'handle']],
+            ['handle', 'validateHandle'],
             ['method', 'in', 'range' => ['GET', 'POST']],
             ['notifyEmails', 'required', 'when' => function($model){
                 return $model->notifyAdmin_key;
@@ -91,87 +82,17 @@ class Form extends Model
             [['name', 'handle', 'method', 'submitLabel'], 'required'],
             [['notify_key', 'notifyAdmin_key'], 'default', 'value' => null, 'when' => function($model,$attribute){
                 return empty($model->$attribute);
-            }],
-            [['class', 'submitClass'], 'validateHtmlClasses'],
-            ['htmlId', 'validateHtmlName', 'params' => ['name' => 'id']]
+            }]
         ];
     }
 
     /**
-     * Validate some html classes
-     * 
-     * @param string $attribute
-     * @param array $param
+     * @inheritDoc
      */
-    public function validateHtmlClasses($attribute, $param, $validator)
+    public function init(): void
     {
-        $name = $validator->params['name'] ?? 'class';
-        $classes = explode(' ', $this->$attribute);
-        foreach ($classes as $class) {
-            if (!preg_match('/^[\_\-a-zA-Z][\_\-a-zA-Z0-9]*$/', $class)) {
-                $this->addError($attribute, \Craft::t('formidable', '{class} is not a valid {name}', [
-                    'class' => $class,
-                    'name' => $name
-                ]));
-            }
-        }
-    }
-
-    /**
-     * Validate html name
-     * 
-     * @param string $attribute
-     * @param array $param    
-     * @param Validator $validator
-     */
-    public function validateHtmlName($attribute, $param, $validator)
-    {
-        $name = $validator->params['name'] ?? 'name';
-        if (!preg_match('/^[a-zA-Z][\_\-a-zA-Z0-9:.]*$/', $this->$attribute)) {
-            $this->addError($attribute, \Craft::t('formidable', '{handle} is not a valid {name}', [
-                'handle' => $this->$attribute,
-                'name' => $name
-            ]));
-        }
-    }
-
-    /**
-     * Validate handle
-     * 
-     * @param string $attribute
-     * @param array $param    
-     * @param Validator $validator
-     */
-    public function validateHandle($attribute, $param, $validator)
-    {
-        $this->validateHtmlName($attribute, $param, $validator);
-        $exists = Formidable::$plugin->forms->getByHandle($this->$attribute);
-        if ($exists and $exists->id != $this->id) {
-            $this->addError($attribute, \Craft::t('formidable', '{handle} is already taken', ['handle' => $this->$attribute]));
-        }
-    }
-
-    /**
-     * Validate emails
-     * 
-     * @param object $model
-     * @param string $attribute
-     */
-    public function validateEmails($attribute)
-    {
-        if (!$this->$attribute) {
-            return true;
-        }
-        $emails = array_map('trim', explode(',', trim($this->$attribute)));
-        foreach($emails as $email) {
-            $isEnv = preg_match('/^\$.*$/', $email);
-            if ($isEnv) {
-                $email = \Craft::parseEnv($email);
-            }
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $this->addError($attribute, \Craft::t('formidable', 'Email {email} is not valid', ['email' => $email]));
-            }
-        }
+        $this->submitLabel = $this->submitLabel ? $this->submitLabel : \Craft::t('formidable', 'Submit');
+        parent::init();
     }
 
     /**
@@ -210,6 +131,26 @@ class Form extends Model
     }
 
     /**
+     * Get the session errors
+     *
+     * @return array
+     */
+    public function getSessionErrors(): ?array
+    {
+        return Formidable::$plugin->forms->getSessionErrors($this->handle);
+    }
+
+    /**
+     * Get the previous input by user
+     *
+     * @return array
+     */
+    public function getOldInput(): ?array
+    {
+        return Formidable::$plugin->forms->getSessionOldInput($this->handle);
+    }
+
+    /**
      * @inheritDoc
      */
     public function fields(): array
@@ -219,7 +160,7 @@ class Form extends Model
 
     /**
      * Get form fields, regardless if they are in a group
-     * 
+     *
      * @return array
      */
     public function getFields(): array
@@ -236,7 +177,7 @@ class Form extends Model
 
     /**
      * Get all active fields
-     * 
+     *
      * @return array
      */
     public function getActiveFields(): array
@@ -248,7 +189,7 @@ class Form extends Model
 
     /**
      * Get root fields (fields not in groups)
-     * 
+     *
      * @return array
      */
     public function getRootFields(): array
@@ -261,7 +202,7 @@ class Form extends Model
 
     /**
      * Get active root fields
-     * 
+     *
      * @return array
      */
     public function getActiveRootFields(): array
@@ -273,7 +214,7 @@ class Form extends Model
 
     /**
      * Get all fields by type
-     * 
+     *
      * @param  string $type
      * @return array
      */
@@ -294,7 +235,7 @@ class Form extends Model
 
     /**
      * Get a field by handle
-     * 
+     *
      * @param  string $handle
      * @throws FormException
      * @return FieldInterface
@@ -311,7 +252,7 @@ class Form extends Model
 
     /**
      * Does a field handle exist
-     * 
+     *
      * @param  string  $handle
      * @return boolean
      */
@@ -327,7 +268,7 @@ class Form extends Model
 
     /**
      * Get form rules
-     * 
+     *
      * @return array
      */
     public function getRules(): array
@@ -348,7 +289,7 @@ class Form extends Model
 
     /**
      * Get available captchas
-     * 
+     *
      * @return array
      */
     public function getCaptchas(): array
@@ -362,7 +303,7 @@ class Form extends Model
 
     /**
      * Get this form captcha
-     * 
+     *
      * @return ?CaptchaInterface
      */
     public function getCaptcha(): ?CaptchaInterface
@@ -372,7 +313,7 @@ class Form extends Model
 
     /**
      * Get project config
-     * 
+     *
      * @return array
      */
     public function getConfig(): array
@@ -390,6 +331,7 @@ class Form extends Model
             'honeypotField' => $this->honeypotField,
             'saveSubmissions' => $this->saveSubmissions,
             'saveSpam' => $this->saveSpam,
+            'frontEndValidation' => $this->frontEndValidation,
             'redirect' => $this->redirect,
             'class' => $this->class,
             'spamCheck' => $this->spamCheck,
@@ -410,8 +352,31 @@ class Form extends Model
     }
 
     /**
+     * Validate emails
+     *
+     * @param object $model
+     * @param string $attribute
+     */
+    public function validateEmails($attribute)
+    {
+        if (!$this->$attribute) {
+            return true;
+        }
+        $emails = array_map('trim', explode(',', trim($this->$attribute)));
+        $pass = true;
+        foreach($emails as $email) {
+            $isEnv = preg_match('/^\$[A-Za-z-_]+$/', $email);
+            if (!$isEnv && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $this->addError($attribute, \Craft::t('formidable', 'Email {email} is not valid', ['email' => $email]));
+                $pass = false;
+            }
+        }
+        return $pass;
+    }
+
+    /**
      * Obfuscate a field name
-     * 
+     *
      * @param  string $name
      * @return string
      */
@@ -425,30 +390,60 @@ class Form extends Model
 
     /**
      * Renders the form (front end)
-     * 
+     *
      * @param  ?string $template
      * @return string
      */
     public function render(?string $template = null, array $variables = [])
     {
         if (!$template) {
-            $template = '_formidable/forms/form';
+            $template = 'formidable/forms/form';
         }
         $event = new FormEvent([
-            'form' => $this
+            'form' => $this,
+            'errors' => $this->getSessionErrors(),
+            'oldInput' => $this->getOldInput()
         ]);
         $this->trigger(self::EVENT_RENDER, $event);
-        $posted = Formidable::$plugin->forms->getLatestPosted($this);
         $variables = array_merge($variables, [
             'form' => $this,
-            'posted' => $posted
+            'fields' => $this->activeRootFields,
+            'errors' => $event->errors,
+            'oldInput' => $event->oldInput
         ]);
         return \Craft::$app->getView()->renderTemplate($template, $variables);
     }
 
     /**
+     * Handle setter, can be used by twig when trying to display two times
+     * the same form on the same page, one of them will need to change handle
+     *
+     * @param string $handle
+     */
+    public function setHandle(string $handle)
+    {
+        $this->handle = $handle;
+    }
+
+    /**
+     * Validate handle
+     *
+     * @param  Form $model
+     * @param  string $attribute
+     * @return bool
+     */
+    public function validateHandle($model, $attribute)
+    {
+        $exists = Formidable::$plugin->forms->getByHandle($this->handle);
+        if ($exists and !$this->id) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Generate a html id
-     * 
+     *
      * @return string
      */
     public function generateId(): string
@@ -457,5 +452,60 @@ class Form extends Model
             return $this->htmlId;
         }
         return 'formidable_'.str_replace('-', '_', $this->handle);
+    }
+
+    /**
+     * Front javascript
+     *
+     * @return string
+     */
+    public function getFrontJs(): string
+    {
+        Formidable::$plugin->forms->enableFrontJs();
+        $js = "
+document.addEventListener('DOMContentLoaded', (event) => {
+    formidable.forms['{$this->generateId()}'] = new formidable.form ({
+        id: '{$this->generateId()}',
+        rules: [";
+        foreach ($this->getRules() as $rule) {
+            $js .= $rule->frontJs().",
+            ";
+        }
+        $js .= "],
+        fields: {
+        ";
+        foreach ($this->getActiveFields() as $field) {
+            $js .= "'".$field->handle . '\': ' . $field->frontJs($this) . ',
+            ';
+        }
+        $js .= "
+        }
+    });
+});
+";
+        if ($this->frontEndValidation) {
+            $js .= <<<JS
+document.addEventListener('DOMContentLoaded', (event) => {
+    document.getElementById('{$this->generateId()}').addEventListener('submit', function(e){
+        if (!formidable.validateForm(this, e)) {
+            e.preventDefault();
+        }
+    });
+});
+JS;
+        }
+        if ($this->honeypot) {
+            $js .= <<<JS
+document.addEventListener('DOMContentLoaded', (event) => {
+    var css = {position: 'absolute', left: '-100000px', overflow: 'hidden'};
+    var elem = document.getElementById('{$this->generateId()}').querySelector('[id={$this->handle}-field-{$this->honeypotField}]');
+    for (var property in css) {
+        elem.style[property] = css[property];
+    }
+});
+JS;
+        }
+
+        return $js;
     }
 }

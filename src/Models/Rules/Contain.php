@@ -63,6 +63,22 @@ class Contain extends Rule
 			case TextField::class:
 				return (strpos($value, $against) !== false);
 		}
-		throw RuleException::typeNotValid($this, get_class($field->fieldType()));
+		throw RuleException::typeNotValid($rule, get_class($field->fieldType()));
+	}
+
+	/**
+	 * inheritDoc
+	 */
+	public function checkJs(): string
+	{
+		return "function (field, value, against) {
+			switch (field.valueType) {
+				case 'array':
+					return value.indexOf(against) != -1;
+				case 'text':
+					return value.search(against) != -1;
+			}
+			throw 'Field type '+field.valueType+' can\'t be checked for a contain rule';
+		}";
 	}
 }

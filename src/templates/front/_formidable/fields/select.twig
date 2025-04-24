@@ -6,15 +6,12 @@
 	<select
 	id="{{ field.generateId(form) }}-input"
 	name="{{ field.frontName }}{% if field.multiple %}[]{% endif %}"
-	class="{{ field_class }}{% if errors %} is-invalid{% endif %}"
+	class="{{ field_class }}{% if error %} is-invalid{% endif %}"
 	{% if field.multiple %}multiple{% endif %}
 	{% if not field.autocomplete %}autocomplete="off"{% endif %}
 	>
-		{% if field.emptyOptionLabel %}
-			<option value="">{{ field.emptyOptionLabel|t }}</option>
-		{% endif %}
-		{% for id, option in field.availableOptions %}
-			<option value="{{ id }}" {% if old_value and (id in old_value) %}selected="selected"{% endif %}>{{ option }}</option>
+		{% for choice in field.choices %}
+			<option value="{{ choice.value == '{empty}' ? '' : choice.value }}" {% if old_value and (choice.value == old_value) %}selected="selected"{% endif %}>{{ choice.label }}</option>
 		{% endfor %}
 	</select>
 {% endblock %}

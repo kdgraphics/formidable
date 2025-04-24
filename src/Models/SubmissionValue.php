@@ -1,11 +1,10 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\Models;
 
 use Inspire\Formidable\Formidable;
 use Inspire\Formidable\Interfaces\FieldInterface;
 use craft\base\Model;
-use craft\helpers\Json;
 
 class SubmissionValue extends Model
 {
@@ -32,7 +31,7 @@ class SubmissionValue extends Model
 
 	/**
 	 * Get field associated to this value
-	 * 
+	 *
 	 * @return ?FieldInterface
 	 */
 	public function getField(): ?FieldInterface
@@ -47,45 +46,36 @@ class SubmissionValue extends Model
 	}
 
 	/**
-	 * Get a string representation of value
-	 * 
-	 * @return string
-	 */
-	public function asString(): string
-	{
-		if ($field = $this->field) {
-			return $field::getStringValue($field, $this->asRaw());
-		}
-		if ($field = Formidable::$plugin->fields->getRegistered($this->type)) {
-			return $field::getStringValue($field, $this->asRaw(), false);
-		}
-		return $this->value ?: '';
-	}
-
-	/**
-	 * Get a html representation of value
-	 * 
-	 * @return string
-	 */
-	public function asHtml(): string
-	{
-		if ($field = $this->field) {
-			return $field::getHtmlValue($field, $this->asRaw());
-		}
-		if ($field = Formidable::$plugin->fields->getRegistered($this->type)) {
-			return $field::getHtmlValue($field, $this->asRaw(), false);
-		}
-		return $this->value ?: '';
-	}
-
-	/**
-	 * Get raw value as saved in database (decoded)
-	 * 
+	 * Get a value for a specific style
+	 *
+	 * @param  string $style
 	 * @return mixed
 	 */
-	public function asRaw()
+	public function getValue(string $style = 'raw')
 	{
-		return Json::decode($this->value);
+		if ($style == 'raw') {
+			return $this->rawValue();
+		}
+		if (!$field = $this->field) {
+			if (!$field = Formidable::$plugin->fields->getRegistered($this->type)) {
+				return $this->rawValue();
+			}
+		}
+		$method = 'get' . ucfirst($style) . 'Value';
+		if (method_exists($field, $method)) {
+			return $field->$method($this->rawValue());
+		}
+		return $this->rawValue();
+	}
+
+	/**
+	 * Get raw value as saved in database
+	 *
+	 * @return mixed
+	 */
+	public function rawValue()
+	{
+		return json_decode($this->value, true);
 	}
 
 	/**
@@ -95,18 +85,14 @@ class SubmissionValue extends Model
 	{
 		$array = parent::toArray($fields, $expand, $recursive);
 		$array['field'] = $this->field;
-		$array['rawValue'] = $this->asRaw();
-		$array['stringValue'] = $this->asString();
-		$array['htmlValue'] = $this->asHtml();
+		$array['rawValue'] = $this->getValue();
+		$array['stringValue'] = $this->getValue('string');
+		$array['htmlValue'] = $this->getValue('html');
 		return $array;
 	}
 
-	/**
-	 * Get a string representation of the value
-	 * @return string
-	 */
 	public function __toString()
 	{
-		return $this->asString();
+		return $this->rawValue();
 	}
 }

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\Models\FieldTypes;
 

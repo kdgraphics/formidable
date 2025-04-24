@@ -7,17 +7,15 @@ use craft\web\assets\cp\CpAsset;
 
 class SpamAsset extends AssetBundle
 {
-    public function init()
+	public function init(): void
     {
-        $this->sourcePath = __DIR__ . '/dist/js';
+        $this->sourcePath = __DIR__ . '/dist';
 
         $this->depends = [
             CpAsset::class,
         ];
 
         $this->js = [
-            'chunk-vendors.js',
-            'chunk-common.js',
             'spam.js'
         ];
 

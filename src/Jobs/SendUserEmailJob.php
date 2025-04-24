@@ -8,17 +8,16 @@ use craft\queue\BaseJob;
 class SendUserEmailJob extends BaseJob
 {
     /**
-     * @var int
+     * @var Submission
      */
-    public $submissionId;
+    public $submission;
 
     /**
      * @inheritdoc
      */
     public function execute($queue): void
     {
-        $submission = Formidable::$plugin->submissions->getById($this->submissionId);
-        Formidable::$plugin->submissions->sendUserEmail($submission);
+        Formidable::$plugin->submissions->sendUserEmail($this->submission);
     }
 
     /**

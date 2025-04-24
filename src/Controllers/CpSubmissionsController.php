@@ -1,22 +1,25 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\Controllers;
 
 use Inspire\Formidable\Assets\SubmissionsAsset;
+use Inspire\Formidable\Models\Records\Submission;
+use craft\helpers\Json;
 use yii\web\BadRequestHttpException;
 use yii\widgets\LinkPager;
 
 class CpSubmissionsController extends Controller
 {
-    public function actionIndex()
-    {
+	public function actionIndex()
+	{
         $this->requirePermission('manageFormidableSubmissions');
         $this->view->registerAssetBundle(SubmissionsAsset::class);
 
         return $this->renderTemplate('formidable/cp/submissions/index', [
-            'forms' => $this->forms()->getAllAsArray()
+            'forms' => $this->forms()->getAllAsArray(),
+            'sites' => $this->submissions()->getSites(),
         ]);
-    }
+	}
 
     public function actionLoad()
     {
@@ -60,7 +63,7 @@ class CpSubmissionsController extends Controller
         $this->requirePermission('manageFormidableSubmissions');
         $this->requireAcceptsJson();
         $this->requirePostRequest();
-        
+
         $ids = $this->request()->getRequiredParam('ids');
         $this->submissions()->setManyAsRead($ids);
         $response = [
@@ -70,7 +73,7 @@ class CpSubmissionsController extends Controller
         return $this->asJson($response);
     }
 
-    public function actionDeleteMany()
+    public function actionDeletemany()
     {
         $this->requirePermission('manageFormidableSubmissions');
         $this->requireAcceptsJson();
@@ -79,13 +82,16 @@ class CpSubmissionsController extends Controller
         $ids = $this->request()->getRequiredParam('ids');
         $this->submissions()->deleteMany($ids);
         $message = \Craft::t('formidable', 'Submissions deleted');
+
         if (sizeof($ids) == 1) {
             $message = \Craft::t('formidable', 'Submission deleted');
         }
+
         $response = [
             'success' => true,
             'message' => $message
         ];
+        
         return $this->asJson($response);
     }
 
@@ -93,7 +99,18 @@ class CpSubmissionsController extends Controller
     {
         $this->requirePermission('manageFormidableSubmissions');
         $ids = explode(',', $this->request()->getRequiredParam('ids'));
-        $data = $this->submissions()->exportAsCsv($ids);
+        $data = $this->submissions()->exportIdsAsCsv($ids);
+        return \Craft::$app->getResponse()->sendContentAsFile($data, 'submissions.csv', [
+            'mimeType' => 'text/csv'
+        ]);
+    }
+
+    public function actionExportAll()
+    {
+        $this->requirePermission('manageFormidableSubmissions');
+        $filters = Json::decode($this->request()->getRequiredParam('filters'));
+        $sort = Json::decode($this->request()->getRequiredParam('sort'));
+        $data = $this->submissions()->exportAllAsCsv($filters, $sort);
         return \Craft::$app->getResponse()->sendContentAsFile($data, 'submissions.csv', [
             'mimeType' => 'text/csv'
         ]);

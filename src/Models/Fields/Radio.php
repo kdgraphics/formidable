@@ -2,35 +2,43 @@
 
 namespace Inspire\Formidable\Models\Fields;
 
-use Inspire\Formidable\Models\FormPosted;
-use Inspire\Formidable\traits\FieldOptions;
-
-class Radio extends Checkboxes
+class Radio extends Select
 {
-    /**
-     * inheritDoc
-     **/
-    public function handle(): string
-    {
-        return 'radio';
-    }
+	public $choiceContainerClass;
+	public $choiceLabelClass;
+	public $default;
 
-    /**
-     * inheritDoc
-     **/
-    public function friendlyName(): string
-    {
-        return 'Radio';
-    }
+	/**
+	 * inheritDoc
+	 **/
+	public function handle(): string
+	{
+		return 'radio';
+	}
 
-    /**
-     * inheritDoc
-     */
-    public function getFrontEndRules(FormPosted $posted): array
-    {
-        return [
-            [$this->handle, 'default', 'value' => []],
-            [$this->handle, 'in', 'range' => array_keys($this->availableOptions)]
-        ];
-    }
+	/**
+	 * inheritDoc
+	 **/
+	public function getValue()
+	{
+		return $this->_value ?? $this->default;
+	}
+
+	/**
+	 * inheritDoc
+	 **/
+	public function friendlyName(): string
+	{
+		return 'Radio';
+	}
+
+	/**
+	 * inheritDoc
+	 **/
+	public function getExtraCpRules(): array
+	{
+		$rules = parent::getExtraCpRules();
+		$rules[] = [['choiceLabelClass', 'choiceContainerClass'], 'string'];
+		return $rules;
+	}
 }

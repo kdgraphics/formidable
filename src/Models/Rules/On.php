@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\Models\Rules;
 
@@ -12,7 +12,7 @@ class On extends Rule
 	/**
 	 * @inheritDoc
 	 */
-	public function name(): string 
+	public function name(): string
 	{
 		return \Craft::t('formidable', 'On');
 	}
@@ -58,6 +58,20 @@ class On extends Rule
 			case BooleanField::class:
 				return !empty($value);
 		}
-		throw RuleException::typeNotValid($this, get_class($field->fieldType()));
+		throw RuleException::typeNotValid($rule, get_class($field->fieldType()));
+	}
+
+	/**
+	 * inheritDoc
+	 */
+	public function checkJs(): string
+	{
+		return "function (field, value, against) {
+			switch (field.valueType) {
+				case 'boolean':
+					return value === true;
+			}
+			throw 'Field type '+field.valueType+' can\'t be checked for a on rule';
+		}";
 	}
 }

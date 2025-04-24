@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\Services;
 
@@ -9,10 +9,10 @@ use Inspire\Formidable\Interfaces\RuleInterface;
 use Inspire\Formidable\Models\Condition;
 use Inspire\Formidable\Models\ConditionGroup;
 use Inspire\Formidable\Models\Form;
-use Inspire\Formidable\records\ConditionRecord;
-use Inspire\Formidable\records\ConditionGroupRecord;
-use Inspire\Formidable\records\FormRecord;
-use Inspire\Formidable\records\RuleRecord;
+use Inspire\Formidable\Models\Records\Condition as ConditionRecord;
+use Inspire\Formidable\Models\Records\ConditionGroup as ConditionGroupRecord;
+use Inspire\Formidable\Models\Records\Form as FormRecord;
+use Inspire\Formidable\Models\Records\Rule as RuleRecord;
 use Inspire\Formidable\Models\Rule;
 use craft\base\Component;
 use craft\events\ConfigEvent;
@@ -23,7 +23,7 @@ class ConditionGroupsService extends Component
 {
     /**
      * Get condition group record by uid
-     * 
+     *
      * @param  string $uid
      * @return ConditionGroupRecord
      */
@@ -34,7 +34,7 @@ class ConditionGroupsService extends Component
 
     /**
      * Get condition group model by id
-     * 
+     *
      * @param  int $id
      * @return ?ConditionGroup
      */
@@ -46,7 +46,7 @@ class ConditionGroupsService extends Component
 
     /**
      * Get group model by uid
-     * 
+     *
      * @param  string $uid
      * @return ?ConditionGroup
      */
@@ -58,7 +58,7 @@ class ConditionGroupsService extends Component
 
     /**
      * Get all conditions groups for a rule
-     * 
+     *
      * @param  RuleInterface $rule
      * @return array
      */
@@ -73,7 +73,7 @@ class ConditionGroupsService extends Component
 
     /**
      * Delete many groups for a rule
-     * 
+     *
      * @param  int    $ruleId
      * @param  array  $keepIds
      */
@@ -88,7 +88,7 @@ class ConditionGroupsService extends Component
 
     /**
      * Validate some conditions groups data
-     * 
+     *
      * @param  array  $groupsData
      * @return array
      */

@@ -1,6 +1,9 @@
-import { createStore } from 'vuex'
-import { unset, keys, filter, cloneDeep } from 'lodash';
+import Vuex from 'vuex';
+import Vue from 'vue';
+import { unset, keys, filter } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
+
+Vue.use(Vuex);
 
 function duplicateField(field) {
   let newField = {...field};
@@ -18,30 +21,23 @@ function duplicateField(field) {
   return newField;
 }
 
-function duplicateRule(rule) {
-  let newRule = {...rule};
-  newRule.id = null;
-  newRule.form_id = null;
-  newRule.uid = uuidv4();
-  return newRule;
-}
-
-export const store = createStore({
+export default new Vuex.Store({
   state: {
     isAdding: false,
     isLoading: false,
     form: {},
-    originalForm: {},
     fields: [],
-    originalFields: [],
-    selectedField: null,
     rules: [],
-    originalRules: [],
     registeredRules: [],
-    selectedRule: null,
+    fieldNames: [],
     activeTab: null,
+    fieldsHaveErrors: false,
+    rulesHaveErrors: false,
+    configHasErrors: false,
+    hasErrors: false,
     allForms: {},
-    loadedTime: 0
+    loadedTime: 0,
+    volumes: {}
   },
   mutations: {
     setIsLoading(state, value) {
@@ -51,37 +47,39 @@ export const store = createStore({
       state.isAdding = value;
     },
     setFields(state, value) {
+      for (let i in value) {
+        value[i].order = i;
+        if (value[i].type == 'group') {
+          for (let j in value[i].fields) {
+            value[i].fields[j].order = j;
+          }
+        }
+      }
       state.fields = value;
-    },
-    setOriginalFields(state, value) {
-      state.originalFields = cloneDeep(value);
     },
     setRules(state, value) {
       state.rules = value;
     },
-    setOriginalRules(state, value) {
-      state.originalRules = cloneDeep(value);
-    },
     setRegisteredRules(state, value) {
       state.registeredRules = value;
-    },
-    setSelectedRule(state, value) {
-      state.selectedRule = value;
-    },
-    addRule(state, rule) {
-      state.rules.push(rule);
-    },
-    deleteRule(state, rule) {
-      state.rules = state.rules.filter((r) => r.uid != rule.uid);
     },
     setForm(state, value) {
       state.form = value;
     },
-    setOriginalForm(state, value) {
-      state.originalForm = cloneDeep(value);
-    },
     setActiveTab(state, value) {
       state.activeTab = value;
+    },
+    setRulesHaveErrors(state, value) {
+      state.rulesHaveErrors = value;
+    },
+    setFieldsHaveErrors(state, value) {
+      state.fieldsHaveErrors = value;
+    },
+    setConfigHasErrors(state, value) {
+      state.configHasErrors = value;
+    },
+    setHasErrors(state, value) {
+      state.hasErrors = value;
     },
     setAllForms(state, value) {
       state.allForms = value;
@@ -89,40 +87,38 @@ export const store = createStore({
     setLoadedTime(state, value) {
       state.loadedTime = value;
     },
-    setSelectedField(state, field) {
-      state.selectedField = field;
+    setVolumes(state, value) {
+      state.volumes = value;
     },
-    deleteField(state, field) {
-      state.fields = state.fields.filter(f => f.uid != field.uid);
+    updateField(state, field) {
       for (let i in state.fields) {
+        if (state.fields[i].uid == field.uid) {
+          Vue.set(state.fields, i, field);
+          return;
+        }
         if (state.fields[i].type == 'group') {
-          state.fields[i].fields = state.fields[i].fields.filter(f => f.uid != field.uid);
-        }
-      }
-      let rule;
-      for (let i in state.rules) {
-        rule = state.rules[i];
-        rule.fields = rule.fields.filter(f => f != field.handle);
-        if (rule.requiresField && rule.value == field.handle) {
-          rule.value = '';
-        }
-        for (let j in rule.conditions) {
-          if (rule.conditions[j].field == field.handle) {
-            rule.conditions[j].field = '';
+          for (let j in state.fields[i].fields) {
+            if (state.fields[i].fields[j] == field.uid) {
+              Vue.set(state.fields[i].fields, j, field);
+              return;
+            }   
           }
         }
-        for (let j in rule.conditionGroups) {
-          for (let k in rule.conditionGroups[j].conditions) {
-            if (rule.conditionGroups[j].conditions[k].field == field.handle) {
-              rule.conditionGroups[j].conditions[k].field = '';
+      }
+    },
+    deleteField(state, uid) {
+      for (let i in state.fields) {
+        if (state.fields[i].type == 'group') {
+          for (let j in state.fields[i].fields) {
+            if (state.fields[i].fields[j].uid == uid) {
+              Vue.set(state.fields[i], 'fields', state.fields[i].fields.filter(field => field.uid != uid));
+              return;
             }
           }
         }
-        if (state.form.spamCheck == field.handle) {
-          state.form.spamCheck = '';
-        }
-        if (state.form.notifyField == field.handle) {
-          state.form.notifyField = '';
+        if (state.fields[i].uid == uid) {
+          state.fields = state.fields.filter(field => field.uid != uid);
+          return;
         }
       }
     },
@@ -131,13 +127,26 @@ export const store = createStore({
     }
   },
   actions: {
+    configHasErrors({commit, dispatch, state}, value) {
+      commit('setConfigHasErrors', value);
+      dispatch('checkIfErrors');
+    },
+    fieldsHaveErrors({commit, dispatch, state}, value) {
+      commit('setFieldsHaveErrors', value);
+      dispatch('checkIfErrors');
+    },
+    rulesHaveErrors({commit, dispatch, state}, value) {
+      commit('setRulesHaveErrors', value);
+      dispatch('checkIfErrors');
+    },
+    checkIfErrors({commit, state}) {
+      commit('setHasErrors', state.rulesHaveErrors || state.fieldsHaveErrors || state.configHasErrors);
+    },
     loadForm({commit, state, dispatch}, id) {
-      let data = {
-        id: id
-      };
+      let data = {};
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       commit('setIsLoading', false);
-      axios.post(Craft.getActionUrl('formidable/cp-forms/get'), data)
+      axios.post(Craft.getCpUrl('formidable/forms/get/'+id), data)
         .then((response) => {
           if (response.data.success) {
             commit('setIsAdding', false);
@@ -158,7 +167,7 @@ export const store = createStore({
       let data = {form: state.form, fields: state.fields, rules: state.rules, loaded: state.loadedTime};
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       commit('setIsLoading', true);
-      axios.post(Craft.getActionUrl('formidable/cp-forms/save'), data)
+      axios.post(Craft.getCpUrl('formidable/forms/save'), data)
         .then((response) => {
           if (response.data.success) {
             Craft.cp.displayNotice(response.data.message);
@@ -172,10 +181,6 @@ export const store = createStore({
             dispatch('resetForm', response.data);
           } else {
             Craft.cp.displayError(response.data.message);
-            if (response.data.form) {
-              response.data.resetOriginals = false;
-              dispatch('resetForm', response.data);
-            }
           }
         })
         .catch((error) => {
@@ -190,7 +195,7 @@ export const store = createStore({
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       commit('setIsLoading', true);
       dispatch('setHistory', ['add']);
-      axios.post(Craft.getActionUrl('formidable/cp-forms/new'), data)
+      axios.post(Craft.getCpUrl('formidable/forms/new'), data)
         .then((response) => {
           if (response.data.success) {
             commit('setIsAdding', true);
@@ -216,24 +221,22 @@ export const store = createStore({
       }
       let newRules = [];
       for (let i in state.rules) {
-        newRules.push(duplicateRule(state.rules[i]));
+        let rule = {...state.rules[i]};
+        rule.id = null;
+        rule.form_id = null;
+        rule.uid = uuidv4();
+        newRules.push(rule);
       }
       commit('setIsAdding', true);
-      dispatch('resetForm', {
-        form: newForm,
-        fields: newFields,
-        rules: newRules,
-        loaded: Math.floor(Date.now() / 1000)
-      });
-      Craft.cp.displayNotice('Form is duplicated, check your changes and save');
+      commit('setForm', newForm);
+      commit('setFields', newFields);
+      commit('setRules', newRules);
     },
     deleteForm({commit, state, dispatch}) {
-      let data = {
-        id: state.form.id
-      };
+      let data = {};
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       commit('setIsLoading', true);
-      axios.post(Craft.getActionUrl('formidable/cp-forms/delete'), data)
+      axios.post(Craft.getCpUrl('formidable/forms/delete/'+state.form.id), data)
         .then((response) => {
           if (response.data.success) {
             let forms = state.allForms;
@@ -260,44 +263,6 @@ export const store = createStore({
       commit('setFields', data.fields);
       commit('setRules', data.rules);
       commit('setLoadedTime', data.loaded);
-      if (data.resetOriginals ?? true) {
-        commit('setOriginalForm', state.form);
-        commit('setOriginalFields', state.fields);
-        commit('setOriginalRules', state.rules);
-      }
-      if (state.selectedField) {
-        let field;
-        let found;
-        outerloop:
-        for (let i in data.fields) {
-          field = data.fields[i];
-          if (field.uid == state.selectedField.uid) {
-            found = field;
-            break;
-          }
-          if (field.type == 'group') {
-            for (let j in field.fields) {
-              if (field.fields[j].uid == state.selectedField.uid) {
-                found = field.fields[j];
-                break outerloop;
-              }
-            }
-          }
-        }
-        if (found) {
-          commit('setSelectedField', found);
-        } else {
-          commit('setSelectedField', null);
-        }
-      }
-      if (state.selectedRule) {
-        let rules = data.rules.filter(f => f.uid == state.selectedRule.uid);
-        if (rules.length) {
-          commit('setSelectedRule', rules[0]);
-        } else {
-          commit('setSelectedRule', null);
-        }
-      }
     },
     setHistory({}, parts) {
       let url = document.location.pathname.split('/');

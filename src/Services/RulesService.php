@@ -9,10 +9,11 @@ use Inspire\Formidable\Interfaces\RuleInterface;
 use Inspire\Formidable\Models\Condition;
 use Inspire\Formidable\Models\ConditionGroup;
 use Inspire\Formidable\Models\Form;
-use Inspire\Formidable\records\ConditionRecord;
-use Inspire\Formidable\records\ConditionGroupRecord;
-use Inspire\Formidable\records\FormRecord;
-use Inspire\Formidable\records\RuleRecord;
+use Inspire\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\Records\Condition as ConditionRecord;
+use Inspire\Formidable\Models\Records\ConditionGroup as ConditionGroupRecord;
+use Inspire\Formidable\Models\Records\Form as FormRecord;
+use Inspire\Formidable\Models\Records\Rule as RuleRecord;
 use Inspire\Formidable\Models\Rule;
 use craft\base\Component;
 use craft\events\ConfigEvent;
@@ -124,10 +125,9 @@ class RulesService extends Component
      * Validate some rules data
      * 
      * @param  array $rulesData
-     * @param  Form  $form
      * @return array
      */
-    public function populateFromData(array $rulesData, Form $form)
+    public function populateFromData(array $rulesData)
     {
         $rules = [];
         foreach ($rulesData as $index => $data) {
@@ -137,7 +137,6 @@ class RulesService extends Component
                 $rule = $this->getRegistered($data['type']);
             }
             $rule->setAttributes($data);
-            $rule->form = $form;
             $rule->conditions = Formidable::$plugin->conditions->populateFromData($data['conditions']);
             $rule->conditionGroups = Formidable::$plugin->conditionGroups->populateFromData($data['conditionGroups']);
             $rules[$index] = $rule;

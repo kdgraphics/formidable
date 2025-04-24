@@ -4,7 +4,7 @@ namespace Inspire\Formidable\migrations;
 
 use Craft;
 use craft\db\Migration;
-use Inspire\Formidable\records\FieldRecord;
+use Inspire\Formidable\Models\Records\Field;
 
 /**
  * m220921_081021_ChangedFileMultipleAttribute migration.
@@ -16,7 +16,7 @@ class m220921_081021_ChangedFileMultipleAttribute extends Migration
      */
     public function safeUp()
     {
-        $fields = FieldRecord::find()->where(['type' => 'file'])->all();
+        $fields = Field::find()->where(['type' => 'file'])->all();
         foreach ($fields as $field) {
             $options = json_decode($field->options, true);
             if ($options['multiple'] ?? false) {

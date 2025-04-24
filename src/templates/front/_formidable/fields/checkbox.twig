@@ -1,7 +1,5 @@
 {% set field_class = (field_class ?? '') ~ (field.fieldClass ? (' ' ~ field.fieldClass) : '') %}
 {% set container_class = (container_class ?? '') ~ (field.containerClass ? (' ' ~ field.containerClass) : '') %}
-{% set errors = posted.errors[field.handle] ?? [] %}
-{% set old_value = posted[field.handle] ?? field.value %}
 
 <div class="{{ container_class }} field" id="{{ field.generateId(form) }}">
 	{% block before_field %}
@@ -11,7 +9,7 @@
 		<input type="checkbox"
 		id="{{ field.generateId(form) }}-input"
 		name="{{ field.frontName }}"
-		class="{{ field_class }}{% if errors %} is-invalid{% endif %}" 
+		class="{{ field_class }}{% if error %} is-invalid{% endif %}" 
 		value="1"
 		{% if old_value %}checked="checked"{% endif %}
 		{% if not field.autocomplete %}autocomplete="off"{% endif %}

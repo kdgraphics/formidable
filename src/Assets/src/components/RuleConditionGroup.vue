@@ -2,91 +2,66 @@
   <div class="form-condition-group">
     <div class="left-box">
       <div class="top-box">
-        <a
-          href="#"
-          class="delete icon"
-          :title="t('Delete')"
-          @click.prevent="$emit('delete')"
-        />
-        <div
-          v-if="!isFirst"
-          class="operator"
-        >
-          <a
-            href="#"
-            @click="changeOperator"
-          >{{ capitalize(group.operator) }}</a>
+        <a href="#" class="delete icon" @click.prevent="$emit('delete')" :title="t('Delete')"></a>
+        <div class="operator">
+          <a href="#" v-if="hasConditions || index > 0" @click="changeOperator">{{ capitalize(group.operator) }}</a>
         </div>
-        <div
-          v-if="group.negate"
-          class="negate"
-        >
-          <a
-            href="#"
-            @click.prevent="negate"
-          >{{ t('not') }}</a>
+        <div class="negate" v-if="group.negate">
+          <a href="#" @click.prevent="negate">{{ t('not') }}</a>
         </div>
       </div>
-      <a
-        v-if="!group.negate"
-        class="icon-negate"
-        href="#"
-        @click.prevent="negate"
-      />
+      <a class="icon-negate" href="#" v-if="!group.negate" @click.prevent="negate"></a>
     </div>
     <div class="group-condition-list">
-      <rule-condition
-        v-for="(condition, index) in group.conditions"
-        :key="index"
-        :group="group"
-        :uid="condition.uid"
-        @delete="deleteCondition(condition.uid)"
+      <condition v-for="(condition, index) in group.conditions" v-on:delete="deleteCondition(index)" v-on:error="onError"
+        :key="index" 
+        :condition="condition" 
+        :index="index"
       />
-      <a
-        href="#"
-        @click.prevent="addCondition"
-      >{{ t('Add condition') }}</a>
+      <a href="#" @click.prevent="addCondition">{{ t('Add condition') }}</a>
     </div>
   </div>
 </template>
 
 <script>
 import { mapMutations, mapState } from 'vuex';
-import { capitalize } from 'lodash';
-import { v4 as uuidv4 } from 'uuid';
-import RuleCondition from './RuleCondition.vue';
+import { reduce } from 'lodash';
 
 export default {
-  components: {RuleCondition},
   props: {
-    uid: {
-      type: String,
-      default: ''
+    group: Object,
+    index: Number,
+    hasConditions: Boolean,
+  },
+  computed: {
+    /**
+     * @return {Boolean} global error status
+     */
+    hasErrors: function () {
+      return reduce(this.errors, function(result, value, key) {
+        return (result || value);
+      }, false);
+    },
+    ...mapState(['fields'])
+  },
+  data() {
+    return {
+      errors: {},
     }
   },
-  emits: ['delete'],
-  computed: {
-    isFirst: function () {
-      if (this.selectedRule.conditions.length) {
-        return false;
-      }
-      let group = this.selectedRule.conditionGroups[0];
-      return group.uid == this.group.uid;
-    },
-    group: function () {
-      return this.selectedRule.conditionGroups.filter(c => c.uid == this.uid)[0];
-    },
-    ...mapState(['fields', 'selectedField', 'selectedRule'])
+  watch: {
+    hasErrors: function () {
+      this.$emit('error', {index: this.index, error: this.hasErrors});
+    }
   },
   methods: {
     addCondition() {
       this.group.conditions.push({
-        type: 'required', 
+        type: 'present', 
         negate: false, 
         value: '', 
         operator: 'and', 
-        field: this.fields.length ? this.fields[0].handle : '',
-        uid: uuidv4()
+        field: this.fields[0].name ?? ''
       });
     },
     changeOperator(){
@@ -95,11 +70,12 @@ export default {
     negate() {
       this.group.negate = !this.group.negate;
     },
-    deleteCondition(uid) {
-      this.group.conditions = this.group.conditions.filter(r => r.uid != uid);
+    deleteCondition(index) {
+      this.$delete(this.group.conditions, index);
+      this.$delete(this.errors, index);
     },
-    capitalize(str) {
-      return capitalize(str);
+    onError(data) {
+      this.$set(this.errors, data.index, data.error);
     }
   }
 };
@@ -109,19 +85,9 @@ export default {
 @import "~craftcms-sass/mixins";
 
 .form-condition-group {
-  display: flex;
-  margin-bottom: 10px;
-  &:last-child {
-    margin-bottom: 0;
-  }
   .group-condition-list {
     border-left: 1px solid $grey200;
     padding-left: 5px;
-    margin-left: 5px;
-    flex-grow: 1;
-  }
-  .negate, .operator, .icon-negate, .type, .select, .value {
-    line-height: 24px;
     margin-left: 5px;
   }
   .actions {
@@ -136,7 +102,6 @@ export default {
   .left-box{
     display: flex;
     flex-direction: column;
-    width: 41px;
     .icon-negate {
       margin-left: 0;
     }

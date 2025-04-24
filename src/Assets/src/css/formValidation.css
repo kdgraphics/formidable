@@ -1,0 +1,1 @@
+.loading-spinner{display:inline-block;width:16px;height:16px;margin-left:8px;border:2px solid #fff;border-radius:50%;border-top:2px solid transparent;animation:1s linear infinite spin}@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}

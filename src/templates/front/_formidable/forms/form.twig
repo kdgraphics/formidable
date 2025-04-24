@@ -1,21 +1,25 @@
 {% from '_formidable/macros' import errorList %}
 
-{% set form_class = (form_class ?? '') ~ (form.class ? (' ' ~ form.class) : '') %}
+{% set error = errors['*'] is defined ? errors['*'] : false %}
+
+{% set form_class = (class ?? '') ~ (form.class ? (' ' ~ form.class) : '') %}
 {% set submit_class = (submit_class ?? '') ~ (form.submitClass ? (' ' ~ form.submitClass) : '') %}
 {% set submit_container_class = submit_container_class ?? 'submit-wrapper' %}
 {% set honeypot_class = honeypot_class ?? 'field' %}
+{% set fields_class = fields_class ?? 'fields' %}
+
+{% do view.registerAssetBundle("Inspire\\Formidable\\Assets\\FormValidationAsset") %}
 
 {% block before_form %}{% endblock %}
 
-<form id="{{ form.generateId() }}" action="" method="{{ form.method }}" class="form-{{ form.handle }} {{ form_class }} formidable" enctype="multipart/form-data"{% if not form.autocomplete %} autocomplete="off"{% endif %}>
-	{{ csrfInput() }}
-	{{ actionInput('formidable/forms/submit') }}
-	{{ hiddenInput('id', form.id) }}
-	{% block after_form_tag %}{% endblock %}
-	{% block main_errors %}
-		{% if posted.errors['*'] ?? false %}
-			{{ errorList(posted.errors['*'], 'alert alert-danger') }}
+<form id="{{ form.generateId() }}" action="{{ currentSite.getBaseUrl() }}formidable/submit/{{ form.id }}" method="{{ form.method }}" class="form-{{ form.handle }} {{ form_class }}{% if form.frontEndValidation %} js-validate{% endif %} formidable" enctype="multipart/form-data"{% if not form.autocomplete %} autocomplete="off"{% endif %}>
+	{% block mainErrors %}
+		{% if error %}
+			{{ errorList(error, 'alert alert-danger') }}
 		{% endif %}
+	{% endblock %}
+	{% block csrfInput %}
+		{{ csrfInput() }}
 	{% endblock %}
 	{% block honeypot %}
 		{% if form.honeypot %}
@@ -23,7 +27,13 @@
 		{% endif %}
 	{% endblock %}
 	{% block fields %}
-		{% include "_formidable/_includes/fields" %}
+		<div class="{{ fields_class }}">
+			{% for field in fields %}
+				{% set error = errors[field.handle] is defined ? errors[field.handle] : false %}
+				{% set old_value = oldInput[field.handle] ?? field.value %}
+				{% include "_formidable/fields/field" %}
+			{% endfor %}
+		</div>
 	{% endblock %}
 	{% block captcha %}
 		{% if form.captcha %}
@@ -33,7 +43,10 @@
 	{% block submit %}
 		{% include "_formidable/_includes/submit" %}
 	{% endblock %}
-	{% block before_end_form_tag %}{% endblock %}
 </form>
 
 {% block after_form %}{% endblock %}
+
+{% js %}
+	{{ form.getFrontJs()|raw }}
+{% endjs %}

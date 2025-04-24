@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\Models\Rules;
 
@@ -15,7 +15,7 @@ class EqualTo extends Rule
 	/**
 	 * @inheritDoc
 	 */
-	public function name(): string 
+	public function name(): string
 	{
 		return \Craft::t('formidable', 'Equal to');
 	}
@@ -62,6 +62,21 @@ class EqualTo extends Rule
 			case NumberField::class:
 				return $value === $against;
 		}
-		throw RuleException::typeNotValid($this, get_class($field->fieldType()));
+		throw RuleException::typeNotValid($rule, get_class($field->fieldType()));
+	}
+
+	/**
+	 * inheritDoc
+	 */
+	public function checkJs(): string
+	{
+		return "function (field, value, against) {
+			switch (field.valueType) {
+				case 'text':
+				case 'number':
+					return value === against;
+			}
+			throw 'Field type '+field.valueType+' can\'t be checked for a equal rule';
+		}";
 	}
 }

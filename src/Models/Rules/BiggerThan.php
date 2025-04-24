@@ -51,7 +51,7 @@ class BiggerThan extends Rule
 	 */
 	public function validFieldTypes(): array
 	{
-		return [ArrayField::class, TextField::class, NumberField::class, FileField::class];
+		return [ArrayField::class, FileField::class, TextField::class, NumberField::class];
 	}
 
 	/**
@@ -61,13 +61,34 @@ class BiggerThan extends Rule
 	{
 		switch (get_class($field->fieldType())) {
 			case ArrayField::class:
-			case FileField::class:
 				return sizeof($value) > $against;
+			case FileField::class:
+				return true;
 			case TextField::class:
 				return strlen($value) > $against;
 			case NumberField::class:
 				return (int)$value > (int)$against;
 		}
-		throw RuleException::typeNotValid($this, get_class($field->fieldType()));
+		throw RuleException::typeNotValid($rule, get_class($field->fieldType()));
+	}
+
+	/**
+	 * inheritDoc
+	 */
+	public function checkJs(): string
+	{
+		return "function (field, value, against) {
+			if (field.type == 'hidden') {
+				return parseFloat(value) > parseFloat(against);
+			}
+			switch (field.valueType) {
+				case 'text':
+				case 'array':
+					return value.length > against;
+				case 'number':
+					return parseFloat(value) > parseFloat(against);
+			}
+			throw 'Field type '+field.valueType+' can\'t be checked for a bigger than rule';
+		}";
 	}
 }

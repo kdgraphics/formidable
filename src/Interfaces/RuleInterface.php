@@ -4,7 +4,7 @@ namespace Inspire\Formidable\Interfaces;
 
 use Inspire\Formidable\Interfaces\FieldInterface;
 use Inspire\Formidable\Models\Form;
-use Inspire\Formidable\Models\FormPosted;
+use Inspire\Formidable\Models\FormSubmission;
 
 interface RuleInterface
 {
@@ -44,12 +44,12 @@ interface RuleInterface
 	public function validFieldTypes(): array;
 
 	/**
-	 * Does this rule apply to a form posted
+	 * Does this rule apply to a form submission
 	 * 
-	 * @param  FormPosted $posted
+	 * @param  FormSubmission $submission
 	 * @return bool
 	 */
-	public function appliesTo(FormPosted $posted): bool;
+	public function appliesTo(FormSubmission $submission): bool;
 
 	/**
 	 * Check a value against another value
@@ -63,10 +63,24 @@ interface RuleInterface
 	public function check(FieldInterface $field, $value, $against = null): bool;
 
 	/**
+	 * Javascript code to check this rule. must return a function(field, value, against){}
+	 * 
+	 * @return string
+	 */
+	public function checkJs(): string;
+
+	/**
 	 * Validate this rule for a field
 	 * 
-	 * @param  string     $fieldName
-	 * @param  FormPosted $posted
+	 * @param  string         $fieldName
+	 * @param  FormSubmission $submission
 	 */
-	public function validateRule(string $fieldName, FormPosted $posted);
+	public function validateRule(string $fieldName, FormSubmission $submission);
+
+	/**
+	 * Javascript to define this rule in a form
+	 * 
+	 * @return string
+	 */
+	public function frontJs(): string;
 }

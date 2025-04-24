@@ -6,7 +6,7 @@ use Inspire\Formidable\Assets\GoogleV2CaptchaBundle;
 use Inspire\Formidable\Formidable;
 use Inspire\Formidable\Interfaces\CaptchaInterface;
 use Inspire\Formidable\Models\Form;
-use Inspire\Formidable\Models\FormPosted;
+use Inspire\Formidable\Models\FormSubmission;
 use craft\helpers\StringHelper;
 use craft\web\View;
 
@@ -77,7 +77,7 @@ class GoogleV2 implements CaptchaInterface
     /**
      * @inheritDoc
      */
-    public function verify(Form $form, FormPosted $posted): bool
+    public function verify(Form $form, FormSubmission $submission, array $posted): bool
     {
         $client = new \GuzzleHttp\Client();
         $secret = $this->getSecretKey();
@@ -89,17 +89,16 @@ class GoogleV2 implements CaptchaInterface
                     'response' => $posted['g-recaptcha-response']
                 ]
             ]);
-            unset($posted['_recaptcha_response']);
             $data = json_decode($response->getBody()->getContents(), true);
             if ($data['success']) {
                 return true;
             }
-            $posted->spam_reason = 'Unable to verify Google captcha';
-            $posted->addError('*', \Craft::t('site', 'Unable to verify your captcha, please complete it again'));
+            $submission->_spam_reason = 'Unable to verify Google captcha';
+            $submission->addError('*', \Craft::t('site', 'Unable to verify your captcha, please complete it again'));
             return false;
         }
-        $posted->spam_reason = 'Google captcha information not sent';
-        $posted->addError('*', \Craft::t('site', 'Unable to verify your captcha'));
+        $submission->_spam_reason = 'Google captcha information not sent';
+        $submission->addError('*', \Craft::t('site', 'Unable to verify your captcha'));
         return false;
     }
 }

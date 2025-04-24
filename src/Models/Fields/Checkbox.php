@@ -2,10 +2,9 @@
 
 namespace Inspire\Formidable\Models\Fields;
 
-use Inspire\Formidable\Interfaces\FieldInterface;
 use Inspire\Formidable\Models\Field;
 use Inspire\Formidable\Models\FieldTypes\BooleanField;
-use Inspire\Formidable\Models\FormPosted;
+use Inspire\Formidable\Models\FormSubmission;
 
 class Checkbox extends Field
 {
@@ -42,39 +41,31 @@ class Checkbox extends Field
     }
 
     /**
-     * @inheritDoc
-     **/
-    public function defineOptions(): array
-    {
-        return ['label', 'labelHtml', 'tooltip', 'tooltipLabel', 'default'];
-    }
-
-    /**
      * inheritDoc
      **/
-    public function defineRules(): array
+    public function getExtraCpRules(): array
     {
-        return array_merge(parent::defineRules(), [
+        return [
             [['label', 'tooltip', 'tooltipLabel'], 'string'],
             [['label', 'tooltip', 'tooltipLabel'], 'trim'],
             [['default', 'labelHtml'], 'boolean', 'trueValue' => true, 'falseValue' => false]
-        ]);
+        ];
     }
 
     /**
      * Upload files before validation
      * 
-     * @param  FormPosted $posted
+     * @param  FormSubmission $submission
      */
-    public function beforeSubmissionValidated(FormPosted $posted)
+    public function beforeSubmissionValidated(FormSubmission $submission)
     {
-        $posted->{$this->handle} = $posted->{$this->handle} ? true : false;
+        $submission->{$this->handle} = $submission->{$this->handle} ? true : false;
     }
 
     /**
      * inheritDoc
      */
-    public function getFrontEndRules(FormPosted $posted): array
+    public function getFrontEndRules(FormSubmission $submission): array
     {
         return [[$this->handle, 'boolean']];
     }
@@ -82,8 +73,16 @@ class Checkbox extends Field
     /**
      * @inheritDoc
      */
-    public static function getStringValue(?FieldInterface $field, $value, bool $isOwn = true): string
+    public static function getStringValue($value): string
     {
         return $value ? \Craft::t('site', 'Yes') : \Craft::t('site', 'No');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function getHtmlValue($value): string
+    {
+        return self::getStringValue($value);
     }
 }

@@ -1,191 +1,119 @@
 <template>
-  <forms-field
-    :has-placeholder="false"
+  <forms-field v-on="$listeners"
+    :field="field"
+    :errors="errors"
   >
-    <template #extraFields>
-      <div class="field">
+    <template v-slot:extraFields>
+    	<div class="field field-label">
         <div class="heading">
-          <label>{{ t('Options type') }}</label>
+          <label>{{ t('Label') }}</label>
         </div>
         <div class="input ltr">
-          <div class="select">
-            <select
-              v-model="selectedField.optionsType"
-              class="text fullwidth"
-            >
-              <option value="custom">
-                {{ t('Custom') }}
-              </option>
-              <option value="entries">
-                {{ t('Entries') }}
-              </option>
-              <option value="categories">
-                {{ t('Categories') }}
-              </option>
-            </select>
-          </div>
+          <textarea type="text" :class="'text fullwidth field-label-value'+field.uid" v-model="field.label" rows="1"></textarea>
+          <a href="#" @click.prevent="field.labelHtml = !field.labelHtml">{{ field.labelHtml ? 'Plain' : 'Html' }}</a>
         </div>
       </div>
-      <custom-options
-        v-if="selectedField.optionsType == 'custom'"
+      <div class="field field-tooltip-label">
+        <div class="heading">
+          <label>{{ t('Tooltip label') }}</label>
+        </div>
+        <div class="input ltr">
+          <input type="text" class="text fullwidth" v-model="field.tooltipLabel">
+        </div>
+      </div>
+      <div class="field field-tooltip">
+        <div class="heading">
+          <label>{{ t('Tooltip') }}</label>
+        </div>
+        <div class="input ltr">
+          <textarea type="text" :class="'text fullwidth field-tooltip-value'+field.uid" v-model="field.tooltip" rows="1"></textarea>
+        </div>
+      </div>
+      <field-choices
+        :field="field"
         :default="''"
-      />
-      <div
-        v-if="selectedField.optionsType == 'categories'"
-        class="field"
-      >
-        <div class="heading">
-          <label>{{ t('Category groups') }}</label>
-        </div>
-        <div class="select fullwidth">
-          <select
-            v-model="selectedField.groupUids"
-            multiple
-          >
-            <option
-              v-for="name, uid in groups"
-              :key="uid"
-              :value="uid"
-            >
-              {{ name }}
-            </option>
-          </select>
-        </div>
-        <ul class="errors">
-          <li
-            v-for="error, index in errors.groups"
-            :key="index"
-            class="error"
-          >
-            {{ error }}
-          </li>
-        </ul>
-      </div>
-      <div
-        v-if="selectedField.optionsType == 'entries'"
-        class="field"
-      >
-        <div class="heading">
-          <label>{{ t('Sections') }}</label>
-        </div>
-        <div class="select fullwidth">
-          <select
-            v-model="selectedField.sectionUids"
-            multiple
-          >
-            <option
-              v-for="name, uid in sections"
-              :key="uid"
-              :value="uid"
-            >
-              {{ name }}
-            </option>
-          </select>
-        </div>
-        <ul class="errors">
-          <li
-            v-for="error, index in errors.sections"
-            :key="index"
-            class="error"
-          >
-            {{ error }}
-          </li>
-        </ul>
-      </div>
+        :errors="errors"
+      ></field-choices>
     </template>
-    <template #extraAdvanced>
-      <div class="field">
+    <template v-slot:extraAdvanced>
+      <div class="field field-choiceContainerClass">
         <div class="heading">
-          <label>{{ t('Option container class') }}</label>
+          <label>{{ t('Choice container class') }}</label>
         </div>
         <div class="input ltr">
-          <input
-            v-model="selectedField.optionContainerClass"
-            type="text"
-            class="text fullwidth"
-          >
+          <input type="text" :class="'text fullwidth' + (errors.choiceContainerClass ? ' error' : '')" v-model="field.choiceContainerClass" @input="validateAlnum('choiceContainerClass')">
         </div>
-        <ul class="errors">
-          <li
-            v-for="error, index in errors.optionContainerClass"
-            :key="index"
-            class="error"
-          >
-            {{ error }}
-          </li>
-        </ul>
       </div>
-      <div class="field">
+      <div class="field field-choiceLabelClass">
         <div class="heading">
-          <label>{{ t('Option label class') }}</label>
+          <label>{{ t('Choice label class') }}</label>
         </div>
         <div class="input ltr">
-          <input
-            v-model="selectedField.optionLabelClass"
-            type="text"
-            class="text fullwidth"
-          >
+          <input type="text" :class="'text fullwidth' + (errors.choiceLabelClass ? ' error' : '')" v-model="field.choiceLabelClass" @input="validateAlnum('choiceLabelClass')">
         </div>
-        <ul class="errors">
-          <li
-            v-for="error, index in errors.optionLabelClass"
-            :key="index"
-            class="error"
-          >
-            {{ error }}
-          </li>
-        </ul>
       </div>
     </template>
   </forms-field>
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import FormsField from '../components/FormsField.vue';
-import CustomOptions from './CustomOptions.vue';
-
 export default {
-  components: {FormsField, CustomOptions},
+  props: {
+    index: Number,
+    field: Object
+  },
   data() {
     return {
-      sections: [],
-      groups: []
+      errors: {}
     }
   },
-  computed: {
-    errors: function () {
-      if (!this.selectedField.errors) {
-        return {};
-      }
-      return this.selectedField.errors;
+  watch: {
+    'field.labelHtml': function () {
+      this.toggleRedactor();
+    } 
+  },
+  mounted() {
+    if (this.field.labelHtml) {
+      this.enableLabelRedactor();
+    }
+    this.enableTooltipRedactor();
+  },
+  methods: {
+    isAlnum(field) {
+      return this.field[field].match(/^[0-9a-zA-Z-_]*$/);
     },
-    ...mapState(['selectedField']),
-  },
-  created() {
-    let _this = this;
-    if (typeof window.selectEntryFieldSections == 'undefined') {
-      let data = {};
-      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
-      window.selectEntryFieldSections = axios.post(Craft.getActionUrl('formidable/cp-utilities/sections'), data)
-      .catch((error) => {
-        console.log(error);
-      })
+    validateAlnum(field) {
+      if (!this.isAlnum(field)) {
+        this.$set(this.errors, field, true);
+      } else {
+        this.$set(this.errors, field, false);
+      }
+    },
+    enableTooltipRedactor: function () {
+      $R('.field-tooltip-value'+this.field.uid, {
+        callbacks: {
+          changed: (html) => {
+            this.field.tooltip = html;
+          }
+        }
+      });
+    },
+    enableLabelRedactor: function () {
+      $R('.field-label-value'+this.field.uid, {
+        callbacks: {
+          changed: (html) => {
+            this.field.label = html;
+          }
+        }
+      });
+    },
+    toggleRedactor: function() {
+      if (this.field.labelHtml) {
+        this.enableLabelRedactor();
+      } else {
+        $R('.field-label-value'+this.field.uid, 'destroy');
+      }
     }
-    window.selectEntryFieldSections.then(function (res) {
-      _this.sections = res.data.sections;
-    });
-    if (typeof window.selectCategoryFieldCategories == 'undefined') {
-      let data = {};
-      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
-      window.selectCategoryFieldCategories = axios.post(Craft.getActionUrl('formidable/cp-utilities/category-groups'), data)
-      .catch((error) => {
-        console.log(error);
-      })
-    }
-    window.selectCategoryFieldCategories.then(function (res) {
-      _this.groups = res.data.groups;
-    });
   }
 };
 </script>

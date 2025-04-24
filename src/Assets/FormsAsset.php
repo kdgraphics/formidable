@@ -1,26 +1,26 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\Assets;
 
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
-use craft\redactor\assets\redactor\RedactorAsset;
 
 class FormsAsset extends AssetBundle
 {
-    public function init()
+	public function init(): void
     {
-        $this->sourcePath = __DIR__ . "/dist/js";
+        $this->sourcePath = __DIR__ . '/dist';
 
         $this->depends = [
             CpAsset::class,
-            RedactorAsset::class
         ];
 
         $this->js = [
-            'chunk-vendors.js',
-            'chunk-common.js',
-            'forms.js'
+            'forms.js',
+        ];
+
+        $this->css = [
+            'main.css'
         ];
 
         parent::init();

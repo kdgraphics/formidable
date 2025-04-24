@@ -6,11 +6,12 @@
 	<input type="number"
 	id="{{ field.generateId(form) }}-input"
 	name="{{ field.frontName }}"
-	class="{{ field_class }}{% if errors %} is-invalid{% endif %}" 
+	class="{{ field_class }}{% if error %} is-invalid{% endif %}" 
 	value="{{ old_value }}"
 	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
 	{% if field.min != '' %}min="{{ field.min }}"{% endif %}
 	{% if field.max != '' %}max="{{ field.max }}"{% endif %}
+	{% if field.step != '' %}step="{{ field.step }}"{% endif %}
 	{% if not field.autocomplete %}autocomplete="off"{% endif %}
 	>
 {% endblock %}

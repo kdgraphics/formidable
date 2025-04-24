@@ -1,187 +1,113 @@
 <template>
-  <forms-field
-    :has-placeholder="false"
+  <forms-field v-on="$listeners"
+    :field="field"
+    :errors="errors"
   >
-    <template #extraFields>
-      <div class="lightswitch-field field">
+    <template v-slot:extraFields>
+    	<div class="field field-label">
+        <div class="heading">
+          <label>{{ t('Label') }}</label>
+        </div>
+        <div class="input ltr">
+          <textarea type="text" :class="'text fullwidth field-label-value'+field.uid" v-model="field.label" rows="1"></textarea>
+          <a href="#" @click.prevent="field.labelHtml = !field.labelHtml">{{ field.labelHtml ? 'Plain' : 'Html' }}</a>
+        </div>
+      </div>
+      <div class="lightswitch-field field-multiple field">
         <div class="heading">
           <label>{{ t('Multiple') }}</label>
         </div>
         <div class="input ltr">
-          <div
-            :class="'lightswitch ' + (selectedField.multiple ? 'on' : '')"
-            tabindex="0"
-            role="switch"
-            :aria-checked="selectedField.multiple"
-          >
+          <div :class="'lightswitch ' + (field.multiple ? 'on' : '')" tabindex="0" role="switch" :aria-checked="field.multiple">
             <div class="lightswitch-container">
-              <div class="handle" />
+              <div class="handle"></div>
             </div>
-            <input
-              v-model="selectedField.multiple"
-              type="hidden"
-              name="multiple"
-            >
+            <input type="hidden" name="multiple" v-model="field.multiple">
           </div>
         </div>
       </div>
-      <div class="field">
+      <div class="field field-tooltip-label">
         <div class="heading">
-          <label>{{ t('Options type') }}</label>
+          <label>{{ t('Tooltip label') }}</label>
         </div>
         <div class="input ltr">
-          <div class="select">
-            <select
-              v-model="selectedField.optionsType"
-              class="text fullwidth"
-            >
-              <option value="custom">
-                {{ t('Custom') }}
-              </option>
-              <option value="entries">
-                {{ t('Entries') }}
-              </option>
-              <option value="categories">
-                {{ t('Categories') }}
-              </option>
-            </select>
-          </div>
+          <input type="text" class="text fullwidth" v-model="field.tooltipLabel">
         </div>
       </div>
-      <custom-options
-        v-if="selectedField.optionsType == 'custom'"
-        :default="''"
-      />
-      <div
-        v-if="selectedField.optionsType == 'categories'"
-        class="field"
-      >
+      <div class="field field-tooltip">
         <div class="heading">
-          <label>{{ t('Category groups') }}</label>
-        </div>
-        <div class="select fullwidth">
-          <select
-            v-model="selectedField.groupUids"
-            multiple
-          >
-            <option
-              v-for="name, uid in groups"
-              :key="uid"
-              :value="uid"
-            >
-              {{ name }}
-            </option>
-          </select>
-        </div>
-        <ul class="errors">
-          <li
-            v-for="error, index in errors.groups"
-            :key="index"
-            class="error"
-          >
-            {{ error }}
-          </li>
-        </ul>
-      </div>
-      <div
-        v-if="selectedField.optionsType == 'entries'"
-        class="field"
-      >
-        <div class="heading">
-          <label>{{ t('Sections') }}</label>
-        </div>
-        <div class="select fullwidth">
-          <select
-            v-model="selectedField.sectionUids"
-            multiple
-          >
-            <option
-              v-for="name, uid in sections"
-              :key="uid"
-              :value="uid"
-            >
-              {{ name }}
-            </option>
-          </select>
-        </div>
-        <ul class="errors">
-          <li
-            v-for="error, index in errors.sections"
-            :key="index"
-            class="error"
-          >
-            {{ error }}
-          </li>
-        </ul>
-      </div>
-      <div 
-        v-if="selectedField.optionsType == 'entries' || selectedField.optionsType == 'categories'"
-        class="lightswitch-field field"
-      >
-        <div class="heading">
-          <label>{{ t('Empty option label') }}</label>
-        </div>
-        <div class="instructions">
-          {{ 'If populated, this will show an option with empty value at the beginning of the list.' }}
+          <label>{{ t('Tooltip') }}</label>
         </div>
         <div class="input ltr">
-          <input
-            v-model="selectedField.emptyOptionLabel"
-            type="text"
-            class="text fullwidth"
-          >
+          <textarea type="text" :class="'text fullwidth field-tooltip-value'+field.uid" v-model="field.tooltip" rows="1"></textarea>
         </div>
       </div>
+      <field-choices
+        :field="field"
+        :default="t('Select')"
+        :errors="errors"
+      ></field-choices>
     </template>
   </forms-field>
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import FormsField from '../components/FormsField.vue';
-import CustomOptions from './CustomOptions.vue';
-
 export default {
-  components: {FormsField, CustomOptions},
+  props: {
+    index: Number,
+    field: Object
+  },
   data() {
     return {
-      sections: [],
-      groups: []
+      errors: {}
     }
   },
-  computed: {
-    errors: function () {
-      if (!this.selectedField.errors) {
-        return {};
-      }
-      return this.selectedField.errors;
+  watch: {
+    'field.labelHtml': function () {
+      this.toggleRedactor();
+    } 
+  },
+  mounted() {
+    this.$nextTick(() => {
+      Craft.initUiElements(this.$el);
+      let _this = this;
+      $(this.$el).find('.lightswitch').on('change', function(e){
+        let input = $(e.target).find('input');
+        let value = (input.val() == 1);
+        _this.field[input.attr('name')] = value;
+      });
+    });
+    if (this.field.labelHtml) {
+      this.enableLabelRedactor();
+    }
+    this.enableTooltipRedactor();
+  },
+  methods: {
+    enableTooltipRedactor: function () {
+      $R('.field-tooltip-value'+this.field.uid, {
+        callbacks: {
+          changed: (html) => {
+            this.field.tooltip = html;
+          }
+        }
+      });
     },
-    ...mapState(['selectedField']),
-  },
-  created() {
-    let _this = this;
-    if (typeof window.selectEntryFieldSections == 'undefined') {
-      let data = {};
-      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
-      window.selectEntryFieldSections = axios.post(Craft.getActionUrl('formidable/cp-utilities/sections'), data)
-      .catch((error) => {
-        console.log(error);
-      })
+    enableLabelRedactor: function () {
+      $R('.field-label-value'+this.field.uid, {
+        callbacks: {
+          changed: (html) => {
+            this.field.label = html;
+          }
+        }
+      });
+    },
+    toggleRedactor: function() {
+      if (this.field.labelHtml) {
+        this.enableLabelRedactor();
+      } else {
+        $R('.field-label-value'+this.field.uid, 'destroy');
+      }
     }
-    window.selectEntryFieldSections.then(function (res) {
-      _this.sections = res.data.sections;
-    });
-    if (typeof window.selectCategoryFieldCategories == 'undefined') {
-      let data = {};
-      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
-      window.selectCategoryFieldCategories = axios.post(Craft.getActionUrl('formidable/cp-utilities/category-groups'), data)
-      .catch((error) => {
-        console.log(error);
-      })
-    }
-    window.selectCategoryFieldCategories.then(function (res) {
-      _this.groups = res.data.groups;
-    });
   }
 };
 </script>

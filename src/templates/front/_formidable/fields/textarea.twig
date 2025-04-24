@@ -6,7 +6,7 @@
 	<textarea
 	id="{{ field.generateId(form) }}-input"
 	name="{{ field.frontName }}"
-	class="{{ field_class }}{% if errors %} is-invalid{% endif %}"
+	class="{{ field_class }}{% if error %} is-invalid{% endif %}"
 	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
 	{% if field.rows %}rows="{{ field.rows }}"{% endif %}
 	{% if not field.autocomplete %}autocomplete="off"{% endif %}

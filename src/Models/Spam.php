@@ -1,128 +1,64 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\Models;
 
 use Inspire\Formidable\Exceptions\FormException;
 use Inspire\Formidable\Formidable;
 use craft\base\Model;
-use craft\helpers\Json;
 
 class Spam extends Model
 {
-	public $id;
-	public $form_id;
-	public $ip;
-	public $notified = false;
-	public $reason;
-	public $userAgent;
-	public $dateCreated;
-	public $dateUpdated;
-	public $dateDeleted;
+    public $id;
+    public $form_id;
+    public $ip;
+    public $notified;
+    public $dateCreated;
+    public $dateUpdated;
+    public $dateDeleted;
+    public $uid;
+    public $values;
+    public $reason;
 
-	protected $_values;
-	protected $_form;
+    protected $_form;
 
-	/**
-	 * @inheritDoc
-	 */
-	public function defineRules(): array
-	{
-		return [
-			[['id', 'form_id', 'ip', 'notified', 'reason', 'userAgent', 'dateCreated', 'dateUpdated', 'dateDeleted'], 'safe']
-		];
-	}
+    public function normalizeValues()
+    {
+        $values = json_decode($this->values, true);
+        $out = [];
+        foreach ($values as $fieldHandle => $value) {
+            try {
+                try {
+                    $field = $this->form->getField($fieldHandle);
+                    $out[$field->name] = $field::getHtmlValue($value);
+                } catch (FormException $e) {
+                    $out[$fieldHandle] = json_encode($value);
+                }
+            } catch (FormException $e) {
+                $out[$field] = $value;
+            }
+        }
+        return $out;
+    }
 
-	/**
-	 * Get Form
-	 * 
-	 * @return ?Form
-	 */
-	public function getForm(): ?Form
-	{
-		if ($this->_form === null and $this->form_id) {
-			$this->_form = Formidable::$plugin->forms->getById($this->form_id);
-		}
-		return $this->_form;
-	}
+    public function toArray(array $fields = [], array $expand = [], $recursive = true)
+    {
+        $array = parent::toArray($fields, $expand, $recursive);
+        $array['dateCreated'] = $this->dateCreated->format('d/m/Y H:i');
+        $array['form'] = $this->form->toArray(['id', 'name']);
+        $array['values'] = $this->normalizeValues();
+        return $array;
+    }
 
-	/**
-	 * Set form
-	 * 
-	 * @param Form $form
-	 */
-	public function setForm(Form $form)
-	{
-		$this->_form = $form;
-		$this->form_id = $form->id;
-	}
+    public function getForm(): ?Form
+    {
+        if ($this->_form === null) {
+            $this->_form = Formidable::$plugin->forms->getById($this->form_id);
+        }
+        return $this->_form;
+    }
 
-	/**
-	 * Values setter
-	 * 
-	 * @param array $values
-	 */
-	public function setValues(array $values)
-	{
-		$this->_values = $values;
-	}
-
-	/**
-	 * Get values
-	 * 
-	 * @return array
-	 */
-	public function getValues(): array
-	{
-		if ($this->_values === null) {
-			$this->_values = Formidable::$plugin->spam->getValuesForSpam($this);
-		}
-		return $this->_values;
-	}
-
-	/**
-	 * Get a value styled for a field handle
-	 * 
-	 * @param  string $fieldHandle
-	 * @return ?SubmissionValue
-	 */
-	public function getValue(string $fieldHandle): ?SubmissionValue
-	{
-		return array_values(array_filter($this->values, function ($value) use ($fieldHandle) {
-			$field = $value->field;
-			return ($field and $field->handle == $fieldHandle);
-		}))[0] ?? null;
-	}
-
-	/**
-	 * Get a value model by id
-	 * 
-	 * @param  int    $id
-	 * @return ?SubmissionValue
-	 */
-	public function getValueById(int $id): ?SubmissionValue
-	{
-		return array_filter($this->values, function ($value) use ($id) {
-			return $value->id == $id;
-		})[0] ?? null;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function fields(): array
-	{
-		return array_merge(parent::fields(), ['form', 'values']);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function toArray(array $fields = [], array $expand = [], $recursive = true)
-	{
-		$array = parent::toArray($fields, $expand, $recursive);
-		if ($this->dateCreated instanceof \DateTime) {
-			$array['dateCreated'] = $this->dateCreated->format('d/m/Y H:i');
-		}
-		return $array;
-	}
+    public function setForm(Form $form)
+    {
+        $this->_form = $form;
+    }
 }

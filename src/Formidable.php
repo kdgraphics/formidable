@@ -1,19 +1,21 @@
 <?php
-
 namespace Inspire\Formidable;
 
 use Craft;
 use Inspire\Emails\Emails;
 use Inspire\Emails\Records\Email as EmailRecord;
 use Inspire\Formidable\Assets\TestAsset;
-use Inspire\Formidable\Captchas\{GoogleV2, GoogleV3};
+use Inspire\Formidable\Captchas\GoogleV2;
+use Inspire\Formidable\Captchas\GoogleV3;
 use Inspire\Formidable\Events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent};
-use Inspire\Formidable\Models\Fields\{Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, Group, Hidden, Date};
+use Inspire\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry, Group, Hidden, CheckboxEntry, Date, CheckboxCategory, RadioCategory, RadioEntry, PhoneNumber};
 use Inspire\Formidable\Models\FormField;
+use Inspire\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\Records\Submission;
 use Inspire\Formidable\Models\Rules\{BiggerThan, Contain, EqualTo, Off, On, Required, SameThan, Size, SmallerThan};
 use Inspire\Formidable\Models\Settings;
-use Inspire\Formidable\Services\{CaptchasService, ConditionsService, ConditionGroupsService, CsvExporterService, FieldsService, FormsService, RulesService, SpamService, SubmissionsService, AssetsService};
-use Inspire\Formidable\Twig\Forms;
+use Inspire\Formidable\Services\{CaptchasService, ConditionsService, ConditionGroupsService, CsvExporterService, FieldsService, FormsService, RulesService, SpamService, SubmissionsService};
+use Inspire\Formidable\Twig\TwigForms;
 use craft\base\Model;
 use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
@@ -26,9 +28,10 @@ use craft\services\UserPermissions;
 use craft\web\UrlManager;
 use craft\web\View;
 use craft\web\twig\variables\Cp;
-use craft\web\twig\variables\CraftVariable;
 use yii\base\Event;
 use yii\log\Logger;
+use Inspire\Formidable\Assets\PhoneInputAsset;
+use Inspire\Formidable\Assets\FormValidationAsset;
 
 class Formidable extends Plugin
 {
@@ -41,18 +44,25 @@ class Formidable extends Plugin
     public static $plugin;
 
     protected $availableFields = [
-        Checkbox::class,
-        Checkboxes::class,
+        Text::class,
         Date::class,
         Email::class,
-        File::class,
-        Group::class,
-        Hidden::class,
+        Textarea::class,
         Number::class,
         Radio::class,
+        RadioEntry::class,
+        RadioCategory::class,
+        File::class,
+        Hidden::class,
         Select::class,
-        Text::class,
-        Textarea::class,
+        SelectCategory::class,
+        SelectEntry::class,
+        Checkbox::class,
+        Checkboxes::class,
+        CheckboxEntry::class,
+        CheckboxCategory::class,
+        Group::class,
+        PhoneNumber::class,
     ];
 
     protected $availableCaptchas = [
@@ -85,10 +95,15 @@ class Formidable extends Plugin
         $this->registerFields();
         $this->registerCaptchas();
         $this->registerRules();
-        $this->registerTwig();
+        $this->registerTwigExtension();
         $this->registerFrontTemplates();
         $this->registerCraftField();
         $this->registerGc();
+
+        if(Craft::$app->request->isSiteRequest) {
+            Craft::$app->view->registerAssetBundle(PhoneInputAsset::class);
+            Craft::$app->view->registerAssetBundle(FormValidationAsset::class);
+        }
     }
 
     /**
@@ -157,8 +172,8 @@ class Formidable extends Plugin
     }
 
     /**
-     * Log a specific form message 
-     * 
+     * Log a specific form message
+     *
      * @param $message [description]
      * @param $level   [description]
      */
@@ -176,38 +191,28 @@ class Formidable extends Plugin
         if ($request->isCpRequest) {
             $_this = $this;
             Event::on(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS,
-                function(RegisterCpNavItemsEvent $event) use ($_this) {
-                    $hasNav = false;
+                function(RegisterCpNavItemsEvent $event) use ($_this){
                     if (\Craft::$app->user->checkPermission('manageFormidableSubmissions')) {
-                        $hasNav = true;
+                        $event->navItems[] = [
+                            'url' => 'formidable/submissions',
+                            'label' => \Craft::t('formidable', 'Form Submissions'),
+                            'subnav' => [
+                                'formidable-submissions' => [
+                                    'url' => 'formidable/submissions',
+                                    'label' => \Craft::t('formidable', 'Submissions'),
+                                ],
+                                'formidable-spam' => [
+                                    'url' => 'formidable/submissions/spam',
+                                    'label' => \Craft::t('formidable', 'Spam'),
+                                ]
+                            ]
+                        ];
                     }
                     if (\Craft::$app->config->getGeneral()->allowAdminChanges and \Craft::$app->user->checkPermission('manageFormidableForms')) {
-                        $hasNav = true;
-                    }
-                    if ($hasNav) {
-                        $nav = [
-                            'url' => 'formidable',
-                            'label' => \Craft::t('formidable', 'Forms'),
-                            'icon' => $this->cpNavIconPath(),
-                            'subnav' => []
+                        $event->navItems[] = [
+                            'url' => 'formidable/forms',
+                            'label' => \Craft::t('formidable', 'Forms')
                         ];
-                        if (\Craft::$app->user->checkPermission('manageFormidableSubmissions')) {
-                            $nav['subnav']['formidable-submissions'] = [
-                                'url' => 'formidable/submissions',
-                                'label' => \Craft::t('formidable', 'Submissions'),
-                            ];
-                            $nav['subnav']['formidable-spam'] = [
-                                'url' => 'formidable/spam',
-                                'label' => \Craft::t('formidable', 'Spam'),
-                            ];
-                        }
-                        if (\Craft::$app->config->getGeneral()->allowAdminChanges and \Craft::$app->user->checkPermission('manageFormidableForms')) {
-                            $nav['subnav']['formidable-forms'] = [
-                                'url' => 'formidable/forms',
-                                'label' => \Craft::t('formidable', 'Forms')
-                            ];
-                        }
-                        $event->navItems[] = $nav;
                     }
                 }
             );
@@ -238,11 +243,9 @@ class Formidable extends Plugin
     /**
      * Registers twig extensions
      */
-    protected function registerTwig()
+    protected function registerTwigExtension()
     {
-        Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, function(Event $e) {
-            $e->sender->set('formidable', Forms::class);
-        });
+        Craft::$app->view->registerTwigExtension(new TwigForms);
     }
 
     /**
@@ -259,8 +262,7 @@ class Formidable extends Plugin
             'captchas' => CaptchasService::class,
             'rules' => RulesService::class,
             'conditions' => ConditionsService::class,
-            'conditionGroups' => ConditionGroupsService::class,
-            'assets' => AssetsService::class
+            'conditionGroups' => ConditionGroupsService::class
     	]);
     }
 
@@ -309,26 +311,38 @@ class Formidable extends Plugin
     protected function registerCpRoutes()
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
-            $event->rules = array_merge($event->rules, [
-                'formidable' => 'formidable/cp-formidable'
-            ]);
             if (\Craft::$app->config->getGeneral()->allowAdminChanges) {
                 $event->rules = array_merge($event->rules, [
+                    'formidable' => 'formidable/cp-forms/form',
                     'formidable/forms' => 'formidable/cp-forms/form',
+                    'formidable/forms/get/<id:\d+>' => 'formidable/cp-forms/get',
+                    'formidable/forms/new' => 'formidable/cp-forms/new',
                     'formidable/forms/add' => 'formidable/cp-forms/form',
                     'formidable/forms/add/<tab:config>' => 'formidable/cp-forms/form',
                     'formidable/forms/add/<tab:fields>' => 'formidable/cp-forms/form',
                     'formidable/forms/add/<tab:rules>' => 'formidable/cp-forms/form',
+                    'formidable/forms/save' => 'formidable/cp-forms/save',
                     'formidable/forms/<id:\d+>' => 'formidable/cp-forms/form',
                     'formidable/forms/<id:\d+>/<tab:config>' => 'formidable/cp-forms/form',
                     'formidable/forms/<id:\d+>/<tab:fields>' => 'formidable/cp-forms/form',
                     'formidable/forms/<id:\d+>/<tab:rules>' => 'formidable/cp-forms/form',
+                    'formidable/forms/delete/<id:\d+>' => 'formidable/cp-forms/delete',
+                    'formidable/categories-groups' => 'formidable/cp-categories',
+                    'formidable/entry-sections' => 'formidable/cp-sections'
                 ]);
             }
             $event->rules = array_merge($event->rules, [
                 'formidable/submissions' => 'formidable/cp-submissions',
+                'formidable/submissions/load' => 'formidable/cp-submissions/load',
+                'formidable/submissions/loadAll' => 'formidable/cp-submissions/load-all',
+                'formidable/submissions/set-as-read' => 'formidable/cp-submissions/set-as-read',
+                'formidable/submissions/delete-many' => 'formidable/cp-submissions/deletemany',
                 'formidable/submissions/export' => 'formidable/cp-submissions/export',
-                'formidable/spam' => 'formidable/cp-spam'
+                'formidable/submissions/export-all' => 'formidable/cp-submissions/export-all',
+                'formidable/submissions/spam' => 'formidable/cp-spam',
+                'formidable/submissions/spam/load' => 'formidable/cp-spam/load',
+                'formidable/submissions/spam/loadAll' => 'formidable/cp-spam/load-all',
+                'formidable/submissions/spam/delete-many' => 'formidable/cp-spam/deletemany'
             ]);
         });
     }
@@ -351,13 +365,31 @@ class Formidable extends Plugin
     protected function registerProjectConfig()
     {
         Craft::$app->projectConfig
-            ->onAdd(FormsService::CONFIG_KEY.'.{uid}',    [$this->forms, 'handleChanged'])
-            ->onUpdate(FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleChanged'])
-            ->onRemove(FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleDeleted']);
+            ->onAdd(FormsService::CONFIG_KEY.'.{uid}',              [$this->forms,           'handleChanged'])
+            ->onUpdate(FormsService::CONFIG_KEY.'.{uid}',           [$this->forms,           'handleChanged'])
+            ->onRemove(FormsService::CONFIG_KEY.'.{uid}',           [$this->forms,           'handleDeleted']);
 
         Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $e) {
             Formidable::$plugin->forms->rebuildConfig($e);
         });
+    }
+
+    protected function afterInstall(): void
+    {
+        if (!Emails::$plugin->emails->getByKey('formidable_spam')) {
+            $email = new EmailRecord([
+                'key' => 'formidable_spam',
+                'subject' => 'New spam on {{ siteName }}',
+                'body' => 'A new spam has been caught on {{ form.name }}',
+                'heading' => 'When a spam is caught'
+            ]);
+            $email->save(false);
+        }
+    }
+
+    protected function beforeInstall(): void
+    {
+        \Craft::$app->plugins->installPlugin('inspire-emails');
     }
 
     protected function afterUninstall(): void

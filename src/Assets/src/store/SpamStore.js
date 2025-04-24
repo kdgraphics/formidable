@@ -1,13 +1,14 @@
-import { createStore } from 'vuex';
+import Vuex from 'vuex';
+import Vue from 'vue';
 
-export const store = createStore({
+Vue.use(Vuex);
+
+export default new Vuex.Store({
   state: {
     selected: [],
     isChartView: false,
-    isFetching: false,
     forms: {},
     spams: [],
-    chartData: null,
     filters: {
       forms: [],
       trashed: false,
@@ -20,29 +21,15 @@ export const store = createStore({
         date: null,
         timezone: null
       }
-    },
-    sort: {
-      field: 'dateCreated',
-      side: 'desc'
-    },
-    pager: {}
+    }
   },
   mutations: {
     setForms (state, value) {
       state.forms = value;
     },
-    setIsFetching (state, value) {
-      state.isFetching = value;
-    },
-    setPager (state, value) {
-      state.pager = value;
-    },
-    setChartData (state, value) {
-      state.chartData = value;
-    },
     setTimezone(state, value) {
-      state.filters.dateFrom.timezone = value;
-      state.filters.dateTo.timezone = value;
+      Vue.set(state.filters.dateFrom, 'timezone', value);
+      Vue.set(state.filters.dateTo, 'timezone', value);
     },
     setSelected (state, value) {
       state.selected = value;
@@ -51,41 +38,49 @@ export const store = createStore({
       state.isChartView = value;
     },
     setDateTo(state, value) {
-      state.filters.dateTo.date = value;
+      Vue.set(state.filters.dateTo, 'date', value);
     },
     setDateFrom(state, value) {
-      state.filters.dateFrom.date = value;
+      Vue.set(state.filters.dateFrom, 'date', value);
     },
     setTrashed(state, value) {
-      state.filters.trashed = value;
+      Vue.set(state.filters, 'trashed', value);
     },
     setIP(state, value) {
-      state.filters.ip = value;
+      Vue.set(state.filters, 'ip', value.target.value);
     },
     addForm(state, value) {
-      state.filters.forms.push(value);
+      let forms = state.filters.forms;
+      forms.push(value);
+      Vue.set(state.filters, 'forms', forms);
     },
     removeForm(state, value) {
-      state.filters.forms = state.filters.forms.filter(f => f != value);
+      let index = state.filters.forms.indexOf(value);
+      Vue.delete(state.filters.forms, index);
     },
     setSpams(state, value) {
       state.spams = value;
     },
     deleteMany(state, ids) {
-      state.spams = state.spams.filter(s => !ids.includes(s.id));
+      let sub;
+      for (let index in state.spams) {
+        sub = state.spams[index];
+        if (ids.includes(sub.id)) {
+          Vue.delete(state.spams, index);
+        }
+      }
       state.selected = [];
     }
   },
   actions: {
-    deleteMany({commit, state, dispatch}, ids) {
+    deleteMany({commit, state}, ids) {
       let data = {};
       data[Craft.csrfTokenName] = Craft.csrfTokenValue;
       data.ids = ids;
       return new Promise((resolve, reject) => {
-        axios.post(Craft.getActionUrl('formidable/cp-spam/delete-many'), data)
+        axios.post(Craft.getCpUrl('formidable/submissions/spam/delete-many'), data)
           .then((response) => {
             commit('deleteMany', ids);
-            dispatch('fetch');
             Craft.cp.displayNotice(response.data.message);
             resolve(response);
           })
@@ -94,46 +89,6 @@ export const store = createStore({
             reject(error);
           })
       });
-    },
-    fetch({commit, state}) {
-      let data = {};
-      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
-      data.filters = state.filters;
-      data.sort = state.sort;
-      data.page = state.pager.page;
-      commit('setIsFetching', true);
-      axios.post(Craft.getActionUrl('formidable/cp-spam/load'), data)
-        .then((response) => {
-          commit('setSpams', response.data.spams);
-          commit('setPager', {
-            count: response.data.count,
-            totalCount: response.data.totalCount,
-            page: response.data.page,
-            pageCount: response.data.pageCount,
-          });
-        })
-        .catch((error) => {
-          console.log(error);
-        })
-        .finally(() => {
-          commit('setIsFetching', false);
-        });
-    },
-    fetchAll({commit, state, dispatch}) {
-      let data = {};
-      data[Craft.csrfTokenName] = Craft.csrfTokenValue;
-      data.filters = state.filters;
-      commit('setIsFetching', true);
-      axios.post(Craft.getActionUrl('formidable/cp-spam/load-all'), data)
-        .then((response) => {
-          commit('setChartData', response.data.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        })
-        .finally(() => {
-          commit('setIsFetching', false);
-        });
     },
     deleteSelection({commit, state, dispatch}) {
       dispatch('deleteMany', state.selected);

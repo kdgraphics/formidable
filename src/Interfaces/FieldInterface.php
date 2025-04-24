@@ -3,7 +3,7 @@
 namespace Inspire\Formidable\Interfaces;
 
 use Inspire\Formidable\Models\Fields\Group;
-use Inspire\Formidable\Models\FormPosted;
+use Inspire\Formidable\Models\FormSubmission;
 
 interface FieldInterface
 {   
@@ -53,52 +53,56 @@ interface FieldInterface
      * @return FieldTypeInterface
      */
     public function fieldType(): FieldTypeInterface;
+    
+    /**
+     * Extra back end rules
+     * 
+     * @return array
+     */
+    public function getExtraCpRules(): array;
 
     /**
      * Rules when submitting this field through the front end
      * 
      * @return array
      */
-    public function getFrontEndRules(FormPosted $posted): array;
+    public function getFrontEndRules(FormSubmission $submission): array;
 
     /**
      * Treatment before submission is validated
      * 
-     * @param FormPosted $posted
+     * @param FormSubmission $submission
      */
-    public function beforeSubmissionValidated(FormPosted $posted);
+    public function beforeSubmissionValidated(FormSubmission $submission);
 
     /**
      * Treatment after submission is validated
      * 
-     * @param FormPosted $posted
+     * @param FormSubmission $submission
      */
-    public function afterSubmissionValidated(FormPosted $posted);
+    public function afterSubmissionValidated(FormSubmission $submission);
 
     /**
-     * Return the list of attributes that are options
+     * Transform a submission value into Html
      * 
-     * @return array
-     */
-    public function defineOptions(): array;
-
-    /**
-     * Get value as html. $isOwn indicates if the $field parameter is the original field posted for or just the same type
-     * 
-     * @param ?FieldInterface $field
-     * @param mixed           $value
-     * @param  bool           $isOwn
+     * @param mixed $value
      * @return  string
      */
-    public static function getHtmlValue(?FieldInterface $field, $value, bool $isOwn = true): string;
+    public static function getHtmlValue($value): string;
 
     /**
-     * Get value as string. $isOwn indicates if the $field parameter is the original field posted for or just the same type
+     * Get value for csv export
      * 
-     * @param  ?FieldInterface $field
-     * @param  mixed          $value
-     * @param  bool           $isOwn
+     * @param mixed $value
+     * @return mixed
+     */
+    public static function getCsvValue($value): string;
+
+    /**
+     * Get value as string
+     * 
+     * @param  mixed $value
      * @return string
      */
-    public static function getStringValue(?FieldInterface $field, $value, bool $isOwn = true): string;
+    public static function getStringValue($value): string;
 }

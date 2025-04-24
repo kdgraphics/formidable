@@ -3,7 +3,8 @@
 namespace Inspire\Formidable\Providers;
 
 use Inspire\Formidable\Models\Form;
-use Inspire\Formidable\records\SpamRecord;
+use Inspire\Formidable\Models\Records\Spam;
+use Inspire\Formidable\Models\Spam as SpamModel;
 use yii\data\ActiveDataProvider;
 
 class SpamProvider extends ActiveDataProvider
@@ -14,11 +15,11 @@ class SpamProvider extends ActiveDataProvider
     {
         parent::init();
         if ($this->trashed === -1) {
-            $this->query = SpamRecord::findWithTrashed();
+            $this->query = Spam::findWithTrashed();
         } elseif ($this->trashed === true) {
-            $this->query = SpamRecord::findTrashed();
+            $this->query = Spam::findTrashed();
         } else {
-            $this->query = SpamRecord::find();
+            $this->query = Spam::find();
         }
     }
 

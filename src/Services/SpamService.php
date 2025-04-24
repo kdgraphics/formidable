@@ -7,15 +7,12 @@ use Inspire\Formidable\Exceptions\FormEmailException;
 use Inspire\Formidable\Formidable;
 use Inspire\Formidable\Jobs\SendSpamEmailJob;
 use Inspire\Formidable\Models\Form;
-use Inspire\Formidable\Models\FormPosted;
-use Inspire\Formidable\Models\Spam;
-use Inspire\Formidable\Models\SubmissionValue;
+use Inspire\Formidable\Models\FormSubmission;
+use Inspire\Formidable\Models\Records\Spam;
+use Inspire\Formidable\Models\Spam as SpamModel;
 use Inspire\Formidable\Providers\SpamProvider;
-use Inspire\Formidable\records\SpamRecord;
-use Inspire\Formidable\records\SpamValueRecord;
 use craft\base\Component;
 use craft\helpers\DateTimeHelper;
-use craft\helpers\Json;
 use craft\helpers\Queue;
 use yii\base\Event;
 use yii\data\ActiveDataProvider;
@@ -25,39 +22,37 @@ class SpamService extends Component
 	/**
 	 * Create a spam record
 	 * 
-	 * @param  FormPosted $posted
-	 * @return Spam
+	 * @param  Form           $form
+	 * @param  FormSubmission $submission
+	 * @param  array          $values
+	 * @return SpamModel
 	 */
-	public function create(FormPosted $posted): Spam
+	public function create(Form $form, FormSubmission $submission, array $values): SpamModel
 	{
-		$spam = new Spam([
-			'form' => $posted->form,
+		if (isset($values['CRAFT_CSRF_TOKEN'])) {
+			unset($values['CRAFT_CSRF_TOKEN']);
+		}
+		$spam = new SpamModel([
+			'form_id' => $form->id,
 			'ip' => \Craft::$app->request->userIP,
-			'reason' => $posted->spam_reason ?? '',
-			'userAgent' => \Craft::$app->request->userAgent
+			'values' => json_encode($values),
+			'reason' => $submission->_spam_reason ?? ''
 		]);
-		$values = [];
-		foreach ($posted->form->fields as $field) {
-			$values[] = new SubmissionValue([
-				'field_id' => $field->id,
-				'value' => Json::encode($posted->{$field->handle}),
-				'type' => $field->handle()
+        if ($form->saveSpam) {
+        	$record = new Spam([
+				'form_id' => $form->id,
+				'ip' => \Craft::$app->request->userIP,
+				'values' => json_encode($values),
+				'reason' => $submission->_spam_reason ?? ''
 			]);
-		}
-		$spam->values = $values;
-
-        if ($posted->form->saveSpam) {
-        	$this->saveSpam($spam);
+    		$record->save(false);
+    		$spam = $record->toModel();
         }
-        try {
-			$this->_sendEmail($spam);
-		} catch (FormEmailException $e) {
-			\Craft::$app->errorHandler->logException($e);
-		}
+        $this->_sendEmail($spam, $submission);
         return $spam;
 	}
 
-	public function sendEmail(Spam $spam): bool
+	public function sendEmail(SpamModel $spam, array $submission): bool
 	{
 		$emails = [];
         foreach (explode(',', trim($spam->form->notifySpamEmails)) as $address) {
@@ -70,6 +65,7 @@ class SpamService extends Component
         $email = \Craft::$app->getMailer()
             ->composeFromKey($spam->form->notifySpam_key, [
                 'spam' => $spam,
+                'formSubmission' => $submission,
                 'form' => $spam->form
             ])->setTo($emails);
 
@@ -81,27 +77,30 @@ class SpamService extends Component
             }
             return true;
         }
-        throw new FormEmailException("Unable to send the spam email for form " . $spam->form->name);
+        throw new FormEmailException("Unable to send admin email");
 	}
 
 	/**
-	 * Saves a spam
+	 * Send the spam notification
 	 * 
-	 * @param Spam $spam
+	 * @param  Form           $form
+	 * @param  ?SpamModel     $spam
+	 * @param  FormSubmission $submission
+	 * @return bool
 	 */
-	public function saveSpam(Spam $spam)
+	protected function _sendEmail(SpamModel $spam, FormSubmission $submission): bool
 	{
-		$record = $spam->id ? $this->getRecordById($submission->id) : new SpamRecord;
-		$record->setAttributes($spam->getAttributes(['form_id', 'ip', 'notified', 'reason', 'userAgent']), false);
-		$record->save(false);
-		$spam->setAttributes($record->attributes);
-		foreach ($spam->values as $value) {
-			$record = $value->id ? $this->getValueRecordById($value->id) : new SpamValueRecord;
-			$record->setAttributes($value->getAttributes(['type', 'field_id', 'value']), false);
-			$record->spam_id = $spam->id;
-			$record->save(false);
-			$value->setAttributes($record->attributes);
-		}
+        if (!$spam->form->notifySpam_key) {
+            return false;
+        }
+        if (Formidable::$plugin->settings->useQueue) {
+        	Queue::push(new SendSpamEmailJob([
+            	'formSubmission' => $submission->toArray(),
+            	'spam' => $spam
+        	]));
+        	return true;
+        }
+        return $this->sendEmail($spam, $submission->toArray());
 	}
 
 	/**
@@ -142,11 +141,11 @@ class SpamService extends Component
      * Get spam model by id
      * 
      * @param  int $id
-     * @return ?Spam
+     * @return ?FormModel
      */
-	public function getById(int $id): ?Spam
+	public function getById(int $id): ?SpamModel
 	{
-		$record = SpamRecord::find()->with('form')->where(['id' => $id])->one();
+		$record = Spam::find()->with('form')->where(['id' => $id])->one();
 		return $record ? $record->toModel() : null;
 	}
 
@@ -154,11 +153,11 @@ class SpamService extends Component
      * Get spam record by id
      * 
      * @param  int $id
-     * @return ?SpamRecord
+     * @return ?Spam
      */
-    public function getRecordById(int $id): ?SpamRecord
+    public function getRecordById(int $id): ?Spam
     {
-        $record = SpamRecord::find()->with('form')->where(['id' => $id])->one();
+        $record = Spam::find()->with('form')->where(['id' => $id])->one();
         return $record ?: null;
     }
 
@@ -170,7 +169,7 @@ class SpamService extends Component
 	 */
 	public function delete(int $id): bool
 	{
-		if ($spam = SpamRecord::findOne(['id' => $id]) and $spam->delete()) {
+		if ($submission = Spam::findOne(['id' => $id]) and $submission->delete()) {
 			return true;
 		}
 		return false;
@@ -194,20 +193,12 @@ class SpamService extends Component
 	 */
 	public function runGc()
 	{
-		if (\Craft::$app->gc->deleteAllTrashed) {
-			$threshold = \Craft::$app->config->general->softDeleteDuration;
-			$date = (new \DateTime)->sub(new \DateInterval('PT' . $threshold . 'S'));
-			SpamRecord::deleteAll(['<', 'dateDeleted', $date->format('Y-m-d H:i:s')]);
-		}
 		$threshold = Formidable::$plugin->settings->deleteSpamThreshold;
 		if (!$threshold) {
 			return;
 		}
 		$date = (new \DateTime)->sub(new \DateInterval('P' . $threshold . 'D'));
-		$spams = SpamRecord::find()->where(['<', 'dateCreated', $date->format('Y-m-d H:i:s')])->all();
-		foreach ($spams as $spam) {
-			$spam->softDelete();
-		}
+		Spam::deleteAll(['<', 'dateCreated', $date->format('Y-m-d H:i:s')]);
 	}
 
 	/**
@@ -247,50 +238,6 @@ class SpamService extends Component
       		'labels' => $labels,
       		'data' => array_values($forms)
       	];
-	}
-
-	/**
-	 * Get all values for a spam
-	 * 
-	 * @param  Spam $spam
-	 * @return array
-	 */
-	public function getValuesForSpam(Spam $spam): array
-	{
-		return array_map(function ($sub) {
-			return $sub->toModel();
-		}, SpamValueRecord::find()->where(['spam_id' => $spam->id])->all());
-	}
-
-	/**
-     * Get submission value record by id
-     * 
-     * @param  int $id
-     * @return SpamValueRecord
-     */
-	public function getValueRecordById(int $id): SpamValueRecord
-	{
-		return SpamValueRecord::find()->where(['id' => $id])->one() ?? new SpamValueRecord;
-	}
-
-	/**
-	 * Send the spam notification
-	 * 
-	 * @param  Spam $spam
-	 * @return bool
-	 */
-	protected function _sendEmail(Spam $spam): bool
-	{
-        if (!$spam->form->notifySpam_key) {
-            return false;
-        }
-        if ($spam->id and Formidable::$plugin->settings->useQueue) {
-        	Queue::push(new SendSpamEmailJob([
-            	'spamId' => $spam->id
-        	]));
-        	return true;
-        }
-        return $this->sendEmail($spam, $posted->toArray());
 	}
 
 	/**

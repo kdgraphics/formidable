@@ -1,55 +1,56 @@
 # Formidable Forms
 
-**This is the version for Craft 5.x, for the Craft 4.x version visit the v6 branch**
+**This is the version for Craft 4.x, for the Craft 3.x version visit the v5 branch**
 
 Build forms in the backend, notify user and admins and view submissions and spams.
 Display them easily in the front end with templates.
 
 # Changelog
 
-### Version 7 is under development but not ready/published. See branch v6 for latest Craft 4 version.
+### 6.2.9
+- Fixed permanent delete
+- Colorful graphs
+- Minor UI tweaks
 
-### 7.0.1
-- Started Craft 5 branch
+### 6.2.1
+- Fixed bug for siteName
 
-### 7.0.0
-- Migrated to Vue 3
-- Error handling in cp is handled by PHP rather than Js
-- Added some cp fields validations
-- Removed the ability to register fields by other plugins
-- Replaced cp urls by action urls
-- Merged forms and submissions cp navs
-- Changed namespaces
-- Fields `SelectEntry`, `SelectCategory`, `RadioEntry`, `RadioCategory`, `CheckboxEntry` and `CheckboxCategory` are removed and handled by the base field instead (`Select`, `Radio` and `Checkboxes`)
-- Added a url to upload a file on the spot and turn into an asset, see [assetUploader.js](examples/assetUploader.js) for an example. In the example the class `.js-upload-asset` must be added to the input in the field config or in the field template
-- The css to hide the honeypot can be changed in config
-- There are now reserved handles which fields cannot take
-- The frequency after which a check on the spammer database is considered as spam is now a config, defaults to 10
-- Failure when sending emails will not be reported to the user, an exception will still be thrown though
+### 6.2.0
+- Introducing first real multi-site support for collecting which site a form was submitted from
 
-### Breaking changes
-- The Craft fields of types Form must be resaved as the namespaces have changed
-- Twig global `formidable` has been removed, use `craft.formidable` instead. Examples :
-  - `{% set form = craft.formidable.getFormByHandle('contact-us') %}`
-  - `{% set form = craft.formidable.getFormByHandle('contact-us', 'contact_us_2') %} //Change the html id here in case you have 2 of the same form on the same page`
-  - `{% do craft.formidable.setHtmlId(form, 'contact_us_2') %} //Or change it later`
-  - `{% do craft.formidable.captchas.getRegistered('googleV3').register() %}`
-- `extensions` replaced by `accepts` on File fields which will need checked
-- Templating :
-  - `field_choice_label_class` renamed to `field_option_label_class` in `fields/radio.twig` and `fields/checkboxes.twig`
-  - `field_choice_container_class` renamed to `field_option_container_class` in `fields/radio.twig` and `fields/checkboxes.twig`
-  - `fields/select-entry.twig`, `fields/select-category.twig` replaced by `select.twig`
-  - `fields/radio-entry.twig`, `fields/radio-category.twig` replaced by `radio.twig`
-  - `fields/checkbox-entry.twig`, `fields/checkbox-category.twig` replaced by `checkboxes.twig`
-  - Removed function `Field::setHandle`, use `{% craft.formidable.setHtmlId(form, 'contact_us_2') %}` instead
-- Frontend validation is removed, to validate send an ajax request and display errors in your js. Example [form.js](examples/form.js)
-- `FormSubmission` renamed to `FormPosted`
-- `FormSubmissionEvent` renamed to `FormPostedEvent` and has a variable `FormPosted $posted` and optionally a `Submission $submission` variable which can be null for non valid or spam submissions.
-- How to access submission values on email templates has changed :
-  - `{{ submission.getValue('field-handle') }} //This is the same than doing :`
-  - `{{ submission.getValue('field-handle').asString() }}`
-  - `{{ submission.getValue('field-handle').asHtml() }}`
-  - `{{ submission.getValue('field-handle').asRaw() }} //This returns the raw value which can be an array`
+### 6.1.14
+- We had values like `[""]` in the db that broke the element queries, added `validatedIDs()` helper
+
+### 6.1.13
+- Fixed wrong action called to retrieve captcha google v3
+
+### 6.1.12
+- Fixed empty value issue for element selects
+- Fixed buttons style to make them more visible
+
+### 6.1.11
+- Fixed bug where assets couldn't be attached to emails
+
+### 6.1.10
+- Fixed issue with template prefix in some fields
+
+### 6.1.9
+- Fixed issue with undefined variable $success in `CpFormsController`
+
+### 6.1.8
+- Allow exporting a single submission
+
+### 6.1.7
+- Fixed issue where spam email wouldn't be sent
+- Fixed date filter not working on spam
+
+### 6.1.6
+- Fixed missing step attributes on number fields
+
+### 6.1.5
+- Added export all button on submissions
+- All forms now enabled by default on submissions/spams sections filters
+- Added extra button to unselect all forms in the submissions/spams sections filter
 
 ### 6.1.4
 - Fixed error with group hasErrors() function
@@ -75,45 +76,117 @@ Display them easily in the front end with templates.
 - Craft 4 changes
 - Changed templates prefix from formidable to \_formidable
 
+# V4 breaking changes
+
+Submission and how to access their values have been changed, particulary important for emails :
+
+```
+{{ submission.getValue('fieldHandle') }}           //raw value, will break for array fields (select, select entry, files etc)
+{{ submission.getValue('fieldHandle', 'string') }} //Safe string value
+{{ submission.getValue('fieldHandle', 'html') }}   //Safe html value
+```
+
+# V3 breaking changes
+
+The way fields are rendered haven been changed. You can set variables in your custom form templates to control classes :
+
+- form_class
+- submit_class
+- submit_container_class
+- honeypot_class
+- fields_class
+
+And fields templates can now be overriden by creating the template `formidable/fields/field` which should look like this at minimum :
+```
+{% include field.frontEndTemplate() %}
+```
+You can then set some variables to control the classes :
+- container_class
+- field_class
+- label_class
+- field_choice_container_class (for checkboxes, radio)
+- field_choice_label_class (for checkboxes, radio)
+
 # Forms
 
 Forms can be added and edited in the backend. They update the project config, so doing a change to a form and pushing it to a dev/live site will update it there too.
 
-Forms can have a redirection when submitted, if they don't they will reload the same page with an empty form.
+Forms can have a redirection when submitted, if they don't they will reload the previous page and add a `?success=1` to the url.
 
 Forms can have a user notification and an admin notification, see notifications. A user notification can only be enabled if the form has an email field.
 
-Forms can have a honeypot, it's highly recommended and the field name for the honeypot **must not** be an existing form field.
+Forms can have a honeypot, it's highly recommended and the field name for the honeypot **should not** be an existing form field.
 
 Optionnaly forms can save submissions for admins to review, see submissions.
 
+# Fields
+
+Form builder comes with default fields, you can add fields or override fields.
+Each field has a handle by which they are registered.
+
+Default fields have the handles : text, email, checkboxes, file, switch, number, radio, select and textarea.
+
+## Add
+
+### Php file
+
+To add a field php class, respond to the event `FieldsService::EVENT_REGISTER_FIELDS` :
+
+```
+Event::on(FieldsService::class, FieldsService::EVENT_REGISTER_FIELDS, function (RegisterFieldsEvent $event) {
+	$field = new MyField;
+    $event->addField($field);
+});
+```
+
+if your field's handle is the same as one of the default field, it will replace it !
+
+### Vue component
+
+To add the corresponding field Vue components, respond to the event `FormsService::EVENT_HOOK_ASSETS` and add an `AssetBundle` class to it, linking to a javascript file.
+```
+Event::on(
+    FormsService::class,
+    FormsService::EVENT_REGISTER_ASSETS,
+    function (HookAssets $event) {
+        $event->addAsset(MyAsset::class);
+    }
+);
+```
+
+The javascript file will then register the component into the `formFields` js variable :
+```
+import TestField from './fields/TestField';
+
+window.formFields.test = TestField;
+```
+
+If the field name is the same than an existing one it will replace it !
+
 # Templating
 
-Load a form with its handle : `{% set form = craft.formidable.getFormByHandle('contactUs') %}`
+Load a form with its handle : `{% set form = formidable.forms.getByHandle('contactUs') %}`
 
 Render it with : `{{ form.render()|raw }}`
 
-This will use the default template for forms, you can render it with your own template : `{{ form.render('forms/myTemplate') }}`
+This will use the default template for forms, you can render it with your own template : `{{ form.render('forms/myTemplate')|raw }}`
 
 Each field has a default template too, if you want to override it :
 
-- Create the template in your theme, in the folder `themeName/templates/_formidable/`. Example if you want to override the text field template you'd write the template `themeName/templates/_formidable/fields/text.twig`
+- Create the template in your theme, in the folder `themeName/templates/formidable/`. Example if you want to override the text field template you'd write the template `themeName/templates/formidable/fields/text.twig`
 - Or if you are writing a custom form template you would include it by doing so :
 ```
-{% set errors = posted.errors ?? [] %}
-
-{% for field in form.activeRootFields %}
-    {% include "mytheme/mytemplate" with {
-        errors: errors[field.handle] ?? false,
-        old_value: posted[field.handle] ?? field.value
-    } %}
+{% for field in fields %}
+	{% set error = errors[field.name] is defined ? errors[field.name] : false %}
+	{% set old_value = oldInput[field.name] is defined ? oldInput[field.name] : null %}
+	{% include 'mytheme/mytemplate' %}
 {% endfor %}
 ```
 
 # Emails
 
 Since v2 this plugin uses the [Emails plugin](https://gitlab.inspireservera.com/craft/emails) to send emails.  
-So you may need a cron every minute to be able to send emails, calling `queue/run`.
+So you will need a cron every minute to be able to send emails, calling `queue/run`.
 
 # Captchas
 
@@ -124,7 +197,6 @@ Event::on(CaptchasService::class, CaptchasService::EVENT_REGISTER_CAPTCHAS, func
     $event->addCaptcha(new $captcha);
 });
 ```
-You can use those captchas manually also : `{% do craft.formidable.captchas.getRegistered('googleV3').register() %}` to register them on the page
 
 # Events
 
@@ -164,25 +236,11 @@ Field names can automatically be obfuscated, giving them an unreadable name. It 
 
 Submission can be viewed in the back end, they can be deleted and exported as csv.
 
-# Emailing
-
-The submission emails will receive the following variables : `form` and `submission`
-
-The values for the submission can be retrieved as such : 
-- `{{ submission.getValue('field-handle') }} //This is the same than doing :`
-- `{{ submission.getValue('field-handle').asString() }}`
-- `{{ submission.getValue('field-handle').asHtml() }}`
-- `{{ submission.getValue('field-handle').asRaw() }} //This returns the raw value which can be an array`
-
 # Spam
 
-A form is considered as spam on the following conditions :
-- if the honeypot is missing from the post
-- if the honeypot has been populated
-- if the captcha doesn't pass
-
+A form is considered as spam if the honeypot has been filled, in this case the submission will not be created and the previous page will be reloaded without any indication that something went wrong.
 Spams attempts are saved in database and can be viewed in back end.
 
 # Craft field
 
-New type of field "Form" that lets the user choose a form as another field. A different template for each of the form can be defined in the backend
+Since 5.3.0 you have a new type of field "Form" that lets the user choose a form as another field. A different template for each of the form can be defined in the backend

@@ -55,7 +55,7 @@ class CpSpamController extends Controller
         ]);
     }
 
-    public function actionDeleteMany()
+    public function actionDeletemany()
     {
         $this->requirePermission('manageFormidableSubmissions');
         $this->requireAcceptsJson();

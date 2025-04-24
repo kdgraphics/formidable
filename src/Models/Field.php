@@ -8,13 +8,15 @@ use Inspire\Formidable\Interfaces\FieldInterface;
 use Inspire\Formidable\Interfaces\FieldTypeInterface;
 use Inspire\Formidable\Models\FieldTypes\TextField;
 use Inspire\Formidable\Models\Fields\Group;
-use Inspire\Formidable\Models\FormPosted;
+use Inspire\Formidable\Models\FormSubmission;
 use craft\base\Model;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
 
 abstract class Field extends Model implements FieldInterface
 {
+    const EVENT_RENDER = 'render';
+
     protected $fieldTypeClass = TextField::class;
 
     public $id;
@@ -39,10 +41,12 @@ abstract class Field extends Model implements FieldInterface
     protected $_value;
     protected $_frontName;
     protected $_group;
-    protected $_form;
+    protected $options;
+
+    protected $rootAttributes = ['id', 'active', 'name', 'handle', 'order', 'form_id', 'options', 'dateCreated', 'dateUpdated', 'uid', 'fieldClass', 'containerClass', 'labelClass', 'instructions', 'type', 'friendlyName', 'validRules', 'value', 'group_id'];
 
     /**
-     * @inheritDoc
+     * inheritDoc
      **/
     public function init(): void
     {
@@ -54,69 +58,6 @@ abstract class Field extends Model implements FieldInterface
 
     /**
      * @inheritDoc
-     **/
-    public function defineOptions(): array
-    {
-        return [];
-    }
-
-    /**
-     * @inheritDoc
-     **/
-    public function defineRules(): array
-    {
-        return [
-            [['id', 'order'], 'integer'],
-            [['active', 'autocomplete'], 'boolean', 'trueValue' => true, 'falseValue' => false],
-            [['name', 'handle'], 'required'],
-            [['name', 'fieldClass', 'containerClass', 'instructions', 'labelClass', 'handle', 'uid'], 'string'],
-            [['name', 'fieldClass', 'containerClass', 'instructions', 'labelClass', 'handle'], 'trim'],
-            [['fieldClass', 'containerClass', 'labelClass'], 'validateHtmlClasses'],
-            ['handle', 'validateHandle']
-        ];
-    }
-
-    /**
-     * Validate some html classes
-     * 
-     * @param string $attribute
-     * @param array $param    
-     * @param Validator $validator
-     */
-    public function validateHtmlClasses($attribute, $param, $validator)
-    {
-        $classes = explode(' ', $this->$attribute);
-        foreach ($classes as $class) {
-            if (!preg_match('/^[\_\-a-zA-Z][\_\-a-zA-Z0-9]*$/', $class)) {
-                $this->addError($attribute, \Craft::t('formidable', '{class} is not a valid class', ['class' => $class]));
-            }
-        }
-    }
-
-    /**
-     * Validate handle
-     * 
-     * @param string $attribute
-     * @param array $param    
-     * @param Validator $validator
-     */
-    public function validateHandle($attribute, $param, $validator)
-    {
-        if (!preg_match('/^[a-zA-Z][\_\-a-zA-Z0-9:.]*$/', $this->$attribute)) {
-            $this->addError($attribute, \Craft::t('formidable', '{handle} is not a valid handle', ['class' => $this->$attribute]));
-        }
-        foreach ($this->form->fields as $field) {
-            if ($field->handle == $this->handle and $field->uid != $this->uid) {
-                $this->addError($attribute, \Craft::t('formidable', '{handle} is already taken in this form', ['handle' => $this->$attribute]));
-            }
-        }
-        if (!$this->form->obfuscateFieldNames and in_array($this->$attribute, $this->reservedHandles())) {
-            $this->addError($attribute, \Craft::t('formidable', '{handle} is a reserved handle', ['handle' => $this->$attribute]));
-        }
-    }
-
-    /**
-     * @inheritDoc
      */
     public function fields(): array
     {
@@ -124,7 +65,7 @@ abstract class Field extends Model implements FieldInterface
     }
 
     /**
-     * @inheritDoc
+     * inheritDoc
      **/
     public function getGroup(): ?Group
     {
@@ -138,16 +79,15 @@ abstract class Field extends Model implements FieldInterface
     }
 
     /**
-     * @inheritDoc
+     * inheritDoc
      **/
-    public function setGroup(?Group $group)
+    public function setGroup(Group $group)
     {
         $this->_group = $group;
-        $this->group_id = $group ? $group->id : null;
     }
 
     /**
-     * @inheritDoc
+     * inheritDoc
      **/
     public function getValue()
     {
@@ -155,7 +95,7 @@ abstract class Field extends Model implements FieldInterface
     }
 
     /**
-     * @inheritDoc
+     * inheritDoc
      **/
     public function setValue($value)
     {
@@ -163,7 +103,7 @@ abstract class Field extends Model implements FieldInterface
     }
 
     /**
-     * @inheritDoc
+     * inheritDoc
      **/
     public function fieldType(): FieldTypeInterface
     {
@@ -171,7 +111,21 @@ abstract class Field extends Model implements FieldInterface
     }
 
     /**
-     * @inheritDoc
+     * inheritDoc
+     **/
+    public function defineRules(): array
+    {
+        return array_merge($this->getExtraCpRules(), [
+            [['id', 'order'], 'integer'],
+            [['active', 'autocomplete'], 'boolean', 'trueValue' => true, 'falseValue' => false],
+            [['name', 'handle'], 'required'],
+            [['name', 'fieldClass', 'containerClass', 'instructions', 'labelClass', 'handle'], 'string'],
+            [['name', 'fieldClass', 'containerClass', 'instructions', 'labelClass', 'handle'], 'trim']
+        ]);
+    }
+
+    /**
+     * inheritDoc
      **/
     public function frontendTemplate(): string
     {
@@ -185,30 +139,7 @@ abstract class Field extends Model implements FieldInterface
      */
     public function getForm(): ?Form
     {
-        if ($this->_form === null) {
-            $this->_form = Formidable::$plugin->forms->getById($this->form_id);
-        }
-        return $this->_form;
-    }
-
-    /**
-     * Set form model
-     * 
-     * @param Form $form
-     */
-    public function setForm(Form $form)
-    {
-        $this->_form = $form;
-    }
-
-    /**
-     * Unique id for this field
-     * 
-     * @return string
-     */
-    public function generateId(): string
-    {
-        return $this->form->generateId() . '-field-' . $this->handle;
+        return Formidable::$plugin->forms->getById($this->form_id);
     }
 
     /**
@@ -218,21 +149,40 @@ abstract class Field extends Model implements FieldInterface
      */
     public function setOptions(string $value)
     {
-        $this->setAttributes(Json::decode($value));
+        $this->options = Json::decode($value, true);
+        foreach($this->options as $name => $value) {
+            $this->$name = $value;
+        }
     }
 
     /**
-     * Rebuild options in array
+     * Unique id for this field
      * 
-     * @return array
+     * @param  Form $form
+     * @return string
      */
-    public function getOptions(): array
+    public function generateId(Form $form): string
     {
-        $options = [];
-        foreach ($this->defineOptions() as $key) {
-            $options[$key] = $this->$key;
+        return $form->handle.'-field-'.$this->handle;
+    }
+
+    /**
+     * Rebuild options in json/array
+     * 
+     * @param  bool|boolean $asJson
+     * @return string|array
+     */
+    public function rebuildOptions(bool $asJson = false)
+    {
+        $keys = array_diff(array_keys($this->attributes), $this->rootAttributes);
+        $this->options = [];
+        foreach ($keys as $key) {
+            $this->options[$key] = $this->$key;
         }
-        return $options;
+        if (!$asJson) {
+            return $this->options;
+        }
+        return json_encode($this->options);
     }
 
     /**
@@ -265,7 +215,7 @@ abstract class Field extends Model implements FieldInterface
             'labelClass' => $this->labelClass,
             'instructions' => $this->instructions,
             'type' => $this->handle(),
-            'options' => $this->options,
+            'options' => $this->rebuildOptions(true),
             'uid' => $this->uid ?? StringHelper::UUID()
         ];
     }
@@ -273,40 +223,81 @@ abstract class Field extends Model implements FieldInterface
     /**
      * @inheritDoc
      */
-    public function afterSubmissionValidated(FormPosted $posted)
+    public function afterSubmissionValidated(FormSubmission $submission)
     {
     }
 
     /**
      * @inheritDoc
      */
-    public function beforeSubmissionValidated(FormPosted $posted)
+    public function beforeSubmissionValidated(FormSubmission $submission)
     {
     }
 
     /**
      * @inheritDoc
      */
-    public static function getHtmlValue(?FieldInterface $field, $value, bool $isOwn = true): string
-    {
-        return static::getStringValue($field, $value, $isOwn);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function getStringValue(?FieldInterface $field, $value, bool $isOwn = true): string
+    public static function getHtmlValue($value): string
     {
         return (string)$value;
     }
 
     /**
-     * Get the handles reserved by the system
-     * 
-     * @return array
+     * @inheritDoc
      */
-    protected function reservedHandles(): array
+    public static function getStringValue($value): string
     {
-        return ['id', 'action', 'spam_reason', 'form', 'errors', \Craft::$app->config->general->csrfTokenName];
+        return (string)$value;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function getCsvValue($value): string
+    {
+        return static::getStringValue($value);
+    }
+
+    /**
+     * Javascript to define this field
+     * 
+     * @return string
+     */
+    public function frontJs(Form $form): string
+    {
+        return "new formidable.field({
+            name: '".addslashes($this->name)."',
+            handle: '{$this->handle}',
+            frontName: '{$this->frontName}',
+            valueType: '{$this->fieldType()->jsType()}',
+            type: '" . $this->handle() . "',
+            id: '{$this->generateId($form)}',
+            formId: '{$form->generateId()}'
+        })";
+    }
+
+    /**
+     * We had values like [""] in the db that broke the element queries
+     *
+     * @param mixed $values
+     * @return array|null
+     */
+    public static function validatedIDs($values): ?array
+    {
+        if (!$values) {
+            return null;
+        }
+
+        if (!is_array($values)) {
+            $values = [$values];
+        }
+
+        foreach ($values as $key => $value) {
+            if (!is_numeric($value)) {
+                unset($values[$key]);
+            }
+        }
+
+        return $values;
     }
 }

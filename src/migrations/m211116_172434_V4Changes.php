@@ -3,6 +3,9 @@
 namespace Inspire\Formidable\migrations;
 
 use Craft;
+use Inspire\Formidable\Models\Records\Field;
+use Inspire\Formidable\Models\Records\Submission;
+use Inspire\Formidable\Models\Records\SubmissionValue;
 use craft\db\Migration;
 use craft\db\Query;
 
@@ -16,6 +19,7 @@ class m211116_172434_V4Changes extends Migration
      */
     public function safeUp()
     {
+        $this->update('{{%formidable_fields}}', ['type' => 'checkbox'], ['type' => 'switch']);
         $this->alterColumn('{{%formidable_submissions_values}}', 'field', $this->string(255)->null());
         $values = (new Query())
             ->select(["formidable_submissions_values.id as value_id", "field", "formidable_fields.id as field_id"])

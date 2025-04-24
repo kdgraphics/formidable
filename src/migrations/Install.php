@@ -2,7 +2,7 @@
 
 namespace Inspire\Formidable\migrations;
 
-use Craft; 
+use Craft;
 use craft\db\Migration;
 
 /**
@@ -30,6 +30,7 @@ class Install extends Migration
             'saveSubmissions' => $this->boolean()->defaultValue(true),
             'saveSpam' => $this->boolean()->defaultValue(true),
             'redirect' => $this->string(255),
+            'frontEndValidation' => $this->boolean()->defaultValue(false),
             'method' => $this->string(255),
             'class' => $this->string(255),
             'htmlId' => $this->string(255),
@@ -39,6 +40,20 @@ class Install extends Migration
             'captcha' => $this->string(255),
             'submitLabel' => $this->string(255),
             'submitClass' => $this->string(255),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->createTable('{{%formidable_notifications}}', [
+            'id' => $this->primaryKey(),
+            'name' => $this->string(255),
+            'method' => $this->string(255)->notNull(),
+            'template' => $this->string(255),
+            'html' => $this->text(),
+            'sentFrom' => $this->string(255)->notNull(),
+            'sentFromName' => $this->string(255)->notNull(),
+            'subject' => $this->string(255)->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -66,6 +81,7 @@ class Install extends Migration
         $this->createTable('{{%formidable_submissions}}', [
             'id' => $this->primaryKey(),
             'form_id' => $this->integer(11)->notNull(),
+            'siteId' => $this->integer(11)->notNull(),
             'read' => $this->boolean()->defaultValue(false),
             'adminNotified' => $this->boolean()->defaultValue(false),
             'notified' => $this->boolean()->defaultValue(false),
@@ -79,7 +95,6 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'form_id' => $this->integer(11)->notNull(),
             'ip' => $this->string(255),
-            'user-agent' => $this->text(),
             'values' => $this->text(),
             'notified' => $this->boolean()->defaultValue(false),
             'reason' => $this->string(255),
@@ -91,20 +106,9 @@ class Install extends Migration
 
         $this->createTable('{{%formidable_submissions_values}}', [
             'id' => $this->primaryKey(),
-            'type' => $this->string(255),
-            'field_id' => $this->integer(11),
-            'submission_id' => $this->integer(11)->notNull(),
-            'value' => $this->text(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
-        ]);
-
-        $this->createTable('{{%formidable_spams_values}}', [
-            'id' => $this->primaryKey(),
             'type' => $this->string(255)->notNull(),
             'field_id' => $this->integer(11),
-            'spam_id' => $this->integer(11)->notNull(),
+            'submission_id' => $this->integer(11)->notNull(),
             'value' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -117,9 +121,9 @@ class Install extends Migration
             'type' => $this->string(255)->notNull(),
             'value' => $this->string(255),
             'title' => $this->string(255),
-            'message' => $this->longText(),
-            'messages' => $this->longText(),
-            'fields' => $this->longText(),
+            'message' => $this->text(),
+            'messages' => $this->text(),
+            'fields' => $this->string(1000),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid()
@@ -149,18 +153,30 @@ class Install extends Migration
             'uid' => $this->uid()
         ]);
 
+        $this->createTable('{{%formidable_emails}}', [
+            'id' => $this->primaryKey(),
+            'submission_id' => $this->integer(11),
+            'spam_id' => $this->integer(11),
+            'emails' => $this->string(255),
+            'sent' => $this->dateTime(),
+            'sentFrom' => $this->string(255),
+            'subject' => $this->text(),
+            'type' => $this->string(10),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid()
+        ]);
+
         $this->addForeignKey('formidable_fields_form_id_fk', '{{%formidable_fields}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
         $this->addForeignKey('formidable_fields_group_id_fk', '{{%formidable_fields}}', ['group_id'], '{{%formidable_fields}}', ['id'], 'SET NULL', null);
         $this->addForeignKey('formidable_submissions_form_id_fk', '{{%formidable_submissions}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
         $this->addForeignKey('formidable_spams_form_id_fk', '{{%formidable_spams}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
         $this->addForeignKey('formidable_submissionvalues_submission_id_fk', '{{%formidable_submissions_values}}', ['submission_id'], '{{%formidable_submissions}}', ['id'], 'CASCADE', null);
-        $this->addForeignKey('formidable_spamvalues_spam_id_fk', '{{%formidable_spams_values}}', ['spam_id'], '{{%formidable_spams}}', ['id'], 'CASCADE', null);
         $this->addForeignKey('formidable_rules_form_id_fk', '{{%formidable_rules}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
         $this->addForeignKey('formidable_conditiongroups_rule_id_fk', '{{%formidable_conditiongroups}}', ['rule_id'], '{{%formidable_rules}}', ['id'], 'CASCADE', null);
         $this->addForeignKey('formidable_conditions_rule_id_fk', '{{%formidable_conditions}}', ['rule_id'], '{{%formidable_rules}}', ['id'], 'CASCADE', null);
         $this->addForeignKey('formidable_conditions_group_id_fk', '{{%formidable_conditions}}', ['conditiongroup_id'], '{{%formidable_conditiongroups}}', ['id'], 'CASCADE', null);
         $this->addForeignKey('formidable_submissions_values_field_id_fk', '{{%formidable_submissions_values}}', ['field_id'], '{{%formidable_fields}}', ['id'], 'SET NULL', null);
-        $this->addForeignKey('formidable_spam_values_field_id_fk', '{{%formidable_spams_values}}', ['field_id'], '{{%formidable_fields}}', ['id'], 'SET NULL', null);
     }
 
     /**
@@ -174,7 +190,6 @@ class Install extends Migration
         $this->dropTableIfExists('{{%formidable_conditionnable_rule}}');
         $this->dropTableIfExists('{{%formidable_rules}}');
         $this->dropTableIfExists('{{%formidable_submissions_values}}');
-        $this->dropTableIfExists('{{%formidable_spams_values}}');
         $this->dropTableIfExists('{{%formidable_fields}}');
         $this->dropTableIfExists('{{%formidable_spams}}');
         $this->dropTableIfExists('{{%formidable_submissions}}');

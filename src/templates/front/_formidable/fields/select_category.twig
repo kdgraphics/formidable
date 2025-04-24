@@ -1,0 +1,20 @@
+{% extends "_formidable/fields/_field" %}
+
+{% set field_class = (field_class ?? '') ~ (field.fieldClass ? (' ' ~ field.fieldClass) : '') %}
+
+{% block inner %}
+	<select
+	id="{{ field.generateId(form) }}-input"
+	name="{{ field.frontName }}{% if field.multiple %}[]{% endif %}"
+	class="{{ field_class }}{% if error %} is-invalid{% endif %}"
+	{% if field.multiple %}multiple{% endif %}
+	{% if not field.autocomplete %}autocomplete="off"{% endif %}
+	>
+        {% if field.includeSelect %}
+            <option value="">{{ field.selectLabel }}</option>
+        {% endif %}
+		{% for id, name in field.getCategories() %}
+			<option value="{{ id }}" {% if old_value and (id == old_value) %}selected="selected"{% endif %}>{{ name }}</option>
+		{% endfor %}
+	</select>
+{% endblock %}

@@ -3,7 +3,8 @@
 namespace Inspire\Formidable\Providers;
 
 use Inspire\Formidable\Models\Form;
-use Inspire\Formidable\records\SubmissionRecord;
+use Inspire\Formidable\Models\Records\Submission;
+use Inspire\Formidable\Models\Submission as SubmissionModel;
 use yii\data\ActiveDataProvider;
 
 class SubmissionProvider extends ActiveDataProvider
@@ -14,11 +15,11 @@ class SubmissionProvider extends ActiveDataProvider
     {
         parent::init();
         if ($this->trashed === -1) {
-            $this->query = SubmissionRecord::findWithTrashed();
+            $this->query = Submission::findWithTrashed();
         } elseif ($this->trashed === true) {
-            $this->query = SubmissionRecord::findTrashed();
+            $this->query = Submission::findTrashed();
         } else {
-            $this->query = SubmissionRecord::find();
+            $this->query = Submission::find();
         }
     }
 

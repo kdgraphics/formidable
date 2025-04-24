@@ -4,8 +4,10 @@ namespace Inspire\Formidable\Controllers;
 use Inspire\Emails\Emails;
 use Inspire\Formidable\Assets\FormAsset;
 use Inspire\Formidable\Assets\FormsAsset;
+use Inspire\Formidable\Assets\HookAsset;
 use Inspire\Formidable\Models\Condition;
 use Inspire\Formidable\Models\Form;
+use Inspire\Formidable\Models\FormSubmission;
 use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
 use yii\web\BadRequestHttpException;
@@ -22,36 +24,35 @@ class CpFormsController extends Controller
             $template = 'edit';
         }
 
-        $this->view->registerAssetBundle(FormsAsset::class);
+        $this->view->registerAssetBundle(HookAsset::class);
+        foreach ($this->forms()->getRegisteredAssets() as $asset) {
+            $this->view->registerAssetBundle($asset);
+        }
 
-        $emailsInstalled = \Craft::$app->plugins->isPluginEnabled('inspire-emails');
-        $spamCheckInstalled = \Craft::$app->plugins->isPluginEnabled('spam-check');
-        if (!$emailsInstalled) {
-            \Craft::$app->session->setError(\Craft::t('formidable', 'The Emails plugin is not installed'));
-        }
-        if (!$spamCheckInstalled) {
-            \Craft::$app->session->setError(\Craft::t('formidable', 'The Spam check plugin is not installed'));
-        }
+        $this->view->registerAssetBundle(FormsAsset::class);
 
         $this->renderTemplate('formidable/cp/forms/'.$template, [
             'tab' => $tab,
             'form' => $id ?? 0,
             'forms' => $this->forms()->getAllAsArray(),
-            'emails' => $emailsInstalled ? array_map(function ($email) {
+            'emails' => array_map(function ($email) {
                 return $email->toArray();
-            }, Emails::$plugin->emails->all()) : [],
+            }, Emails::$plugin->emails->all()),
             'captchas' => $this->captchas()->getAllAsArray(),
             'registeredFields' => $this->fields()->getAllRegistered(),
-            'registeredRules' => $this->rules()->getAllRegistered()
+            'registeredRules' => $this->rules()->getAllRegistered(),
+            'volumes' => array_map(function($volume) {
+                return ['uid' => $volume->uid, 'name' => $volume->name];
+            }, \Craft::$app->volumes->getAllVolumes())
         ]);
     }
 
-    public function actionGet()
+    public function actionGet(int $id)
     {
         $this->requirePermission('manageFormidableForms');
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $id = $this->request->getRequiredParam('id');
+
         $form = $this->forms()->getById($id);
 
         if (!$form) {
@@ -97,13 +98,13 @@ class CpFormsController extends Controller
 
         if ($form->dateUpdated && $form->dateUpdated->getTimestamp() > $loaded) {
             return $this->asJson([
-                'false' => $success,
+                'success' => false,
                 'message' => \Craft::t('formidable', 'This form has been updated since you last loaded it, please reload the page')
             ]);
         }
 
-        $form->fields = $this->fields()->populateFromData($fieldsData, $form);
-        $form->rules = $this->rules()->populateFromData($rulesData, $form);
+        $form->fields = $this->fields()->populateFromData($fieldsData);
+        $form->rules = $this->rules()->populateFromData($rulesData);
         $form->validate();
 
         $success = false;
@@ -127,12 +128,11 @@ class CpFormsController extends Controller
         ]);    
     }
 
-    public function actionDelete()
+    public function actionDelete(int $id)
     {
         $this->requirePermission('manageFormidableForms');
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $id = $this->request->getRequiredParam('id');
         $form = $this->forms()->getById($id);
         if (!$form) {
             throw new BadRequestHttpException(\Craft::t('formidable', "Form with id {id} doesn't exist", ['id' => $id]));
