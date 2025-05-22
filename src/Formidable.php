@@ -35,9 +35,7 @@ use Inspire\Formidable\Assets\FormValidationAsset;
 
 class Formidable extends Plugin
 {
-    public $controllerNamespace = "Inspire\\Formidable\\Controllers";
-
-    public string $schemaVersion = '7.0.0';
+    public string $schemaVersion = '7.0.1';
 
     public bool $hasCpSettings = true;
 
@@ -310,41 +308,45 @@ class Formidable extends Plugin
      */
     protected function registerCpRoutes()
     {
-        Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
-            if (\Craft::$app->config->getGeneral()->allowAdminChanges) {
+        Event::on(
+            UrlManager::class,
+            UrlManager::EVENT_REGISTER_CP_URL_RULES,
+            function(RegisterUrlRulesEvent $event) {
+                if (\Craft::$app->config->getGeneral()->allowAdminChanges) {
+                    $event->rules = array_merge($event->rules, [
+                        'formidable' => 'formidable/cp-forms/form',
+                        'formidable/forms' => 'formidable/cp-forms/form',
+                        'formidable/forms/get/<id:\d+>' => 'formidable/cp-forms/get',
+                        'formidable/forms/new' => 'formidable/cp-forms/new',
+                        'formidable/forms/add' => 'formidable/cp-forms/form',
+                        'formidable/forms/add/<tab:config>' => 'formidable/cp-forms/form',
+                        'formidable/forms/add/<tab:fields>' => 'formidable/cp-forms/form',
+                        'formidable/forms/add/<tab:rules>' => 'formidable/cp-forms/form',
+                        'formidable/forms/save' => 'formidable/cp-forms/save',
+                        'formidable/forms/<id:\d+>' => 'formidable/cp-forms/form',
+                        'formidable/forms/<id:\d+>/<tab:config>' => 'formidable/cp-forms/form',
+                        'formidable/forms/<id:\d+>/<tab:fields>' => 'formidable/cp-forms/form',
+                        'formidable/forms/<id:\d+>/<tab:rules>' => 'formidable/cp-forms/form',
+                        'formidable/forms/delete/<id:\d+>' => 'formidable/cp-forms/delete',
+                        'formidable/categories-groups' => 'formidable/cp-categories',
+                        'formidable/entry-sections' => 'formidable/cp-sections'
+                    ]);
+                }
                 $event->rules = array_merge($event->rules, [
-                    'formidable' => 'formidable/cp-forms/form',
-                    'formidable/forms' => 'formidable/cp-forms/form',
-                    'formidable/forms/get/<id:\d+>' => 'formidable/cp-forms/get',
-                    'formidable/forms/new' => 'formidable/cp-forms/new',
-                    'formidable/forms/add' => 'formidable/cp-forms/form',
-                    'formidable/forms/add/<tab:config>' => 'formidable/cp-forms/form',
-                    'formidable/forms/add/<tab:fields>' => 'formidable/cp-forms/form',
-                    'formidable/forms/add/<tab:rules>' => 'formidable/cp-forms/form',
-                    'formidable/forms/save' => 'formidable/cp-forms/save',
-                    'formidable/forms/<id:\d+>' => 'formidable/cp-forms/form',
-                    'formidable/forms/<id:\d+>/<tab:config>' => 'formidable/cp-forms/form',
-                    'formidable/forms/<id:\d+>/<tab:fields>' => 'formidable/cp-forms/form',
-                    'formidable/forms/<id:\d+>/<tab:rules>' => 'formidable/cp-forms/form',
-                    'formidable/forms/delete/<id:\d+>' => 'formidable/cp-forms/delete',
-                    'formidable/categories-groups' => 'formidable/cp-categories',
-                    'formidable/entry-sections' => 'formidable/cp-sections'
+                    'formidable/submissions' => 'formidable/cp-submissions',
+                    'formidable/submissions/load' => 'formidable/cp-submissions/load',
+                    'formidable/submissions/loadAll' => 'formidable/cp-submissions/load-all',
+                    'formidable/submissions/set-as-read' => 'formidable/cp-submissions/set-as-read',
+                    'formidable/submissions/delete-many' => 'formidable/cp-submissions/deletemany',
+                    'formidable/submissions/export' => 'formidable/cp-submissions/export',
+                    'formidable/submissions/export-all' => 'formidable/cp-submissions/export-all',
+                    'formidable/submissions/spam' => 'formidable/cp-spam',
+                    'formidable/submissions/spam/load' => 'formidable/cp-spam/load',
+                    'formidable/submissions/spam/loadAll' => 'formidable/cp-spam/load-all',
+                    'formidable/submissions/spam/delete-many' => 'formidable/cp-spam/deletemany'
                 ]);
             }
-            $event->rules = array_merge($event->rules, [
-                'formidable/submissions' => 'formidable/cp-submissions',
-                'formidable/submissions/load' => 'formidable/cp-submissions/load',
-                'formidable/submissions/loadAll' => 'formidable/cp-submissions/load-all',
-                'formidable/submissions/set-as-read' => 'formidable/cp-submissions/set-as-read',
-                'formidable/submissions/delete-many' => 'formidable/cp-submissions/deletemany',
-                'formidable/submissions/export' => 'formidable/cp-submissions/export',
-                'formidable/submissions/export-all' => 'formidable/cp-submissions/export-all',
-                'formidable/submissions/spam' => 'formidable/cp-spam',
-                'formidable/submissions/spam/load' => 'formidable/cp-spam/load',
-                'formidable/submissions/spam/loadAll' => 'formidable/cp-spam/load-all',
-                'formidable/submissions/spam/delete-many' => 'formidable/cp-spam/deletemany'
-            ]);
-        });
+        );
     }
 
     /**
@@ -352,11 +354,15 @@ class Formidable extends Plugin
      */
     protected function registerFrontRoutes()
     {
-        Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
-            $event->rules = array_merge($event->rules, [
-                'formidable/submit/<id:\d+>' => 'formidable/forms/submit',
-            ]);
-        });
+        Event::on(
+            UrlManager::class,
+            UrlManager::EVENT_REGISTER_SITE_URL_RULES,
+            function(RegisterUrlRulesEvent $event) {
+                $event->rules = array_merge($event->rules, [
+                    'formidable/submit/<id:\d+>' => 'formidable/forms/submit',
+                ]);
+            }
+        );
     }
 
     /**

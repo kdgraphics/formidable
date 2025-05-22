@@ -151,7 +151,9 @@ abstract class Field extends Model implements FieldInterface
     {
         $this->options = Json::decode($value, true);
         foreach($this->options as $name => $value) {
-            $this->$name = $value;
+            if (property_exists($this, $name)) {
+                $this->$name = $value;
+            }   
         }
     }
 
