@@ -1,11 +1,17 @@
 # Formidable Forms
 
-**This is the version for Craft 4.x, for the Craft 3.x version visit the v5 branch**
+**This is the version for Craft 5.x, for the Craft 4.x version visit the v6 branch**
 
 Build forms in the backend, notify user and admins and view submissions and spams.
 Display them easily in the front end with templates.
 
 # Changelog
+
+### 7.1.1
+- Fixing Craft 5
+
+### 7.0.0 -> 7.1.0
+- Started Craft 5 branch
 
 ### 6.2.9
 - Fixed permanent delete
