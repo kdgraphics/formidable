@@ -1,7 +1,11 @@
-<?php 
+<?php
 
-namespace Inspire\Formidable\Controllers;
+namespace Inspire\Formidable\controllers;
 
+use Craft;
+use craft\web\Controller as CraftController;
+use craft\web\Request;
+use craft\web\Session;
 use Inspire\Formidable\Formidable;
 use Inspire\Formidable\Services\CaptchasService;
 use Inspire\Formidable\Services\FieldsService;
@@ -9,20 +13,17 @@ use Inspire\Formidable\Services\FormsService;
 use Inspire\Formidable\Services\RulesService;
 use Inspire\Formidable\Services\SpamService;
 use Inspire\Formidable\Services\SubmissionsService;
-use craft\web\Controller as CraftController;
-use craft\web\Request;
-use craft\web\Session;
 
 class Controller extends CraftController
 {
 	protected function request(): Request
 	{
-		return \Craft::$app->request;
+		return Craft::$app->request;
 	}
 
 	protected function session(): Session
 	{
-		return \Craft::$app->session;
+		return Craft::$app->session;
 	}
 
 	protected function forms(): FormsService

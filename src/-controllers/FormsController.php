@@ -1,16 +1,10 @@
-<?php 
+<?php
 
-namespace Inspire\Formidable\Controllers;
+namespace Inspire\Formidable\controllers;
 
-use Inspire\Formidable\Assets\FormsAsset;
 use Inspire\Formidable\Exceptions\FormEmailException;
-use Inspire\Formidable\Formidable;
 use Inspire\Formidable\Models\Form;
-use Inspire\Formidable\Models\FormSubmission;
 use Inspire\Formidable\Services\FormsService;
-use craft\helpers\ArrayHelper;
-use yii\helpers\Url;
-use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 
 class FormsController extends Controller

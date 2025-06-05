@@ -1,22 +1,17 @@
 <?php
-namespace Inspire\Formidable\Controllers;
+namespace Inspire\Formidable\controllers;
 
 use Inspire\Emails\Emails;
-use Inspire\Formidable\Assets\FormAsset;
 use Inspire\Formidable\Assets\FormsAsset;
 use Inspire\Formidable\Assets\HookAsset;
-use Inspire\Formidable\Models\Condition;
 use Inspire\Formidable\Models\Form;
-use Inspire\Formidable\Models\FormSubmission;
-use craft\helpers\ArrayHelper;
-use craft\helpers\StringHelper;
 use yii\web\BadRequestHttpException;
-use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
+use yii\web\Response;
 
 class CpFormsController extends Controller
 {
-    public function actionForm(int $id = null, string $tab = 'config')
+    public function actionForm(int $id = null, string $tab = 'config'): void
     {
         $this->requirePermission('manageFormidableForms');
         $template = 'create';
@@ -47,7 +42,7 @@ class CpFormsController extends Controller
         ]);
     }
 
-    public function actionGet(int $id)
+    public function actionGet(int $id): Response
     {
         $this->requirePermission('manageFormidableForms');
         $this->requirePostRequest();
@@ -65,10 +60,10 @@ class CpFormsController extends Controller
             'form' => $form,
             'fields' => $form->rootFields,
             'rules' => $form->rules,
-        ]);    
+        ]);
     }
 
-    public function actionNew()
+    public function actionNew(): Response
     {
         $this->requirePermission('manageFormidableForms');
         $this->requirePostRequest();
@@ -80,10 +75,10 @@ class CpFormsController extends Controller
             'form' => new Form,
             'fields' => [],
             'rules' => []
-        ]);    
+        ]);
     }
 
-    public function actionSave()
+    public function actionSave(): Response
     {
         $this->requirePermission('manageFormidableForms');
         $this->requirePostRequest();
@@ -93,7 +88,7 @@ class CpFormsController extends Controller
         $formData = $this->request()->getRequiredParam('form');
         $fieldsData = $this->request()->getRequiredParam('fields');
         $rulesData = $this->request()->getRequiredParam('rules');
-        
+
         $form = $this->forms()->populateFromData($formData);
 
         if ($form->dateUpdated && $form->dateUpdated->getTimestamp() > $loaded) {
@@ -125,10 +120,10 @@ class CpFormsController extends Controller
             'form' => $form,
             'fields' => $form->rootFields,
             'rules' => $form->rules
-        ]);    
+        ]);
     }
 
-    public function actionDelete(int $id)
+    public function actionDelete(int $id): Response
     {
         $this->requirePermission('manageFormidableForms');
         $this->requirePostRequest();

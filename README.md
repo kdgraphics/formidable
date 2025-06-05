@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 7.1.2
+- Fixing Craft 5
+
 ### 7.1.1
 - Fixing Craft 5
 

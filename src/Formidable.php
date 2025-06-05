@@ -1,24 +1,22 @@
 <?php
+
 namespace Inspire\Formidable;
 
 use Craft;
+use craft\errors\InvalidPluginException;
 use Inspire\Emails\Emails;
 use Inspire\Emails\Records\Email as EmailRecord;
-use Inspire\Formidable\Assets\TestAsset;
 use Inspire\Formidable\Captchas\GoogleV2;
 use Inspire\Formidable\Captchas\GoogleV3;
 use Inspire\Formidable\Events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent};
-use Inspire\Formidable\Models\Fields\{CaptchaV3, Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry, Group, Hidden, CheckboxEntry, Date, CheckboxCategory, RadioCategory, RadioEntry, PhoneNumber};
+use Inspire\Formidable\Models\Fields\{Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry, Group, Hidden, CheckboxEntry, Date, CheckboxCategory, RadioCategory, RadioEntry, PhoneNumber};
 use Inspire\Formidable\Models\FormField;
-use Inspire\Formidable\Models\FormSubmission;
-use Inspire\Formidable\Models\Records\Submission;
 use Inspire\Formidable\Models\Rules\{BiggerThan, Contain, EqualTo, Off, On, Required, SameThan, Size, SmallerThan};
 use Inspire\Formidable\Models\Settings;
 use Inspire\Formidable\Services\{CaptchasService, ConditionsService, ConditionGroupsService, CsvExporterService, FieldsService, FormsService, RulesService, SpamService, SubmissionsService};
 use Inspire\Formidable\Twig\TwigForms;
 use craft\base\Model;
 use craft\base\Plugin;
-use craft\console\Application as ConsoleApplication;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\events\{RebuildConfigEvent, RegisterCpNavItemsEvent, RegisterTemplateRootsEvent, RegisterUrlRulesEvent};
 use craft\services\Fields;
@@ -28,20 +26,41 @@ use craft\services\UserPermissions;
 use craft\web\UrlManager;
 use craft\web\View;
 use craft\web\twig\variables\Cp;
+use Throwable;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use yii\base\Event;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\log\Logger;
 use Inspire\Formidable\Assets\PhoneInputAsset;
 use Inspire\Formidable\Assets\FormValidationAsset;
 
+/**
+ * @property-read CaptchasService $captchas
+ * @property-read ConditionGroupsService $conditionGroups
+ * @property-read ConditionsService $conditions
+ * @property-read CsvExporterService $csvExporter
+ * @property-read FieldsService $fields
+ * @property-read FormsService $forms
+ * @property-read RulesService $rules
+ * @property-read SpamService $spam
+ * @property-read SubmissionsService $submissions
+ */
 class Formidable extends Plugin
 {
+    /** @var string */
     public string $schemaVersion = '7.0.1';
 
+    /** @var bool */
     public bool $hasCpSettings = true;
 
-    public static $plugin;
+    /** @var Formidable */
+    public static self $plugin;
 
-    protected $availableFields = [
+    /** @var array */
+    protected array $availableFields = [
         Text::class,
         Date::class,
         Email::class,
@@ -63,12 +82,14 @@ class Formidable extends Plugin
         PhoneNumber::class,
     ];
 
-    protected $availableCaptchas = [
+    /** @var array */
+    protected array $availableCaptchas = [
         GoogleV3::class,
         GoogleV2::class,
     ];
 
-    protected $availableRules = [
+    /** @var array */
+    protected array $availableRules = [
         BiggerThan::class,
         Contain::class,
         EqualTo::class,
@@ -80,15 +101,17 @@ class Formidable extends Plugin
         SmallerThan::class
     ];
 
+    /**
+     * @return void
+     * @throws InvalidConfigException
+     */
     public function init(): void
     {
         parent::init();
         $this::$plugin = $this;
-        $this->registerComponents();
-        $this->registerCpRoutes();
+
         $this->registerPermissions();
-        $this->registerNavItem();
-        $this->registerFrontRoutes();
+        $this->registerComponents();
         $this->registerProjectConfig();
         $this->registerFields();
         $this->registerCaptchas();
@@ -96,35 +119,42 @@ class Formidable extends Plugin
         $this->registerTwigExtension();
         $this->registerFrontTemplates();
         $this->registerCraftField();
+        $this->registerCpRoutes();
+        $this->registerFrontRoutes();
+        $this->registerNavItem();
         $this->registerGc();
 
-        if(Craft::$app->request->isSiteRequest) {
+        if (Craft::$app->request->isSiteRequest) {
             Craft::$app->view->registerAssetBundle(PhoneInputAsset::class);
             Craft::$app->view->registerAssetBundle(FormValidationAsset::class);
         }
     }
 
     /**
-     * Register Craft field
+     * @return void
      */
-    protected function registerCraftField()
+    protected function registerCraftField(): void
     {
-        Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function (Event $event) {
-            $event->types[] = FormField::class;
-        });
+        Event::on(
+            Fields::class,
+            Fields::EVENT_REGISTER_FIELD_TYPES,
+            function(Event $event) {
+                $event->types[] = FormField::class;
+            }
+        );
     }
 
     /**
-     * Register permissions
+     * @return void
      */
-    protected function registerPermissions()
+    protected function registerPermissions(): void
     {
         Event::on(
             UserPermissions::class,
             UserPermissions::EVENT_REGISTER_PERMISSIONS,
             function(RegisterUserPermissionsEvent $event) {
                 $event->permissions[] = [
-                    'heading' => \Craft::t('formidable', 'Forms'),
+                    'heading' => Craft::t('formidable', 'Forms'),
                     'permissions' => [
                         'accessPlugin-formidable' => [
                             'label' => 'Access forms',
@@ -144,9 +174,7 @@ class Formidable extends Plugin
     }
 
     /**
-     * Creates and returns the model used to store the plugin’s settings.
-     *
-     * @return \craft\base\Model|null
+     * @return Model|null
      */
     protected function createSettingsModel(): ?Model
     {
@@ -154,10 +182,11 @@ class Formidable extends Plugin
     }
 
     /**
-     * Returns the rendered settings HTML, which will be inserted into the content
-     * block on the settings page.
-     *
-     * @return string The rendered settings HTML
+     * @return string
+     * @throws Exception
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     protected function settingsHtml(): string
     {
@@ -170,46 +199,45 @@ class Formidable extends Plugin
     }
 
     /**
-     * Log a specific form message
-     *
-     * @param $message [description]
-     * @param $level   [description]
+     * @param mixed $message
+     * @param int $level
+     * @return void
      */
-    public static function log($message, $level = Logger::LEVEL_INFO)
+    public static function log(mixed $message, int $level = Logger::LEVEL_INFO): void
     {
-        \Craft::getLogger()->log($message, $level, 'formidable');
+        Craft::getLogger()->log($message, $level, 'formidable');
     }
 
     /**
-     * Registers cp nav item
+     * @return void
      */
-    protected function registerNavItem()
+    protected function registerNavItem(): void
     {
-        $request = Craft::$app->getRequest();
-        if ($request->isCpRequest) {
-            $_this = $this;
-            Event::on(Cp::class, Cp::EVENT_REGISTER_CP_NAV_ITEMS,
-                function(RegisterCpNavItemsEvent $event) use ($_this){
-                    if (\Craft::$app->user->checkPermission('manageFormidableSubmissions')) {
+        if (Craft::$app->getRequest()->getIsCpRequest()) {
+            Event::on(
+                Cp::class,
+                Cp::EVENT_REGISTER_CP_NAV_ITEMS,
+                function(RegisterCpNavItemsEvent $event) {
+                    if (Craft::$app->user->checkPermission('manageFormidableSubmissions')) {
                         $event->navItems[] = [
                             'url' => 'formidable/submissions',
-                            'label' => \Craft::t('formidable', 'Form Submissions'),
+                            'label' => Craft::t('formidable', 'Form Submissions'),
                             'subnav' => [
                                 'formidable-submissions' => [
                                     'url' => 'formidable/submissions',
-                                    'label' => \Craft::t('formidable', 'Submissions'),
+                                    'label' => Craft::t('formidable', 'Submissions'),
                                 ],
                                 'formidable-spam' => [
                                     'url' => 'formidable/submissions/spam',
-                                    'label' => \Craft::t('formidable', 'Spam'),
+                                    'label' => Craft::t('formidable', 'Spam'),
                                 ]
                             ]
                         ];
                     }
-                    if (\Craft::$app->config->getGeneral()->allowAdminChanges and \Craft::$app->user->checkPermission('manageFormidableForms')) {
+                    if (Craft::$app->config->getGeneral()->allowAdminChanges and Craft::$app->user->checkPermission('manageFormidableForms')) {
                         $event->navItems[] = [
                             'url' => 'formidable/forms',
-                            'label' => \Craft::t('formidable', 'Forms')
+                            'label' => Craft::t('formidable', 'Forms')
                         ];
                     }
                 }
@@ -218,38 +246,46 @@ class Formidable extends Plugin
     }
 
     /**
-     * Register garbace collection
+     * @return void
      */
-    protected function registerGc()
+    protected function registerGc(): void
     {
-        Event::on(Gc::class, Gc::EVENT_RUN, function () {
-            Formidable::$plugin->submissions->runGc();
-            Formidable::$plugin->spam->runGc();
-        });
+        Event::on(
+            Gc::class,
+            Gc::EVENT_RUN,
+            function() {
+                Formidable::$plugin->submissions->runGc();
+                Formidable::$plugin->spam->runGc();
+            }
+        );
     }
 
     /**
-     * Registers front templates
+     * @return void
      */
-    protected function registerFrontTemplates()
+    protected function registerFrontTemplates(): void
     {
-        Event::on(View::class, View::EVENT_REGISTER_SITE_TEMPLATE_ROOTS, function (RegisterTemplateRootsEvent $event) {
-            $event->roots[''][] = __DIR__ . '/templates/front';
-        });
+        Event::on(
+            View::class,
+            View::EVENT_REGISTER_SITE_TEMPLATE_ROOTS,
+            function(RegisterTemplateRootsEvent $event) {
+                $event->roots[''][] = __DIR__ . '/templates/front';
+            }
+        );
     }
 
     /**
-     * Registers twig extensions
+     * @return void
      */
-    protected function registerTwigExtension()
+    protected function registerTwigExtension(): void
     {
         Craft::$app->view->registerTwigExtension(new TwigForms);
     }
 
     /**
-     * Registers Forms services
+     * @return void
      */
-    protected function registerComponents()
+    protected function registerComponents(): void
     {
     	$this->setComponents([
             'fields' => FieldsService::class,
@@ -265,54 +301,63 @@ class Formidable extends Plugin
     }
 
     /**
-     * Registers captcha services
+     * @return void
      */
-    protected function registerCaptchas()
+    protected function registerCaptchas(): void
     {
-        $captchas = $this->availableCaptchas;
-        Event::on(CaptchasService::class, CaptchasService::EVENT_REGISTER_CAPTCHAS, function (RegisterCaptchasEvent $event) use ($captchas)  {
-            foreach ($captchas as $captcha) {
-                $event->addCaptcha(new $captcha);
+        Event::on(
+            CaptchasService::class,
+            CaptchasService::EVENT_REGISTER_CAPTCHAS,
+            function(RegisterCaptchasEvent $event) {
+                foreach ($this->availableCaptchas as $captcha) {
+                    $event->addCaptcha(new $captcha);
+                }
             }
-        });
+        );
     }
 
     /**
-     * Registers rules
+     * @return void
      */
-    protected function registerRules()
+    protected function registerRules(): void
     {
-        $rules = $this->availableRules;
-        Event::on(RulesService::class, RulesService::EVENT_REGISTER_RULES, function (RegisterRulesEvent $event) use ($rules)  {
-            foreach ($rules as $rule) {
-                $event->addRule(new $rule);
+        Event::on(
+            RulesService::class,
+            RulesService::EVENT_REGISTER_RULES,
+            function(RegisterRulesEvent $event) {
+                foreach ($this->availableRules as $rule) {
+                    $event->addRule(new $rule);
+                }
             }
-        });
+        );
     }
 
     /**
-     * Register form fields
+     * @return void
      */
-    protected function registerFields()
+    protected function registerFields(): void
     {
-        $fields = $this->availableFields;
-        Event::on(FieldsService::class, FieldsService::EVENT_REGISTER_FIELDS, function (RegisterFieldsEvent $event) use ($fields)  {
-            foreach ($fields as $field) {
-                $event->addField(new $field);
+        Event::on(
+            FieldsService::class,
+            FieldsService::EVENT_REGISTER_FIELDS,
+            function (RegisterFieldsEvent $event) {
+                foreach ($this->availableFields as $field) {
+                    $event->addField(new $field);
+                }
             }
-        });
+        );
     }
 
     /**
-     * Register cp routes
+     * @return void
      */
-    protected function registerCpRoutes()
+    protected function registerCpRoutes(): void
     {
         Event::on(
             UrlManager::class,
             UrlManager::EVENT_REGISTER_CP_URL_RULES,
             function(RegisterUrlRulesEvent $event) {
-                if (\Craft::$app->config->getGeneral()->allowAdminChanges) {
+                if (Craft::$app->config->getGeneral()->allowAdminChanges) {
                     $event->rules = array_merge($event->rules, [
                         'formidable' => 'formidable/cp-forms/form',
                         'formidable/forms' => 'formidable/cp-forms/form',
@@ -350,9 +395,9 @@ class Formidable extends Plugin
     }
 
     /**
-     * Registers front end routes
+     * @return void
      */
-    protected function registerFrontRoutes()
+    protected function registerFrontRoutes(): void
     {
         Event::on(
             UrlManager::class,
@@ -366,20 +411,28 @@ class Formidable extends Plugin
     }
 
     /**
-     * Project config events registering
+     * @return void
      */
-    protected function registerProjectConfig()
+    protected function registerProjectConfig(): void
     {
         Craft::$app->projectConfig
-            ->onAdd(FormsService::CONFIG_KEY.'.{uid}',              [$this->forms,           'handleChanged'])
-            ->onUpdate(FormsService::CONFIG_KEY.'.{uid}',           [$this->forms,           'handleChanged'])
-            ->onRemove(FormsService::CONFIG_KEY.'.{uid}',           [$this->forms,           'handleDeleted']);
+            ->onAdd(FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleChanged'])
+            ->onUpdate(FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleChanged'])
+            ->onRemove(FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleDeleted']);
 
-        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $e) {
-            Formidable::$plugin->forms->rebuildConfig($e);
-        });
+        Event::on(
+            ProjectConfig::class,
+            ProjectConfig::EVENT_REBUILD,
+            function(RebuildConfigEvent $e) {
+                Formidable::$plugin->forms->rebuildConfig($e);
+            }
+        );
     }
 
+    /**
+     * @return void
+     * @throws \yii\db\Exception
+     */
     protected function afterInstall(): void
     {
         if (!Emails::$plugin->emails->getByKey('formidable_spam')) {
@@ -393,13 +446,21 @@ class Formidable extends Plugin
         }
     }
 
+    /**
+     * @return void
+     * @throws Throwable
+     * @throws InvalidPluginException
+     */
     protected function beforeInstall(): void
     {
-        \Craft::$app->plugins->installPlugin('inspire-emails');
+        Craft::$app->plugins->installPlugin('inspire-emails');
     }
 
+    /**
+     * @return void
+     */
     protected function afterUninstall(): void
     {
-        \Craft::$app->getProjectConfig()->remove('formidable');
+        Craft::$app->getProjectConfig()->remove('formidable');
     }
 }

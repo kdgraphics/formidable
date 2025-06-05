@@ -1,6 +1,6 @@
 <?php
 
-namespace Inspire\Formidable\Controllers;
+namespace Inspire\Formidable\controllers;
 
 use Inspire\Formidable\Assets\SubmissionsAsset;
 use Inspire\Formidable\Models\Records\Submission;
