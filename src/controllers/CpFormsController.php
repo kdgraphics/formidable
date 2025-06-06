@@ -2,9 +2,9 @@
 namespace Inspire\Formidable\controllers;
 
 use Inspire\Emails\Emails;
-use Inspire\Formidable\Assets\FormsAsset;
-use Inspire\Formidable\Assets\HookAsset;
-use Inspire\Formidable\Models\Form;
+use Inspire\Formidable\assets\FormsAsset;
+use Inspire\Formidable\assets\HookAsset;
+use Inspire\Formidable\models\Form;
 use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;

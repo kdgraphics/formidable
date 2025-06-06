@@ -3,9 +3,9 @@
 namespace Inspire\Formidable\migrations;
 
 use Craft;
-use Inspire\Formidable\Models\Records\Field;
-use Inspire\Formidable\Models\Records\Submission;
-use Inspire\Formidable\Models\Records\SubmissionValue;
+use Inspire\Formidable\models\Records\Field;
+use Inspire\Formidable\models\Records\Submission;
+use Inspire\Formidable\models\Records\SubmissionValue;
 use craft\db\Migration;
 use craft\db\Query;
 

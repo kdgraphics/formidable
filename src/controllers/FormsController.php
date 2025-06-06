@@ -2,9 +2,9 @@
 
 namespace Inspire\Formidable\controllers;
 
-use Inspire\Formidable\Exceptions\FormEmailException;
-use Inspire\Formidable\Models\Form;
-use Inspire\Formidable\Services\FormsService;
+use Inspire\Formidable\exceptions\FormEmailException;
+use Inspire\Formidable\models\Form;
+use Inspire\Formidable\services\FormsService;
 use yii\web\HttpException;
 
 class FormsController extends Controller

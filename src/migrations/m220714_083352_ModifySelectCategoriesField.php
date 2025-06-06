@@ -3,7 +3,7 @@
 namespace Inspire\Formidable\migrations;
 
 use Craft;
-use Inspire\Formidable\Models\Records\Field;
+use Inspire\Formidable\models\Records\Field;
 use craft\db\Migration;
 
 /**

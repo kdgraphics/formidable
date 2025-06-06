@@ -6,15 +6,15 @@ use Craft;
 use craft\errors\InvalidPluginException;
 use Inspire\Emails\Emails;
 use Inspire\Emails\Records\Email as EmailRecord;
-use Inspire\Formidable\Captchas\GoogleV2;
-use Inspire\Formidable\Captchas\GoogleV3;
-use Inspire\Formidable\Events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent};
-use Inspire\Formidable\Models\Fields\{Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry, Group, Hidden, CheckboxEntry, Date, CheckboxCategory, RadioCategory, RadioEntry, PhoneNumber};
-use Inspire\Formidable\Models\FormField;
-use Inspire\Formidable\Models\Rules\{BiggerThan, Contain, EqualTo, Off, On, Required, SameThan, Size, SmallerThan};
-use Inspire\Formidable\Models\Settings;
-use Inspire\Formidable\Services\{CaptchasService, ConditionsService, ConditionGroupsService, CsvExporterService, FieldsService, FormsService, RulesService, SpamService, SubmissionsService};
-use Inspire\Formidable\Twig\TwigForms;
+use Inspire\Formidable\captchas\GoogleV2;
+use Inspire\Formidable\captchas\GoogleV3;
+use Inspire\Formidable\events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent};
+use Inspire\Formidable\models\Fields\{Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry, Group, Hidden, CheckboxEntry, Date, CheckboxCategory, RadioCategory, RadioEntry, PhoneNumber};
+use Inspire\Formidable\models\FormField;
+use Inspire\Formidable\models\Rules\{BiggerThan, Contain, EqualTo, Off, On, Required, SameThan, Size, SmallerThan};
+use Inspire\Formidable\models\Settings;
+use Inspire\Formidable\services\{CaptchasService, ConditionsService, ConditionGroupsService, CsvExporterService, FieldsService, FormsService, RulesService, SpamService, SubmissionsService};
+use Inspire\Formidable\twig\TwigForms;
 use craft\base\Model;
 use craft\base\Plugin;
 use craft\events\RegisterUserPermissionsEvent;
@@ -34,8 +34,8 @@ use yii\base\Event;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\log\Logger;
-use Inspire\Formidable\Assets\PhoneInputAsset;
-use Inspire\Formidable\Assets\FormValidationAsset;
+use Inspire\Formidable\assets\PhoneInputAsset;
+use Inspire\Formidable\assets\FormValidationAsset;
 
 /**
  * @property-read CaptchasService $captchas

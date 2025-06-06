@@ -7,12 +7,12 @@ use craft\web\Controller as CraftController;
 use craft\web\Request;
 use craft\web\Session;
 use Inspire\Formidable\Formidable;
-use Inspire\Formidable\Services\CaptchasService;
-use Inspire\Formidable\Services\FieldsService;
-use Inspire\Formidable\Services\FormsService;
-use Inspire\Formidable\Services\RulesService;
-use Inspire\Formidable\Services\SpamService;
-use Inspire\Formidable\Services\SubmissionsService;
+use Inspire\Formidable\services\CaptchasService;
+use Inspire\Formidable\services\FieldsService;
+use Inspire\Formidable\services\FormsService;
+use Inspire\Formidable\services\RulesService;
+use Inspire\Formidable\services\SpamService;
+use Inspire\Formidable\services\SubmissionsService;
 
 class Controller extends CraftController
 {

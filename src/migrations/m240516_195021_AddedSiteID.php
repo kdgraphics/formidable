@@ -4,7 +4,7 @@ namespace Inspire\Formidable\migrations;
 
 use Craft;
 use craft\db\Migration;
-use Inspire\Formidable\Models\Records\Field;
+use Inspire\Formidable\models\Records\Field;
 
 class m240516_195021_AddedSiteID extends Migration
 {

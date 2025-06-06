@@ -4,7 +4,7 @@ namespace Inspire\Formidable\migrations;
 
 use Craft;
 use craft\db\Migration;
-use Inspire\Formidable\Models\Records\Field;
+use Inspire\Formidable\models\Records\Field;
 
 /**
  * m220921_081021_ChangedFileMultipleAttribute migration.

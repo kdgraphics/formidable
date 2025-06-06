@@ -2,7 +2,7 @@
 
 namespace Inspire\Formidable\controllers;
 
-use Inspire\Formidable\Assets\SpamAsset;
+use Inspire\Formidable\assets\SpamAsset;
 use yii\web\BadRequestHttpException;
 use yii\widgets\LinkPager;
 

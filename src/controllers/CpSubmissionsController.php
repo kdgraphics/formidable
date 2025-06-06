@@ -2,8 +2,8 @@
 
 namespace Inspire\Formidable\controllers;
 
-use Inspire\Formidable\Assets\SubmissionsAsset;
-use Inspire\Formidable\Models\Records\Submission;
+use Inspire\Formidable\assets\SubmissionsAsset;
+use Inspire\Formidable\models\Records\Submission;
 use craft\helpers\Json;
 use yii\web\BadRequestHttpException;
 use yii\widgets\LinkPager;
