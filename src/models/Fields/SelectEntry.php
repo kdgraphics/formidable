@@ -69,7 +69,7 @@ class SelectEntry extends Field
         if (!$ids = self::validatedIDs($value)) {
             return '';
         }
-        $entries = Entry::find()->id($ids)->all();
+        $entries = Entry::find()->id($ids)->siteId('*')->all();
         $string = [];
         foreach ($entries as $entry) {
             $string[] = $entry->title;
@@ -85,7 +85,7 @@ class SelectEntry extends Field
         if (!$ids = self::validatedIDs($value)) {
             return '';
         }
-        $entries = Entry::find()->id($ids)->all();
+        $entries = Entry::find()->id($ids)->siteId('*')->all();
         $html = [];
         foreach ($entries as $entry) {
             $html[] = '<a target="_blank" href="'.$entry->getCpEditUrl().'">'.$entry->title.'</a>';
