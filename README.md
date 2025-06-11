@@ -7,7 +7,7 @@ Display them easily in the front end with templates.
 
 # Changelog
 
-### 7.1.3
+### 7.1.4
 - display results from any multi-site
 
 ### 7.1.2
