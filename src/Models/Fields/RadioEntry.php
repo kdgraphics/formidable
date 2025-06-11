@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Ryssbowh\Formidable\Models\Fields;
 
@@ -64,9 +64,9 @@ class RadioEntry extends Field
         if (!$ids = self::validatedIDs($value)) {
             return '';
         }
-        $entry = Entry::find()->id($ids)->one();
+        $entry = Entry::find()->id($ids)->siteId('*')->one();
 		if ($entry) {
-			return '<a target="_blank" href="'.$entry->getCpEditUrl().'">'.$entry->title.'</a>'; 
+			return '<a target="_blank" href="'.$entry->getCpEditUrl().'">'.$entry->title.'</a>';
 		}
 		return '';
 	}
@@ -79,7 +79,7 @@ class RadioEntry extends Field
         if (!$ids = self::validatedIDs($value)) {
             return '';
         }
-		$entry = Entry::find()->id($ids)->one();
+		$entry = Entry::find()->id($ids)->siteId('*')->one();
 		if ($entry) {
 			return $entry->title;
 		}
@@ -88,7 +88,7 @@ class RadioEntry extends Field
 
 	/**
 	 * Load all categories from the selected group
-	 * 
+	 *
 	 * @return array
 	 */
 	public function getAllEntries(array $eagerLoad = []): array

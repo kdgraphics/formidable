@@ -7,6 +7,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.5.5
+
+- display results from any multi-site
+
 ### 6.5.4
 
 - Fixed getAssets
