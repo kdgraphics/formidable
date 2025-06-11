@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.2.10
+- display results from any multi-site
+
 ### 6.2.9
 - Fixed permanent delete
 - Colorful graphs
