@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 7.1.5
+- Fixed folder casing and webpack
+
 ### 7.1.4
 - display results from any multi-site
 
