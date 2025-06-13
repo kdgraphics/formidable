@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 7.1.6
+- Fixed path for assets for spam check
+
 ### 7.1.5
 - Fixed folder casing and webpack
 
