@@ -41,7 +41,7 @@ class FormsService extends Component
 
     const CONFIG_KEY = 'formidable.forms';
 
-    const FRONT_JS_FILE = __DIR__ . '/../Assets/dist/validation.js';
+    const FRONT_JS_FILE = __DIR__ . '/../assets/dist/validation.js';
 
     const SPAM = 1;
     const VALID = 2;
