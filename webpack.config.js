@@ -6,25 +6,25 @@ const env = process.env.NODE_ENV;
 
 const config = {
     entry: {
-        forms: path.join(__dirname, "src/Assets/src", "forms.js"),
-        submissions: path.join(__dirname, "src/Assets/src", "submissions.js"),
-        spam: path.join(__dirname, "src/Assets/src", "spam.js"),
-        hook: path.join(__dirname, "src/Assets/src", "hook.js"),
-        phoneInput: path.join(__dirname, "src/Assets/src", "phoneInput.js"),
+        forms: path.join(__dirname, "src/assets/src", "forms.js"),
+        submissions: path.join(__dirname, "src/assets/src", "submissions.js"),
+        spam: path.join(__dirname, "src/assets/src", "spam.js"),
+        hook: path.join(__dirname, "src/assets/src", "hook.js"),
+        phoneInput: path.join(__dirname, "src/assets/src", "phoneInput.js"),
         utils: path.join(
             __dirname,
-            "src/Assets/PhoneNumber-24.6.0/js",
+            "src/assets/PhoneNumber-24.6.0/js",
             "utils.js"
         ),
         formValidation: path.join(
             __dirname,
-            "src/Assets/src",
+            "src/assets/src",
             "formValidation.js"
         ),
     },
     mode: env,
     output: {
-        path: path.join(__dirname, "src/Assets/dist"),
+        path: path.join(__dirname, "src/assets/dist"),
     },
     optimization: {
         minimize: env === "production",
