@@ -94,7 +94,7 @@ class RadioEntry extends Field
 	public function getAllEntries(array $eagerLoad = []): array
 	{
 		$sections = array_map(function ($uid) {
-			return \Craft::$app->sections->getSectionByUid($uid);
+			return \Craft::$app->getEntries()->getSectionByUid($uid);
 		}, $this->sections);
 		$out = [];
 		foreach ($sections as $section) {
