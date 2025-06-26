@@ -7,6 +7,15 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 7.1.9
+- Added ck editor
+
+### 7.1.8
+- Fixed bug on getting sections frontend
+
+### 7.1.7
+- Fixed bug on getting sections backend
+
 ### 7.1.6
 - Fixed path for assets for spam check
 
