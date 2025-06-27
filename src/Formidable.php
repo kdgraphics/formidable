@@ -36,6 +36,7 @@ use yii\base\InvalidConfigException;
 use yii\log\Logger;
 use Inspire\Formidable\assets\PhoneInputAsset;
 use Inspire\Formidable\assets\FormValidationAsset;
+use craft\ckeditor\web\assets\ckeditor\CkeditorAsset;
 
 /**
  * @property-read CaptchasService $captchas
@@ -127,6 +128,10 @@ class Formidable extends Plugin
         if (Craft::$app->request->isSiteRequest) {
             Craft::$app->view->registerAssetBundle(PhoneInputAsset::class);
             Craft::$app->view->registerAssetBundle(FormValidationAsset::class);
+        }
+
+        if (Craft::$app->request->isCpRequest) {
+            Craft::$app->view->registerAssetBundle(CkeditorAsset::class);
         }
     }
 

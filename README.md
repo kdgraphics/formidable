@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 7.1.10
+- Changed all redactor fields to ck editor
+
 ### 7.1.9
 - Added ck editor
 

@@ -59,44 +59,76 @@ export default {
   },
   data() {
     return {
-      errors: {}
+      currentLabelEditor: null,
+      currentTooltipEditor: null,
+      ckEditorSettings: {
+        "toolbar": {
+          "items": [
+            "heading",
+            "|",
+            "bold",
+            "italic",
+            "underline",
+            "strikethrough",
+            "sourceEditing"
+          ]
+        }
+      },
+      errors: {},
     }
   },
   mounted() {
     if (this.field.labelHtml) {
-      this.enableLabelRedactor();
+      this.enableLabelCKEditor();
     }
-    this.enableTooltipRedactor();
+    this.enableTooltipCKEditor();
   },
   watch: {
     'field.labelHtml': function () {
-      this.toggleRedactor();
-    } 
+      this.toggleCkEditor();
+    }
   },
   methods: {
-    enableTooltipRedactor: function () {
-      $R('.field-tooltip-value'+this.field.uid, {
-        callbacks: {
-          changed: (html) => {
-            this.field.tooltip = html;
-          }
-        }
-      });
+    enableTooltipCKEditor: async function () {
+      this.currentTooltipEditor = await window.CKEditor5.craftcms
+        .create(document.querySelector('.field-tooltip-value'+this.field.uid), this.ckEditorSettings)
+        .catch(error => {
+            console.error('CKEditor init error:', error);
+        });
+
+      this.handleStatusChanges('tooltip', this.currentTooltipEditor);
     },
-    enableLabelRedactor: function () {
-      $R('.field-label-value'+this.field.uid, {
-        callbacks: {
-          changed: (html) => {
-            this.field.label = html;
-          }
-        }
-      });
+    enableLabelCKEditor: async function () {
+      this.currentLabelEditor = await window.CKEditor5.craftcms
+        .create(document.querySelector('.field-label-value'+this.field.uid), this.ckEditorSettings)
+        .catch(error => {
+            console.error('CKEditor init error:', error);
+        });
+      
+      this.handleStatusChanges('label', this.currentLabelEditor);
     },
-    toggleRedactor: function() {
+    toggleCkEditor: function() {
       if (this.field.labelHtml) {
-        this.enableLabelRedactor();
+        this.enableLabelCKEditor();
       } else {
-        $R('.field-label-value'+this.field.uid, 'destroy');
+        if (this.currentLabelEditor) {
+          this.currentLabelEditor
+          .destroy()
+          .catch(error => {
+              console.error('CKEditor destroy error:', error);
+          });
+        }
+      }
+    },
+    handleStatusChanges: function(type, editor) {
+      if (type == 'label') {
+        editor.model.document.on( 'change:data', () => {
+          this.field.label = editor.getData();
+        });
+      } else if (type == 'tooltip') {
+        editor.model.document.on( 'change:data', () => {
+          this.field.tooltip = editor.getData();
+        });
       }
     }
   }
