@@ -1,14 +1,11 @@
-{% extends "_formidable/fields/_field" %}
+{% extends "_formidable/fields/_floatingfield" %}
 
-{% set field_class = (field_class ?? '') ~ (field.fieldClass ? (' ' ~ field.fieldClass) : '') %}
+{% set field_class = (field_class ?? 'form-control') ~ (field.fieldClass ? (' ' ~ field.fieldClass) : '') %}
 
 {% block inner %}
-	<textarea
-	id="{{ field.generateId(form) }}-input"
-	name="{{ field.frontName }}"
-	class="{{ field_class }}{% if error %} is-invalid{% endif %}"
+	<textarea id="{{ field.generateId(form) }}-input" name="{{ field.frontName }}" class="{{ field_class }}{% if error %} is-invalid{% endif %}"
 	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
 	{% if field.rows %}rows="{{ field.rows }}"{% endif %}
 	{% if not field.autocomplete %}autocomplete="off"{% endif %}
-	>{{ old_value }}</textarea>
+	style="height: {{ field.rows ? 39 + field.rows * 20 : '100px' }};">{{ old_value }}</textarea>
 {% endblock %}

@@ -1,12 +1,12 @@
-{% extends "_formidable/fields/_field" %}
+{% extends "_formidable/fields/_floatingfield" %}
 
-{% set field_class = (field_class ?? '') ~ (field.fieldClass ? (' ' ~ field.fieldClass) : '') %}
+{% set field_class = (field_class ?? 'form-control') ~ (field.fieldClass ? (' ' ~ field.fieldClass) : '') %}
 
 {% block inner %}
 	<input type="text"
 	id="{{ field.generateId(form) }}-input"
 	name="{{ field.frontName }}"
-	class="{{ field_class }}{% if error %} is-invalid{% endif %}" 
+	class="{{ field_class }}{% if error %} is-invalid{% endif %}"
 	value="{{ old_value }}"
 	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}
 	{% if not field.autocomplete %}autocomplete="off"{% endif %}
