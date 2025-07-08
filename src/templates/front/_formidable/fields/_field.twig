@@ -1,22 +1,24 @@
 {% set container_class = (container_class ?? '') ~ (field.containerClass ? (' ' ~ field.containerClass) : '') %}
 
-<div class="{{ container_class }} field" id="{{ field.generateId(form) }}">
-	{% block before_field %}
-	{% endblock %}
-	{% block label %}
-		{% include "_formidable/_includes/label" %}
-	{% endblock %}
-	{% block tooltip %}
-		{% include "_formidable/_includes/tooltip" %}
-	{% endblock %}
-	{% block instructions %}
-		{% include "_formidable/_includes/instructions" %}
-	{% endblock %}
-	{% block inner %}
-	{% endblock %}
-	{% block errors %}
-		{% include "_formidable/_includes/errors" %}
-	{% endblock %}
-	{% block after_field %}
-	{% endblock %}
+<div class="{{ container_class }} field-col">
+	<div class="field" id="{{ field.generateId(form) }}">
+		{% block before_field %}
+		{% endblock %}
+		{% block label %}
+			{% include "_formidable/_includes/label" %}
+		{% endblock %}
+		{% block tooltip %}
+			{% include "_formidable/_includes/tooltip" %}
+		{% endblock %}
+		{% block instructions %}
+			{% include "_formidable/_includes/instructions" %}
+		{% endblock %}
+		{% block inner %}
+		{% endblock %}
+		{% block errors %}
+			{% include "_formidable/_includes/errors" %}
+		{% endblock %}
+		{% block after_field %}
+		{% endblock %}
+	</div>
 </div>
