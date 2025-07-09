@@ -2,12 +2,13 @@
 
 {% set error = errors['*'] is defined ? errors['*'] : false %}
 
-{% set form_class = (class ?? '') ~ (form.class ? (' ' ~ form.class) : '') %}
+{% set form_class = (form_class ?? '') ~ (form.class ? (' ' ~ form.class) : '') %}
 {% set submit_class = (submit_class ?? 'btn btn-primary') ~ (form.submitClass ? (' ' ~ form.submitClass) : '') %}
 {% set submit_container_class = submit_container_class ?? 'submit-wrapper' %}
 {% set honeypot_class = honeypot_class ?? 'field' %}
 {% set fields_class = fields_class ?? '' %}
 {% set captcha_container_class = captcha_container_class ?? 'captcha-field' %}
+{% set floating_field = floating_field ?? '' %}
 
 {% do view.registerAssetBundle("Inspire\\Formidable\\Assets\\FormValidationAsset") %}
 

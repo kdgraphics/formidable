@@ -1,7 +1,8 @@
+{% set class = class ?? '' %}
 {% set container_class = (container_class ?? '') ~ (field.containerClass ? (' ' ~ field.containerClass) : '') %}
 
-<div class="{{ container_class }} field-col">
-	<div class="field" id="{{ field.generateId(form) }}">
+<div class="{{ class }} field-col">
+	<div class="{{ container_class }} field" id="{{ field.generateId(form) }}">
 		{% block before_field %}
 		{% endblock %}
 		{% block label %}

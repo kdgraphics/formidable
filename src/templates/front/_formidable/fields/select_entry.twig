@@ -1,4 +1,4 @@
-{% extends "_formidable/fields/_floatingfield" %}
+{% extends floating_field ? "_formidable/fields/_floatingfield" : "_formidable/fields/_field" %}
 
 {% set field_class = (field_class ?? 'form-select') ~ (field.fieldClass ? (' ' ~ field.fieldClass) : '') %}
 
