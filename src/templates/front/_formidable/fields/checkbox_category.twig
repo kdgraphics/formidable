@@ -1,22 +1,22 @@
 {% extends "_formidable/fields/_field" %}
 
-{% set field_class = (field_class ?? '') ~ (field.fieldClass ? (' ' ~ field.fieldClass) : '') %}
-{% set field_choice_container_class = (field_choice_container_class ?? '') ~ (field.choiceContainerClass ? (' ' ~ field.choiceContainerClass) : '') %}
-{% set field_choice_label_class = (field_choice_label_class ?? '') ~ (field.choiceLabelClass ? (' ' ~ field.choiceLabelClass) : '') %}
+{% set field_class = (field_class ?? 'form-check-input') ~ (field.fieldClass ? (' ' ~ field.fieldClass) : '') %}
+{% set field_choice_container_class = (field_choice_container_class ?? 'form-check') ~ (field.choiceContainerClass ? (' ' ~ field.choiceContainerClass) : '') %}
+{% set field_choice_label_class = (field_choice_label_class ?? 'form-check-label') ~ (field.choiceLabelClass ? (' ' ~ field.choiceLabelClass) : '') %}
 
 {% block inner %}
 	{% for id, title in field.categories %}
-		<div class="form-check {{ field_choice_container_class }}">
+		<div class="{{ field_choice_container_class }}">
 			<input
 					type="checkbox"
 					value="{{ id }}"
 					id="{{ field.generateId(form) }}-{{ id }}"
 					name="{{ field.frontName }}[]"
-					class="form-check-input {{ field_class }}{% if error %} is-invalid{% endif %}"
+					class="{{ field_class }}{% if error %} is-invalid{% endif %}"
 					{% if old_value and (id in old_value) %}checked="checked"{% endif %}
 					{% if not field.autocomplete %}autocomplete="off"{% endif %}
 			>
-			<label class="form-check-label {{ field_choice_label_class }}" for="{{ field.generateId(form) }}-{{ id }}">{{ title }}</label>
+			<label class="{{ field_choice_label_class }}" for="{{ field.generateId(form) }}-{{ id }}">{{ title }}</label>
 		</div>
 	{% endfor %}
 {% endblock %}
