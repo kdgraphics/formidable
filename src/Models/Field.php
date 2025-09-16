@@ -1,7 +1,8 @@
-<?php 
+<?php
 
 namespace Ryssbowh\Formidable\Models;
 
+use Craft;
 use Ryssbowh\Formidable\Events\FieldEvent;
 use Ryssbowh\Formidable\Formidable;
 use Ryssbowh\Formidable\Interfaces\FieldInterface;
@@ -11,6 +12,7 @@ use Ryssbowh\Formidable\Models\Fields\Group;
 use Ryssbowh\Formidable\Models\FormSubmission;
 use craft\base\Model;
 use craft\helpers\StringHelper;
+use Throwable;
 
 abstract class Field extends Model implements FieldInterface
 {
@@ -133,7 +135,7 @@ abstract class Field extends Model implements FieldInterface
 
     /**
      * Get form model
-     * 
+     *
      * @return ?Form
      */
     public function getForm(): ?Form
@@ -143,20 +145,24 @@ abstract class Field extends Model implements FieldInterface
 
     /**
      * Extract all options in object
-     * 
+     *
      * @param string $value
      */
     public function setOptions(string $value)
     {
-        $this->options = decodeJson($value, true);
-        foreach($this->options as $name => $value) {
-            $this->$name = $value;
+        try {
+            $this->options = decodeJson($value, true);
+            foreach($this->options as $name => $value) {
+                $this->$name = $value;
+            }
+        } catch (Throwable $e) {
+            Craft::error($e->getMessage());
         }
     }
 
     /**
      * Unique id for this field
-     * 
+     *
      * @param  Form   $form
      * @return string
      */
@@ -167,7 +173,7 @@ abstract class Field extends Model implements FieldInterface
 
     /**
      * Rebuild options in json/array
-     * 
+     *
      * @param  bool|boolean $asJson
      * @return string|array
      */
@@ -200,7 +206,7 @@ abstract class Field extends Model implements FieldInterface
 
     /**
      * Field project config
-     * 
+     *
      * @return array
      */
     public function getConfig(): array
@@ -259,7 +265,7 @@ abstract class Field extends Model implements FieldInterface
 
     /**
      * Javascript to define this field
-     * 
+     *
      * @return string
      */
     public function frontJs(Form $form): string
