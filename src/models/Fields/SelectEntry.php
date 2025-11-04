@@ -69,7 +69,8 @@ class SelectEntry extends Field
         if (!$ids = self::validatedIDs($value)) {
             return '';
         }
-        $entries = Entry::find()->id($ids)->siteId('*')->all();
+        $siteId = \Craft::$app->getSites()->getCurrentSite()->id;
+        $entries = Entry::find()->id($ids)->siteId($siteId)->all();
         $string = [];
         foreach ($entries as $entry) {
             $string[] = $entry->title;
