@@ -1,6 +1,6 @@
-{% extends "_formidable/fields/_field" %}
+{% extends floating_field ? "_formidable/fields/_floatingfield" : "_formidable/fields/_field" %}
 
-{% set field_class = (field_class ?? '') ~ (field.fieldClass ? (' ' ~ field.fieldClass) : '') %}
+{% set field_class = (field_class ?? 'form-control') ~ (field.fieldClass ? (' ' ~ field.fieldClass) : '') %}
 
 {% do view.registerAssetBundle("Inspire\\Formidable\\Assets\\PhoneInputAsset") %}
 
@@ -8,7 +8,7 @@
 	<input type="tel"
 	id="{{ field.generateId(form) }}-input"
 	name="{{ field.frontName }}"
-	class="{{ field_class }}{% if error %} is-invalid{% endif %}"
+	class="{{ field_class }}{% if error %} is-invalid{% endif %}" 
 	value="{{ old_value }}"
 	data-utils-script="https://cdn.jsdelivr.net/npm/intl-tel-input@24.6.0/build/js/utils.js"
 	{% if field.placeholder %}placeholder="{{ field.placeholder }}"{% endif %}

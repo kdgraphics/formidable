@@ -2,11 +2,13 @@
 
 {% set error = errors['*'] is defined ? errors['*'] : false %}
 
-{% set form_class = (class ?? '') ~ (form.class ? (' ' ~ form.class) : '') %}
-{% set submit_class = (submit_class ?? '') ~ (form.submitClass ? (' ' ~ form.submitClass) : '') %}
+{% set form_class = (form_class ?? '') ~ (form.class ? (' ' ~ form.class) : '') %}
+{% set submit_class = (submit_class ?? 'btn btn-primary') ~ (form.submitClass ? (' ' ~ form.submitClass) : '') %}
 {% set submit_container_class = submit_container_class ?? 'submit-wrapper' %}
 {% set honeypot_class = honeypot_class ?? 'field' %}
-{% set fields_class = fields_class ?? 'fields' %}
+{% set fields_class = fields_class ?? '' %}
+{% set captcha_container_class = captcha_container_class ?? 'captcha-field' %}
+{% set floating_field = floating_field ?? '' %}
 
 {% do view.registerAssetBundle("Inspire\\Formidable\\Assets\\FormValidationAsset") %}
 
@@ -26,23 +28,25 @@
 			{% include "_formidable/fields/_honeypot" %}
 		{% endif %}
 	{% endblock %}
-	{% block fields %}
-		<div class="{{ fields_class }}">
+	<div class="{{ fields_class }} fields">
+		{% block fields %}
 			{% for field in fields %}
 				{% set error = errors[field.handle] is defined ? errors[field.handle] : false %}
 				{% set old_value = oldInput[field.handle] ?? field.value %}
 				{% include "_formidable/fields/field" %}
 			{% endfor %}
-		</div>
-	{% endblock %}
-	{% block captcha %}
-		{% if form.captcha %}
-			{{ form.getCaptcha().render(form)|raw }}
-		{% endif %}
-	{% endblock %}
-	{% block submit %}
-		{% include "_formidable/_includes/submit" %}
-	{% endblock %}
+		{% endblock %}
+		{% block captcha %}
+			{% if form.captcha %}
+				<div class="{{ captcha_container_class }}">
+					{{ form.getCaptcha().render(form)|raw }}
+				</div>
+			{% endif %}
+		{% endblock %}
+		{% block submit %}
+			{% include "_formidable/_includes/submit" %}
+		{% endblock %}
+	</div>
 </form>
 
 {% block after_form %}{% endblock %}

@@ -1,1 +1,3 @@
-<div class="instructions">{{ field.instructions }}</div>
+{% if field.instructions %}
+    <div class="instructions">{{ field.instructions }}</div>
+{% endif %}
