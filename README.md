@@ -7,6 +7,14 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.6.1
+
+- Multi-site armor plating
+
+### 6.6.0
+
+- template update
+
 ### 6.5.5
 
 - display results from any multi-site
