@@ -2,6 +2,7 @@
 
 namespace Inspire\Formidable\models\Fields;
 
+use Craft;
 use Inspire\Formidable\models\Field;
 use Inspire\Formidable\models\FormSubmission;
 use craft\elements\Entry;
@@ -64,10 +65,17 @@ class RadioEntry extends Field
         if (!$ids = self::validatedIDs($value)) {
             return '';
         }
-        $entry = Entry::find()->id($ids)->siteId('*')->one();
+
+        $siteId = Craft::$app->getSites()->getCurrentSite()->id;
+        $entry = Entry::find()
+            ->id($ids)
+            ->siteId($siteId)
+            ->one();
+
 		if ($entry) {
 			return '<a target="_blank" href="'.$entry->getCpEditUrl().'">'.$entry->title.'</a>';
 		}
+
 		return '';
 	}
 
@@ -79,30 +87,47 @@ class RadioEntry extends Field
         if (!$ids = self::validatedIDs($value)) {
             return '';
         }
-		$entry = Entry::find()->id($ids)->siteId('*')->one();
+
+        $siteId = Craft::$app->getSites()->getCurrentSite()->id;
+		$entry = Entry::find()
+            ->id($ids)
+            ->siteId($siteId)
+            ->one();
+
 		if ($entry) {
 			return $entry->title;
 		}
+
 		return '';
 	}
 
-	/**
-	 * Load all categories from the selected group
-	 *
-	 * @return array
-	 */
+    /**
+     * Load all categories from the selected group
+     *
+     * @param array $eagerLoad
+     * @return array
+     */
 	public function getAllEntries(array $eagerLoad = []): array
 	{
 		$sections = array_map(function ($uid) {
-			return \Craft::$app->getEntries()->getSectionByUid($uid);
+			return Craft::$app->getEntries()->getSectionByUid($uid);
 		}, $this->sections);
-		$out = [];
+
+        $siteId = Craft::$app->getSites()->getCurrentSite()->id;
+
+        $out = [];
 		foreach ($sections as $section) {
-			$entries = Entry::find()->section($section)->with($eagerLoad)->all();
+			$entries = Entry::find()
+                ->section($section)
+                ->siteId($siteId)
+                ->with($eagerLoad)
+                ->all();
+
 			foreach ($entries as $entry) {
 				$out[] = $entry;
 			}
 		}
+
 		return $out;
 	}
 }
