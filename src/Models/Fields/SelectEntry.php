@@ -2,9 +2,10 @@
 
 namespace Ryssbowh\Formidable\Models\Fields;
 
+use Craft;
+use craft\elements\Entry;
 use Ryssbowh\Formidable\Models\Field;
 use Ryssbowh\Formidable\Models\FormSubmission;
-use craft\elements\Entry;
 
 class SelectEntry extends Field
 {
@@ -69,11 +70,18 @@ class SelectEntry extends Field
         if (!$ids = self::validatedIDs($value)) {
             return '';
         }
-        $entries = Entry::find()->id($ids)->siteId('*')->all();
+
+        $siteId = Craft::$app->getSites()->getCurrentSite()->id;
+        $entries = Entry::find()
+            ->id($ids)
+            ->siteId($siteId)
+            ->all();
+
         $string = [];
         foreach ($entries as $entry) {
             $string[] = $entry->title;
         }
+
         return implode(', ', $string);
     }
 
@@ -85,11 +93,18 @@ class SelectEntry extends Field
         if (!$ids = self::validatedIDs($value)) {
             return '';
         }
-        $entries = Entry::find()->id($ids)->siteId('*')->all();
+
+        $siteId = Craft::$app->getSites()->getCurrentSite()->id;
+        $entries = Entry::find()
+            ->id($ids)
+            ->siteId($siteId)
+            ->all();
+
         $html = [];
         foreach ($entries as $entry) {
             $html[] = '<a target="_blank" href="'.$entry->getCpEditUrl().'">'.$entry->title.'</a>';
         }
+
         return implode('<br/>', $html);
     }
 
@@ -101,35 +116,53 @@ class SelectEntry extends Field
     public function getEntries(): array
     {
         $sections = array_map(function ($uid) {
-            return \Craft::$app->sections->getSectionByUid($uid);
+            return Craft::$app->sections->getSectionByUid($uid);
         }, $this->sections);
+
+        $siteId = Craft::$app->getSites()->getCurrentSite()->id;
+
         $out = [];
         foreach ($sections as $section) {
-            $entries = Entry::find()->section($section)->all();
+            $entries = Entry::find()
+                ->section($section)
+                ->siteId($siteId)
+                ->all();
+
             foreach ($entries as $entry) {
                 $out[$entry->id] = $entry->title;
             }
         }
+
         return $out;
     }
 
     /**
      * get all entries
      *
+     * @param array $eagerLoad
      * @return array
      */
     public function getAllEntries(array $eagerLoad = []): array
     {
         $sections = array_map(function ($uid) {
-            return \Craft::$app->sections->getSectionByUid($uid);
+            return Craft::$app->sections->getSectionByUid($uid);
         }, $this->sections);
+
+        $siteId = Craft::$app->getSites()->getCurrentSite()->id;
+
         $out = [];
         foreach ($sections as $section) {
-            $entries = Entry::find()->section($section)->with($eagerLoad)->all();
+            $entries = Entry::find()
+                ->section($section)
+                ->siteId($siteId)
+                ->with($eagerLoad)
+                ->all();
+
             foreach ($entries as $entry) {
                 $out[] = $entry;
             }
         }
+
         return $out;
     }
 
