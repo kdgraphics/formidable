@@ -7,6 +7,12 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 7.1.12
+- Multi-site armor plating
+
+### 7.1.11
+- Floating field option
+
 ### 7.1.10
 - Changed all redactor fields to ck editor
 
