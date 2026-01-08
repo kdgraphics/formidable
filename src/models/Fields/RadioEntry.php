@@ -4,6 +4,7 @@ namespace Inspire\Formidable\models\Fields;
 
 use Craft;
 use Inspire\Formidable\models\Field;
+use Inspire\Formidable\Formidable;
 use Inspire\Formidable\models\FormSubmission;
 use craft\elements\Entry;
 
@@ -66,7 +67,7 @@ class RadioEntry extends Field
             return '';
         }
 
-        $siteId = Craft::$app->getSites()->getCurrentSite()->id;
+        $siteId = Formidable::$plugin->submissions->currentSiteId;
         $entry = Entry::find()
             ->id($ids)
             ->siteId($siteId)
@@ -88,7 +89,7 @@ class RadioEntry extends Field
             return '';
         }
 
-        $siteId = Craft::$app->getSites()->getCurrentSite()->id;
+        $siteId = Formidable::$plugin->submissions->currentSiteId;
 		$entry = Entry::find()
             ->id($ids)
             ->siteId($siteId)

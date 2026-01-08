@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 7.1.13
+- Multi-site armor plating
+
 ### 7.1.12
 - Multi-site armor plating
 

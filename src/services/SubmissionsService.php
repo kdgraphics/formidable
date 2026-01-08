@@ -10,14 +10,12 @@ use Inspire\Formidable\jobs\SendAdminEmailJob;
 use Inspire\Formidable\jobs\SendUserEmailJob;
 use Inspire\Formidable\models\Form;
 use Inspire\Formidable\models\FormSubmission;
-use Inspire\Formidable\models\Notification;
 use Inspire\Formidable\models\Records\Form as FormRecord;
 use Inspire\Formidable\models\Records\Submission;
 use Inspire\Formidable\models\Records\SubmissionValue;
 use Inspire\Formidable\models\Submission as SubmissionModel;
 use Inspire\Formidable\models\SubmissionValue as SubmissionValueModel;
 use Inspire\Formidable\providers\SubmissionProvider;
-use Inspire\Formidable\services\NotificationsService;
 use craft\base\Component;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
@@ -30,6 +28,8 @@ class SubmissionsService extends Component
 {
     public const EVENT_BEFORE_SEND_USER_EMAIL = 'before-send-user-email';
     public const EVENT_BEFORE_SEND_ADMIN_EMAIL = 'before-send-admin-email';
+
+    public ?int $currentSiteId = null;
 
     /**
      * @return array
@@ -99,6 +99,8 @@ class SubmissionsService extends Component
      */
     public function getValuesForSubmission(SubmissionModel $submission): array
     {
+        $this->currentSiteId = $submission->siteId;
+
         return array_map(function ($sub) {
             return $sub->toModel();
         }, SubmissionValue::find()->where(['submission_id' => $submission->id])->all());
