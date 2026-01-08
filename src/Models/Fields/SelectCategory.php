@@ -16,6 +16,7 @@ class SelectCategory extends Field
     public $multiple = false;
     public $tooltip;
     public $tooltipLabel;
+
     //Unused, here for backward compatibility
     public $optionsLabel;
 
