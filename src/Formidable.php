@@ -33,6 +33,17 @@ use yii\log\Logger;
 use Ryssbowh\Formidable\Assets\PhoneInputAsset;
 use Ryssbowh\Formidable\Assets\FormValidationAsset;
 
+/**
+ * @property-read FieldsService $fields
+ * @property-read FormsService $forms
+ * @property-read SubmissionsService $submissions
+ * @property-read CsvExporterService $csvExporter
+ * @property-read SpamService $spam
+ * @property-read CaptchasService $captchas
+ * @property-read RulesService $rules
+ * @property-read ConditionsService $conditions
+ * @property-read ConditionGroupsService $conditionGroups
+ */
 class Formidable extends Plugin
 {
     public $controllerNamespace = "Ryssbowh\\Formidable\\Controllers";

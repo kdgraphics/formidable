@@ -31,6 +31,8 @@ class SubmissionsService extends Component
     public const EVENT_BEFORE_SEND_USER_EMAIL = 'before-send-user-email';
     public const EVENT_BEFORE_SEND_ADMIN_EMAIL = 'before-send-admin-email';
 
+    public ?int $currentSiteId = null;
+
     /**
      * @return array
      */
@@ -99,6 +101,8 @@ class SubmissionsService extends Component
      */
     public function getValuesForSubmission(SubmissionModel $submission): array
     {
+        $this->currentSiteId = $submission->siteId;
+        
         return array_map(function ($sub) {
             return $sub->toModel();
         }, SubmissionValue::find()->where(['submission_id' => $submission->id])->all());

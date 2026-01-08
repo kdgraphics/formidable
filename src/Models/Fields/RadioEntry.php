@@ -4,6 +4,7 @@ namespace Ryssbowh\Formidable\Models\Fields;
 
 use Craft;
 use craft\elements\Entry;
+use Ryssbowh\Formidable\Formidable;
 use Ryssbowh\Formidable\Models\Field;
 use Ryssbowh\Formidable\Models\FormSubmission;
 
@@ -66,7 +67,7 @@ class RadioEntry extends Field
             return '';
         }
 
-        $siteId = Craft::$app->getSites()->getCurrentSite()->id;
+        $siteId = Formidable::$plugin->submissions->currentSiteId;
         $entry = Entry::find()
             ->id($ids)
             ->siteId($siteId)
@@ -88,7 +89,7 @@ class RadioEntry extends Field
             return '';
         }
 
-        $siteId = Craft::$app->getSites()->getCurrentSite()->id;
+        $siteId = Formidable::$plugin->submissions->currentSiteId;
         $entry = Entry::find()
             ->id($ids)
             ->siteId($siteId)
