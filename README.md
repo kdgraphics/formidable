@@ -7,6 +7,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.6.3
+
+- Fixed bug phone input js - getting country code for user browsing
+
 ### 6.6.2
 
 - Multi-site armor plating
