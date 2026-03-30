@@ -24,25 +24,44 @@ document.addEventListener("DOMContentLoaded", function() {
             ) => "+" + selectedCountryData.dialCode,
             geoIpLookup: function(success, failure) {
                 // Check local storage
-                const countryCode = getStoredCountry();
+                const cached = getStoredCountry();
 
-                if (countryCode) {
-                    success(countryCode);
-
+                if (cached) {
+                    success(cached);
                     return true;
                 }
 
-                // If no country stored, do API call
-                fetch("https://ipwho.is")
-                    .then((resp) => resp.json())
-                    .then((data) => {
-                        const countryCode = data.country_code.toLowerCase();
+                // Helper function to process API result consistently
+                function handleCountry(data) {
+                    const countryCode = data.country_code.toLowerCase();
+                    setStoredCountry(countryCode);
+                    success(data.country_code);
+                }
 
-                        // Store country in local storage and set
-                        setStoredCountry(countryCode);
-                        success(data.country_code);
+                // 1️ Try ipwho.is (will likely fail due to CORS)
+                fetch("https://ipwho.is")
+                    .then(resp => resp.json())
+                    .then(data => {
+                        if (!data.country_code) {
+                            throw new Error("Invalid ipwho.is response");
+                        }
+                        handleCountry(data);
                     })
-                    .catch(() => failure("gb"));
+                    .catch(() => {
+                        // 2️ Fallback → ipapi.co/json/
+                        fetch("https://ipapi.co/json/")
+                            .then(resp => resp.json())
+                            .then(data => {
+                                if (!data.country_code) {
+                                    throw new Error("Invalid ipapi response");
+                                }
+                                handleCountry(data);
+                            })
+                            .catch(() => {
+                                // Final fallback → default "gb"
+                                failure("gb");
+                            });
+                    });
             },
         });
 
