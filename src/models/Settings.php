@@ -47,12 +47,20 @@ class Settings extends Model
 
     public function getLabelCkeditorSettings(): array
     {
-        return $this->getResolvedCkeditorSettings($this->formLabelCkeditorConfig, 'formLabel');
+        return $this->getResolvedCkeditorSettings(
+            $this->formLabelCkeditorConfig,
+            'formLabel',
+            $this->defaultLabelCkeditorConfig()
+        );
     }
 
     public function getTooltipCkeditorSettings(): array
     {
-        return $this->getResolvedCkeditorSettings($this->formTooltipCkeditorConfig, 'formTooltip');
+        return $this->getResolvedCkeditorSettings(
+            $this->formTooltipCkeditorConfig,
+            'formTooltip',
+            $this->defaultTooltipCkeditorConfig()
+        );
     }
 
     public function getIsUsingDefaultLabelCkeditorConfig(): bool
@@ -65,12 +73,12 @@ class Settings extends Model
         return $this->resolveCkeditorField($this->formTooltipCkeditorConfig, 'formTooltip') === null;
     }
 
-    private function getResolvedCkeditorSettings(string $selectedHandle, string $defaultHandle): array
+    private function getResolvedCkeditorSettings(string $selectedHandle, string $defaultHandle, array $fallbackConfig): array
     {
         $field = $this->resolveCkeditorField($selectedHandle, $defaultHandle);
 
         if (!$field) {
-            return $this->defaultCkeditorConfig();
+            return $fallbackConfig;
         }
 
         return $this->convertFieldToCkeditorConfig($field);
@@ -151,7 +159,18 @@ class Settings extends Model
         return $config;
     }
 
-    private function defaultCkeditorConfig(): array
+    private function defaultLabelCkeditorConfig(): array
+    {
+        return [
+            'plugins' => [],
+            'removePlugins' => [],
+            'toolbar' => [
+                'items' => ['heading', '|', 'bold', 'italic', 'underline', 'strikethrough', 'link', 'sourceEditing'],
+            ],
+        ];
+    }
+
+    private function defaultTooltipCkeditorConfig(): array
     {
         return [
             'plugins' => [],
