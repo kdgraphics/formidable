@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\models\Rules;
 
@@ -12,72 +12,72 @@ use Inspire\Formidable\models\Rule;
 
 class BiggerThan extends Rule
 {
-	public $requiresValue = true;
-	
-	/**
-	 * @inheritDoc
-	 */
-	public function name(): string 
-	{
-		return \Craft::t('formidable', 'Bigger than');
-	}
+    public $requiresValue = true;
 
-	/**
-	 * @inheritDoc
-	 */
-	public function handle(): string
-	{
-		return 'biggerThan';
-	}
+    /**
+     * @inheritDoc
+     */
+    public function name(): string
+    {
+        return \Craft::t('formidable', 'Bigger than');
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function defaultMessage(): string
-	{
-		return \Craft::t('formidable', '{field.name} must be bigger than {rule.value}.');
-	}
+    /**
+     * @inheritDoc
+     */
+    public function handle(): string
+    {
+        return 'biggerThan';
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function conditionName(): string
-	{
-		return \Craft::t('formidable', 'is bigger than');
-	}
+    /**
+     * @inheritDoc
+     */
+    public function defaultMessage(): string
+    {
+        return \Craft::t('formidable', '{field.name} must be bigger than {rule.value}.');
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function validFieldTypes(): array
-	{
-		return [ArrayField::class, FileField::class, TextField::class, NumberField::class];
-	}
+    /**
+     * @inheritDoc
+     */
+    public function conditionName(): string
+    {
+        return \Craft::t('formidable', 'is bigger than');
+    }
 
-	/**
-	 * @inheritDoc
-	 */
-	public function check(FieldInterface $field, $value, $against = null): bool
-	{
-		switch (get_class($field->fieldType())) {
-			case ArrayField::class:
-				return sizeof($value) > $against;
-			case FileField::class:
-				return true;
-			case TextField::class:
-				return strlen($value) > $against;
-			case NumberField::class:
-				return (int)$value > (int)$against;
-		}
-		throw RuleException::typeNotValid($rule, get_class($field->fieldType()));
-	}
+    /**
+     * @inheritDoc
+     */
+    public function validFieldTypes(): array
+    {
+        return [ArrayField::class, FileField::class, TextField::class, NumberField::class];
+    }
 
-	/**
-	 * inheritDoc
-	 */
-	public function checkJs(): string
-	{
-		return "function (field, value, against) {
+    /**
+     * @inheritDoc
+     */
+    public function check(FieldInterface $field, $value, $against = null): bool
+    {
+        switch (get_class($field->fieldType())) {
+            case ArrayField::class:
+                return sizeof($value) > $against;
+            case FileField::class:
+                return true;
+            case TextField::class:
+                return strlen($value) > $against;
+            case NumberField::class:
+                return (int)$value > (int)$against;
+        }
+        throw RuleException::typeNotValid($this, get_class($field->fieldType()));
+    }
+
+    /**
+     * inheritDoc
+     */
+    public function checkJs(): string
+    {
+        return "function (field, value, against) {
 			if (field.type == 'hidden') {
 				return parseFloat(value) > parseFloat(against);
 			}
@@ -90,5 +90,5 @@ class BiggerThan extends Rule
 			}
 			throw 'Field type '+field.valueType+' can\'t be checked for a bigger than rule';
 		}";
-	}
+    }
 }

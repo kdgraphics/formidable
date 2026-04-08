@@ -6,6 +6,6 @@ use yii\base\Event;
 
 class ConditionGroupEvent extends Event
 {
-	public $group;
-	public $isNew;
+    public $group;
+    public $isNew;
 }

@@ -6,6 +6,6 @@ use yii\base\Event;
 
 class RuleEvent extends Event
 {
-	public $rule;
-	public $isNew;
+    public $rule;
+    public $isNew;
 }

@@ -6,8 +6,8 @@ use yii\web\BadRequestHttpException;
 
 class CpCategoriesController extends Controller
 {
-	public function actionIndex()
-	{
+    public function actionIndex()
+    {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
@@ -19,5 +19,5 @@ class CpCategoriesController extends Controller
         return $this->asJson([
             'groups' => $groups
         ]);
-	}
+    }
 }

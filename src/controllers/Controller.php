@@ -16,43 +16,43 @@ use Inspire\Formidable\services\SubmissionsService;
 
 class Controller extends CraftController
 {
-	protected function request(): Request
-	{
-		return Craft::$app->request;
-	}
+    protected function request(): Request
+    {
+        return Craft::$app->request;
+    }
 
-	protected function session(): Session
-	{
-		return Craft::$app->session;
-	}
+    protected function session(): Session
+    {
+        return Craft::$app->session;
+    }
 
-	protected function forms(): FormsService
-	{
-		return Formidable::$plugin->forms;
-	}
+    protected function forms(): FormsService
+    {
+        return Formidable::$plugin->forms;
+    }
 
-	protected function fields(): FieldsService
-	{
-		return Formidable::$plugin->fields;
-	}
+    protected function fields(): FieldsService
+    {
+        return Formidable::$plugin->fields;
+    }
 
-	protected function submissions(): SubmissionsService
-	{
-		return Formidable::$plugin->submissions;
-	}
+    protected function submissions(): SubmissionsService
+    {
+        return Formidable::$plugin->submissions;
+    }
 
-	protected function spam(): SpamService
-	{
-		return Formidable::$plugin->spam;
-	}
+    protected function spam(): SpamService
+    {
+        return Formidable::$plugin->spam;
+    }
 
-	protected function captchas(): CaptchasService
-	{
-		return Formidable::$plugin->captchas;
-	}
+    protected function captchas(): CaptchasService
+    {
+        return Formidable::$plugin->captchas;
+    }
 
-	protected function rules(): RulesService
-	{
-		return Formidable::$plugin->rules;
-	}
+    protected function rules(): RulesService
+    {
+        return Formidable::$plugin->rules;
+    }
 }

@@ -9,7 +9,7 @@ use yii\web\HttpException;
 
 class FormsController extends Controller
 {
-    protected array|int|bool$allowAnonymous = self::ALLOW_ANONYMOUS_LIVE;
+    protected array|int|bool $allowAnonymous = self::ALLOW_ANONYMOUS_LIVE;
 
     public function actionSubmit(int $id)
     {
@@ -43,7 +43,7 @@ class FormsController extends Controller
         $this->forms()->getSessionOldInput($form->handle);
         if ($this->request()->isAjax) {
             return $this->asJson([
-                'success' => $this->forms()->getSessionSuccess($form->handle)
+                'success' => $this->forms()->hasSessionSuccess($form->handle)
             ]);
         }
         return $this->redirectAfterValidSubmission($form);

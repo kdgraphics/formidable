@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\providers;
 
@@ -11,7 +11,7 @@ class SubmissionProvider extends ActiveDataProvider
 {
     public $trashed;
 
-	public function init(): void
+    public function init(): void
     {
         parent::init();
         if ($this->trashed === -1) {
@@ -26,7 +26,7 @@ class SubmissionProvider extends ActiveDataProvider
     public function prepareModels()
     {
         return array_map(function ($record) {
-        	return $record->toModel();
+            return $record->toModel();
         }, parent::prepareModels());
     }
 }

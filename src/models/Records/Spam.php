@@ -8,22 +8,22 @@ use craft\db\SoftDeleteTrait;
 
 class Spam extends ActiveRecord
 {
-	use SoftDeleteTrait;
+    use SoftDeleteTrait;
 
-	public static function tableName()
-	{
-		return '{{%formidable_spams}}';
-	}
+    public static function tableName()
+    {
+        return '{{%formidable_spams}}';
+    }
 
-	public function toModel()
-	{
-		$model = new SpamModel($this->getAttributes());
-		$model->form = $this->form->toModel();
-		return $model;
-	}
+    public function toModel()
+    {
+        $model = new SpamModel($this->getAttributes());
+        $model->form = $this->form->toModel();
+        return $model;
+    }
 
-	public function getForm()
-	{
-		return $this->hasOne(Form::className(), ['id' => 'form_id']);
-	}
+    public function getForm()
+    {
+        return $this->hasOne(Form::className(), ['id' => 'form_id']);
+    }
 }

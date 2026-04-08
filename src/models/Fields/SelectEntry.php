@@ -104,7 +104,7 @@ class SelectEntry extends Field
 
         $html = [];
         foreach ($entries as $entry) {
-            $html[] = '<a target="_blank" href="'.$entry->getCpEditUrl().'">'.$entry->title.'</a>';
+            $html[] = '<a target="_blank" href="' . $entry->getCpEditUrl() . '">' . $entry->title . '</a>';
         }
 
         return implode('<br/>', $html);

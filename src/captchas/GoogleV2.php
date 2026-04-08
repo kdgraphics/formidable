@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\captchas;
 
@@ -7,6 +7,7 @@ use Inspire\Formidable\Formidable;
 use Inspire\Formidable\interfaces\CaptchaInterface;
 use Inspire\Formidable\models\Form;
 use Inspire\Formidable\models\FormSubmission;
+use GuzzleHttp\Client;
 use craft\helpers\StringHelper;
 use craft\web\View;
 
@@ -56,7 +57,7 @@ class GoogleV2 implements CaptchaInterface
 
     /**
      * Get site key
-     * 
+     *
      * @return string
      */
     public function getSiteKey(): string
@@ -66,7 +67,7 @@ class GoogleV2 implements CaptchaInterface
 
     /**
      * Get secret key
-     * 
+     *
      * @return string
      */
     public function getSecretKey(): string
@@ -79,7 +80,7 @@ class GoogleV2 implements CaptchaInterface
      */
     public function verify(Form $form, FormSubmission $submission, array $posted): bool
     {
-        $client = new \GuzzleHttp\Client();
+        $client = new Client();
         $secret = $this->getSecretKey();
 
         if (isset($posted['g-recaptcha-response'])) {

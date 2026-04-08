@@ -8,6 +8,8 @@ use Inspire\Formidable\models\Records\Field;
 
 /**
  * m220921_081021_ChangedFileMultipleAttribute migration.
+ *
+ * @SuppressWarnings(PHPMD.LongClassName)
  */
 class m220921_081021_ChangedFileMultipleAttribute extends Migration
 {

@@ -10,8 +10,8 @@ use yii\widgets\LinkPager;
 
 class CpSubmissionsController extends Controller
 {
-	public function actionIndex()
-	{
+    public function actionIndex()
+    {
         $this->requirePermission('manageFormidableSubmissions');
         $this->view->registerAssetBundle(SubmissionsAsset::class);
 
@@ -19,7 +19,7 @@ class CpSubmissionsController extends Controller
             'forms' => $this->forms()->getAllAsArray(),
             'sites' => $this->submissions()->getSites(),
         ]);
-	}
+    }
 
     public function actionLoad()
     {
@@ -91,7 +91,7 @@ class CpSubmissionsController extends Controller
             'success' => true,
             'message' => $message
         ];
-        
+
         return $this->asJson($response);
     }
 

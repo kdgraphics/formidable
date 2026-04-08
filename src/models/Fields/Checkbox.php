@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\models\Fields;
 
@@ -54,7 +54,7 @@ class Checkbox extends Field
 
     /**
      * Upload files before validation
-     * 
+     *
      * @param  FormSubmission $submission
      */
     public function beforeSubmissionValidated(FormSubmission $submission)

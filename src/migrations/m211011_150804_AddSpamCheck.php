@@ -17,7 +17,9 @@ class m211011_150804_AddSpamCheck extends Migration
     {
         try {
             $this->addColumn('{{%formidable_forms}}', 'spamCheck', $this->string(255)->after('class')->defaultValue(''));
-        } catch (\Exception $e) {}
+        } catch (\Exception $exception) {
+            Craft::warning($exception->getMessage(), __METHOD__);
+        }
     }
 
     /**

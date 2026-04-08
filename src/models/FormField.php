@@ -2,6 +2,7 @@
 
 namespace Inspire\Formidable\models;
 
+use Craft;
 use Inspire\Formidable\exceptions\FormException;
 use Inspire\Formidable\Formidable;
 use Inspire\Formidable\models\TemplateForm;
@@ -51,7 +52,7 @@ class FormField extends Field
     /**
      * @inheritDoc
      */
-    public function normalizeValue($value, ElementInterface $element = null): mixed
+    public function normalizeValue($value, ?ElementInterface $element = null): mixed
     {
         if ($value instanceof TemplateForm) {
             return $value;
@@ -61,7 +62,9 @@ class FormField extends Field
             if ($value) {
                 $form = Formidable::$plugin->forms->getById($value);
             }
-        } catch (FormException $e) {}
+        } catch (FormException $exception) {
+            Craft::warning($exception->getMessage(), __METHOD__);
+        }
         $template = null;
         if ($form) {
             $template = (isset($this->templates[$form->uid]) and $this->templates[$form->uid]) ? $this->templates[$form->uid] : $this->defaultTemplate;
@@ -75,7 +78,7 @@ class FormField extends Field
     /**
      * @inheritDoc
      */
-    public function serializeValue($value, ElementInterface $element = null): mixed
+    public function serializeValue($value, ?ElementInterface $element = null): mixed
     {
         return $value->form ? $value->form->id : null;
     }
@@ -86,7 +89,7 @@ class FormField extends Field
     public function isValueEmpty($value, ElementInterface $element): bool
     {
         if ($value instanceof TemplateForm) {
-          return ($value->form === null);
+            return ($value->form === null);
         }
 
         return true;
@@ -95,7 +98,7 @@ class FormField extends Field
     /**
      * @inheritDoc
      */
-    public function getInputHtml($value, ElementInterface $element = null): string
+    public function getInputHtml($value, ?ElementInterface $element = null): string
     {
         $forms = ['' => 'Select Form'];
         foreach ($this->getForms() as $form) {
@@ -131,7 +134,8 @@ class FormField extends Field
     /**
      * @inheritDoc
      */
-    static public function displayName(): string {
+    public static function displayName(): string
+    {
         return \Craft::t('formidable', 'Form');
     }
 }

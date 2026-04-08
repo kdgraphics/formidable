@@ -6,6 +6,6 @@ use yii\base\Event;
 
 class SubmissionEvent extends Event
 {
-	public $submission;
-	public $form;
+    public $submission;
+    public $form;
 }

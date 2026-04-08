@@ -99,7 +99,7 @@ class ConditionGroupsService extends Component
             if (isset($data['id']) and is_numeric($data['id'])) {
                 $group = $this->getById($data['id']);
             } else {
-                $group = new ConditionGroup;
+                $group = new ConditionGroup();
             }
             $group->setAttributes($data);
             $group->conditions = Formidable::$plugin->conditions->populateFromData($data['conditions']);

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\models\Records;
 
@@ -7,33 +7,33 @@ use craft\db\ActiveRecord;
 
 class Condition extends ActiveRecord
 {
-	public static function tableName()
-	{
-		return '{{%formidable_conditions}}';
-	}
+    public static function tableName()
+    {
+        return '{{%formidable_conditions}}';
+    }
 
-	public function toModel()
-	{
-		return new ConditionModel($this->getAttributes());
-	}
+    public function toModel()
+    {
+        return new ConditionModel($this->getAttributes());
+    }
 
-	/**
-	 * Has one rule relation
-	 * 
-	 * @return ActiveQuery
-	 */
-	public function getRule()
-	{
-		return $this->hasOne(Rule::className(), ['id' => 'rule_id']);
-	}
+    /**
+     * Has one rule relation
+     *
+     * @return ActiveQuery
+     */
+    public function getRule()
+    {
+        return $this->hasOne(Rule::className(), ['id' => 'rule_id']);
+    }
 
-	/**
-	 * Has one group relation
-	 * 
-	 * @return ActiveQuery
-	 */
-	public function getConditionGroup()
-	{
-		return $this->hasOne(ConditionGroup::className(), ['id' => 'conditiongroup_id']);
-	}
+    /**
+     * Has one group relation
+     *
+     * @return ActiveQuery
+     */
+    public function getConditionGroup()
+    {
+        return $this->hasOne(ConditionGroup::className(), ['id' => 'conditiongroup_id']);
+    }
 }

@@ -8,6 +8,8 @@ use craft\db\Migration;
 
 /**
  * m220714_083352_ModifySelectCategoriesField migration.
+ *
+ * @SuppressWarnings(PHPMD.LongClassName)
  */
 class m220714_083352_ModifySelectCategoriesField extends Migration
 {

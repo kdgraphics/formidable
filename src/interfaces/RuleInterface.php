@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\interfaces;
 
@@ -8,79 +8,79 @@ use Inspire\Formidable\models\FormSubmission;
 
 interface RuleInterface
 {
-	/**
-	 * Name for this rule
-	 * 
-	 * @return string
-	 */
-	public function name(): string;
+    /**
+     * Name for this rule
+     *
+     * @return string
+     */
+    public function name(): string;
 
-	/**
-	 * Handle for this rule
-	 * 
-	 * @return string
-	 */
-	public function handle(): string;
+    /**
+     * Handle for this rule
+     *
+     * @return string
+     */
+    public function handle(): string;
 
-	/**
-	 * Default error message for this rule
-	 * 
-	 * @return string
-	 */
-	public function defaultMessage(): string;
+    /**
+     * Default error message for this rule
+     *
+     * @return string
+     */
+    public function defaultMessage(): string;
 
-	/**
-	 * Name when rule is used in a condition
-	 * 
-	 * @return string
-	 */
-	public function conditionName(): string;
+    /**
+     * Name when rule is used in a condition
+     *
+     * @return string
+     */
+    public function conditionName(): string;
 
-	/**
-	 * Which field types this rule can handle
-	 * 
-	 * @return array
-	 */
-	public function validFieldTypes(): array;
+    /**
+     * Which field types this rule can handle
+     *
+     * @return array
+     */
+    public function validFieldTypes(): array;
 
-	/**
-	 * Does this rule apply to a form submission
-	 * 
-	 * @param  FormSubmission $submission
-	 * @return bool
-	 */
-	public function appliesTo(FormSubmission $submission): bool;
+    /**
+     * Does this rule apply to a form submission
+     *
+     * @param  FormSubmission $submission
+     * @return bool
+     */
+    public function appliesTo(FormSubmission $submission): bool;
 
-	/**
-	 * Check a value against another value
-	 * 
-	 * @param  FieldInterface $field
-	 * @param  mixed      $value
-	 * @param  mixed|null $against
-	 * @throws RuleException
-	 * @return bool
-	 */
-	public function check(FieldInterface $field, $value, $against = null): bool;
+    /**
+     * Check a value against another value
+     *
+     * @param  FieldInterface $field
+     * @param  mixed      $value
+     * @param  mixed|null $against
+     * @throws RuleException
+     * @return bool
+     */
+    public function check(FieldInterface $field, $value, $against = null): bool;
 
-	/**
-	 * Javascript code to check this rule. must return a function(field, value, against){}
-	 * 
-	 * @return string
-	 */
-	public function checkJs(): string;
+    /**
+     * Javascript code to check this rule. must return a function(field, value, against){}
+     *
+     * @return string
+     */
+    public function checkJs(): string;
 
-	/**
-	 * Validate this rule for a field
-	 * 
-	 * @param  string         $fieldName
-	 * @param  FormSubmission $submission
-	 */
-	public function validateRule(string $fieldName, FormSubmission $submission);
+    /**
+     * Validate this rule for a field
+     *
+     * @param  string         $fieldName
+     * @param  FormSubmission $submission
+     */
+    public function validateRule(string $fieldName, FormSubmission $submission);
 
-	/**
-	 * Javascript to define this rule in a form
-	 * 
-	 * @return string
-	 */
-	public function frontJs(): string;
+    /**
+     * Javascript to define this rule in a form
+     *
+     * @return string
+     */
+    public function frontJs(): string;
 }

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\controllers;
 
@@ -8,15 +8,15 @@ use yii\widgets\LinkPager;
 
 class CpSpamController extends Controller
 {
-	public function actionIndex()
-	{
+    public function actionIndex()
+    {
         $this->requirePermission('manageFormidableSubmissions');
         $this->view->registerAssetBundle(SpamAsset::class);
 
         return $this->renderTemplate('formidable/cp/spam/index', [
             'forms' => $this->forms()->getAllAsArray()
         ]);
-	}
+    }
 
     public function actionLoad()
     {

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\models;
 
@@ -41,7 +41,7 @@ class Condition extends Model
 
     /**
      * Project config to be saved
-     * 
+     *
      * @return array
      */
     public function getConfig(): array
@@ -62,7 +62,7 @@ class Condition extends Model
         $field = $submission->getForm()->getField($this->field);
         if ($rule->requiresValue) {
             $thisResult = $rule->check($field, $submission->{$this->field} ?? null, $this->value);
-        } else if ($rule->requiresField) {
+        } elseif ($rule->requiresField) {
             $thisResult = $rule->check($field, $submission->{$this->field} ?? null, $submission->{$this->value});
         } else {
             $thisResult = $rule->check($field, $submission->{$this->field} ?? null);

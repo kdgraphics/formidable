@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\models;
 
@@ -63,7 +63,7 @@ class ConditionGroup extends Model
 
     /**
      * Project config to be saved
-     * 
+     *
      * @return array
      */
     public function getConfig(): array
@@ -96,7 +96,9 @@ class ConditionGroup extends Model
     public function frontJs(): string
     {
         return "new formidable.conditionGroup({
-            conditions: [" . implode(',', array_map(function($condition) {return $condition->frontJs();}, $this->conditions)) . "],
+            conditions: [" . implode(',', array_map(function ($condition) {
+            return $condition->frontJs();
+        }, $this->conditions)) . "],
             operator: '{$this->operator}',
             negate: '{$this->negate}',
         })";

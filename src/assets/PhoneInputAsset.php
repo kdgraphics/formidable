@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\assets;
 
@@ -6,7 +6,7 @@ use craft\web\AssetBundle;
 
 class PhoneInputAsset extends AssetBundle
 {
-	public function init(): void
+    public function init(): void
     {
         $this->sourcePath = __DIR__;
 

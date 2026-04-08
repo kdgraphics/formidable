@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\services;
 
@@ -41,15 +41,15 @@ class FieldsService extends Component
     }
 
     /**
-     * Get all registered fields 
-     * 
+     * Get all registered fields
+     *
      * @return array
      */
     public function getAllRegistered(): array
     {
         if (is_null($this->registeredFields)) {
-            $event = new RegisterFieldsEvent;
-            $this->trigger(self::EVENT_REGISTER_FIELDS, $event); 
+            $event = new RegisterFieldsEvent();
+            $this->trigger(self::EVENT_REGISTER_FIELDS, $event);
             $this->registeredFields = $event->getFields();
         }
         return $this->registeredFields;
@@ -57,7 +57,7 @@ class FieldsService extends Component
 
     /**
      * Get a registered field by handle
-     * 
+     *
      * @param  string $handle
      * @return ?FieldInterface
      */
@@ -68,7 +68,7 @@ class FieldsService extends Component
 
     /**
      * Get all fields for a form
-     * 
+     *
      * @param  Form    $form
      * @param  boolean $all include fields within groups as well
      * @return array
@@ -88,7 +88,7 @@ class FieldsService extends Component
 
     /**
      * Get all fields for a group
-     * 
+     *
      * @param  int    $groupId
      * @return array
      */
@@ -101,7 +101,7 @@ class FieldsService extends Component
 
     /**
      * Populate an array of fields data into field instances
-     * 
+     *
      * @param  array  $fieldsData
      * @return array
      */
@@ -139,7 +139,7 @@ class FieldsService extends Component
 
     /**
      * Get field record by uid
-     * 
+     *
      * @param  string $uid
      * @return FieldRecord
      */
@@ -150,7 +150,7 @@ class FieldsService extends Component
 
     /**
      * Get field model by id
-     * 
+     *
      * @param  int $id
      * @return ?FieldInterface
      */
@@ -164,7 +164,7 @@ class FieldsService extends Component
 
     /**
      * Get field model by uid
-     * 
+     *
      * @param  string $uid
      * @return ?FieldInterface
      */
@@ -178,7 +178,7 @@ class FieldsService extends Component
 
     /**
      * Delete many fields
-     * 
+     *
      * @param  int    $formId
      * @param  array  $keepIds
      */
@@ -194,7 +194,7 @@ class FieldsService extends Component
 
     /**
      * Get all defined fields
-     * 
+     *
      * @return array
      */
     protected function all(): array
@@ -205,7 +205,9 @@ class FieldsService extends Component
             foreach ($records as $record) {
                 try {
                     $fields[] = $record->toModel();
-                } catch (FormException $e) {}
+                } catch (FormException $exception) {
+                    \Craft::warning($exception->getMessage(), __METHOD__);
+                }
             }
             $this->_fields = $fields;
         }

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\services;
 
@@ -23,7 +23,7 @@ class ConditionsService extends Component
 {
     /**
      * Get condition record by uid
-     * 
+     *
      * @param  string $uid
      * @return ConditionRecord
      */
@@ -34,7 +34,7 @@ class ConditionsService extends Component
 
     /**
      * Get condition model by id
-     * 
+     *
      * @param  int $id
      * @return ?Condition
      */
@@ -46,7 +46,7 @@ class ConditionsService extends Component
 
     /**
      * Get condition model by uid
-     * 
+     *
      * @param  string $uid
      * @return ?Condition
      */
@@ -58,7 +58,7 @@ class ConditionsService extends Component
 
     /**
      * Get all conditions for a rule
-     * 
+     *
      * @param  RuleInterface $rule
      * @return array
      */
@@ -73,7 +73,7 @@ class ConditionsService extends Component
 
     /**
      * Get all conditions for a group
-     * 
+     *
      * @param  ConditionGroup $group
      * @return array
      */
@@ -88,7 +88,7 @@ class ConditionsService extends Component
 
     /**
      * Delete many conditions fo a rule
-     * 
+     *
      * @param  int    $ruleId
      * @param  array  $keepIds
      */
@@ -103,7 +103,7 @@ class ConditionsService extends Component
 
     /**
      * Delete many conditions for a group
-     * 
+     *
      * @param  int    $groupId
      * @param  array  $keepIds
      */
@@ -118,7 +118,7 @@ class ConditionsService extends Component
 
     /**
      * Validate some conditions data
-     * 
+     *
      * @param  array  $conditionsData
      * @return array
      */
@@ -129,7 +129,7 @@ class ConditionsService extends Component
             if (isset($data['id']) and is_numeric($data['id'])) {
                 $condition = $this->getById($data['id']);
             } else {
-                $condition = new Condition;
+                $condition = new Condition();
             }
             $condition->setAttributes($data);
             $conditions[$index] = $condition;

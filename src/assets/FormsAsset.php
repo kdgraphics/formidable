@@ -7,7 +7,7 @@ use craft\web\assets\cp\CpAsset;
 
 class FormsAsset extends AssetBundle
 {
-	public function init(): void
+    public function init(): void
     {
         $this->sourcePath = __DIR__ . '/dist';
 

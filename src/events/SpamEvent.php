@@ -6,6 +6,6 @@ use yii\base\Event;
 
 class SpamEvent extends Event
 {
-	public $form;
-	public $spam;
+    public $form;
+    public $spam;
 }

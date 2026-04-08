@@ -6,6 +6,6 @@ use yii\base\Event;
 
 class ConditionEvent extends Event
 {
-	public $condition;
-	public $isNew;
+    public $condition;
+    public $isNew;
 }

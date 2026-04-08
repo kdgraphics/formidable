@@ -75,7 +75,7 @@ class Group extends Field
     public function frontJs(Form $form): string
     {
         return "new formidable.field({
-            name: '".addslashes($this->name)."',
+            name: '" . addslashes($this->name) . "',
             handle: '{$this->handle}',
             valueType: '{$this->fieldType()->jsType()}',
             type: '{$this->handle()}',

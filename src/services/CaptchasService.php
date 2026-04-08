@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\services;
 
@@ -8,7 +8,7 @@ use craft\base\Component;
 
 class CaptchasService extends Component
 {
-	const EVENT_REGISTER_CAPTCHAS = 'register_captchas';
+    const EVENT_REGISTER_CAPTCHAS = 'register_captchas';
 
     /**
      * Captchas keyed by handle
@@ -17,15 +17,15 @@ class CaptchasService extends Component
     protected $registeredCaptchas;
 
     /**
-     * Get all registered fields 
-     * 
+     * Get all registered fields
+     *
      * @return array
      */
     public function getAllRegistered(): array
     {
         if (is_null($this->registeredCaptchas)) {
-            $event = new RegisterCaptchasEvent;
-            $this->trigger(self::EVENT_REGISTER_CAPTCHAS, $event); 
+            $event = new RegisterCaptchasEvent();
+            $this->trigger(self::EVENT_REGISTER_CAPTCHAS, $event);
             $this->registeredCaptchas = $event->getCaptchas();
         }
         return $this->registeredCaptchas;
@@ -33,7 +33,7 @@ class CaptchasService extends Component
 
     /**
      * Get all captchas as an array index by the handle
-     * 
+     *
      * @return array
      */
     public function getAllAsArray(): array
@@ -50,7 +50,7 @@ class CaptchasService extends Component
 
     /**
      * Get a registered captcha by handle
-     * 
+     *
      * @param  string $handle
      * @return ?CaptchaInterface
      */

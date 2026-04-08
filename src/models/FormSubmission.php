@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\models;
 
@@ -12,7 +12,7 @@ class FormSubmission extends DynamicModel
 
     /**
      * Form setter
-     * 
+     *
      * @param Form $form
      */
     public function setForm(Form $form)
@@ -22,7 +22,7 @@ class FormSubmission extends DynamicModel
 
     /**
      * Form getter
-     * 
+     *
      * @return Form $form
      */
     public function getForm(): Form
@@ -32,7 +32,7 @@ class FormSubmission extends DynamicModel
 
     /**
      * Rules getter
-     * 
+     *
      * @param array $rules
      */
     public function setRules(array $rules)
@@ -60,7 +60,7 @@ class FormSubmission extends DynamicModel
 
     /**
      * Callback to validate rule
-     * 
+     *
      * @param  string      $attribute
      * @param  array|null  $params
      */

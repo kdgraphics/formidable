@@ -15,6 +15,31 @@ class Install extends Migration
      */
     public function safeUp()
     {
+        $this->createCoreTables();
+        $this->createRelationTables();
+        $this->createForeignKeys();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function safeDown()
+    {
+        $this->dropTableIfExists('{{%formidable_rule_field}}');
+        $this->dropTableIfExists('{{%formidable_conditions}}');
+        $this->dropTableIfExists('{{%formidable_conditiongroups}}');
+        $this->dropTableIfExists('{{%formidable_conditionnable_rule}}');
+        $this->dropTableIfExists('{{%formidable_rules}}');
+        $this->dropTableIfExists('{{%formidable_submissions_values}}');
+        $this->dropTableIfExists('{{%formidable_fields}}');
+        $this->dropTableIfExists('{{%formidable_spams}}');
+        $this->dropTableIfExists('{{%formidable_submissions}}');
+        $this->dropTableIfExists('{{%formidable_forms}}');
+        Craft::$app->projectConfig->remove('formidable');
+    }
+
+    private function createCoreTables(): void
+    {
         $this->createTable('{{%formidable_forms}}', [
             'id' => $this->primaryKey(),
             'name' => $this->string(255)->notNull(),
@@ -75,7 +100,7 @@ class Install extends Migration
             'options' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%formidable_submissions}}', [
@@ -88,7 +113,7 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'dateDeleted' => $this->dateTime(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%formidable_spams}}', [
@@ -101,9 +126,12 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'dateDeleted' => $this->dateTime(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
+    }
 
+    private function createRelationTables(): void
+    {
         $this->createTable('{{%formidable_submissions_values}}', [
             'id' => $this->primaryKey(),
             'type' => $this->string(255)->notNull(),
@@ -112,7 +140,7 @@ class Install extends Migration
             'value' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%formidable_rules}}', [
@@ -126,7 +154,7 @@ class Install extends Migration
             'fields' => $this->string(1000),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%formidable_conditiongroups}}', [
@@ -136,7 +164,7 @@ class Install extends Migration
             'negate' => $this->boolean(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%formidable_conditions}}', [
@@ -150,7 +178,7 @@ class Install extends Migration
             'value' => $this->string(255),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
 
         $this->createTable('{{%formidable_emails}}', [
@@ -164,9 +192,12 @@ class Install extends Migration
             'type' => $this->string(10),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid()
+            'uid' => $this->uid(),
         ]);
+    }
 
+    private function createForeignKeys(): void
+    {
         $this->addForeignKey('formidable_fields_form_id_fk', '{{%formidable_fields}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
         $this->addForeignKey('formidable_fields_group_id_fk', '{{%formidable_fields}}', ['group_id'], '{{%formidable_fields}}', ['id'], 'SET NULL', null);
         $this->addForeignKey('formidable_submissions_form_id_fk', '{{%formidable_submissions}}', ['form_id'], '{{%formidable_forms}}', ['id'], 'CASCADE', null);
@@ -177,23 +208,5 @@ class Install extends Migration
         $this->addForeignKey('formidable_conditions_rule_id_fk', '{{%formidable_conditions}}', ['rule_id'], '{{%formidable_rules}}', ['id'], 'CASCADE', null);
         $this->addForeignKey('formidable_conditions_group_id_fk', '{{%formidable_conditions}}', ['conditiongroup_id'], '{{%formidable_conditiongroups}}', ['id'], 'CASCADE', null);
         $this->addForeignKey('formidable_submissions_values_field_id_fk', '{{%formidable_submissions_values}}', ['field_id'], '{{%formidable_fields}}', ['id'], 'SET NULL', null);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function safeDown()
-    {
-        $this->dropTableIfExists('{{%formidable_rule_field}}');
-        $this->dropTableIfExists('{{%formidable_conditions}}');
-        $this->dropTableIfExists('{{%formidable_conditiongroups}}');
-        $this->dropTableIfExists('{{%formidable_conditionnable_rule}}');
-        $this->dropTableIfExists('{{%formidable_rules}}');
-        $this->dropTableIfExists('{{%formidable_submissions_values}}');
-        $this->dropTableIfExists('{{%formidable_fields}}');
-        $this->dropTableIfExists('{{%formidable_spams}}');
-        $this->dropTableIfExists('{{%formidable_submissions}}');
-        $this->dropTableIfExists('{{%formidable_forms}}');
-        Craft::$app->projectConfig->remove('formidable');
     }
 }

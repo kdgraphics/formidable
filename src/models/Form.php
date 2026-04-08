@@ -2,17 +2,11 @@
 
 namespace Inspire\Formidable\models;
 
-use Inspire\Formidable\events\FormEvent;
 use Inspire\Formidable\exceptions\FormException;
 use Inspire\Formidable\Formidable;
 use Inspire\Formidable\interfaces\CaptchaInterface;
 use Inspire\Formidable\interfaces\FieldInterface;
-use Inspire\Formidable\models\Notification;
-use Inspire\Formidable\services\FormsService;
 use craft\base\Model;
-use craft\helpers\ArrayHelper;
-use craft\helpers\StringHelper;
-use craft\mail\Message;
 
 class Form extends Model
 {
@@ -54,36 +48,7 @@ class Form extends Model
      */
     public function defineRules(): array
     {
-        return [
-            [['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'notifySpamEmails','redirect', 'class', 'method', 'submitLabel', 'color', 'submitClass', 'notifyAdmin_key', 'notify_key', 'notifySpam_key', 'htmlId', 'spamCheck'], 'string'],
-            [['name', 'handle', 'notifyField', 'honeypotField', 'notifyEmails', 'redirect', 'class', 'submitLabel', 'color', 'submitClass'], 'trim'],
-            [['id'], 'integer'],
-            [['honeypot', 'saveSubmissions', 'saveSpam', 'frontEndValidation', 'obfuscateFieldNames', 'autocomplete'], 'boolean', 'trueValue' => true, 'falseValue' => false],
-            [['notifyEmails', 'notifySpamEmails'], 'validateEmails'],
-            ['handle', 'validateHandle'],
-            ['method', 'in', 'range' => ['GET', 'POST']],
-            ['notifyEmails', 'required', 'when' => function($model){
-                return $model->notifyAdmin_key;
-            }],
-            ['notifySpamEmails', 'required', 'when' => function($model){
-                return $model->notifySpam_key;
-            }],
-            ['captcha', function($attribute){
-                if (!in_array($this->$attribute, array_keys($this->getCaptchas()))) {
-                    $this->addError($attribute, \Craft::t('formidable', 'Captcha is not valid'));
-                }
-            }],
-            ['notifyField', 'required', 'when' => function($model){
-                return $model->notify_key;
-            }],
-            ['honeypotField', 'required', 'when' => function($model){
-                return $model->honeypot;
-            }],
-            [['name', 'handle', 'method', 'submitLabel'], 'required'],
-            [['notify_key', 'notifyAdmin_key'], 'default', 'value' => null, 'when' => function($model,$attribute){
-                return empty($model->$attribute);
-            }]
-        ];
+        return FormViewHelper::buildRules($this);
     }
 
     /**
@@ -100,12 +65,7 @@ class Form extends Model
      */
     public function afterValidate()
     {
-        foreach ($this->fields as $field) {
-            $field->validate();
-        }
-        foreach ($this->rules as $rule) {
-            $rule->validate();
-        }
+        FormViewHelper::afterValidate($this);
         parent::afterValidate();
     }
 
@@ -117,17 +77,8 @@ class Form extends Model
         if (parent::hasErrors($attribute)) {
             return true;
         }
-        foreach ($this->fields as $field) {
-            if ($field->hasErrors()) {
-                return true;
-            }
-        }
-        foreach ($this->rules as $rule) {
-            if ($rule->hasErrors()) {
-                return true;
-            }
-        }
-        return false;
+
+        return FormViewHelper::hasNestedErrors($this);
     }
 
     /**
@@ -364,7 +315,7 @@ class Form extends Model
         }
         $emails = array_map('trim', explode(',', trim($this->$attribute)));
         $pass = true;
-        foreach($emails as $email) {
+        foreach ($emails as $email) {
             $isEnv = preg_match('/^\$[A-Za-z-_]+$/', $email);
             if (!$isEnv && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $this->addError($attribute, \Craft::t('formidable', 'Email {email} is not valid', ['email' => $email]));
@@ -396,22 +347,7 @@ class Form extends Model
      */
     public function render(?string $template = null, array $variables = [])
     {
-        if (!$template) {
-            $template = 'formidable/forms/form';
-        }
-        $event = new FormEvent([
-            'form' => $this,
-            'errors' => $this->getSessionErrors(),
-            'oldInput' => $this->getOldInput()
-        ]);
-        $this->trigger(self::EVENT_RENDER, $event);
-        $variables = array_merge($variables, [
-            'form' => $this,
-            'fields' => $this->activeRootFields,
-            'errors' => $event->errors,
-            'oldInput' => $event->oldInput
-        ]);
-        return \Craft::$app->getView()->renderTemplate($template, $variables);
+        return FormViewHelper::render($this, $template, $variables);
     }
 
     /**
@@ -451,7 +387,7 @@ class Form extends Model
         if ($this->htmlId) {
             return $this->htmlId;
         }
-        return 'formidable_'.str_replace('-', '_', $this->handle);
+        return 'formidable_' . str_replace('-', '_', $this->handle);
     }
 
     /**
@@ -461,51 +397,6 @@ class Form extends Model
      */
     public function getFrontJs(): string
     {
-        Formidable::$plugin->forms->enableFrontJs();
-        $js = "
-document.addEventListener('DOMContentLoaded', (event) => {
-    formidable.forms['{$this->generateId()}'] = new formidable.form ({
-        id: '{$this->generateId()}',
-        rules: [";
-        foreach ($this->getRules() as $rule) {
-            $js .= $rule->frontJs().",
-            ";
-        }
-        $js .= "],
-        fields: {
-        ";
-        foreach ($this->getActiveFields() as $field) {
-            $js .= "'".$field->handle . '\': ' . $field->frontJs($this) . ',
-            ';
-        }
-        $js .= "
-        }
-    });
-});
-";
-        if ($this->frontEndValidation) {
-            $js .= <<<JS
-document.addEventListener('DOMContentLoaded', (event) => {
-    document.getElementById('{$this->generateId()}').addEventListener('submit', function(e){
-        if (!formidable.validateForm(this, e)) {
-            e.preventDefault();
-        }
-    });
-});
-JS;
-        }
-        if ($this->honeypot) {
-            $js .= <<<JS
-document.addEventListener('DOMContentLoaded', (event) => {
-    var css = {position: 'absolute', left: '-100000px', overflow: 'hidden'};
-    var elem = document.getElementById('{$this->generateId()}').querySelector('[id={$this->handle}-field-{$this->honeypotField}]');
-    for (var property in css) {
-        elem.style[property] = css[property];
-    }
-});
-JS;
-        }
-
-        return $js;
+        return FormViewHelper::buildFrontJs($this);
     }
 }

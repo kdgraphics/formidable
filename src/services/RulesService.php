@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\services;
 
@@ -31,15 +31,15 @@ class RulesService extends Component
     protected $registeredRules;
 
     /**
-     * Get all registered fields 
-     * 
+     * Get all registered fields
+     *
      * @return array
      */
     public function getAllRegistered(): array
     {
         if (is_null($this->registeredRules)) {
-            $event = new RegisterRulesEvent;
-            $this->trigger(self::EVENT_REGISTER_RULES, $event); 
+            $event = new RegisterRulesEvent();
+            $this->trigger(self::EVENT_REGISTER_RULES, $event);
             $this->registeredRules = $event->getRules();
         }
         return $this->registeredRules;
@@ -47,7 +47,7 @@ class RulesService extends Component
 
     /**
      * Get a registered rule by handle
-     * 
+     *
      * @param  string $handle
      * @return ?RuleInterface
      */
@@ -58,7 +58,7 @@ class RulesService extends Component
 
     /**
      * Get rule record by uid
-     * 
+     *
      * @param  string $uid
      * @return FieldRecord
      */
@@ -69,7 +69,7 @@ class RulesService extends Component
 
     /**
      * Get rule model by id
-     * 
+     *
      * @param  int $id
      * @return ?FieldInterface
      */
@@ -81,7 +81,7 @@ class RulesService extends Component
 
     /**
      * Get rule model by uid
-     * 
+     *
      * @param  string $uid
      * @return ?FieldInterface
      */
@@ -93,7 +93,7 @@ class RulesService extends Component
 
     /**
      * Get all rules for a form
-     * 
+     *
      * @param  Form   $form
      * @return array
      */
@@ -108,7 +108,7 @@ class RulesService extends Component
 
     /**
      * Delete many rules
-     * 
+     *
      * @param  int    $formId
      * @param  array  $keepIds
      */
@@ -123,7 +123,7 @@ class RulesService extends Component
 
     /**
      * Validate some rules data
-     * 
+     *
      * @param  array $rulesData
      * @return array
      */

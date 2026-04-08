@@ -8,17 +8,56 @@ use Inspire\Emails\Emails;
 use Inspire\Emails\Records\Email as EmailRecord;
 use Inspire\Formidable\captchas\GoogleV2;
 use Inspire\Formidable\captchas\GoogleV3;
-use Inspire\Formidable\events\{RegisterCaptchasEvent, RegisterFieldsEvent, RegisterRulesEvent};
-use Inspire\Formidable\models\Fields\{Checkboxes, Email, File, Checkbox, Number, Radio, Select, Text, Textarea, SelectCategory, SelectEntry, Group, Hidden, CheckboxEntry, Date, CheckboxCategory, RadioCategory, RadioEntry, PhoneNumber};
+use Inspire\Formidable\events\RegisterCaptchasEvent;
+use Inspire\Formidable\events\RegisterFieldsEvent;
+use Inspire\Formidable\events\RegisterRulesEvent;
+use Inspire\Formidable\models\Fields\Checkboxes;
+use Inspire\Formidable\models\Fields\Email;
+use Inspire\Formidable\models\Fields\File;
+use Inspire\Formidable\models\Fields\Checkbox;
+use Inspire\Formidable\models\Fields\Number;
+use Inspire\Formidable\models\Fields\Radio;
+use Inspire\Formidable\models\Fields\Select;
+use Inspire\Formidable\models\Fields\Text;
+use Inspire\Formidable\models\Fields\Textarea;
+use Inspire\Formidable\models\Fields\SelectCategory;
+use Inspire\Formidable\models\Fields\SelectEntry;
+use Inspire\Formidable\models\Fields\Group;
+use Inspire\Formidable\models\Fields\Hidden;
+use Inspire\Formidable\models\Fields\CheckboxEntry;
+use Inspire\Formidable\models\Fields\Date;
+use Inspire\Formidable\models\Fields\CheckboxCategory;
+use Inspire\Formidable\models\Fields\RadioCategory;
+use Inspire\Formidable\models\Fields\RadioEntry;
+use Inspire\Formidable\models\Fields\PhoneNumber;
 use Inspire\Formidable\models\FormField;
-use Inspire\Formidable\models\Rules\{BiggerThan, Contain, EqualTo, Off, On, Required, SameThan, Size, SmallerThan};
+use Inspire\Formidable\models\Rules\BiggerThan;
+use Inspire\Formidable\models\Rules\Contain;
+use Inspire\Formidable\models\Rules\EqualTo;
+use Inspire\Formidable\models\Rules\Off;
+use Inspire\Formidable\models\Rules\OnRule;
+use Inspire\Formidable\models\Rules\Required;
+use Inspire\Formidable\models\Rules\SameThan;
+use Inspire\Formidable\models\Rules\Size;
+use Inspire\Formidable\models\Rules\SmallerThan;
 use Inspire\Formidable\models\Settings;
-use Inspire\Formidable\services\{CaptchasService, ConditionsService, ConditionGroupsService, CsvExporterService, FieldsService, FormsService, RulesService, SpamService, SubmissionsService};
+use Inspire\Formidable\services\CaptchasService;
+use Inspire\Formidable\services\ConditionsService;
+use Inspire\Formidable\services\ConditionGroupsService;
+use Inspire\Formidable\services\CsvExporterService;
+use Inspire\Formidable\services\FieldsService;
+use Inspire\Formidable\services\FormsService;
+use Inspire\Formidable\services\RulesService;
+use Inspire\Formidable\services\SpamService;
+use Inspire\Formidable\services\SubmissionsService;
 use Inspire\Formidable\twig\TwigForms;
 use craft\base\Model;
 use craft\base\Plugin;
 use craft\events\RegisterUserPermissionsEvent;
-use craft\events\{RebuildConfigEvent, RegisterCpNavItemsEvent, RegisterTemplateRootsEvent, RegisterUrlRulesEvent};
+use craft\events\RebuildConfigEvent;
+use craft\events\RegisterCpNavItemsEvent;
+use craft\events\RegisterTemplateRootsEvent;
+use craft\events\RegisterUrlRulesEvent;
 use craft\services\Fields;
 use craft\services\Gc;
 use craft\services\ProjectConfig;
@@ -97,7 +136,7 @@ class Formidable extends Plugin
         Contain::class,
         EqualTo::class,
         Off::class,
-        On::class,
+        OnRule::class,
         Required::class,
         SameThan::class,
         Size::class,
@@ -131,7 +170,6 @@ class Formidable extends Plugin
             Craft::$app->view->registerAssetBundle(PhoneInputAsset::class);
             Craft::$app->view->registerAssetBundle(FormValidationAsset::class);
         }
-
     }
 
     /**
@@ -142,7 +180,7 @@ class Formidable extends Plugin
         Event::on(
             Fields::class,
             Fields::EVENT_REGISTER_FIELD_TYPES,
-            function(Event $event) {
+            function (Event $event) {
                 $event->types[] = FormField::class;
             }
         );
@@ -156,7 +194,7 @@ class Formidable extends Plugin
         Event::on(
             UserPermissions::class,
             UserPermissions::EVENT_REGISTER_PERMISSIONS,
-            function(RegisterUserPermissionsEvent $event) {
+            function (RegisterUserPermissionsEvent $event) {
                 $event->permissions[] = [
                     'heading' => Craft::t('formidable', 'Forms'),
                     'permissions' => [
@@ -221,7 +259,7 @@ class Formidable extends Plugin
             Event::on(
                 Cp::class,
                 Cp::EVENT_REGISTER_CP_NAV_ITEMS,
-                function(RegisterCpNavItemsEvent $event) {
+                function (RegisterCpNavItemsEvent $event) {
                     if (Craft::$app->user->checkPermission('manageFormidableSubmissions')) {
                         $event->navItems[] = [
                             'url' => 'formidable/submissions',
@@ -259,7 +297,7 @@ class Formidable extends Plugin
         Event::on(
             Gc::class,
             Gc::EVENT_RUN,
-            function() {
+            function () {
                 Formidable::$plugin->submissions->runGc();
                 Formidable::$plugin->spam->runGc();
             }
@@ -274,7 +312,7 @@ class Formidable extends Plugin
         Event::on(
             View::class,
             View::EVENT_REGISTER_SITE_TEMPLATE_ROOTS,
-            function(RegisterTemplateRootsEvent $event) {
+            function (RegisterTemplateRootsEvent $event) {
                 $event->roots[''][] = __DIR__ . '/templates/front';
             }
         );
@@ -285,7 +323,7 @@ class Formidable extends Plugin
      */
     protected function registerTwigExtension(): void
     {
-        Craft::$app->view->registerTwigExtension(new TwigForms);
+        Craft::$app->view->registerTwigExtension(new TwigForms());
     }
 
     /**
@@ -293,9 +331,9 @@ class Formidable extends Plugin
      */
     protected function registerComponents(): void
     {
-    	$this->setComponents([
+        $this->setComponents([
             'fields' => FieldsService::class,
-    		'forms' => FormsService::class,
+            'forms' => FormsService::class,
             'submissions' => SubmissionsService::class,
             'csvExporter' => CsvExporterService::class,
             'spam' => SpamService::class,
@@ -303,7 +341,7 @@ class Formidable extends Plugin
             'rules' => RulesService::class,
             'conditions' => ConditionsService::class,
             'conditionGroups' => ConditionGroupsService::class
-    	]);
+        ]);
     }
 
     /**
@@ -314,9 +352,9 @@ class Formidable extends Plugin
         Event::on(
             CaptchasService::class,
             CaptchasService::EVENT_REGISTER_CAPTCHAS,
-            function(RegisterCaptchasEvent $event) {
+            function (RegisterCaptchasEvent $event) {
                 foreach ($this->availableCaptchas as $captcha) {
-                    $event->addCaptcha(new $captcha);
+                    $event->addCaptcha(new $captcha());
                 }
             }
         );
@@ -330,9 +368,9 @@ class Formidable extends Plugin
         Event::on(
             RulesService::class,
             RulesService::EVENT_REGISTER_RULES,
-            function(RegisterRulesEvent $event) {
+            function (RegisterRulesEvent $event) {
                 foreach ($this->availableRules as $rule) {
-                    $event->addRule(new $rule);
+                    $event->addRule(new $rule());
                 }
             }
         );
@@ -348,7 +386,7 @@ class Formidable extends Plugin
             FieldsService::EVENT_REGISTER_FIELDS,
             function (RegisterFieldsEvent $event) {
                 foreach ($this->availableFields as $field) {
-                    $event->addField(new $field);
+                    $event->addField(new $field());
                 }
             }
         );
@@ -362,7 +400,7 @@ class Formidable extends Plugin
         Event::on(
             UrlManager::class,
             UrlManager::EVENT_REGISTER_CP_URL_RULES,
-            function(RegisterUrlRulesEvent $event) {
+            function (RegisterUrlRulesEvent $event) {
                 if (Craft::$app->config->getGeneral()->allowAdminChanges) {
                     $event->rules = array_merge($event->rules, [
                         'formidable' => 'formidable/cp-forms/form',
@@ -408,7 +446,7 @@ class Formidable extends Plugin
         Event::on(
             UrlManager::class,
             UrlManager::EVENT_REGISTER_SITE_URL_RULES,
-            function(RegisterUrlRulesEvent $event) {
+            function (RegisterUrlRulesEvent $event) {
                 $event->rules = array_merge($event->rules, [
                     'formidable/submit/<id:\d+>' => 'formidable/forms/submit',
                 ]);
@@ -422,14 +460,14 @@ class Formidable extends Plugin
     protected function registerProjectConfig(): void
     {
         Craft::$app->projectConfig
-            ->onAdd(FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleChanged'])
-            ->onUpdate(FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleChanged'])
-            ->onRemove(FormsService::CONFIG_KEY.'.{uid}', [$this->forms, 'handleDeleted']);
+            ->onAdd(FormsService::CONFIG_KEY . '.{uid}', [$this->forms, 'handleChanged'])
+            ->onUpdate(FormsService::CONFIG_KEY . '.{uid}', [$this->forms, 'handleChanged'])
+            ->onRemove(FormsService::CONFIG_KEY . '.{uid}', [$this->forms, 'handleDeleted']);
 
         Event::on(
             ProjectConfig::class,
             ProjectConfig::EVENT_REBUILD,
-            function(RebuildConfigEvent $e) {
+            function (RebuildConfigEvent $e) {
                 Formidable::$plugin->forms->rebuildConfig($e);
             }
         );

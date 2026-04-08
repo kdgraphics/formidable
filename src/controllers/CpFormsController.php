@@ -1,4 +1,5 @@
 <?php
+
 namespace Inspire\Formidable\controllers;
 
 use Inspire\Emails\Emails;
@@ -30,7 +31,7 @@ class CpFormsController extends Controller
 
         $this->view->registerAssetBundle(FormsAsset::class);
 
-        $this->renderTemplate('formidable/cp/forms/'.$template, [
+        $this->renderTemplate('formidable/cp/forms/' . $template, [
             'tab' => $tab,
             'form' => $id ?? 0,
             'forms' => $this->forms()->getAllAsArray(),
@@ -40,7 +41,7 @@ class CpFormsController extends Controller
             'captchas' => $this->captchas()->getAllAsArray(),
             'registeredFields' => $this->fields()->getAllRegistered(),
             'registeredRules' => $this->rules()->getAllRegistered(),
-            'volumes' => array_map(function($volume) {
+            'volumes' => array_map(function ($volume) {
                 return ['uid' => $volume->uid, 'name' => $volume->name];
             }, \Craft::$app->volumes->getAllVolumes())
         ]);
@@ -76,7 +77,7 @@ class CpFormsController extends Controller
         return $this->asJson([
             'loaded' => time(),
             'success' => true,
-            'form' => new Form,
+            'form' => new Form(),
             'fields' => [],
             'rules' => []
         ]);

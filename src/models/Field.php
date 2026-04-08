@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\models;
 
@@ -134,7 +134,7 @@ abstract class Field extends Model implements FieldInterface
 
     /**
      * Get form model
-     * 
+     *
      * @return ?Form
      */
     public function getForm(): ?Form
@@ -144,33 +144,33 @@ abstract class Field extends Model implements FieldInterface
 
     /**
      * Extract all options in object
-     * 
+     *
      * @param string $value
      */
     public function setOptions(string $value)
     {
         $this->options = Json::decode($value, true);
-        foreach($this->options as $name => $value) {
+        foreach ($this->options as $name => $value) {
             if (property_exists($this, $name)) {
                 $this->$name = $value;
-            }   
+            }
         }
     }
 
     /**
      * Unique id for this field
-     * 
+     *
      * @param  Form $form
      * @return string
      */
     public function generateId(Form $form): string
     {
-        return $form->handle.'-field-'.$this->handle;
+        return $form->handle . '-field-' . $this->handle;
     }
 
     /**
      * Rebuild options in json/array
-     * 
+     *
      * @param  bool|boolean $asJson
      * @return string|array
      */
@@ -203,7 +203,7 @@ abstract class Field extends Model implements FieldInterface
 
     /**
      * Field project config
-     * 
+     *
      * @return array
      */
     public function getConfig(): array
@@ -262,13 +262,13 @@ abstract class Field extends Model implements FieldInterface
 
     /**
      * Javascript to define this field
-     * 
+     *
      * @return string
      */
     public function frontJs(Form $form): string
     {
         return "new formidable.field({
-            name: '".addslashes($this->name)."',
+            name: '" . addslashes($this->name) . "',
             handle: '{$this->handle}',
             frontName: '{$this->frontName}',
             valueType: '{$this->fieldType()->jsType()}',

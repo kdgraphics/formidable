@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Inspire\Formidable\models;
 
@@ -104,7 +104,7 @@ abstract class Rule extends Model implements RuleInterface
 
     /**
      * Get rule's form
-     * 
+     *
      * @return Form
      */
     public function getForm(): Form
@@ -114,7 +114,7 @@ abstract class Rule extends Model implements RuleInterface
 
     /**
      * Get rule's fields
-     * 
+     *
      * @return array
      */
     public function getFields(): array
@@ -127,7 +127,7 @@ abstract class Rule extends Model implements RuleInterface
 
     /**
      * Project config to be saved
-     * 
+     *
      * @return array
      */
     public function getConfig(): array
@@ -181,7 +181,7 @@ abstract class Rule extends Model implements RuleInterface
         $field = $submission->getForm()->getField($fieldName);
         if ($this->requiresValue) {
             $result = $this->check($field, $submission->{$fieldName} ?? null, $this->value);
-        } else if ($this->requiresField) {
+        } elseif ($this->requiresField) {
             $result = $this->check($field, $submission->{$fieldName} ?? null, $submission->{$this->value});
         } else {
             $result = $this->check($field, $submission->{$fieldName} ?? null);
@@ -193,7 +193,7 @@ abstract class Rule extends Model implements RuleInterface
 
     /**
      * Translate and replace variable in message
-     * 
+     *
      * @param  FieldInterface $field
      * @param  mixed          $value
      * @return string
@@ -227,11 +227,19 @@ abstract class Rule extends Model implements RuleInterface
         return "new formidable.formRule({
             type: '{$this->handle()}',
             value: '{$this->value}',
-            message: '".addslashes(\Craft::t('site', $this->message))."',
-            messages: JSON.parse('".addslashes(json_encode(array_map(function($message){return \Craft::t('site', $message);}, (array)$this->messages)))."'),
-            fields: [".implode(',',array_map(function($field){return "'".$field."'";}, $this->fields))."],
-            conditions: [" . implode(',', array_map(function($condition) {return $condition->frontJs();}, $this->conditions)) . "],
-            conditionGroups: [" . implode(',', array_map(function($group) {return $group->frontJs();}, $this->conditionGroups)) . "]
+            message: '" . addslashes(\Craft::t('site', $this->message)) . "',
+            messages: JSON.parse('" . addslashes(json_encode(array_map(function ($message) {
+    return \Craft::t('site', $message);
+}, (array)$this->messages))) . "'),
+            fields: [" . implode(',', array_map(function ($field) {
+    return "'" . $field . "'";
+}, $this->fields)) . "],
+            conditions: [" . implode(',', array_map(function ($condition) {
+    return $condition->frontJs();
+}, $this->conditions)) . "],
+            conditionGroups: [" . implode(',', array_map(function ($group) {
+    return $group->frontJs();
+}, $this->conditionGroups)) . "]
         })";
     }
 }

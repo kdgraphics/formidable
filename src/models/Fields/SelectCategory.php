@@ -74,7 +74,7 @@ class SelectCategory extends Field
         $categories = Category::find()->id($ids)->all();
         $html = [];
         foreach ($categories as $category) {
-            $html[] = '<a target="_blank" href="'.$category->getCpEditUrl().'">'.$category->title.'</a>';
+            $html[] = '<a target="_blank" href="' . $category->getCpEditUrl() . '">' . $category->title . '</a>';
         }
         return implode('<br/>', $html);
     }
