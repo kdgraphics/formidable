@@ -55,12 +55,22 @@ class Settings extends Model
         return $this->getResolvedCkeditorSettings($this->formTooltipCkeditorConfig, 'formTooltip');
     }
 
+    public function getIsUsingDefaultLabelCkeditorConfig(): bool
+    {
+        return $this->resolveCkeditorField($this->formLabelCkeditorConfig, 'formLabel') === null;
+    }
+
+    public function getIsUsingDefaultTooltipCkeditorConfig(): bool
+    {
+        return $this->resolveCkeditorField($this->formTooltipCkeditorConfig, 'formTooltip') === null;
+    }
+
     private function getResolvedCkeditorSettings(string $selectedHandle, string $defaultHandle): array
     {
         $field = $this->resolveCkeditorField($selectedHandle, $defaultHandle);
 
         if (!$field) {
-            return [];
+            return $this->defaultCkeditorConfig();
         }
 
         return $this->convertFieldToCkeditorConfig($field);
@@ -139,5 +149,16 @@ class Settings extends Model
         }
 
         return $config;
+    }
+
+    private function defaultCkeditorConfig(): array
+    {
+        return [
+            'plugins' => [],
+            'removePlugins' => [],
+            'toolbar' => [
+                'items' => ['heading', '|', 'bold', 'italic', 'underline', 'strikethrough', 'sourceEditing'],
+            ],
+        ];
     }
 }
