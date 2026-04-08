@@ -185,6 +185,7 @@ export default {
   display:flex;
   flex-wrap: wrap;
   width: 100%;
+    padding: 0 3px;
   .field {
     width: calc(50% - 10px);
     margin-top: 0;

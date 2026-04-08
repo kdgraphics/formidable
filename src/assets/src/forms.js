@@ -14,7 +14,7 @@ import RuleCondition from "./components/RuleCondition.vue";
 import RuleConditionGroup from "./components/RuleConditionGroup.vue";
 import Choices from "./fields/Choices.vue";
 import FormsStore from "./store/FormsStore";
-import VueConfirmDialog from "vue-confirm-dialog";
+import VueConfirmDialog from "@vue-confirm-dialog";
 import Multiselect from "vue-multiselect";
 import { capitalize, isEqual } from "lodash";
 import draggable from "vuedraggable";
@@ -55,7 +55,6 @@ new Vue({
         FormsConfig,
         FormsFields,
         FormsRules,
-        FormsSpam,
         FormsToolbar,
         ConfirmDialog,
     },

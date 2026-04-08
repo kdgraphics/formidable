@@ -1,5 +1,6 @@
 {
     "name": "inspire/formidable",
+    "version": "7.1.15",
     "description": "Craft CMS 5 Form builder with Database/Config integration",
     "type": "craft-plugin",
     "keywords": [
@@ -13,6 +14,10 @@
     },
     "license": "MIT",
     "authors": [
+        {
+            "name": "Kuladeep Das",
+            "homepage": "https://inspire.scot"
+        },
         {
             "name": "Dharnell Abluyen",
             "homepage": "https://inspire.scot"
@@ -28,7 +33,7 @@
     ],
     "require": {
         "craftcms/cms": "^5.2",
-        "craftcms/ckeditor": "^4.0",
+        "craftcms/ckeditor": "^5.0",
         "inspire/emails": "^4.0.2",
         "inspire/spam-check": "^3.0"
     },

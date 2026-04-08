@@ -3,7 +3,7 @@ import Vue from 'vue';
 import FormsSubmissions from './components/FormsSubmissions.vue';
 import FormsSubmissionsToolbar from './components/FormsSubmissionsToolbar.vue';
 import SubmissionsStore from './store/SubmissionsStore';
-import VueConfirmDialog from 'vue-confirm-dialog';
+import VueConfirmDialog from '@vue-confirm-dialog';
 
 Vue.mixin({
   methods: {

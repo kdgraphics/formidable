@@ -36,7 +36,6 @@ use yii\base\InvalidConfigException;
 use yii\log\Logger;
 use Inspire\Formidable\assets\PhoneInputAsset;
 use Inspire\Formidable\assets\FormValidationAsset;
-use craft\ckeditor\web\assets\ckeditor\CkeditorAsset;
 
 /**
  * @property-read CaptchasService $captchas
@@ -51,6 +50,9 @@ use craft\ckeditor\web\assets\ckeditor\CkeditorAsset;
  */
 class Formidable extends Plugin
 {
+    private const FORMS_NAV_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48L48 64zM0 176L0 384c0 35.3 28.7 64 64 64l384 0c35.3 0 64-28.7 64-64l0-208L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z"></path></svg>';
+    private const SUBMISSIONS_NAV_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M496 0a80 80 0 1 1 0 160A80 80 0 1 1 496 0zM48 64l337.1 0c-.7 5.2-1.1 10.6-1.1 16c0 45.6 27.2 84.8 66.3 102.3L275.2 313.6c-11.4 8.5-27 8.5-38.4 0L19.2 150.4C7.1 141.3 0 127.1 0 112C0 85.5 21.5 64 48 64zM294.4 339.2L490.8 191.9c1.7 .1 3.4 .1 5.2 .1c5.4 0 10.8-.4 16-1.1L512 384c0 35.3-28.7 64-64 64L64 448c-35.3 0-64-28.7-64-64L0 176 217.6 339.2c22.8 17.1 54 17.1 76.8 0z"></path></svg>';
+
     /** @var string */
     public string $schemaVersion = '7.0.1';
 
@@ -130,9 +132,6 @@ class Formidable extends Plugin
             Craft::$app->view->registerAssetBundle(FormValidationAsset::class);
         }
 
-        if (Craft::$app->request->isCpRequest) {
-            Craft::$app->view->registerAssetBundle(CkeditorAsset::class);
-        }
     }
 
     /**
@@ -227,6 +226,7 @@ class Formidable extends Plugin
                         $event->navItems[] = [
                             'url' => 'formidable/submissions',
                             'label' => Craft::t('formidable', 'Form Submissions'),
+                            'icon' => self::SUBMISSIONS_NAV_ICON,
                             'subnav' => [
                                 'formidable-submissions' => [
                                     'url' => 'formidable/submissions',
@@ -242,7 +242,8 @@ class Formidable extends Plugin
                     if (Craft::$app->config->getGeneral()->allowAdminChanges and Craft::$app->user->checkPermission('manageFormidableForms')) {
                         $event->navItems[] = [
                             'url' => 'formidable/forms',
-                            'label' => Craft::t('formidable', 'Forms')
+                            'label' => Craft::t('formidable', 'Forms'),
+                            'icon' => self::FORMS_NAV_ICON,
                         ];
                     }
                 }

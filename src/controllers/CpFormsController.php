@@ -19,6 +19,10 @@ class CpFormsController extends Controller
             $template = 'edit';
         }
 
+        $this->view->registerJsVar('formidableCkeditorConfigs', [
+            'label' => \Inspire\Formidable\Formidable::$plugin->getSettings()->getLabelCkeditorSettings(),
+            'tooltip' => \Inspire\Formidable\Formidable::$plugin->getSettings()->getTooltipCkeditorSettings(),
+        ]);
         $this->view->registerAssetBundle(HookAsset::class);
         foreach ($this->forms()->getRegisteredAssets() as $asset) {
             $this->view->registerAssetBundle($asset);

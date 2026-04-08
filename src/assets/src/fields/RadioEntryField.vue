@@ -150,16 +150,23 @@ export default {
             console.error('CKEditor init error:', error);
         });
 
-      this.handleStatusChanges('tooltip', this.currentTooltipEditor);
+      if (this.currentTooltipEditor) {
+        this.handleStatusChanges('tooltip', this.currentTooltipEditor);
+      }
     },
     enableLabelCKEditor: async function () {
+      if (this.currentLabelEditor) {
+        return;
+      }
       this.currentLabelEditor = await window.CKEditor5.craftcms
         .create(document.querySelector('.field-label-value'+this.field.uid), this.ckEditorSettings)
         .catch(error => {
             console.error('CKEditor init error:', error);
         });
       
-      this.handleStatusChanges('label', this.currentLabelEditor);
+      if (this.currentLabelEditor) {
+        this.handleStatusChanges('label', this.currentLabelEditor);
+      }
     },
     toggleCkEditor: function() {
       if (this.field.labelHtml) {
@@ -168,6 +175,9 @@ export default {
         if (this.currentLabelEditor) {
           this.currentLabelEditor
           .destroy()
+          .then(() => {
+            this.currentLabelEditor = null;
+          })
           .catch(error => {
               console.error('CKEditor destroy error:', error);
           });
@@ -191,6 +201,8 @@ export default {
       currentLabelEditor: null,
       currentTooltipEditor: null,
       ckEditorSettings: {
+        plugins: [],
+        removePlugins: [],
         "toolbar": {
           "items": [
             "heading",

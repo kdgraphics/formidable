@@ -21,7 +21,7 @@
     suggestEnvVars: true
     }) 
 }}
-{{ forms.selectField({
+{{ forms.selectizeField({
     label: 'Acceptable google captcha score'|t('formidable'),
     id: 'acceptableScore',
     name: 'acceptableScore',
@@ -30,6 +30,24 @@
     errors: settings.getErrors('acceptableScore'),
     })
 }}
+
+{{ forms.selectizeField({
+    label: 'Form label CKEditor config'|t('formidable'),
+    instructions: 'Uses the selected CKEditor field for HTML-enabled form labels. Falls back to the built-in minimal toolbar if the field is not available.'|t('formidable'),
+    options: settings.ckeditorConfigOptions,
+    name: 'formLabelCkeditorConfig',
+    value: settings.formLabelCkeditorConfig,
+    errors: settings.getErrors('formLabelCkeditorConfig')
+}) }}
+
+{{ forms.selectizeField({
+    label: 'Form tooltip CKEditor config'|t('formidable'),
+    instructions: 'Uses the selected CKEditor field for HTML-enabled tooltips. Falls back to the built-in minimal toolbar if the field is not available.'|t('formidable'),
+    options: settings.ckeditorConfigOptions,
+    name: 'formTooltipCkeditorConfig',
+    value: settings.formTooltipCkeditorConfig,
+    errors: settings.getErrors('formTooltipCkeditorConfig')
+}) }}
 
 {{
     forms.textField({

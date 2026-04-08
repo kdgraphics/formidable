@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 7.1.15
+- Update to CKEditor 5, allow custom ckeditor field selection, upgraded asset build
+
 ### 7.1.14
 - Fixed bug phone input js - getting country code for user browsing
 

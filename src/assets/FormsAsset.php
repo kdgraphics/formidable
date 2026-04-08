@@ -13,6 +13,8 @@ class FormsAsset extends AssetBundle
 
         $this->depends = [
             CpAsset::class,
+            CkeditorCompatAsset::class,
+            HookAsset::class,
         ];
 
         $this->js = [

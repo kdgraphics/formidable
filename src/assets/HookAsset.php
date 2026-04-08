@@ -13,6 +13,7 @@ class HookAsset extends AssetBundle
 
         $this->depends = [
             CpAsset::class,
+            CkeditorCompatAsset::class,
         ];
 
         $this->js = [
