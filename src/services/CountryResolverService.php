@@ -5,7 +5,7 @@ namespace Inspire\Formidable\services;
 use Craft;
 use craft\base\Component;
 use craft\web\Request;
-use Throwable;
+use Inspire\Formidable\Formidable;
 
 class CountryResolverService extends Component
 {
@@ -32,6 +32,12 @@ class CountryResolverService extends Component
         'X-Forwarded-For',
         'Forwarded',
     ];
+
+    public function getLookup(): CountryLookupService
+    {
+        /** @var CountryLookupService */
+        return Formidable::getInstance()->get('countryLookup');
+    }
 
     /**
      * Resolve the best available ISO 3166-1 alpha-2 country code for phone inputs.
@@ -90,7 +96,7 @@ class CountryResolverService extends Component
     private function getClientIpAddress(Request $request): ?string
     {
         foreach (self::CLIENT_IP_HEADERS as $header) {
-            $ipAddress = $this->extractPublicIpAddress((string)$request->headers->get($header, ''));
+            $ipAddress = $this->getLookup()->extractPublicIpAddress((string)$request->headers->get($header, ''));
 
             if ($ipAddress !== null) {
                 return $ipAddress;
@@ -114,12 +120,12 @@ class CountryResolverService extends Component
             return null;
         }
 
-        return $this->extractCountryCode($site->language);
+        return $this->getLookup()->extractCountryCode($site->language);
     }
 
     private function lookupCountryCodeForIp(string $ipAddress): ?string
     {
-        return $this->lookupCountryCode([
+        return $this->getLookup()->lookupCountryCode([
             [
                 'url' => "https://ipapi.co/{$ipAddress}/country/",
                 'type' => 'text',
@@ -146,159 +152,27 @@ class CountryResolverService extends Component
             return $this->normalizeCountryCode($cachedCountryCode);
         }
 
-        try {
-            $countryCode = $this->lookupCountryCode([
-                [
-                    'url' => 'https://ipapi.co/country/',
-                    'type' => 'text',
-                ],
-                [
-                    'url' => 'https://ipwho.is',
-                    'type' => 'json',
-                    'field' => 'country_code',
-                ],
-            ]);
+        $countryCode = $this->getLookup()->lookupCountryCode([
+            [
+                'url' => 'https://ipapi.co/country/',
+                'type' => 'text',
+            ],
+            [
+                'url' => 'https://ipwho.is',
+                'type' => 'json',
+                'field' => 'country_code',
+            ],
+        ]);
 
-            if ($countryCode !== null) {
-                $cache->set($cacheKey, $countryCode, self::GEO_LOOKUP_CACHE_DURATION);
-            }
-
-            return $countryCode;
-        } catch (Throwable) {
-            return null;
-        }
-    }
-
-    private function lookupCountryCode(array $providers): ?string
-    {
-        foreach ($providers as $provider) {
-            try {
-                $response = Craft::createGuzzleClient([
-                    'timeout' => 2,
-                    'connect_timeout' => 2,
-                    'http_errors' => false,
-                ])->get($provider['url']);
-
-                if ($response->getStatusCode() !== 200) {
-                    continue;
-                }
-
-                $countryCode = match ($provider['type']) {
-                    'json' => $this->extractCountryCodeFromJson(
-                        (string)$response->getBody(),
-                        $provider['field'] ?? 'country_code'
-                    ),
-                    default => $this->normalizeCountryCode(trim((string)$response->getBody())),
-                };
-
-                if ($countryCode !== null) {
-                    return $countryCode;
-                }
-            } catch (Throwable) {
-                continue;
-            }
+        if ($countryCode !== null) {
+            $cache->set($cacheKey, $countryCode, self::GEO_LOOKUP_CACHE_DURATION);
         }
 
-        return null;
-    }
-
-    private function extractCountryCodeFromJson(string $body, string $field): ?string
-    {
-        try {
-            $data = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
-        } catch (Throwable) {
-            return null;
-        }
-
-        if (!is_array($data)) {
-            return null;
-        }
-
-        return $this->normalizeCountryCode($data[$field] ?? null);
-    }
-
-    private function extractPublicIpAddress(string $value): ?string
-    {
-        if ($value === '') {
-            return null;
-        }
-
-        if (str_contains(strtolower($value), 'for=')) {
-            preg_match_all('/for=(?:"?\\[?)([^;,"\]\s]+)/i', $value, $matches);
-
-            foreach ($matches[1] ?? [] as $candidate) {
-                $ipAddress = $this->normalizeIpAddress($candidate);
-
-                if ($ipAddress !== null) {
-                    return $ipAddress;
-                }
-            }
-        }
-
-        foreach (preg_split('/\s*,\s*/', $value) ?: [] as $candidate) {
-            $ipAddress = $this->normalizeIpAddress($candidate);
-
-            if ($ipAddress !== null) {
-                return $ipAddress;
-            }
-        }
-
-        return $this->normalizeIpAddress($value);
-    }
-
-    private function normalizeIpAddress(string $value): ?string
-    {
-        $candidate = trim($value, " \t\n\r\0\x0B\"'[]");
-
-        if ($candidate === '' || str_contains($candidate, ':') && str_contains($candidate, '.')) {
-            $parts = explode(':', $candidate);
-            $candidate = $parts[0];
-        }
-
-        if (filter_var($candidate, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-            return null;
-        }
-
-        return $candidate;
-    }
-
-    private function extractCountryCode(?string $value): ?string
-    {
-        if (empty($value)) {
-            return null;
-        }
-
-        $parts = preg_split('/[-_]/', $value);
-
-        if ($parts === false || count($parts) < 2) {
-            return null;
-        }
-
-        foreach (array_slice($parts, 1) as $part) {
-            if (preg_match('/^[A-Za-z]{2}$/', $part) === 1) {
-                return $this->normalizeCountryCode($part);
-            }
-        }
-
-        return null;
+        return $countryCode;
     }
 
     private function normalizeCountryCode(?string $value): ?string
     {
-        if (empty($value)) {
-            return null;
-        }
-
-        $countryCode = strtolower(trim($value));
-
-        if (!preg_match('/^[a-z]{2}$/', $countryCode)) {
-            return null;
-        }
-
-        if (in_array($countryCode, ['xx', 't1'], true)) {
-            return null;
-        }
-
-        return $countryCode;
+        return $this->getLookup()->normalizeCountryCode($value);
     }
 }

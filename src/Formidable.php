@@ -43,6 +43,7 @@ use Inspire\Formidable\models\Rules\SmallerThan;
 use Inspire\Formidable\models\Settings;
 use Inspire\Formidable\services\CaptchasService;
 use Inspire\Formidable\services\ConditionsService;
+use Inspire\Formidable\services\CountryLookupService;
 use Inspire\Formidable\services\CountryResolverService;
 use Inspire\Formidable\services\ConditionGroupsService;
 use Inspire\Formidable\services\CsvExporterService;
@@ -81,6 +82,7 @@ use Inspire\Formidable\assets\FormValidationAsset;
  * @property-read CaptchasService $captchas
  * @property-read ConditionGroupsService $conditionGroups
  * @property-read ConditionsService $conditions
+ * @property-read CountryLookupService $countryLookup
  * @property-read CountryResolverService $countryResolver
  * @property-read CsvExporterService $csvExporter
  * @property-read FieldsService $fields
@@ -344,6 +346,7 @@ class Formidable extends Plugin
             'rules' => RulesService::class,
             'conditions' => ConditionsService::class,
             'conditionGroups' => ConditionGroupsService::class,
+            'countryLookup' => CountryLookupService::class,
             'countryResolver' => CountryResolverService::class,
         ]);
     }
