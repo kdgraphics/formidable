@@ -8,7 +8,11 @@ Display them easily in the front end with templates.
 # Changelog
 
 ### 7.1.15
-- Update to CKEditor 5, allow custom ckeditor field selection, upgraded asset build
+- Upgraded to CKEditor5
+- Allow custom CKEditor field selection
+- Upgraded asset build to latest packages
+- Modernized PHP code - fixed code quality issues
+- PHP country detection in phone number field
 
 ### 7.1.14
 - Fixed bug phone input js - getting country code for user browsing
