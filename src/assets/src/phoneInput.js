@@ -1,19 +1,16 @@
-document.addEventListener("DOMContentLoaded", function() {
-    const phoneInputs = document.querySelectorAll('input[type="tel"]');
-
-    // Local Storage: Country Code GET
-    function getStoredCountry() {
-        return localStorage.getItem("formidableCountryCode");
-    }
-
-    // Local Storage: Country Code STORE
-    function setStoredCountry(countryCode) {
-        localStorage.setItem("formidableCountryCode", countryCode);
-    }
+function initFormidablePhoneInputs() {
+    const phoneInputs = document.querySelectorAll("[data-formidable-phone-input]");
 
     phoneInputs.forEach((input) => {
+        if (input.dataset.formidablePhoneReady === "1") {
+            return;
+        }
+
+        input.dataset.formidablePhoneReady = "1";
+
+        const initialCountry = (input.dataset.initialCountry || "gb").toLowerCase();
         const iti = window.intlTelInput(input, {
-            initialCountry: "auto",
+            initialCountry,
             separateDialCode: false,
             nationalMode: false,
             autoPlaceholder: "aggressive",
@@ -21,47 +18,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 selectedCountryPlaceholder,
                 selectedCountryData
             ) => "+" + selectedCountryData.dialCode,
-            geoIpLookup: function(success, failure) {
-                // Check local storage
-                const cached = getStoredCountry();
-
-                if (cached) {
-                    success(cached);
-                    return true;
-                }
-
-                // Helper function to process API result consistently
-                function handleCountry(data) {
-                    const countryCode = data.country_code.toLowerCase();
-                    setStoredCountry(countryCode);
-                    success(data.country_code);
-                }
-
-                // 1️ Try ipwho.is (will likely fail due to CORS)
-                fetch("https://ipwho.is")
-                    .then(resp => resp.json())
-                    .then(data => {
-                        if (!data.country_code) {
-                            throw new Error("Invalid ipwho.is response");
-                        }
-                        handleCountry(data);
-                    })
-                    .catch(() => {
-                        // 2️ Fallback → ipapi.co/json/
-                        fetch("https://ipapi.co/json/")
-                            .then(resp => resp.json())
-                            .then(data => {
-                                if (!data.country_code) {
-                                    throw new Error("Invalid ipapi response");
-                                }
-                                handleCountry(data);
-                            })
-                            .catch(() => {
-                                // Final fallback → default "gb"
-                                failure("gb");
-                            });
-                    });
-            },
         });
 
         // Add class
@@ -94,4 +50,10 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         });
     });
-});
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initFormidablePhoneInputs);
+} else {
+    initFormidablePhoneInputs();
+}
