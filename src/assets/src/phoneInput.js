@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     phoneInputs.forEach((input) => {
         const iti = window.intlTelInput(input, {
-            loadUtilsOnInit: input.dataset.utilsScript,
             initialCountry: "auto",
             separateDialCode: false,
             nationalMode: false,

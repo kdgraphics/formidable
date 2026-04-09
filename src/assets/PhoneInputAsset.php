@@ -11,8 +11,7 @@ class PhoneInputAsset extends AssetBundle
         $this->sourcePath = __DIR__;
 
         $this->js = [
-            'PhoneNumber-24.6.0/js/intlTelInput.min.js',
-            'dist/utils.js',
+            'PhoneNumber-24.6.0/js/intlTelInputWithUtils.min.js',
             'dist/phoneInput.js'
         ];
 
