@@ -151,6 +151,7 @@ class Formidable extends Plugin
     {
         parent::init();
         $this::$plugin = $this;
+        $this->hasCpSettings = Craft::$app->config->getGeneral()->allowAdminChanges;
 
         $this->registerPermissions();
         $this->registerComponents();
