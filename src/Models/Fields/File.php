@@ -169,7 +169,7 @@ class File extends Field
 	public static function getAssets($value): array
 	{
         if (!$ids = self::validatedIDs($value)) {
-            return '';
+            return [];
         }
 		return Asset::find()->id($ids)->all();
 	}

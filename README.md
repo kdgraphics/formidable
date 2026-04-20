@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.2.14
+- Fixed bug on file upload
+
 ### 6.2.13
 - Fixed bug phone input js - getting country code for user browsing
 
