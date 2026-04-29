@@ -1,5 +1,5 @@
 {% if field.tooltip %}
-	<a href="#" data-html="true" data-toggle="tooltip" data-placement="top" title="{{ field.tooltip|raw }}">
+	<a href="#" data-bs-html="true" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ field.tooltip|raw }}">
 		{{ field.tooltipLabel ? field.tooltipLabel : 'Tooltip' }}
 	</a>
 {% endif %}

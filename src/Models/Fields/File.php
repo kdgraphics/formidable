@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Ryssbowh\Formidable\Models\Fields;
 
@@ -70,7 +70,7 @@ class File extends Field
 
 	/**
 	 * Validate extensions
-	 * 
+	 *
 	 * @param string $attribute
 	 * @param array $params
 	 * @param  $validator
@@ -92,20 +92,20 @@ class File extends Field
 	{
 		$allowedExtensions = \Craft::$app->getConfig()->getGeneral()->allowedFileExtensions;
 		$rules = [
-			[$this->handle, 'file', 'extensions' => $allowedExtensions, 'maxFiles' => (int)$this->maxFiles, 'checkExtensionByMimeType' => false], 
+			[$this->handle, 'file', 'extensions' => $allowedExtensions, 'maxFiles' => (int)$this->maxFiles, 'checkExtensionByMimeType' => false],
 		];
 		if ($this->extensions) {
 			$rules[0]['extensions'] = $this->extensions;
 		}
 		if ($this->size) {
-			$rules[0]['maxSize'] = $this->size * 1024 * 1024;	
+			$rules[0]['maxSize'] = $this->size * 1024 * 1024;
 		}
 		return $rules;
 	}
 
 	/**
 	 * Upload files before validation
-	 * 
+	 *
 	 * @param  FormSubmission $submission
 	 */
 	public function beforeSubmissionValidated(FormSubmission $submission)
@@ -119,7 +119,7 @@ class File extends Field
 
 	/**
 	 * Move file to proper volume after validation
-	 * 
+	 *
 	 * @param  FormSubmission $submission
 	 */
 	public function afterSubmissionValidated(FormSubmission $submission)
@@ -140,7 +140,7 @@ class File extends Field
 
 	/**
 	 * Adds a dot on every extension
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getHtmlExtensions(): string
@@ -192,7 +192,7 @@ class File extends Field
 
 	/**
 	 * Upload a file to a volume as an asset
-	 * 
+	 *
 	 * @param  UploadedFile $file
 	 * @return Asset
 	 */
