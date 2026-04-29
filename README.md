@@ -7,12 +7,15 @@ Display them easily in the front end with templates.
 
 # Changelog
 
-### 7.1.15
+### 7.1.16
 - Upgraded to CKEditor5
 - Allow custom CKEditor field selection
 - Upgraded asset build to latest packages
 - Modernized PHP code - fixed code quality issues
 - PHP country detection in phone number field
+
+### 7.1.15
+- Fixed on file upload
 
 ### 7.1.14
 - Fixed bug phone input js - getting country code for user browsing
