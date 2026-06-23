@@ -27,7 +27,7 @@ class FormsService extends Component
     const EVENT_BEFORE_APPLY_DELETE = 'before_apply_delete';
     const EVENT_AFTER_DELETE = 'after_delete';
     const EVENT_BEFORE_DELETE = 'before_delete';
-    
+
     const EVENT_BEFORE_VALIDATING_SUBMISSION = 'before_validating';
     const EVENT_ON_VALID_SUBMISSION = 'on_valid_submission';
     const EVENT_ON_INVALID_SUBMISSION = 'on_invalid_submission';
@@ -58,7 +58,7 @@ class FormsService extends Component
     /**
      * Registered fields assets. Assets typically provides with Vue components to render the fields.
      * Components must be registered in window.formFields
-     * 
+     *
      * @var array
      */
     protected $fieldsAssets;
@@ -71,14 +71,14 @@ class FormsService extends Component
 
     /**
      * Get all the registered assets. triggers the event for other plugins to register assets
-     * 
+     *
      * @return array
      */
     public function getRegisteredAssets(): array
     {
         if ($this->fieldsAssets == null) {
             $event = new HookAssetsEvent;
-            $this->trigger(self::EVENT_HOOK_ASSETS, $event); 
+            $this->trigger(self::EVENT_HOOK_ASSETS, $event);
             $this->fieldsAssets = $event->getAssets();
         }
         return $this->fieldsAssets;
@@ -86,7 +86,7 @@ class FormsService extends Component
 
     /**
      * Get all forms
-     * 
+     *
      * @return array
      */
     public function getAll(): array
@@ -102,7 +102,7 @@ class FormsService extends Component
 
     /**
      * Get all forms as array 'id' => 'name'
-     * 
+     *
      * @return array
      */
     public function getAllAsArray(): array
@@ -116,7 +116,7 @@ class FormsService extends Component
 
     /**
      * Get form record by uid
-     * 
+     *
      * @param  string $uid
      * @return FormRecord
      */
@@ -127,7 +127,7 @@ class FormsService extends Component
 
     /**
      * Get form model by id
-     * 
+     *
      * @param  int $id
      * @param  bool $throwIfNotFound
      * @return ?FormModel
@@ -143,7 +143,7 @@ class FormsService extends Component
 
     /**
      * Get form model by handle
-     * 
+     *
      * @param  string $handle
      * @return ?FormModel
      */
@@ -154,7 +154,7 @@ class FormsService extends Component
 
     /**
      * Get notification model by uid
-     * 
+     *
      * @param  string $uid
      * @return ?FormModel
      */
@@ -165,12 +165,12 @@ class FormsService extends Component
 
     /**
      * Save a form. Adds/Modifies the project config
-     * 
+     *
      * @param  FormModel $form
      * @param  array     $fields
      * @param  array     $rules
      * @return bool
-     */ 
+     */
     public function save(FormModel $form): bool
     {
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE)) {
@@ -198,7 +198,7 @@ class FormsService extends Component
 
     /**
      * Handle a added or modified config
-     * 
+     *
      * @param ConfigEvent $event
      */
     public function handleChanged(ConfigEvent $event)
@@ -343,7 +343,7 @@ class FormsService extends Component
 
     /**
      * Validate form data
-     * 
+     *
      * @param  array  $data [description]
      * @return FormModel
      */
@@ -360,7 +360,7 @@ class FormsService extends Component
 
     /**
      * Delete form model
-     * 
+     *
      * @param  FormModel $model
      * @return bool
      */
@@ -371,7 +371,7 @@ class FormsService extends Component
                 'form' => $model,
             ]));
         }
-        
+
         \Craft::$app->getProjectConfig()->remove(self::CONFIG_KEY . '.' . $model->uid);
 
         return true;
@@ -379,7 +379,7 @@ class FormsService extends Component
 
     /**
      * Gathers all the validation errors for a form
-     * 
+     *
      * @param  Form   $form
      * @return array
      */
@@ -392,7 +392,7 @@ class FormsService extends Component
         foreach ($form->fields as $index => $field) {
             if ($errors2 = $field->getErrors()) {
                 $errors['fields'][$index] = $errors2;
-            } 
+            }
         }
         foreach ($form->rules as $index => $rule) {
             if ($errors2 = $rule->getErrors()) {
@@ -419,7 +419,7 @@ class FormsService extends Component
 
     /**
      * Handle a deleted config
-     * 
+     *
      * @param ConfigEvent $event
      */
     public function handleDeleted(ConfigEvent $event)
@@ -451,7 +451,7 @@ class FormsService extends Component
 
     /**
      * Respond to rebuild config event
-     * 
+     *
      * @param  RebuildConfigEvent $e
      */
     public function rebuildConfig(RebuildConfigEvent $e)
@@ -464,7 +464,7 @@ class FormsService extends Component
 
     /**
      * Get success status for a form from session
-     * 
+     *
      * @param string $formHandle
      * @return bool
      */
@@ -475,7 +475,7 @@ class FormsService extends Component
 
     /**
      * Get errors for a form from session
-     * 
+     *
      * @param string $formHandle
      * @return array
      */
@@ -486,7 +486,7 @@ class FormsService extends Component
 
     /**
      * Get old input for a form from session
-     * 
+     *
      * @param string $formHandle
      * @return array
      */
@@ -521,7 +521,7 @@ class FormsService extends Component
 
     /**
      * Submit a form
-     * 
+     *
      * @param  FormModel $form
      * @return int
      */
@@ -547,7 +547,7 @@ class FormsService extends Component
 
     /**
      * Submit a form
-     * 
+     *
      * @param  FormModel $form
      * @return int
      */
@@ -574,31 +574,28 @@ class FormsService extends Component
                 $posted[$form->honeypotField] = $posted[$form->honeypotField] ?? 'missing honeypot from post';
             }
         }
-            
+
         //Set old input in session
         $session->setFlash(self::SESSION_OLDINPUT_KEY.'.'.$form->handle, $values);
         //Create form submission and assign rules
         $formSubmission = new FormSubmission($values);
         $formSubmission->setForm($form);
         $formSubmission->setRules(Formidable::$plugin->rules->getFormRules($form));
-        
+
         foreach ($form->fields as $field) {
             $field->beforeSubmissionValidated($formSubmission);
         }
 
-        //Check honeypot
         if ($form->honeypot) {
             if (!empty(trim($posted[$form->honeypotField]))) {
                 $formSubmission->_spam_reason = \Craft::t('formidable', 'Honeypot was filled');
                 $formSubmission->addError('*', \Craft::t('formidable', 'Our spam protection software has detected a high probability that this is a spam or bot submission. If this is a real enquiry please try another browser just in case there is a problem with this one for you.'));
-                $spam = Formidable::$plugin->spam->create($form, $formSubmission, $posted);
                 return $this->onSpam($form, $formSubmission, $posted);
             }
         }
 
         if ($form->captcha) {
             if (!$form->getCaptcha()->verify($form, $formSubmission, $posted)) {
-                $spam = Formidable::$plugin->spam->create($form, $formSubmission, $posted);
                 return $this->onSpam($form, $formSubmission, $posted);
             }
         }
@@ -608,7 +605,6 @@ class FormsService extends Component
             if ($res and $res['frequency'] > 10) {
                 $formSubmission->_spam_reason = \Craft::t('formidable', 'Known spammer');
                 $formSubmission->addError('*', \Craft::t('formidable', 'Our spam protection software has detected a high probability that this is a spam or bot submission. If this is a real enquiry please try another browser just in case there is a problem with this one for you.'));
-                $spam = Formidable::$plugin->spam->create($form, $formSubmission, $posted);
                 return $this->onSpam($form, $formSubmission, $posted);
             }
         }
@@ -623,7 +619,13 @@ class FormsService extends Component
 
         if ($event->status === self::INVALID) {
             return $this->onInvalid($form, $formSubmission, $posted);
-        } elseif ($event->status === self::SPAM) {
+        }
+
+        if ($event->status === self::SPAM) {
+            if (!$formSubmission->_spam_reason) {
+                $formSubmission->_spam_reason = \Craft::t('formidable', 'Blocked by custom event');
+            }
+
             return $this->onSpam($form, $formSubmission, $posted);
         }
 
@@ -642,6 +644,8 @@ class FormsService extends Component
 
     protected function onSpam(FormModel $form, FormSubmission $formSubmission, array $posted)
     {
+        Formidable::$plugin->spam->create($form, $formSubmission, $posted);
+
         $session = \Craft::$app->session;
         $session->setFlash(self::SESSION_ERRORS_KEY.'.'.$form->handle, $formSubmission->errors);
         return [self::SPAM, $formSubmission, $posted];

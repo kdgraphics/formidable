@@ -7,6 +7,11 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.7.1
+
+- Refactored how spam submissions are handled in the browser
+- Added better custom spam event handling
+
 ### 6.7.0
 
 - Merged branch v6.5 into v6

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Ryssbowh\Formidable\Controllers;
 
@@ -38,9 +38,14 @@ class FormsController extends Controller
             ]);
         }
 
-        if ($result === FormsService::INVALID or $result === FormsService::SPAM) {
-            return $this->onUnvalidForm($form);
+        if ($result === FormsService::INVALID) {
+            return $this->onInvalidForm($form);
         }
+
+        if ($result === FormsService::SPAM) {
+            return $this->onSpamSubmission($form);
+        }
+
         return $this->onValidSubmission($form);
     }
 
@@ -55,7 +60,18 @@ class FormsController extends Controller
         return $this->redirectAfterValidSubmission($form);
     }
 
-    protected function onUnvalidForm(Form $form)
+    protected function onSpamSubmission(Form $form)
+    {
+        $this->forms()->getSessionOldInput($form->handle);
+        if ($this->request()->isAjax) {
+            return $this->asJson([
+                'success' => true
+            ]);
+        }
+        return $this->redirectAfterValidSubmission($form);
+    }
+
+    protected function onInvalidForm(Form $form)
     {
         if ($this->request()->isAjax) {
             $response = [
