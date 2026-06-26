@@ -1,0 +1,55 @@
+/* The real Craft CP stylesheet is imported by cp-preview.js. This file only
+   supplies the surrounding markup Craft normally renders in PHP. */
+html, body.cp-preview-body { margin: 0; min-width: 980px; background: #e4edf6; }
+body.cp-preview-body { width: auto; }
+
+#main.cp-preview { box-sizing: border-box; min-height: 100vh; padding: 0 0 48px; }
+.cp-preview__page-header { display: flex; align-items: center; min-height: 82px; padding: 0 24px; }
+.cp-preview__page-header h1 { margin: 0; }
+#forms-toolbar { display: flex; flex: 0 0 auto; gap: 8px; margin-left: auto; white-space: nowrap; }
+
+/* These dimensions and offsets match Craft's #main-content shell. */
+#main-content { display: flex !important; width: 100%; max-width: none; min-width: 0; padding: 0 24px 48px !important; }
+#sidebar-container { flex: 0 0 150px; width: 150px; margin: 0 !important; padding: 0; background: transparent; border: 0; }
+#content-container { min-width: 0; flex: 1; padding: 0 !important; }
+.content-grid, .content-grid__main { min-width: 0; }
+.content-grid__main { overflow: visible; background: #fff; border-radius: 5px; box-shadow: 0 1px 2px rgb(31 41 51 / 12%); }
+.cp-preview__content { padding: 0 24px 24px; }
+/* Craft's PHP content template supplies this 24px offset. The static shell
+   does not, so cancel the component's negative header margin here. */
+#content-container #content-header { margin: 0 0 24px !important; }
+.empty-forms { margin: 12px 8px; color: #8a98a8; font-size: 12px; }
+
+/* Craft's CP bootstrap opens .menubtn menus. The static page provides only
+   that behaviour; the menu's visual styling remains Craft's own. */
+#fields-sidebar, #formidablerules-sidebar { position: relative; }
+#registered-fields-btn, #registered-rules-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 32px; margin: 0 0 10px; }
+#fields-sidebar > .menu, #formidablerules-sidebar > .menu { display: none; position: absolute; z-index: 10; top: 34px; left: 0; box-sizing: border-box; }
+#fields-sidebar > .menu { width: 170px; max-height: calc(100vh - 190px); overflow-x: hidden; overflow-y: auto; }
+#formidablerules-sidebar > .menu { width: auto; min-width: 117px; overflow: visible; white-space: nowrap; }
+#fields-sidebar > .menu.menu--open, #formidablerules-sidebar > .menu.menu--open { display: block; }
+#fields-sidebar > .menu ul, #formidablerules-sidebar > .menu ul { min-width: 0; margin: 0; padding: 0; list-style: none; }
+#fields-sidebar > .menu a, #formidablerules-sidebar > .menu a { display: block; margin: 0 -14px; padding: 10px 14px; }
+#formidablerules-sidebar > .menu li { margin: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+
+/* Formidable's fields component has its own styles; these only keep the
+   static preview's two columns from collapsing. */
+#form-fields, #formidable-rules { display: flex; gap: 24px; min-height: 430px; }
+#fields-sidebar, #formidablerules-sidebar { flex: 0 0 265px; min-width: 0; }
+#fields-container, #formidablerules-container { min-width: 0; flex: 1; }
+.field-link { display: flex; align-items: center; gap: 8px; }
+.field-link .move::before { content: "⠿"; color: #9aa8b5; }
+.field-link .name-wrapper { min-width: 0; flex: 1; }
+.field-link code { display: block; color: #8a98a8; font-size: 11px; }
+.no-fields, .no-rules { padding: 28px; color: #8a98a8; text-align: center; }
+.cp-notice { position: fixed; right: 24px; bottom: 24px; z-index: 20; padding: 10px 14px; border-radius: 4px; background: #2e7d32; color: #fff; box-shadow: 0 5px 16px rgb(0 0 0 / 18%); }
+.cp-notice.error { background: #c62828; }
+
+@media (max-width: 900px) {
+  body.cp-preview-body { min-width: 0; }
+  #main.cp-preview { padding: 0 12px 24px; }
+  #main-content { padding: 0 12px 24px !important; }
+  #sidebar-container { display: none; }
+  #form-fields, #formidable-rules { gap: 14px; }
+  #fields-sidebar, #formidablerules-sidebar { flex-basis: 210px; }
+}

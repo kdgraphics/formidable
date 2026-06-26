@@ -2,6 +2,7 @@
   "name": "formidable",
   "private": true,
   "scripts": {
+    "preview:build": "node node_modules/vite/bin/vite.js build --config preview.config.mjs",
     "prod": "node ./scripts/build.mjs production",
     "dev": "node ./scripts/build.mjs development",
     "watch": "node ./scripts/build.mjs development --watch"
