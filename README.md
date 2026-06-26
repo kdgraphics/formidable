@@ -13,6 +13,7 @@ Display them easily in the front end with templates.
 - Upgraded asset build to latest packages
 - Modernized PHP code - fixed code quality issues
 - PHP country detection in phone number field
+- Allow CK Editor 4 as well
 
 ### 7.1.15
 - Fixed on file upload
