@@ -7,6 +7,10 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.7.2
+
+- show reason field in spam table
+
 ### 6.7.1
 
 - Refactored how spam submissions are handled in the browser

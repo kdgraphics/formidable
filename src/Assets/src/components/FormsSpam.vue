@@ -7,6 +7,7 @@
             <th class="checkbox-cell selectallcontainer orderable" role="checkbox" tabindex="0" aria-checked="false"><div class="checkbox" @click="toggleSelectAll"></div></th>
             <th scope="col" data-attribute="form" :class="sort.field == 'form.name' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('form.name')">{{ t('Form') }}</th>
             <th scope="col" data-attribute="ip">{{ t('IP') }}</th>
+            <th scope="col" data-attribute="reason" :class="sort.field == 'form.reason' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('form.reason')">{{ t('Reason') }}</th>
             <th scope="col" data-attribute="submitted" :class="sort.field == 'dateCreated' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('dateCreated')">{{ t('Submitted') }}</th>
             <th scope="col" data-attribute="open">{{ t('View') }}</th>
           </tr>
@@ -16,6 +17,7 @@
             <td class="checkbox-cell"><div class="checkbox" title="Select" v-on:click="toggleSelect(spam.id)"></div></td>
             <td data-title="Form" data-attr="form">{{ spam.form.name }}</td>
             <td data-title="IP" data-attr="ip">{{ spam.ip }}</td>
+            <td data-title="Reason" data-attr="reason">{{ spam.reason }}</td>
             <td data-title="Submitted" data-attr="submitted">{{ spam.dateCreated }}</td>
             <td data-title="Open" data-attr="open">
               <a v-on:click.prevent="open(index)" class="icon icon-mask">
