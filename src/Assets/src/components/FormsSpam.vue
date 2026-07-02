@@ -12,9 +12,9 @@
                 data-attribute="reason"
                 :class="[
                   'orderable-padding',
-                  sort.field == 'form.reason' ? 'ordered ' + sort.side : 'orderable'
+                  sort.field == 'reason' ? 'ordered ' + sort.side : 'orderable'
                 ]"
-                v-on:click="setOrdered('form.reason')"
+                v-on:click="setOrdered('reason')"
             >
               {{ t('Reason') }}
             </th>
