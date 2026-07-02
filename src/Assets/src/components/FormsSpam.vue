@@ -7,7 +7,17 @@
             <th class="checkbox-cell selectallcontainer orderable" role="checkbox" tabindex="0" aria-checked="false"><div class="checkbox" @click="toggleSelectAll"></div></th>
             <th scope="col" data-attribute="form" :class="sort.field == 'form.name' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('form.name')">{{ t('Form') }}</th>
             <th scope="col" data-attribute="ip">{{ t('IP') }}</th>
-            <th scope="col" data-attribute="reason" :class="sort.field == 'form.reason' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('form.reason')">{{ t('Reason') }}</th>
+            <th
+                scope="col"
+                data-attribute="reason"
+                :class="[
+                  'orderable-padding',
+                  sort.field == 'form.reason' ? 'ordered ' + sort.side : 'orderable'
+                ]"
+                v-on:click="setOrdered('form.reason')"
+            >
+              {{ t('Reason') }}
+            </th>
             <th scope="col" data-attribute="submitted" :class="sort.field == 'dateCreated' ? ('ordered ' + sort.side) : 'orderable'" v-on:click="setOrdered('dateCreated')">{{ t('Submitted') }}</th>
             <th scope="col" data-attribute="open">{{ t('View') }}</th>
           </tr>
@@ -278,6 +288,15 @@ export default {
       transform: translate(-50%, -50%);
       width: 100px;
     }
+  }
+  table.data th.orderable,
+  table.data th.ordered {
+    padding: 15px 12px !important;
+  }
+
+  table.data th.orderable-padding,
+  table.data th.ordered.orderable-padding {
+    padding-left: 12px !important;
   }
 }
 #spam-modal {

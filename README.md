@@ -7,9 +7,13 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 6.7.3
+
+- Fixed spam table columns spacing when sorted 
+
 ### 6.7.2
 
-- show reason field in spam table
+- Show reason field in spam table
 
 ### 6.7.1
 
