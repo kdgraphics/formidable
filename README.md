@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 7.1.17
+- show reason field in spam table 
+
 ### 7.1.16
 - Upgraded to CKEditor5
 - Allow custom CKEditor field selection

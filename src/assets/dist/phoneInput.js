@@ -1,1 +1,48 @@
-(function(){"use strict";function l(){const a=document.querySelectorAll("[data-formidable-phone-input]");a.forEach(d=>{var e;if(d.dataset.formidablePhoneReady==="1")return;d.dataset.formidablePhoneReady="1";const c=(d.dataset.initialCountry||"gb").toLowerCase(),n=window.intlTelInput(d,{initialCountry:c,separateDialCode:!1,nationalMode:!1,autoPlaceholder:"aggressive",customPlaceholder:(t,r)=>"+"+r.dialCode});d.classList.add("form-control"),(e=d.closest("form"))==null||e.addEventListener("submit",function(t){n.isValidNumber()?(d.classList.remove("is-invalid"),d.value=n.getNumber()):(t.preventDefault(),d.classList.add("is-invalid"))}),d.addEventListener("blur",function(){n.isValidNumber()&&(d.value=n.getNumber())}),d.addEventListener("open:countrydropdown",function(){document.querySelectorAll(".iti__search-input").forEach(t=>{t.classList.add("form-control"),t.placeholder="Enter country code"})})})}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",l):l()})();
+(function() {
+  "use strict";
+  function initFormidablePhoneInputs() {
+    const phoneInputs = document.querySelectorAll("[data-formidable-phone-input]");
+    phoneInputs.forEach((input) => {
+      var _a;
+      if (input.dataset.formidablePhoneReady === "1") {
+        return;
+      }
+      input.dataset.formidablePhoneReady = "1";
+      const initialCountry = (input.dataset.initialCountry || "gb").toLowerCase();
+      const iti = window.intlTelInput(input, {
+        initialCountry,
+        separateDialCode: false,
+        nationalMode: false,
+        autoPlaceholder: "aggressive",
+        customPlaceholder: (selectedCountryPlaceholder, selectedCountryData) => "+" + selectedCountryData.dialCode
+      });
+      input.classList.add("form-control");
+      (_a = input.closest("form")) == null ? void 0 : _a.addEventListener("submit", function(e) {
+        if (!iti.isValidNumber()) {
+          e.preventDefault();
+          input.classList.add("is-invalid");
+        } else {
+          input.classList.remove("is-invalid");
+          input.value = iti.getNumber();
+        }
+      });
+      input.addEventListener("blur", function() {
+        if (iti.isValidNumber()) {
+          input.value = iti.getNumber();
+        }
+      });
+      input.addEventListener("open:countrydropdown", function() {
+        document.querySelectorAll(".iti__search-input").forEach((e) => {
+          e.classList.add("form-control");
+          e.placeholder = "Enter country code";
+        });
+      });
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initFormidablePhoneInputs);
+  } else {
+    initFormidablePhoneInputs();
+  }
+})();
+//# sourceMappingURL=phoneInput.js.map
