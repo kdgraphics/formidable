@@ -33,7 +33,7 @@
     ],
     "require": {
         "craftcms/cms": "^5.10",
-        "craftcms/ckeditor": "^4.0 || ^5.0",
+        "craftcms/ckeditor": "^5.0",
         "inspire/emails": "^4.0.2",
         "inspire/spam-check": "^3.0"
     },
