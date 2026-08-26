@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 7.2.0
+- CK Editor 5
+
 ### 7.1.17
 - show reason field in spam table 
 
