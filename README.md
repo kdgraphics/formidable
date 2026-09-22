@@ -7,6 +7,9 @@ Display them easily in the front end with templates.
 
 # Changelog
 
+### 7.2.1
+- Fixed bug on submissions view modal
+
 ### 7.2.0
 - CK Editor 5
 
