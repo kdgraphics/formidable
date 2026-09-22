@@ -216,7 +216,6 @@
         <div
             class="modal elementselectormodal"
             id="submission-modal"
-            style="display:none"
             ref="modal"
         >
             <div class="body has-sidebar">
@@ -321,7 +320,6 @@ export default {
     },
     data: function() {
         return {
-            chartData: {},
             chart: null,
             chartData: false,
             viewed: {
@@ -409,15 +407,32 @@ export default {
                 this.setSelected(this.submissions.map((sub) => sub.id));
             }
         },
-        open: function(id) {
-            this.viewed = this.submissions[id];
+        open: async function(index) {
+            const submission = this.submissions[index];
+
+            if (!submission) {
+                return;
+            }
+
+            this.viewed = submission;
+
+            await this.$nextTick();
+
             if (this.popup) {
                 this.popup.show();
             } else {
                 this.popup = new Garnish.Modal(this.$refs.modal);
             }
-            if (!this.viewed.read) {
-                this.markAsRead([this.viewed.id]);
+
+            if (!submission.read) {
+                try {
+                    await this.markAsRead([submission.id]);
+                } catch (error) {
+                    Craft.cp.displayError(
+                        "There was a problem marking the submission as read."
+                    );
+                    console.error(error);
+                }
             }
         },
         changePage(page) {
@@ -580,6 +595,7 @@ export default {
     }
 }
 #submission-modal {
+    display:none;
     .heading span {
         font-size: 13px !important;
     }
